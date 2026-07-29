@@ -7,10 +7,12 @@
 Every component running, framed around real 3D renders of reconstructed
 neurons. Hover anything.
 
-A small, dependency free set of hologram and HUD parts for a dark page: a step
-rail, a readout panel, an underline that draws itself, a panel that boots up, a
-scan sweep, a modal dialog surface, a loading state that draws a cell, and a
-particle trace for media with brackets, readouts and a play affordance.
+A small, dependency free set of hologram and HUD parts for a dark page: a
+draggable step rail, a vertical section rail for the page itself, a readout
+panel, an underline that draws itself, a panel that boots up, a scan sweep, an
+image card with an edge trace, a modal dialog surface, a loading state that
+draws a cell, and a particle trace for media with brackets, readouts and a play
+affordance.
 
 No build step, no framework, no CDN. Two files.
 
@@ -67,9 +69,10 @@ A counter in tabular caps, a hairline rail, the run so far filled and glowing, a
 brighter dot where you are, dimmer ticks after it. The script builds the counter,
 the rail, the fill and one button per step, so the markup is one empty div.
 
-Any number of steps. Click a tick to jump. Focus a tick and use the arrow keys,
-or Home and End. Steps are counted from 1, because that is what the counter
-shows. It reports back three ways:
+Any number of steps. **Drag the rail** and the step follows the pointer. Click a
+tick to jump. Focus a tick and use the arrow keys, or Home and End. Steps are
+counted from 1, because that is what the counter shows. It reports back three
+ways:
 
 ```js
 bar.addEventListener("holobar:change", e => e.detail.step);  // 1 based
@@ -82,6 +85,28 @@ rather than just the focus, because selecting is the whole point of the control.
 The hit area is 16px so a finger can find a 3px dot. The fill stops at the dot
 you are on rather than one step past it, so it still reads correctly at three
 steps as well as at thirty.
+
+**On dragging.** `pointerdown` on the rail or on any tick starts a drag,
+`pointermove` updates the step continuously, `pointerup` ends it. The rail calls
+`setPointerCapture`, so a drag survives leaving a 2px line, which is most of why
+it feels like a control rather than a row of buttons. `touch-action: none` keeps
+a drag that starts on the rail from being taken over by the page scroll.
+
+Three details that are not obvious:
+
+The 700ms ease on the fill is dropped for the duration of the drag. It is what
+makes a click feel considered, and it is what makes a drag feel like the light is
+chasing your hand rather than following it.
+
+Focus moves to the tick you drop on. The roving tabindex has already moved there,
+so leaving focus on the tick you grabbed would leave a focused element that is
+not the current one, with `tabindex="-1"` on it.
+
+The click a browser fires at the end of a drag has to be ignored, or it snaps the
+step back to whichever tick was under the pointer when the button came up. That
+guard is a 300ms deadline rather than a boolean, because a drag that ends on the
+rail itself produces no tick click at all, and a boolean would still be set when
+the next real click arrived.
 
 ### 2. Readout panel (`.holo`)
 

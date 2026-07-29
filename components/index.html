@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>scifi-ui components: callout, toast, tinted card, icon rail</title>
+
+<link rel="stylesheet" href="tutorial-callout.css">
+<link rel="stylesheet" href="achievement-toast.css">
+<link rel="stylesheet" href="confetti-burst.css">
+<link rel="stylesheet" href="tinted-card.css">
+<link rel="stylesheet" href="icon-rail.css">
+<link rel="stylesheet" href="page-finale.css">
+
+<style>
+  /* Page chrome only. Nothing here is part of any component: the five
+     stylesheets above are self contained and each one works alone. */
+  :root {
+    --holo-line: 196 228 255;
+    --holo-beam: 178 216 248;
+    --holo-glow:  74 150 224;
+    --holo-warm: 232 169  58;
+    --holo-ink:  239 244 251;
+    --holo-dim:  154 162 177;
+    --holo-panel: 15 18 24;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 0 0 6rem;
+    background:
+      radial-gradient(ellipse 120% 70% at 50% 0%, rgb(16 30 54 / .8), transparent 70%),
+      #05070c;
+    color: rgb(var(--holo-ink) / .9);
+    font: 400 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    /* the page must never scroll sideways, at any width */
+    overflow-x: hidden;
+  }
+  .wrap { max-width: 68rem; margin: 0 auto; padding: 0 1.25rem; }
+  header { padding: 4rem 0 2.5rem; }
+  h1 {
+    margin: 0 0 .6rem;
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 300;
+    letter-spacing: .01em;
+  }
+  .lede { margin: 0; max-width: 46rem; color: rgb(var(--holo-ink) / .58); }
+  section { padding: 2.5rem 0 0; }
+  h2 {
+    margin: 0 0 .35rem;
+    font-size: 1.15rem;
+    font-weight: 500;
+    letter-spacing: .02em;
+  }
+  .note {
+    margin: 0 0 1.4rem;
+    max-width: 46rem;
+    font-size: .9rem;
+    color: rgb(var(--holo-dim) / .95);
+  }
+  .eyebrow {
+    margin: 0 0 .5rem;
+    font-size: .68rem;
+    font-weight: 600;
+    letter-spacing: .32em;
+    text-transform: uppercase;
+    color: rgb(var(--holo-beam) / .55);
+  }
+  .row { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; }
+  .demo-btn {
+    font: inherit;
+    font-size: .88rem;
+    padding: .55rem 1rem;
+    cursor: pointer;
+    color: rgb(var(--holo-ink) / .92);
+    background: rgb(var(--holo-glow) / .16);
+    border: 1px solid rgb(var(--holo-glow) / .34);
+    border-radius: 6px;
+    transition: background .2s ease, border-color .2s ease;
+  }
+  .demo-btn:hover, .demo-btn:focus-visible {
+    background: rgb(var(--holo-glow) / .28);
+    border-color: rgb(var(--holo-beam) / .7);
+  }
+  .demo-btn:focus-visible {
+    outline: 2px solid rgb(var(--holo-beam) / .9);
+    outline-offset: 2px;
+  }
+  .demo-btn--hero {
+    font-size: .95rem;
+    padding: .7rem 1.3rem;
+    background: rgb(0 200 255 / .18);
+    border-color: rgb(0 200 255 / .45);
+  }
+  .demo-btn--hero:hover, .demo-btn--hero:focus-visible {
+    background: rgb(0 200 255 / .3);
+    border-color: rgb(0 200 255 / .8);
+  }
+  code {
+    font: 500 .85em/1.5 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    color: rgb(var(--holo-beam) / .92);
+  }
+  .measure {
+    margin-top: 1.2rem;
+    padding: .8rem 1rem;
+    font: 500 12px/1.7 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    color: rgb(var(--holo-dim));
+    background: rgb(var(--holo-panel) / .6);
+    border: 1px solid rgb(var(--holo-line) / .1);
+    border-left: 2px solid rgb(var(--holo-beam) / .5);
+    border-radius: 3px;
+    white-space: pre-wrap;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .demo-btn { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header id="demo-top">
+    <p class="eyebrow">scifi-ui components</p>
+    <h1>Parts pulled out of working sites</h1>
+    <p class="lede">
+      A tutorial callout that points at a target, an achievement toast with a
+      success variant and a confetti burst, a card grid where one custom
+      property per card drives both its glow and its shadow, an icon rail, and
+      a finale that fires when you reach the bottom. Zero dependencies, no
+      build step, nothing loaded from a network.
+    </p>
+    <p class="row" style="margin-top:1.6rem">
+      <button class="demo-btn" data-holotip-start="#demo-tour">Take the tour</button>
+    </p>
+  </header>
+
+  <!-- ============================================================ 1 -->
+  <section>
+    <p class="eyebrow">One</p>
+    <h2>Achievement toast, with the quest success state</h2>
+    <p class="note">
+      The button below fires exactly what the product fires when someone
+      finishes all three daily quests in Brain Quest: a <code>quest</code>
+      toast and a rainbow confetti burst at intensity 2, together. The quest
+      variant is the loudest of the set, with a lit top edge and a wider outer
+      glow, because it marks finishing something rather than merely reporting
+      that something happened.
+    </p>
+    <p class="row">
+      <button class="demo-btn demo-btn--hero" id="fire-quest">
+        Daily quests complete
+      </button>
+    </p>
+    <p class="note" style="margin-top:1.4rem">
+      The other variants. Each announces itself through the live region, each
+      has a real dismiss button, and each auto dismisses on a timer that pauses
+      while a pointer is over the card or the keyboard is focused inside it.
+      Hover one and watch the rail stop.
+    </p>
+    <p class="row" id="toast-row">
+      <button class="demo-btn" data-toast="badge">badge</button>
+      <button class="demo-btn" data-toast="streak">streak</button>
+      <button class="demo-btn" data-toast="cells">cells</button>
+      <button class="demo-btn" data-toast="edits">edits</button>
+      <button class="demo-btn" data-toast="sticky">no timer</button>
+      <button class="demo-btn" data-toast="burst">confetti only</button>
+    </p>
+  </section>
+
+  <!-- ============================================================ 2 -->
+  <section id="demo-cards">
+    <p class="eyebrow">Two</p>
+    <h2>Tinted lift card</h2>
+    <p class="note">
+      Each card sets one property, <code>--holotint</code>, and that single
+      value colours both the glow in its top corner and the shadow it pools
+      underneath as it lifts. Four different tints below, no modifier classes
+      and no extra rules. The fourth card points at an image file that does not
+      exist, so its image removes itself and the tinted orb shows through
+      rather than leaving a broken frame.
+    </p>
+    <div class="holotint-grid">
+
+      <article class="holotint" style="--holotint: rgba(126,224,255,0.18); --holotint-solid: rgba(126,224,255,0.75)">
+        <div class="holotint-icon">
+          <svg viewBox="0 0 200 140" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%">
+            <g fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.2">
+              <path d="M100 96 L100 44 M100 66 L74 44 M100 60 L128 38 M74 44 L60 30 M128 38 L146 26"/>
+              <path d="M100 96 L84 118 M100 96 L120 116"/>
+            </g>
+            <circle cx="100" cy="96" r="7" fill="rgba(255,255,255,0.75)"/>
+          </svg>
+        </div>
+        <p class="holotint-kicker"><span class="holotint-dot"></span>cyan</p>
+        <h3 class="holotint-title">One property per card</h3>
+        <p class="holotint-body">
+          The tint reaches the shadow as well as the overlay. Tint only one of
+          them and the effect collapses into a coloured smudge.
+        </p>
+        <a class="holotint-go" href="#demo-cards">
+          Read the file
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path d="M5 12h13M13 6l6 6-6 6"/>
+          </svg>
+        </a>
+      </article>
+
+      <article class="holotint" style="--holotint: rgba(183,139,255,0.18); --holotint-solid: rgba(183,139,255,0.75)">
+        <div class="holotint-icon">
+          <svg viewBox="0 0 200 140" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%">
+            <g fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="1.2">
+              <circle cx="100" cy="70" r="46"/>
+              <circle cx="100" cy="70" r="30"/>
+              <path d="M54 70h92M100 24v92"/>
+            </g>
+          </svg>
+        </div>
+        <p class="holotint-kicker"><span class="holotint-dot"></span>violet</p>
+        <h3 class="holotint-title">Hover and focus agree</h3>
+        <p class="holotint-body">
+          Everything the pointer gets, a keyboard gets too. The card lifts on
+          focus-within, so tabbing to the link inside it does the same thing.
+        </p>
+        <a class="holotint-go" href="#demo-cards">
+          Tab to me
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path d="M5 12h13M13 6l6 6-6 6"/>
+          </svg>
+        </a>
+      </article>
+
+      <article class="holotint" style="--holotint: rgba(255,200,97,0.18); --holotint-solid: rgba(255,200,97,0.75)">
+        <div class="holotint-icon">
+          <svg viewBox="0 0 200 140" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%">
+            <g fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="1.2">
+              <path d="M40 110 L70 60 L100 86 L130 34 L160 68"/>
+              <path d="M40 30v80h120"/>
+            </g>
+          </svg>
+        </div>
+        <p class="holotint-kicker"><span class="holotint-dot"></span>warm</p>
+        <h3 class="holotint-title">The one warm accent</h3>
+        <p class="holotint-body">
+          A cool field with a single warm card in it. Two warm accents and a
+          grid stops reading as an instrument.
+        </p>
+        <a class="holotint-go" href="#demo-cards">
+          Look closer
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path d="M5 12h13M13 6l6 6-6 6"/>
+          </svg>
+        </a>
+      </article>
+
+      <article class="holotint" style="--holotint: rgba(123,224,164,0.18); --holotint-solid: rgba(123,224,164,0.75)">
+        <div class="holotint-icon">
+          <img src="does-not-exist.webp" alt="" onerror="this.style.display='none'">
+        </div>
+        <p class="holotint-kicker"><span class="holotint-dot"></span>missing image</p>
+        <h3 class="holotint-title">A file that is not there</h3>
+        <p class="holotint-body">
+          This card asks for an image that does not exist. The image hides
+          itself, the orb behind it carries the panel, and nothing about the
+          card looks broken.
+        </p>
+        <a class="holotint-go" href="#demo-cards">
+          Still fine
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path d="M5 12h13M13 6l6 6-6 6"/>
+          </svg>
+        </a>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ============================================================ 3 -->
+  <section>
+    <p class="eyebrow">Three</p>
+    <h2>Icon rail</h2>
+    <p class="note">
+      Rest, hover, focus, pressed, selected and disabled. Real buttons, inline
+      SVG authored here, no <code>!important</code> and no selectors that guess
+      at anyone else's markup. The third button is a toggle and reports its
+      state with <code>aria-pressed</code>, which is also what the selected
+      style keys off. Tab through it.
+    </p>
+    <div class="holorail" id="demo-rail" role="toolbar" aria-label="Viewer tools">
+      <button class="holorail-btn" type="button" title="Center the view" aria-label="Center the view">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="7"/>
+          <path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>
+        </svg>
+      </button>
+      <button class="holorail-btn" type="button" title="Layers" aria-label="Layers">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 3l9 5-9 5-9-5 9-5z"/>
+          <path d="M3 13l9 5 9-5"/>
+        </svg>
+      </button>
+      <button class="holorail-btn" type="button" title="Follow the trace"
+              aria-label="Follow the trace" aria-pressed="true">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 20V9M4 13h6l3-4h7"/>
+          <circle cx="4" cy="20" r="1.6"/>
+          <circle cx="20" cy="9" r="1.6"/>
+        </svg>
+      </button>
+      <span class="holorail-sep" aria-hidden="true"></span>
+      <button class="holorail-btn" type="button" title="Search" aria-label="Search">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="11" cy="11" r="6"/>
+          <path d="M15.5 15.5L21 21"/>
+        </svg>
+      </button>
+      <button class="holorail-btn" type="button" title="Copy a link" aria-label="Copy a link">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M10 13a4 4 0 006 0l2-2a4 4 0 10-6-6l-1 1"/>
+          <path d="M14 11a4 4 0 00-6 0l-2 2a4 4 0 106 6l1-1"/>
+        </svg>
+      </button>
+      <button class="holorail-btn" type="button" title="Capture a frame" aria-label="Capture a frame">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="3" y="6" width="18" height="13" rx="2"/>
+          <circle cx="12" cy="12.5" r="3.4"/>
+          <path d="M8 6l1.6-2h4.8L16 6"/>
+        </svg>
+      </button>
+      <span class="holorail-sep" aria-hidden="true"></span>
+      <button class="holorail-btn" type="button" title="Nothing loaded yet"
+              aria-label="Nothing loaded yet" disabled>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 4v11M7.5 10.5L12 15l4.5-4.5"/>
+          <path d="M4 19h16"/>
+        </svg>
+      </button>
+    </div>
+  </section>
+
+  <!-- ============================================================ 4 -->
+  <section>
+    <p class="eyebrow">Four</p>
+    <h2>Tutorial callout</h2>
+    <p class="note">
+      The tour above steps through this page. The callout anchors to a target,
+      flips to the opposite side when the side it was asked for does not fit,
+      clamps itself into the viewport, then slides its beak along its own edge
+      so it keeps pointing at the target anyway. Escape dismisses it, the left
+      and right arrows step, and the page scrolls normally the whole time
+      because nothing captures wheel or touch.
+    </p>
+    <p class="row">
+      <button class="demo-btn" data-holotip-start="#demo-tour">Take the tour</button>
+      <button class="demo-btn" id="tour-from-end">Start at the last step</button>
+    </p>
+    <p class="measure" id="measure">Measuring.</p>
+  </section>
+
+  <!-- ============================================================ 5 -->
+  <section>
+    <p class="eyebrow">Five</p>
+    <h2>Page finale</h2>
+    <p class="note">
+      Keep scrolling. When the marker at the end of this page comes into view,
+      the confetti fires and the mascot goes up on balloons. It happens once
+      per page load, not once per visit to the bottom, so scrolling back down
+      will not repeat it. Reload to see it again.
+    </p>
+    <p class="note">
+      The riser and the sway are two nested elements with one animation each:
+      the outer one rises linearly for eight seconds, the inner image sways on
+      its own three second loop. Separating them is what makes the drift look
+      organic instead of mechanical.
+    </p>
+  </section>
+
+</div>
+
+<!-- The sentinel. Zero height, watched by an IntersectionObserver. The image
+     path is an attribute because nobody else has this mascot. -->
+<div class="holofinale"
+     data-holofinale-src="../media/nurro-balloons.png"
+     data-holofinale-palette="rainbow"
+     data-holofinale-intensity="2"></div>
+
+<!-- The tour itself. Copy lives in the markup, hidden until the script
+     reads it, so there is one place to edit a step. -->
+<ol class="holotip-steps" id="demo-tour" hidden>
+  <li data-holotip-target="#demo-top" data-holotip-side="bottom"
+      data-holotip-title="Four components">
+    <p>
+      Four parts, each pulled out of a site that was already using it. This
+      callout is one of them.
+    </p>
+  </li>
+  <li data-holotip-target="#fire-quest" data-holotip-side="right"
+      data-holotip-title="The success state">
+    <p>
+      This is the one Brain Quest fires when all three daily quests are done:
+      a quest toast plus a rainbow burst. Press it after the tour.
+    </p>
+  </li>
+  <li data-holotip-target="#demo-cards" data-holotip-side="top"
+      data-holotip-title="One property">
+    <p>
+      Every card here sets a single custom property, and that value drives
+      both its corner glow and the colour of the shadow it casts.
+    </p>
+  </li>
+  <li data-holotip-target="#demo-rail" data-holotip-side="left"
+      data-holotip-title="Icon rail" data-holotip-next="finish">
+    <p>
+      Asked for the left side. If there is no room on the left it flips to the
+      right, and the beak still lands on the rail.
+    </p>
+  </li>
+</ol>
+
+<script src="tutorial-callout.js"></script>
+<script src="achievement-toast.js"></script>
+<script src="confetti-burst.js"></script>
+<script src="page-finale.js"></script>
+
+<script>
+  /* Demo wiring only. None of this is part of a component. */
+
+  /* The featured example: what the product actually does when the third
+     daily quest is proofread. One toast, one burst, at the same moment. */
+  document.getElementById("fire-quest").addEventListener("click", function () {
+    holotoast({
+      tone: "quest",
+      icon: "\u{1F9E0}",
+      title: "Daily quests complete",
+      sub: "All three quests done. You are a neuroscience hero.",
+      duration: 6000
+    });
+    holoburst("rainbow", 2);
+  });
+
+  var SAMPLES = {
+    badge:  { tone: "badge",  icon: "\u{1F3C5}", title: "Astrolabe",
+              sub: "You explored 25 cells across three datasets.", duration: 5000 },
+    streak: { tone: "streak", icon: "\u{1F525}", title: "30 day streak",
+              sub: "Thirty days of continuous contribution.", duration: 5000 },
+    cells:  { tone: "cells",  icon: "\u{1F9EC}", title: "Cell complete",
+              sub: "Plus one cell brings your total to 118.", duration: 5000 },
+    edits:  { tone: "edits",  icon: "⚡",    title: "1,000 edits",
+              sub: "Your contribution is shaping the connectome.", duration: 5000 },
+    sticky: { tone: "badge",  icon: "\u{1F4CC}", title: "No timer on this one",
+              sub: "Duration 0, so it stays until you dismiss it.", duration: 0 }
+  };
+
+  document.getElementById("toast-row").addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-toast]");
+    if (!btn) return;
+    var key = btn.getAttribute("data-toast");
+    if (key === "burst") { holoburst("gold", 1.5); return; }
+    holotoast(SAMPLES[key]);
+  });
+
+  document.getElementById("tour-from-end").addEventListener("click", function () {
+    var tour = holotip.fromList("#demo-tour");
+    if (tour) tour.start(tour.steps.length - 1);
+  });
+
+  /* Report the one measurement that matters on a page of components: whether
+     any of them pushed the document wider than the viewport. */
+  function measure() {
+    var d = document.documentElement;
+    var over = d.scrollWidth - d.clientWidth;
+    document.getElementById("measure").textContent =
+      "clientWidth " + d.clientWidth +
+      "   scrollWidth " + d.scrollWidth +
+      "   horizontal overflow " + (over > 0 ? over + "px" : "none");
+  }
+  measure();
+  window.addEventListener("resize", measure);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,85 @@
+/* ---- page finale (holofinale) -------------------------------------------
+   A mascot floats up the page on balloons while the confetti burst fires,
+   once, when the reader reaches the end of the content.
+
+   From TutorialStep.vue, the balloon that was sent up when someone finished
+   the tour. The values are the original ones.
+
+   THE TECHNIQUE IS THE POINT: two nested elements, one animation each.
+
+   The outer element rises. Linear, eight seconds, from below the fold to
+   120vh above it, and it does one thing only, so its timing stays honest.
+
+   The inner image sways. Its own three second loop, side to side by 18px
+   with a degree and a half of rotation, easing in and out.
+
+   Because they are separate elements the two transforms compose instead of
+   competing, and the result reads as drift on a breeze out of two trivial
+   keyframe sets. Put both on one element and you are writing a single
+   keyframe block that has to interleave a monotonic rise with a periodic
+   sway, which means either the sway period has to divide the rise duration
+   or the whole thing stutters. That is the mistake this avoids.
+
+   Note the opacity hold at 85 percent. It stays fully opaque almost the whole
+   way up and only fades in the last stretch, so it reads as leaving rather
+   than as dissolving on the way.
+
+   The sway is a loop and it is the only loop in this file. It earns it the way
+   an ambient state earns it: the thing is in flight for eight seconds and a
+   balloon in flight does not hold still. The rise underneath it runs once and
+   then the whole element is removed from the DOM by page-finale.js.
+
+   Nothing here takes the pointer, at any level. */
+
+/* the sentinel. A zero height marker at the end of the content, which is what
+   the observer watches. It has no appearance of its own. */
+.holofinale {
+  display: block;
+  height: 1px;
+  margin: 0;
+  padding: 0;
+  pointer-events: none;
+}
+
+/* the riser, added by the script */
+.holofinale-rise {
+  position: fixed;
+  bottom: -350px;
+  left: 50%;
+  margin-left: calc(var(--holofinale-size, 300px) / -2);
+  width: var(--holofinale-size, 300px);
+  max-width: 90vw;
+  z-index: 91;
+  pointer-events: none;
+  animation: holofinale-rise var(--holofinale-rise-time, 8s) linear forwards;
+}
+
+.holofinale-rise img {
+  display: block;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+  animation: holofinale-sway 3s ease-in-out infinite;
+}
+
+@keyframes holofinale-rise {
+  0%   { transform: translateY(0); opacity: 1; }
+  85%  { opacity: 1; }
+  100% { transform: translateY(-120vh); opacity: 0; }
+}
+
+@keyframes holofinale-sway {
+  0%   { transform: translateX(0)     rotate(0deg); }
+  25%  { transform: translateX(18px)  rotate(1.5deg); }
+  50%  { transform: translateX(0)     rotate(0deg); }
+  75%  { transform: translateX(-18px) rotate(-1.5deg); }
+  100% { transform: translateX(0)     rotate(0deg); }
+}
+
+/* with motion off the script never creates the riser and never fires the
+   burst, so there is nothing to disable. These rules are the belt and braces
+   for a riser inserted some other way. */
+@media (prefers-reduced-motion: reduce) {
+  .holofinale-rise { display: none; animation: none; }
+  .holofinale-rise img { animation: none; }
+}

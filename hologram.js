@@ -9,6 +9,9 @@
 //   7 boot on view     lights .holoboot and .holounder once, when first seen
 //  10 swarm            HUD motes over a hero that flee the pointer
 //   8 dialog           opens .holodialog modally, no auth, nothing submits
+//  12 section rail     builds .holorail from the page headings, marks the
+//                      section you are in with an IntersectionObserver
+//  13 holo card        drops the edge trace element into every .holocard
 
 // ---- 1. particle trace ----------------------------------------------------
 (function () {
@@ -344,8 +347,70 @@
       if (moveFocus) ticks[step - 1].focus();
     }
 
+    // dragging. pointerdown anywhere on the rail or on a tick starts it,
+    // pointermove updates the step continuously, pointerup ends it. The rail
+    // captures the pointer so the drag survives leaving the element, which is
+    // most of why it feels like a control rather than a row of buttons.
+    var dragging = false, moved = false, clickDeadline = 0;
+
+    function stepAt(clientX) {
+      var r = rail.getBoundingClientRect();
+      if (!r.width || steps < 2) return 1;
+      var f = (clientX - r.left) / r.width;
+      f = Math.min(1, Math.max(0, f));
+      return Math.round(f * (steps - 1)) + 1;
+    }
+
+    rail.addEventListener("pointerdown", function (e) {
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      dragging = true;
+      moved = false;
+      bar.classList.add("is-dragging");
+      if (rail.setPointerCapture) {
+        try { rail.setPointerCapture(e.pointerId); } catch (err) {}
+      }
+      set(stepAt(e.clientX), false);
+      // focus lands on the tick you grabbed, so the arrow keys carry on from
+      // where the drag started rather than from wherever it was before
+      ticks[step - 1].focus({ preventScroll: true });
+    });
+
+    rail.addEventListener("pointermove", function (e) {
+      if (!dragging) return;
+      moved = true;
+      e.preventDefault();
+      set(stepAt(e.clientX), false);
+    });
+
+    function endDrag(e) {
+      if (!dragging) return;
+      dragging = false;
+      bar.classList.remove("is-dragging");
+      if (rail.releasePointerCapture && e && e.pointerId !== undefined) {
+        try { rail.releasePointerCapture(e.pointerId); } catch (err) {}
+      }
+      if (!moved) return;
+      // the roving tabindex has moved to the tick you dropped on, so focus
+      // has to follow it or the focused tick is no longer the current one
+      ticks[step - 1].focus({ preventScroll: true });
+      // and the click a browser fires after a drag has to be ignored, or it
+      // snaps the step back to whichever tick was under the pointer when the
+      // button came up. A deadline rather than a flag, because a drag that
+      // ends on the rail itself produces no tick click at all to consume it.
+      clickDeadline = (window.performance ? performance.now() : Date.now()) + 300;
+      moved = false;
+    }
+
+    rail.addEventListener("pointerup", endDrag);
+    rail.addEventListener("pointercancel", endDrag);
+    rail.addEventListener("lostpointercapture", endDrag);
+
     ticks.forEach(function (t, k) {
-      t.addEventListener("click", function () { set(k + 1, true); });
+      t.addEventListener("click", function () {
+        var now = window.performance ? performance.now() : Date.now();
+        if (now < clickDeadline) return;
+        set(k + 1, true);
+      });
     });
 
     // roving tabindex: only the current tick is in the tab order, and the
@@ -586,5 +651,137 @@
 
     host.addEventListener("pointermove", move);
     host.addEventListener("pointerleave", leave);
+  });
+})();
+
+// ---- 12. section rail ----------------------------------------------------
+(function () {
+  // Put <nav class="holorail" data-holorail="h2"></nav> anywhere in the body
+  // and this builds it: a counter, a track, a fill, a travelling head, and one
+  // dot per matching heading. The dots are real anchors, so with the script
+  // stripped out you would still have a list of links to the sections.
+  //
+  // An IntersectionObserver fires when a heading crosses a line 30 per cent
+  // down the viewport, and the handler then works out the active section from
+  // the geometry rather than from the entry list, because a thin heading can
+  // sit between two crossings with nothing intersecting at all. A passive
+  // scroll listener calls the same function, which costs one bounding box per
+  // heading and keeps the rail correct even where observer delivery is
+  // throttled, as it is in a background tab.
+  document.querySelectorAll(".holorail").forEach(function (rail) {
+    var sel = rail.getAttribute("data-holorail") || "h2";
+    var heads = [].slice.call(document.querySelectorAll(sel));
+    if (heads.length < 2) { rail.remove(); return; }
+
+    var reduce = window.matchMedia &&
+      matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    function slug(s) {
+      return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    }
+    function pad(n, len) {
+      n = String(n);
+      while (n.length < len) n = "0" + n;
+      return n;
+    }
+
+    var digits = Math.max(2, String(heads.length).length);
+    rail.textContent = "";
+    if (!rail.getAttribute("aria-label")) rail.setAttribute("aria-label", "Sections");
+
+    var count = document.createElement("span");
+    count.className = "holorail-count";
+    count.setAttribute("aria-live", "polite");
+
+    var track = document.createElement("span");
+    track.className = "holorail-track";
+    var fill = document.createElement("span");
+    fill.className = "holorail-fill";
+    var head = document.createElement("span");
+    head.className = "holorail-head";
+    track.appendChild(fill);
+    track.appendChild(head);
+
+    var dots = [];
+    heads.forEach(function (h, i) {
+      var label = (h.textContent || "").trim();
+      if (!h.id) h.id = "s-" + (slug(label) || i + 1);
+      h.classList.add("holorail-anchor");
+
+      var a = document.createElement("a");
+      a.className = "holorail-dot";
+      a.href = "#" + h.id;
+      a.setAttribute("aria-label", label);
+      // one dot per heading, spread down the track the same way the step rail
+      // spreads its ticks along its own, so the last one lands at the foot
+      a.style.top = "calc(" + ((i + 1) / heads.length) * 100 + "% - 9px)";
+      a.appendChild(document.createElement("i"));
+      var b = document.createElement("b");
+      b.textContent = label;
+      a.appendChild(b);
+      a.addEventListener("click", function (e) {
+        e.preventDefault();
+        h.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+        // the hash is set without a jump so the address bar still reflects
+        // where you are and the link is copyable
+        if (history.replaceState) history.replaceState(null, "", "#" + h.id);
+      });
+      track.appendChild(a);
+      dots.push(a);
+    });
+
+    rail.appendChild(count);
+    rail.appendChild(track);
+
+    var active = -1;
+
+    function paint(i) {
+      if (i === active) return;
+      active = i;
+      count.textContent = pad(i + 1, digits);
+      var rest = document.createElement("s");
+      rest.textContent = " / " + pad(heads.length, digits);
+      count.appendChild(rest);
+      rail.style.setProperty("--holorail-progress", (i + 1) / heads.length);
+      for (var k = 0; k < dots.length; k++) {
+        if (k === i) dots[k].setAttribute("aria-current", "true");
+        else dots[k].removeAttribute("aria-current");
+        if (k < i) dots[k].setAttribute("data-done", "");
+        else dots[k].removeAttribute("data-done");
+      }
+      rail.setAttribute("data-section", heads[i].id);
+    }
+
+    // the last heading whose top has passed the line is the one you are in
+    function pick() {
+      var line = innerHeight * 0.3, i = 0;
+      for (var k = 0; k < heads.length; k++) {
+        if (heads[k].getBoundingClientRect().top <= line) i = k;
+      }
+      paint(i);
+    }
+
+    if ("IntersectionObserver" in window) {
+      var io = new IntersectionObserver(pick, {
+        rootMargin: "-30% 0px 0px 0px", threshold: [0, 1]
+      });
+      heads.forEach(function (h) { io.observe(h); });
+    }
+    addEventListener("scroll", pick, { passive: true });
+    addEventListener("resize", pick);
+    pick();
+  });
+})();
+
+// ---- 13. holo card ------------------------------------------------------
+(function () {
+  // The card is pure CSS. All the script does is drop in the one decorative
+  // element the edge trace needs, so the markup stays <div class="holocard">.
+  document.querySelectorAll(".holocard").forEach(function (card) {
+    if (card.querySelector(":scope > .holocard-trace")) return;
+    var t = document.createElement("i");
+    t.className = "holocard-trace";
+    t.setAttribute("aria-hidden", "true");
+    card.insertBefore(t, card.firstChild);
   });
 })();

@@ -1,0 +1,323 @@
+/* ---- achievement toast (holotoast) --------------------------------------
+   From AchievementToast.vue in the EyeWire II extension: 1777 lines, about
+   1171 of CSS and 35 keyframe blocks. Most of that density belongs to two
+   full screen takeover overlays that happen to live in the same file as the
+   toast. What is here is the toast itself, plus the one variant that file
+   uses for a success state.
+
+   Kept from the original: the surface, the type accents, the slide and
+   overshoot entrance, the icon tile, the emoji pop, the sparkle pass and the
+   countdown rail that shows how long is left before the toast leaves.
+
+   Left out, and why: the hero overlay and the batch overlay, which together
+   own roughly 21 of the 35 keyframes and are modal spectacles rather than
+   toasts. Every infinite loop went with them, including the one inside the
+   toast proper, an alternating drop shadow on the badge image, because a
+   notice that pulses forever reads as a status light. The list of what went
+   is in the report; the short version is that six keyframes do the work of
+   thirty five once the two overlays are out.
+
+   Variants: holotoast--quest (a success state, the loudest of them),
+   holotoast--badge, holotoast--streak, holotoast--edits, holotoast--cells.
+
+   The region is a live region, so a toast announces itself. Every colour
+   carries a concrete fallback. */
+
+.holotoast-region {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  /* left plus margin rather than a width, so a 360px card can never push
+     past a 375px viewport and scroll the page sideways */
+  left: 16px;
+  max-width: 360px;
+  margin-left: auto;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  /* the region is a pass through. Only the cards inside take the pointer */
+  pointer-events: none;
+}
+
+.holotoast {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 40px 12px 14px;
+  overflow: hidden;
+  pointer-events: auto;
+
+  font: 400 13px/1.35 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: rgb(var(--holo-ink, 239 244 251) / .9);
+
+  border: 1px solid rgb(var(--holo-glow, 74 150 224) / .34);
+  border-radius: 10px;
+  background: rgb(var(--holo-panel, 15 18 24) / .96);
+  backdrop-filter: blur(8px) saturate(1.2);
+  -webkit-backdrop-filter: blur(8px) saturate(1.2);
+  box-shadow:
+    0 8px 32px rgb(0 0 0 / .5),
+    0 0 40px rgb(var(--holo-glow, 74 150 224) / .06);
+
+  animation: holotoast-in 350ms cubic-bezier(.34, 1.56, .64, 1) both;
+}
+
+/* the leaving state is a class rather than a transition, so the card cannot
+   be caught halfway by a second dismiss */
+.holotoast.is-leaving {
+  animation: holotoast-out 250ms ease-in both;
+  pointer-events: none;
+}
+
+@keyframes holotoast-in {
+  from { opacity: 0; transform: translateX(100px) scale(.8); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes holotoast-out {
+  from { opacity: 1; transform: translateX(0) scale(1); }
+  to   { opacity: 0; transform: translateX(60px) scale(.9); }
+}
+
+/* one pass of light across the surface when the card lands. This is the whole
+   of what survived from the overlay shimmer, the border spin and the vertical
+   scan in the original, which were three separate infinite animations. */
+.holotoast::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(100deg,
+    transparent 0%,
+    rgb(var(--holo-line, 196 228 255) / .12) 45%,
+    rgb(var(--holo-line, 196 228 255) / .22) 50%,
+    rgb(var(--holo-line, 196 228 255) / .12) 55%,
+    transparent 100%);
+  background-size: 220% 100%;
+  background-repeat: no-repeat;
+  animation: holotoast-glint 900ms ease-out 120ms both;
+}
+
+@keyframes holotoast-glint {
+  from { background-position: -120% 0; }
+  to   { background-position: 220% 0; }
+}
+
+/* ---- icon -------------------------------------------------------------- */
+.holotoast-icon {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: rgb(var(--holo-line, 196 228 255) / .04);
+}
+
+.holotoast-icon img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.holotoast-emoji {
+  font-size: 22px;
+  line-height: 1;
+  animation: holotoast-pop 500ms cubic-bezier(.34, 1.56, .64, 1) both;
+}
+
+@keyframes holotoast-pop {
+  0%   { opacity: 0; transform: scale(.3); }
+  60%  { opacity: 1; transform: scale(1.2); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* ---- text -------------------------------------------------------------- */
+.holotoast-text { flex: 1 1 auto; min-width: 0; }
+
+.holotoast-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .01em;
+  color: rgb(var(--holo-ink, 239 244 251));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* the original clipped the subtitle to one line as well, which cut most of
+   its own copy in half. Two lines, then clip. */
+.holotoast-sub {
+  margin: 2px 0 0;
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: rgb(var(--holo-dim, 154 162 177) / .95);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ---- dismiss ----------------------------------------------------------- */
+.holotoast-close {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  background: none;
+  cursor: pointer;
+  font: 300 19px/1 system-ui, sans-serif;
+  color: rgb(var(--holo-ink, 239 244 251) / .6);
+  transition: background .18s ease, color .18s ease;
+}
+
+.holotoast-close:hover, .holotoast-close:focus-visible {
+  background: rgb(var(--holo-line, 196 228 255) / .14);
+  color: rgb(var(--holo-ink, 239 244 251));
+}
+
+.holotoast-close:focus-visible {
+  outline: 2px solid rgb(var(--holo-beam, 178 216 248) / .9);
+  outline-offset: 1px;
+}
+
+/* ---- countdown rail ---------------------------------------------------
+   Reports the real remaining time, and pauses with the timer when a pointer
+   or the keyboard is on the card. The duration comes in as a custom property
+   so the bar and the timer cannot drift apart. */
+.holotoast-rail {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+}
+
+.holotoast-rail i {
+  display: block;
+  height: 100%;
+  width: 100%;
+  transform-origin: left center;
+  background: rgb(var(--holo-beam, 178 216 248) / .45);
+  animation: holotoast-count var(--holotoast-duration, 5000ms) linear both;
+}
+
+.holotoast:hover .holotoast-rail i,
+.holotoast:focus-within .holotoast-rail i,
+.holotoast.is-paused .holotoast-rail i {
+  animation-play-state: paused;
+}
+
+@keyframes holotoast-count {
+  from { transform: scaleX(1); }
+  to   { transform: scaleX(0); }
+}
+
+/* ---- sparkles ---------------------------------------------------------
+   Six marks that leave the card once as it lands. One pass, forwards, then
+   they sit at opacity 0 costing nothing. */
+.holotoast-sparks {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.holotoast-sparks i {
+  position: absolute;
+  top: 50%;
+  left: calc(10% + var(--i, 1) * 14%);
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgb(var(--holo-line, 196 228 255) / .6);
+  animation: holotoast-spark 1200ms ease-out both;
+  animation-delay: calc(var(--i, 1) * 80ms);
+}
+
+@keyframes holotoast-spark {
+  0%   { opacity: 1; transform: translate(0, 0) scale(1); }
+  50%  { opacity: .8; transform: translate(calc((var(--i, 1) - 3) * 8px), -20px) scale(.6); }
+  100% { opacity: 0; transform: translate(calc((var(--i, 1) - 3) * 14px), -35px) scale(0); }
+}
+
+/* ---- variants ---------------------------------------------------------
+   One accent colour per type, applied to the border, the icon tile, the
+   title, the rail and the sparkles. That is the whole of the type system in
+   the original and it is the right amount. */
+
+/* quest, the success state. The loudest of the set: it gets the wider outer
+   glow and a lit top edge, because it fires when someone finishes something
+   rather than when something merely happened. */
+.holotoast--quest {
+  border-color: rgb(0 200 255 / .35);
+  box-shadow:
+    0 8px 32px rgb(0 0 0 / .5),
+    0 0 60px rgb(0 200 255 / .14);
+}
+
+.holotoast--quest::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg,
+    transparent, rgb(0 200 255 / .75), transparent);
+}
+
+.holotoast--quest .holotoast-icon  { background: rgb(0 200 255 / .12); }
+.holotoast--quest .holotoast-title { color: rgb(0 200 255); }
+.holotoast--quest .holotoast-rail i { background: rgb(0 200 255 / .45); }
+.holotoast--quest .holotoast-sparks i { background: rgb(0 200 255 / .7); }
+
+.holotoast--badge { border-color: rgb(206 147 216 / .3); }
+.holotoast--badge .holotoast-icon  { background: rgb(206 147 216 / .1); }
+.holotoast--badge .holotoast-title { color: rgb(206 147 216); }
+.holotoast--badge .holotoast-rail i { background: rgb(206 147 216 / .45); }
+.holotoast--badge .holotoast-sparks i { background: rgb(206 147 216 / .7); }
+
+/* the one warm accent in the set, used once */
+.holotoast--streak { border-color: rgb(var(--holo-warm, 232 169 58) / .32); }
+.holotoast--streak .holotoast-icon  { background: rgb(var(--holo-warm, 232 169 58) / .1); }
+.holotoast--streak .holotoast-title { color: rgb(var(--holo-warm, 232 169 58)); }
+.holotoast--streak .holotoast-rail i { background: rgb(var(--holo-warm, 232 169 58) / .45); }
+.holotoast--streak .holotoast-sparks i { background: rgb(var(--holo-warm, 232 169 58) / .7); }
+
+.holotoast--cells { border-color: rgb(129 199 132 / .3); }
+.holotoast--cells .holotoast-icon  { background: rgb(129 199 132 / .1); }
+.holotoast--cells .holotoast-title { color: rgb(129 199 132); }
+.holotoast--cells .holotoast-rail i { background: rgb(129 199 132 / .45); }
+.holotoast--cells .holotoast-sparks i { background: rgb(129 199 132 / .7); }
+
+.holotoast--edits { border-color: rgb(var(--holo-glow, 74 150 224) / .38); }
+.holotoast--edits .holotoast-icon  { background: rgb(var(--holo-glow, 74 150 224) / .12); }
+.holotoast--edits .holotoast-title { color: rgb(var(--holo-beam, 178 216 248)); }
+
+@media (max-width: 480px) {
+  .holotoast-region { top: 10px; right: 10px; left: 10px; }
+}
+
+/* with motion off the card simply appears, the glint and the sparkles are
+   gone, and the rail shows the remaining time as a still bar rather than
+   pretending to count down while the timer runs on regardless */
+@media (prefers-reduced-motion: reduce) {
+  .holotoast { animation: none; }
+  .holotoast.is-leaving { animation: none; opacity: 0; }
+  .holotoast::before { display: none; }
+  .holotoast-sparks { display: none; }
+  .holotoast-emoji { animation: none; }
+  .holotoast-rail i { animation: none; opacity: .3; }
+  .holotoast-close { transition: none; }
+}

@@ -1,0 +1,187 @@
+/* ---- tinted lift card (holotint) ----------------------------------------
+   From the card grid on whatisabrain.com.
+
+   THE IDEA WORTH PRESERVING: one custom property per card.
+
+   A card sets --holotint and nothing else. That single value drives both the
+   corner glow that fades in over the surface and the colour of the shadow the
+   card casts as it lifts, so a grid of cards can be individually coloured
+   with one declaration each and no extra classes, no modifier per colour, and
+   no stylesheet edit when a new card arrives:
+
+     <article class="holotint" style="--holotint: rgba(183,139,255,0.18)">
+
+   The shadow reads as light of the card's own colour pooling under it, which
+   is why the tint has to reach the shadow and not just the overlay. Tint one
+   and not the other and the effect collapses into a coloured smudge.
+
+   --holotint-solid is optional. It is the opaque version of the same hue,
+   used for the icon orb and the status dot where a 0.18 alpha would vanish.
+   Left unset it falls back to --holotint, so one property really is enough.
+
+   Both carry a concrete fallback, so a card with no properties set at all is
+   still a working cyan card. */
+
+.holotint {
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  padding: 1.6rem 1.6rem 1.7rem;
+  border-radius: 1.25rem;
+  border: 1px solid rgb(var(--holo-line, 196 228 255) / .09);
+  background: rgb(var(--holo-line, 196 228 255) / .04);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  color: rgb(var(--holo-ink, 239 244 251) / .92);
+  transition:
+    transform .5s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color .5s ease,
+    box-shadow .5s ease;
+}
+
+/* the corner glow. An overlay at opacity 0 that fades in, rather than a
+   background swap, so the card underneath keeps whatever fill it had.
+
+   ::after paints above an element's children, so a scrim on a card lands on
+   top of the card's own heading. This one is pinned to layer 0 and the
+   content is lifted to 1 below. */
+.holotint::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .5s ease;
+  background: radial-gradient(120% 90% at 15% 0%,
+    var(--holotint, rgba(126, 224, 255, 0.16)), transparent 60%);
+}
+
+.holotint > * { position: relative; z-index: 1; }
+
+/* the lift. The shadow is the tint, so each card pools its own colour */
+.holotint:hover,
+.holotint:focus-within {
+  transform: translateY(-5px);
+  border-color: rgb(var(--holo-line, 196 228 255) / .18);
+  box-shadow: 0 24px 60px -30px var(--holotint-solid, var(--holotint, rgba(126, 224, 255, 0.5)));
+}
+
+.holotint:hover::after,
+.holotint:focus-within::after { opacity: 1; }
+
+/* any link that fills the card gets the same focus ring the card would */
+.holotint:focus-within { outline: none; }
+
+.holotint a:focus-visible {
+  outline: 2px solid rgb(var(--holo-beam, 178 216 248) / .9);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ---- icon panel -------------------------------------------------------
+   A tinted orb sits behind the image. The image is optional in the honest
+   sense: give it onerror="this.style.display='none'" and a missing file
+   removes itself, leaving the orb showing through. A card with no artwork
+   yet then reads as a design decision rather than as a broken page.
+
+     <div class="holotint-icon">
+       <img src="cell.webp" alt="" onerror="this.style.display='none'">
+     </div>
+
+   That is worth copying anywhere a host supplies its own images. The
+   alternative is a grey placeholder glyph on someone else's site. */
+.holotint-icon {
+  position: relative;
+  width: 100%;
+  height: 8.5rem;
+  margin-bottom: 1.15rem;
+  border-radius: 1rem;
+  overflow: hidden;
+  border: 1px solid rgb(var(--holo-line, 196 228 255) / .1);
+  background:
+    radial-gradient(circle at 35% 30%,
+      var(--holotint-solid, var(--holotint, rgba(126, 224, 255, 0.55))),
+      transparent 70%),
+    rgb(var(--holo-line, 196 228 255) / .03);
+  box-shadow: 0 0 26px -8px var(--holotint-solid, var(--holotint, rgba(126, 224, 255, 0.5)));
+}
+
+.holotint-icon img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ---- content ----------------------------------------------------------- */
+.holotint-kicker {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin: 0 0 .65rem;
+  font-size: .68rem;
+  font-weight: 500;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: rgb(var(--holo-ink, 239 244 251) / .45);
+}
+
+.holotint-dot {
+  flex: 0 0 auto;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--holotint-solid, var(--holotint, rgba(126, 224, 255, 0.9)));
+  box-shadow: 0 0 10px var(--holotint-solid, var(--holotint, rgba(126, 224, 255, 0.9)));
+}
+
+.holotint-title {
+  margin: 0;
+  font-size: 1.45rem;
+  font-weight: 400;
+  line-height: 1.15;
+  color: rgb(var(--holo-ink, 239 244 251));
+}
+
+.holotint-body {
+  margin: .65rem 0 0;
+  font-size: .92rem;
+  font-weight: 300;
+  line-height: 1.6;
+  color: rgb(var(--holo-ink, 239 244 251) / .6);
+}
+
+.holotint-go {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  margin-top: 1.1rem;
+  font-size: .85rem;
+  font-weight: 500;
+  color: rgb(var(--holo-ink, 239 244 251) / .8);
+  text-decoration: none;
+}
+
+.holotint-go svg { transition: transform .3s ease; }
+
+.holotint:hover .holotint-go svg,
+.holotint:focus-within .holotint-go svg { transform: translateX(3px); }
+
+/* a grid to drop them in. Cards are independent of it. */
+.holotint-grid {
+  display: grid;
+  gap: 1.1rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .holotint, .holotint::after, .holotint-go svg { transition: none; }
+  .holotint:hover, .holotint:focus-within { transform: none; }
+  .holotint:hover .holotint-go svg,
+  .holotint:focus-within .holotint-go svg { transform: none; }
+}

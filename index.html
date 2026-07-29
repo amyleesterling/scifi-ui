@@ -167,10 +167,25 @@
 
 <div class="wrap">
 
+  <h2>Particle trace, on an image</h2>
+  <p>A short arc of light runs the boundary once, starting from wherever your
+  pointer crossed it, then breaks into particles that decay along a branching
+  tree. Corner brackets push outward and the readouts fade in. Every value shown
+  is real, read off the media element at runtime.</p>
+  <figure data-hud="337 × 266 × 92 µm">
+    <div class="holoframe">
+      <canvas class="trace"></canvas>
+      <img src="media/cell.jpg" alt="A CA3 pyramidal cell with the six mossy fibers that reach it">
+    </div>
+    <figcaption>Enter from different edges. The light is struck where you cross.
+    One thorny pyramidal cell, 4.5 million triangles in the original.</figcaption>
+  </figure>
+
   <h2>Step rail</h2>
   <p>A counter in tabular caps, a hairline rail, the run so far filled and
-  glowing, a brighter dot where you are, dimmer ticks after it. Click a tick to
-  jump. Focus one and use the arrow keys, or Home and End. It takes any number
+  glowing, a brighter dot where you are, dimmer ticks after it. Drag the rail and
+  the step follows the pointer. Click a tick to jump. Focus one and use the arrow
+  keys, or Home and End. It takes any number
   of steps and reports the current one back on a <code>holobar:change</code>
   event, on a <code>data-step</code> attribute, and on <code>el.holobar</code>.</p>
   <div class="demo">
@@ -182,7 +197,10 @@
     <output class="readback" id="railout2">waiting</output>
   </div>
   <p>The fill stops at the dot you are on rather than one step past it, so it
-  still reads correctly at three steps as well as at thirty.</p>
+  still reads correctly at three steps as well as at thirty. The rail takes the
+  pointer capture on pointerdown, so a drag keeps working after the cursor
+  leaves the 2px line, and the 700ms ease on the fill is dropped for the
+  duration of the drag so the light tracks your hand instead of chasing it.</p>
 
   <h2>Readout panel</h2>
   <p>One label, one number, one line of context. This is the whole idea of the
@@ -231,17 +249,48 @@
     </figure>
   </div>
 
+  <h2>Image card</h2>
+  <p>Near black ink instead of the white tinted glass a panel usually gets, so
+  the render inside it pops rather than being washed out. Faint scanlines every
+  3px. A rim and a backlight that live entirely in the box shadow, so they never
+  lighten the card body. Point at it and a bright head runs the perimeter.</p>
+  <div class="grid">
+    <figure class="holocard">
+      <img src="media/partners.jpg" alt="One CA3 cell drawn with the fifty six cells it is connected to">
+      <div class="panelrow"><b>partner cells</b><span>56 reconstructed</span></div>
+    </figure>
+    <figure class="holocard">
+      <img src="media/thorn.jpg" alt="A mossy fiber terminal wrapped around a thorny excrescence">
+      <div class="panelrow"><b>one bouton</b><span>1 thorn, dozens of contacts</span></div>
+    </figure>
+  </div>
+  <p>The hover state is shadow only. Nothing moves, nothing scales, the image is
+  never repainted, and that is why it stays calm at any size. The middle shadow
+  layer is <code>0 0 24px -6px</code>: the negative spread pulls the glow back so
+  it hugs the card instead of bleeding off it, and that one number is the
+  difference between a lit card and a smudge. The accent is its own token,
+  <code>--holo-cyan</code>, a teal leaning cyan rather than the blue white the
+  rest of the library uses.</p>
+
   <h2>Dialog</h2>
-  <p>A modal surface: rim gradient, still particle field, lit inside edge, field
-  with a lit left border, and a button with three states. It is a real
+  <p>The EyeWire II sign in modal, reproduced. A drifting particle field built
+  from six radial gradient dots at six tile sizes, a gradient border that cycles
+  blue, violet and teal on a six second loop, an ambient wash from the top edge,
+  two counter rotating rings, and a materialise that arrives blurred and
+  overbright and settles through a soft overshoot. It is a real
   <code>&lt;dialog&gt;</code> opened with <code>showModal</code>, so focus is
   trapped and Escape closes it without a line of script.</p>
   <p><strong>This is a visual component only.</strong> There is no
-  authentication in it. The field is an ordinary text input, the button does
-  nothing when you press it, and no request goes anywhere.</p>
+  authentication in it, no form element, and nothing to sign into. The field is
+  an ordinary text input, the button does nothing when you press it, and no
+  request goes anywhere.</p>
   <div class="demo">
     <button class="cta" type="button" data-holodialog="demodialog">Open the dialog</button>
   </div>
+  <p>Two things loop, because both are ambient rather than event driven: the
+  particle drift and the border cycle. Everything else runs exactly once per
+  open, which is free, because a closed <code>&lt;dialog&gt;</code> is
+  <code>display: none</code> and opening it starts every animation over.</p>
 
   <h2>Loading state</h2>
   <p>A cell draws itself in while you wait. The basal arbor is half a cycle
@@ -320,20 +369,6 @@
   <p>This is the only piece in the library that repeats, because a loading state
   is the one place a loop is honest.</p>
 
-  <h2>Particle trace, on an image</h2>
-  <p>A short arc of light runs the boundary once, starting from wherever your
-  pointer crossed it, then breaks into particles that decay along a branching
-  tree. Corner brackets push outward and the readouts fade in. Every value shown
-  is real, read off the media element at runtime.</p>
-  <figure data-hud="337 × 266 × 92 µm">
-    <div class="holoframe">
-      <canvas class="trace"></canvas>
-      <img src="media/cell.jpg" alt="A CA3 pyramidal cell with the six mossy fibers that reach it">
-    </div>
-    <figcaption>Enter from different edges. The light is struck where you cross.
-    One thorny pyramidal cell, 4.5 million triangles in the original.</figcaption>
-  </figure>
-
   <h2>Particle trace, on a video</h2>
   <p>The same treatment over video, plus a play affordance, because the native
   control is small and often lands on top of whatever is burned into the frame.
@@ -385,23 +420,134 @@
 
 </div>
 
+<nav class="holorail" data-holorail=".wrap > h2"></nav>
+
 <dialog class="holodialog" id="demodialog" aria-labelledby="demodialog-title">
-  <span class="holodialog-rim"></span>
   <span class="holodialog-field"></span>
-  <div class="holodialog-body">
-    <p class="holodialog-eyebrow">surface only</p>
-    <h2 class="holodialog-title" id="demodialog-title">Hologram dialog</h2>
-    <p class="holodialog-desc">The panel treatment, lifted off a real sign in
-    modal with the authentication taken out. Nothing here submits anywhere and
-    the field below is not a credential field.</p>
-    <label class="holodialog-label" for="demodialog-input">operator label</label>
-    <input class="holodialog-input" id="demodialog-input" type="text"
-           placeholder="type anything, it goes nowhere"
-           autocomplete="off" spellcheck="false" data-holofocus>
-    <button class="holobtn" type="button">This button does nothing</button>
-    <button class="holobtn holobtn--ghost" type="button" data-holoclose>close</button>
-    <p class="holodialog-note">no request, no storage, no credential field</p>
+  <span class="holodialog-rim"></span>
+
+  <span class="holodialog-rings">
+    <span class="holodialog-ring"></span>
+    <span class="holodialog-ring holodialog-ring--inner"></span>
+    <span class="holodialog-icon">
+      <svg viewBox="0 0 120 140" fill="none" aria-hidden="true">
+        <defs>
+          <filter id="hd-arborglow" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="1.2" result="b1"></feGaussianBlur>
+            <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="b2"></feGaussianBlur>
+            <feMerge>
+              <feMergeNode in="b2"></feMergeNode>
+              <feMergeNode in="b1"></feMergeNode>
+              <feMergeNode in="SourceGraphic"></feMergeNode>
+            </feMerge>
+          </filter>
+          <filter id="hd-somaglow" x="-100%" y="-100%" width="300%" height="300%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="s1"></feGaussianBlur>
+            <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="s2"></feGaussianBlur>
+            <feMerge>
+              <feMergeNode in="s2"></feMergeNode>
+              <feMergeNode in="s1"></feMergeNode>
+              <feMergeNode in="SourceGraphic"></feMergeNode>
+            </feMerge>
+          </filter>
+          <radialGradient id="hd-somagrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#80f0ff" stop-opacity="1"></stop>
+            <stop offset="40%" stop-color="#20d0ff" stop-opacity=".85"></stop>
+            <stop offset="100%" stop-color="#00a0e0" stop-opacity=".3"></stop>
+          </radialGradient>
+        </defs>
+        <g filter="url(#hd-arborglow)" stroke-linecap="round">
+          <path d="M60 52 L59 42 L57 32 L55 22 L52 12 L49 4" stroke="#18cfff" stroke-width="2.2" opacity=".9"></path>
+          <path d="M57 32 L62 26 L68 20 L76 16 L84 13" stroke="#15c8f8" stroke-width="1.4" opacity=".75"></path>
+          <path d="M68 20 L72 14 L78 8" stroke="#10b8e8" stroke-width=".9" opacity=".55"></path>
+          <path d="M76 16 L82 20 L88 18" stroke="#10b8e8" stroke-width=".7" opacity=".4"></path>
+          <path d="M55 22 L48 16 L40 12 L32 10" stroke="#15c8f8" stroke-width="1.3" opacity=".7"></path>
+          <path d="M48 16 L44 10 L38 5" stroke="#10b8e8" stroke-width=".8" opacity=".5"></path>
+          <path d="M40 12 L36 16 L30 15" stroke="#10b8e8" stroke-width=".6" opacity=".35"></path>
+          <path d="M52 12 L46 6 L40 2" stroke="#12c0f0" stroke-width="1" opacity=".6"></path>
+          <path d="M49 4 L44 1" stroke="#0ab0e0" stroke-width=".7" opacity=".4"></path>
+          <path d="M49 4 L52 1" stroke="#0ab0e0" stroke-width=".7" opacity=".4"></path>
+          <path d="M59 42 L66 38 L74 36 L80 33" stroke="#15c8f8" stroke-width="1.1" opacity=".6"></path>
+          <path d="M74 36 L78 40 L84 42" stroke="#0ab0e0" stroke-width=".6" opacity=".35"></path>
+          <path d="M59 42 L52 38 L44 36" stroke="#15c8f8" stroke-width="1" opacity=".55"></path>
+          <path d="M44 36 L38 32 L32 30" stroke="#0ab0e0" stroke-width=".6" opacity=".35"></path>
+          <path d="M54 60 L44 66 L34 74 L26 82 L20 90" stroke="#18cfff" stroke-width="1.8" opacity=".8"></path>
+          <path d="M34 74 L28 70 L20 66 L14 62" stroke="#12c0f0" stroke-width="1.1" opacity=".6"></path>
+          <path d="M20 66 L16 72 L10 74" stroke="#0ab0e0" stroke-width=".7" opacity=".4"></path>
+          <path d="M26 82 L18 80 L12 76" stroke="#0ab0e0" stroke-width=".8" opacity=".45"></path>
+          <path d="M20 90 L14 94 L8 96" stroke="#08a0d0" stroke-width=".6" opacity=".3"></path>
+          <path d="M20 90 L22 96 L20 102" stroke="#08a0d0" stroke-width=".6" opacity=".3"></path>
+          <path d="M52 56 L42 50 L32 48 L22 50" stroke="#15c8f8" stroke-width="1.4" opacity=".7"></path>
+          <path d="M32 48 L26 42 L20 38" stroke="#10b8e8" stroke-width=".9" opacity=".5"></path>
+          <path d="M22 50 L16 54 L10 56" stroke="#0ab0e0" stroke-width=".6" opacity=".35"></path>
+          <path d="M66 60 L76 66 L86 74 L94 82 L100 90" stroke="#18cfff" stroke-width="1.8" opacity=".8"></path>
+          <path d="M86 74 L92 70 L100 66 L106 62" stroke="#12c0f0" stroke-width="1.1" opacity=".6"></path>
+          <path d="M100 66 L104 72 L110 74" stroke="#0ab0e0" stroke-width=".7" opacity=".4"></path>
+          <path d="M94 82 L102 80 L108 76" stroke="#0ab0e0" stroke-width=".8" opacity=".45"></path>
+          <path d="M100 90 L106 94 L112 96" stroke="#08a0d0" stroke-width=".6" opacity=".3"></path>
+          <path d="M100 90 L98 96 L100 102" stroke="#08a0d0" stroke-width=".6" opacity=".3"></path>
+          <path d="M68 56 L78 50 L88 48 L98 50" stroke="#15c8f8" stroke-width="1.4" opacity=".7"></path>
+          <path d="M88 48 L94 42 L100 38" stroke="#10b8e8" stroke-width=".9" opacity=".5"></path>
+          <path d="M98 50 L104 54 L110 56" stroke="#0ab0e0" stroke-width=".6" opacity=".35"></path>
+          <path d="M58 64 L52 76 L48 88 L44 98" stroke="#15c8f8" stroke-width="1.2" opacity=".65"></path>
+          <path d="M48 88 L40 92 L34 90" stroke="#0ab0e0" stroke-width=".7" opacity=".35"></path>
+          <path d="M62 64 L68 76 L72 88 L76 98" stroke="#15c8f8" stroke-width="1.2" opacity=".65"></path>
+          <path d="M72 88 L80 92 L86 90" stroke="#0ab0e0" stroke-width=".7" opacity=".35"></path>
+          <path d="M60 64 L60 78 L58 92 L56 106 L54 118 L52 130 L50 138" stroke="#18cfff" stroke-width="1.6" opacity=".7"></path>
+          <path d="M58 92 L50 98 L42 100" stroke="#10b8e8" stroke-width=".8" opacity=".4"></path>
+          <path d="M56 106 L64 112 L72 114" stroke="#10b8e8" stroke-width=".8" opacity=".4"></path>
+          <path d="M54 118 L46 122 L38 120" stroke="#08a0d0" stroke-width=".6" opacity=".3"></path>
+          <path d="M50 138 L44 140" stroke="#08a0d0" stroke-width=".5" opacity=".25"></path>
+          <path d="M50 138 L56 140" stroke="#08a0d0" stroke-width=".5" opacity=".25"></path>
+          <circle cx="57" cy="32" r=".6" fill="#40e0ff" opacity=".6"></circle>
+          <circle cx="52" cy="14" r=".5" fill="#40e0ff" opacity=".5"></circle>
+          <circle cx="66" cy="24" r=".5" fill="#40e0ff" opacity=".5"></circle>
+          <circle cx="44" cy="68" r=".5" fill="#40e0ff" opacity=".5"></circle>
+          <circle cx="36" cy="74" r=".5" fill="#40e0ff" opacity=".5"></circle>
+          <circle cx="76" cy="68" r=".5" fill="#40e0ff" opacity=".5"></circle>
+          <circle cx="86" cy="74" r=".5" fill="#40e0ff" opacity=".5"></circle>
+          <circle cx="48" cy="50" r=".4" fill="#40e0ff" opacity=".45"></circle>
+          <circle cx="78" cy="50" r=".4" fill="#40e0ff" opacity=".45"></circle>
+          <circle cx="28" cy="72" r=".4" fill="#40e0ff" opacity=".4"></circle>
+          <circle cx="92" cy="72" r=".4" fill="#40e0ff" opacity=".4"></circle>
+        </g>
+        <g filter="url(#hd-somaglow)">
+          <ellipse cx="60" cy="58" rx="7" ry="6" fill="url(#hd-somagrad)"></ellipse>
+          <ellipse cx="60" cy="58" rx="3.5" ry="3" fill="#b0f8ff" opacity=".6"></ellipse>
+        </g>
+      </svg>
+    </span>
+  </span>
+
+  <p class="holodialog-eyebrow">visual component only</p>
+  <h2 class="holodialog-title" id="demodialog-title">Surface Treatment</h2>
+  <p class="holodialog-desc">This is the panel, the field, the rim and the
+  entrance. It is not a sign in. Nothing here submits anywhere.</p>
+
+  <div class="holodialog-rows">
+    <div class="holodialog-row" data-state="done">
+      <span class="holodialog-mark"><b>&#10003;</b></span>
+      <span>render pass, 4.5M triangles</span>
+      <em>done</em>
+    </div>
+    <div class="holodialog-row" data-state="live">
+      <span class="holodialog-mark"><i></i></span>
+      <span>mesh cache, 56 partner cells</span>
+    </div>
   </div>
+
+  <label class="holodialog-label" for="demodialog-input">operator label</label>
+  <input class="holodialog-input" id="demodialog-input" type="text"
+         placeholder="type anything, it goes nowhere"
+         autocomplete="off" spellcheck="false" data-holofocus>
+
+  <button class="holobtn" type="button">
+    <span class="holobtn-text">This button does nothing</span>
+    <span class="holobtn-glow"></span>
+  </button>
+  <button class="holobtn--ghost" type="button" data-holoclose>close &#8250;</button>
+
+  <p class="holodialog-note">NO AUTH &middot; NO FORM &middot; NO REQUEST &middot; NO STORAGE</p>
 </dialog>
 
 <script src="hologram.js"></script>

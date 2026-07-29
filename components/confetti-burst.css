@@ -1,0 +1,25 @@
+/* ---- confetti burst (holoburst) -----------------------------------------
+   From ConfettiCelebration.vue, which is 281 lines of script and nine lines
+   of CSS with no keyframes at all. All of the motion is a particle
+   simulation on a canvas, which is the right call: per particle position,
+   velocity, rotation, gravity, drag and fade is not something a stylesheet
+   can hold.
+
+   So this file is nine lines of its own doing one job: park a transparent
+   canvas over everything without taking the pointer and without widening
+   the page. The original said width 100vw and height 100vh, and 100vw
+   includes the scrollbar, so on a page with a vertical scrollbar that canvas
+   was about 15px wider than the viewport. inset 0 with percentage sizing
+   gives the exact result with no viewport units at all.
+
+   The canvas is created on demand by confetti-burst.js and removed again
+   when the last particle dies, so there is nothing here at rest. */
+
+.holoburst-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9998;
+  pointer-events: none;
+}

@@ -10,6 +10,13 @@
   --holo-ink:  239 244 251;
   --holo-dim:  154 162 177;
   --holo-panel: 15 18 24;
+
+  /* a second accent, teal leaning cyan. Deliberately not --holo-line: the
+     card and the section rail read cooler and harder than the rest of the
+     library, and that difference is the point. */
+  --holo-cyan: 126 224 255;
+  /* the violet the dialog rim cycles through, scoped to that one component */
+  --holo-viol: 138  96 230;
 }
 
 /* A projected panel rather than a black bar: cool blue instead of true black,
@@ -93,7 +100,8 @@
     transform: translateY(-3px) scale(1.006);
   }
 
-.holoframe:hover img, .holoframe:hover video {
+.holoframe:hover img, .holoframe:hover video,
+  .holoframe:focus-within img, .holoframe:focus-within video {
     filter: brightness(1.03) saturate(1.03)
             drop-shadow(0 6px 18px rgba(0,0,0,.45))
             drop-shadow(0 0 12px rgba(62,150,240,.14));
@@ -102,7 +110,7 @@
 /* the readouts on the full bleed cell pick up the same idle shimmer */
   .holo { transition: border-color .4s ease, box-shadow .4s ease, transform .4s ease; }
 
-.holo:hover {
+.holo:hover, .holo:focus-within {
     border-color: rgba(120,190,255,.75); transform: translateY(-2px);
     box-shadow: 0 0 26px rgba(0,0,0,.6), 0 0 22px rgba(62,150,240,.18);
   }
@@ -234,9 +242,12 @@
     color: rgb(var(--holo-ink, 239 244 251) / .85);
   }
 
-/* 8px of side room so the end tick boxes cannot push past the wrapper */
+/* 8px of side room so the end tick boxes cannot push past the wrapper.
+     grab, because the rail is draggable as well as clickable, and touch-action
+     none so a drag that starts on the rail is not stolen by the page scroll. */
   .holobar-rail {
     position: relative; flex: 1 1 auto; height: 2px; min-width: 44px; margin: 0 8px;
+    cursor: grab; touch-action: none;
   }
 
 .holobar-rail::before {
@@ -256,8 +267,8 @@
 /* the hit area is 16px so a finger can find it. Only the dot inside is small */
   .holobar-tick {
     position: absolute; top: 50%; width: 16px; height: 16px;
-    margin: 0; padding: 0; border: 0; background: none; cursor: pointer;
-    transform: translate(-50%,-50%);
+    margin: 0; padding: 0; border: 0; background: none; cursor: grab;
+    transform: translate(-50%,-50%); touch-action: none;
     display: flex; align-items: center; justify-content: center;
   }
 
@@ -282,6 +293,18 @@
 .holobar-tick:focus-visible {
     outline: 2px solid rgb(var(--holo-beam, 178 216 248) / .9);
     outline-offset: 0; border-radius: 3px;
+  }
+
+/* mid drag the fill has to track the pointer, so the 700ms ease that makes a
+     click feel considered is dropped for the duration, and the cursor changes
+     on the whole control rather than only on whatever is under the pointer */
+  .holobar.is-dragging .holobar-rail,
+  .holobar.is-dragging .holobar-tick { cursor: grabbing; }
+
+.holobar.is-dragging .holobar-fill { transition: none; }
+
+.holobar.is-dragging .holobar-tick i {
+    transition: background .3s ease, box-shadow .3s ease;
   }
 
 @media (prefers-reduced-motion: reduce) {
@@ -547,22 +570,31 @@
   }
 
 /* ---- 11. hologram dialog -----------------------------------------------
-     The panel treatment off the EyeWire II sign in modal, with the auth taken
-     out. A real dialog element opened with showModal, so focus is trapped and
-     Escape closes it without a line of script. Everything that looped in the
-     original is here as a still: the rim gradient, the particle field, the
-     lit inside edge. Only the entrance moves, and only once. */
+     The EyeWire II sign in modal, reproduced, with every trace of
+     authentication taken out of it. A real dialog element opened with
+     showModal, so the focus trap and Escape are the user agent's job rather
+     than a script's.
+
+     Exactly two things loop, because both are ambient rather than event
+     driven: the particle field drifts, and the rim gradient cycles blue,
+     violet and teal. Everything else runs once, and since a closed dialog is
+     display none, opening it starts all of them over. */
   dialog.holodialog {
-    box-sizing: border-box; width: calc(100% - 32px); max-width: 460px;
-    margin: auto; padding: 0; overflow: hidden;
-    border: 1px solid rgb(var(--holo-glow, 74 150 224) / .3);
+    box-sizing: border-box; position: relative; overflow: hidden;
+    width: min(90%, 460px); max-width: 460px; margin: auto;
+    padding: 44px 48px 32px; text-align: center;
+    font: inherit; color: rgb(var(--holo-ink, 239 244 251));
+    border: 1px solid rgb(var(--holo-glow, 74 150 224) / .18);
     border-radius: 2px;
-    background: linear-gradient(165deg, rgb(10 18 35 / .96), rgb(5 10 22 / .985));
-    color: rgb(var(--holo-ink, 239 244 251));
+    background: linear-gradient(165deg,
+      rgb(10 18 35 / .95) 0%, rgb(5 10 22 / .98) 100%);
+    /* four layers: a near glow, a very wide faint one that only registers as
+       the room being lit, an inset that fills the body, and a real drop */
     box-shadow:
-      0 0 80px rgb(var(--holo-glow, 74 150 224) / .12),
-      inset 0 1px 0 rgb(var(--holo-line, 196 228 255) / .12),
-      0 20px 60px rgb(0 0 0 / .55);
+      0 0 80px rgb(var(--holo-glow, 74 150 224) / .08),
+      0 0 200px rgb(var(--holo-glow, 74 150 224) / .03),
+      inset 0 0 80px rgb(var(--holo-glow, 74 150 224) / .04),
+      0 20px 60px rgb(0 0 0 / .5);
   }
 
 /* the backdrop cannot count on inheriting your tokens, so it carries values */
@@ -573,81 +605,230 @@
     -webkit-backdrop-filter: blur(12px) saturate(1.3);
   }
 
-dialog.holodialog[open] {
-    animation: holo-dialog-in 620ms cubic-bezier(.16,1,.3,1) both;
+/* the inner ambient glow, a wash down from the top edge. It sits at z-index 0
+     so it stays under the body content, which is at 2 */
+  dialog.holodialog::after {
+    content: ""; position: absolute; z-index: 0; pointer-events: none;
+    top: -50%; left: -50%; width: 200%; height: 200%;
+    background: radial-gradient(ellipse at 50% 0%,
+      rgb(var(--holo-glow, 74 150 224) / .06) 0%, transparent 60%);
   }
 
-@keyframes holo-dialog-in {
-    0%   { opacity: 0; transform: scale(1.03) translateY(-8px);
-           filter: blur(12px) brightness(2); }
-    45%  { opacity: 1; filter: blur(2px) brightness(1.3); }
-    70%  { transform: scale(.995) translateY(0); filter: blur(0) brightness(1.08); }
+/* the materialise: it arrives blurred, overbright and slightly too large, and
+     settles through a soft overshoot at 60 per cent */
+  dialog.holodialog[open] {
+    animation: holodialog-materialize .8s cubic-bezier(.16,1,.3,1) both;
+  }
+
+@keyframes holodialog-materialize {
+    0%   { opacity: 0; transform: scale(1.04) translateY(-10px);
+           filter: blur(20px) brightness(3); }
+    30%  { opacity: .6; filter: blur(3px) brightness(1.5); }
+    60%  { opacity: 1; transform: scale(.99); filter: blur(0) brightness(1.1); }
     100% { opacity: 1; transform: scale(1) translateY(0);
            filter: blur(0) brightness(1); }
   }
 
-/* the rim, held still. In the original this cycled on a six second loop */
+/* the cycling gradient border. In the original this is a ::before at inset
+     -1px sitting at z-index -1, which a dialog with overflow hidden clips
+     away, so here it is a real element at inset 0. Same trick otherwise: a
+     1px ring cut out with mask-composite, the gradient laid out at 300 per
+     cent so the six second cycle has somewhere to travel. */
   .holodialog-rim {
-    position: absolute; inset: 0; pointer-events: none; padding: 1px;
-    border-radius: inherit;
+    position: absolute; inset: 0; z-index: 1; pointer-events: none;
+    padding: 1px; border-radius: inherit;
     background: linear-gradient(135deg,
-      rgb(var(--holo-beam, 178 216 248) / .4) 0%,
-      rgb(var(--holo-glow, 74 150 224) / .06) 28%,
-      rgb(var(--holo-warm, 232 169 58) / .12) 52%,
-      rgb(var(--holo-glow, 74 150 224) / .06) 76%,
-      rgb(var(--holo-beam, 178 216 248) / .32) 100%);
+      rgb(var(--holo-glow, 74 150 224) / .4) 0%,
+      rgb(var(--holo-glow, 74 150 224) / .05) 25%,
+      rgb(var(--holo-viol, 138 96 230) / .18) 50%,
+      rgb(var(--holo-glow, 74 150 224) / .05) 75%,
+      rgb(var(--holo-cyan, 126 224 255) / .3) 100%);
+    background-size: 300% 300%;
+    animation: holodialog-border 6s ease-in-out infinite;
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
     -webkit-mask-composite: xor;
             mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
             mask-composite: exclude;
   }
 
-/* a still particle field plus the ambient wash from the top edge */
-  .holodialog-field {
-    position: absolute; inset: 0; pointer-events: none; opacity: .6;
-    background-image:
-      radial-gradient(1px 1px at 20% 30%, rgb(var(--holo-glow, 74 150 224) / .5) 0%, transparent 100%),
-      radial-gradient(1px 1px at 40% 70%, rgb(var(--holo-beam, 178 216 248) / .3) 0%, transparent 100%),
-      radial-gradient(1.5px 1.5px at 65% 80%, rgb(var(--holo-glow, 74 150 224) / .4) 0%, transparent 100%),
-      radial-gradient(1px 1px at 90% 15%, rgb(var(--holo-beam, 178 216 248) / .22) 0%, transparent 100%),
-      radial-gradient(1px 1px at 10% 85%, rgb(var(--holo-glow, 74 150 224) / .3) 0%, transparent 100%),
-      radial-gradient(ellipse 120% 60% at 50% 0%, rgb(var(--holo-glow, 74 150 224) / .1) 0%, transparent 62%);
-    background-size: 250px 250px, 300px 300px, 350px 350px,
-                     180px 180px, 280px 280px, 100% 100%;
+@keyframes holodialog-border {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
   }
 
-.holodialog-body { position: relative; z-index: 2; padding: 34px 34px 26px; }
+/* the drifting particle grid. Not a canvas and not one element per dot: six
+     radial gradients, each a single dot placed at its own percentage, each
+     tiled at its own background size, so the six layers beat against each
+     other and never line up. The whole field travels 60px by 40px over twenty
+     seconds. The original translates the element, which opens a gap at the
+     trailing edge once the box is only 460px wide, so the background position
+     moves instead. */
+  .holodialog-field {
+    position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: .6;
+    background-image:
+      radial-gradient(1px 1px at 20% 30%, rgb(var(--holo-glow, 74 150 224) / .3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 40% 70%, rgb(var(--holo-cyan, 126 224 255) / .2) 0%, transparent 100%),
+      radial-gradient(1px 1px at 80% 40%, rgb(var(--holo-viol, 138 96 230) / .2) 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 65% 80%, rgb(var(--holo-glow, 74 150 224) / .25) 0%, transparent 100%),
+      radial-gradient(1px 1px at 90% 15%, rgb(var(--holo-cyan, 126 224 255) / .15) 0%, transparent 100%),
+      radial-gradient(1px 1px at 10% 85%, rgb(var(--holo-glow, 74 150 224) / .2) 0%, transparent 100%);
+    background-size: 250px 250px, 300px 300px, 200px 200px,
+                     350px 350px, 180px 180px, 280px 280px;
+    animation: holodialog-drift 20s linear infinite;
+  }
+
+@keyframes holodialog-drift {
+    from { background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
+    to   { background-position: -60px -40px, -60px -40px, -60px -40px,
+                                -60px -40px, -60px -40px, -60px -40px; }
+  }
+
+/* two rings around the glyph, counter rotating. In the original both spin
+     forever. Here each turns exactly once as the panel materialises and then
+     holds, on a decelerating curve so it settles rather than stops dead. */
+  .holodialog-rings {
+    position: relative; z-index: 2; display: inline-flex;
+    align-items: center; justify-content: center;
+    width: 130px; height: 130px; margin-bottom: 14px;
+  }
+
+.holodialog-ring {
+    position: absolute; inset: 0; border-radius: 50%;
+    border: 1.5px solid rgb(var(--holo-glow, 74 150 224) / .25);
+    border-top-color: rgb(var(--holo-cyan, 126 224 255) / .8);
+    border-right-color: rgb(var(--holo-viol, 138 96 230) / .4);
+    animation: holodialog-spin 3s cubic-bezier(.16,1,.3,1) both;
+  }
+
+.holodialog-ring--inner {
+    inset: 10px;
+    border-color: rgb(var(--holo-glow, 74 150 224) / .1);
+    border-bottom-color: rgb(var(--holo-cyan, 126 224 255) / .5);
+    border-left-color: rgb(var(--holo-cyan, 126 224 255) / .3);
+    animation-duration: 5s; animation-direction: reverse;
+  }
+
+@keyframes holodialog-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+
+/* the glyph takes one breath on arrival rather than breathing forever */
+  .holodialog-icon {
+    position: relative; z-index: 2;
+    width: 90px; height: 100px;
+    display: flex; align-items: center; justify-content: center;
+    filter: drop-shadow(0 0 12px rgb(var(--holo-glow, 74 150 224) / .4));
+    animation: holodialog-breathe 3s ease-in-out both;
+  }
+
+.holodialog-icon svg { display: block; width: 90px; height: 100px; }
+
+@keyframes holodialog-breathe {
+    0%, 100% { filter: drop-shadow(0 0 12px rgb(var(--holo-glow, 74 150 224) / .4)); }
+    50%      { filter: drop-shadow(0 0 24px rgb(var(--holo-cyan, 126 224 255) / .7)); }
+  }
 
 .holodialog-eyebrow {
-    margin: 0 0 7px; font-size: 9.5px; font-weight: 700; letter-spacing: .25em;
-    text-transform: uppercase; color: rgb(var(--holo-beam, 178 216 248) / .55);
+    position: relative; z-index: 2; margin: 0 0 6px;
+    font-size: .58em; font-weight: 700; letter-spacing: .25em;
+    text-transform: uppercase;
+    color: rgb(var(--holo-cyan, 126 224 255) / .5);
   }
 
 .holodialog-title {
-    margin: 0 0 9px; font-size: 21px; font-weight: 300; letter-spacing: .06em;
-    text-transform: uppercase; color: rgb(200 230 255 / .96);
-    text-shadow: 0 0 30px rgb(var(--holo-glow, 74 150 224) / .35);
+    position: relative; z-index: 2; margin: 0 0 8px;
+    font-size: 1.5em; font-weight: 300; letter-spacing: .06em;
+    text-transform: uppercase; color: rgb(200 230 255 / .95);
+    text-shadow: 0 0 30px rgb(var(--holo-glow, 74 150 224) / .3);
   }
 
 .holodialog-desc {
-    margin: 0 0 22px; font-size: 13.5px; line-height: 1.6; letter-spacing: .02em;
-    color: rgb(var(--holo-dim, 154 162 177) / .85);
+    position: relative; z-index: 2; margin: 0 0 24px;
+    font-size: .78em; line-height: 1.6; letter-spacing: .02em;
+    color: rgb(var(--holo-dim, 154 162 177) / .78);
+  }
+
+/* the status rows. The 2px lit left edge is the whole idea of them, and it is
+     the same idiom as the field below */
+  .holodialog-rows {
+    position: relative; z-index: 2; margin: 0 0 24px; text-align: left;
+  }
+
+.holodialog-row {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 6px;
+    padding: 10px 14px; border-radius: 1px;
+    background: rgb(var(--holo-glow, 74 150 224) / .04);
+    border: 1px solid rgb(var(--holo-glow, 74 150 224) / .1);
+    border-left: 2px solid rgb(var(--holo-cyan, 126 224 255) / .3);
+    transition: background .3s ease, border-color .3s ease;
+  }
+
+/* one pulse on arrival, not a heartbeat */
+  .holodialog-row[data-state="live"] {
+    border-left-color: rgb(var(--holo-cyan, 126 224 255) / .6);
+    animation: holodialog-row-pulse 1.5s ease-in-out both;
+  }
+
+@keyframes holodialog-row-pulse {
+    0%, 100% { background: rgb(var(--holo-glow, 74 150 224) / .04); }
+    50%      { background: rgb(var(--holo-glow, 74 150 224) / .08); }
+  }
+
+.holodialog-row[data-state="done"] {
+    background: rgb(0 255 150 / .03);
+    border-color: rgb(0 255 150 / .1);
+    border-left-color: rgb(0 255 150 / .5);
+  }
+
+.holodialog-mark {
+    flex: 0 0 auto; width: 22px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+.holodialog-mark i {
+    display: block; width: 8px; height: 8px; border-radius: 50%;
+    background: rgb(var(--holo-glow, 74 150 224) / .3);
+    border: 1px solid rgb(var(--holo-cyan, 126 224 255) / .5);
+    box-shadow: 0 0 6px rgb(var(--holo-cyan, 126 224 255) / .3);
+  }
+
+.holodialog-mark b {
+    font-weight: 700; font-size: .9em; color: rgb(0 255 150 / .9);
+    text-shadow: 0 0 8px rgb(0 255 150 / .5);
+  }
+
+.holodialog-row span {
+    flex: 1 1 auto; font-size: .78em; letter-spacing: .03em;
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    color: rgb(var(--holo-cyan, 126 224 255) / .6);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+
+.holodialog-row em {
+    flex: 0 0 auto; font-style: normal; font-size: .68em; font-weight: 700;
+    letter-spacing: .12em; text-transform: uppercase;
+    color: rgb(0 255 150 / .8); text-shadow: 0 0 10px rgb(0 255 150 / .3);
   }
 
 .holodialog-label {
-    display: block; margin: 0 0 7px; font-size: 9.5px; font-weight: 700;
-    letter-spacing: .2em; text-transform: uppercase;
-    color: rgb(var(--holo-beam, 178 216 248) / .5);
+    position: relative; z-index: 2;
+    display: block; margin: 0 0 7px; text-align: left;
+    font-size: .58em; font-weight: 700; letter-spacing: .2em;
+    text-transform: uppercase;
+    color: rgb(var(--holo-cyan, 126 224 255) / .5);
   }
 
 /* the lit left edge is the whole trick on these fields */
   .holodialog-input {
-    box-sizing: border-box; display: block; width: 100%; margin: 0 0 20px;
-    padding: 11px 14px; font: inherit; font-size: 14px; letter-spacing: .03em;
-    color: rgb(var(--holo-ink, 239 244 251) / .92);
+    box-sizing: border-box; position: relative; z-index: 2;
+    display: block; width: 100%; margin: 0 0 20px;
+    padding: 11px 14px; font: inherit; font-size: .82em; letter-spacing: .03em;
+    text-align: left; color: rgb(var(--holo-ink, 239 244 251) / .92);
     background: rgb(var(--holo-glow, 74 150 224) / .06);
     border: 1px solid rgb(var(--holo-glow, 74 150 224) / .2);
-    border-left: 2px solid rgb(var(--holo-beam, 178 216 248) / .4);
+    border-left: 2px solid rgb(var(--holo-cyan, 126 224 255) / .4);
     border-radius: 1px;
     transition: background .25s ease, border-color .25s ease, box-shadow .25s ease;
   }
@@ -657,71 +838,126 @@ dialog.holodialog[open] {
 .holodialog-input:hover {
     background: rgb(var(--holo-glow, 74 150 224) / .1);
     border-color: rgb(var(--holo-glow, 74 150 224) / .34);
-    border-left-color: rgb(var(--holo-beam, 178 216 248) / .7);
+    border-left-color: rgb(var(--holo-cyan, 126 224 255) / .7);
   }
 
 .holodialog-input:focus-visible {
-    outline: 2px solid rgb(var(--holo-beam, 178 216 248) / .9);
+    outline: 2px solid rgb(var(--holo-cyan, 126 224 255) / .9);
     outline-offset: 2px;
-    border-left-color: rgb(var(--holo-beam, 178 216 248));
+    border-left-color: rgb(var(--holo-cyan, 126 224 255));
     box-shadow: inset 0 0 22px rgb(var(--holo-glow, 74 150 224) / .12);
   }
 
-.holobtn {
-    display: block; box-sizing: border-box; width: 100%;
-    padding: 13px 24px; font: inherit; font-size: 13px; font-weight: 600;
+/* the main button: a blue to violet gradient on the diagonal, and a band of
+     light that crosses it once as the panel arrives */
+  .holobtn {
+    display: block; box-sizing: border-box; position: relative; z-index: 2;
+    width: 100%; overflow: hidden; padding: 14px 24px;
+    font: inherit; font-size: .88em; font-weight: 600;
     letter-spacing: .1em; text-transform: uppercase; cursor: pointer;
-    color: rgb(200 230 255 / .96);
-    border: 1px solid rgb(var(--holo-glow, 74 150 224) / .34);
+    color: rgb(200 230 255 / .95);
+    border: 1px solid rgb(var(--holo-glow, 74 150 224) / .3);
     border-radius: 2px;
     background: linear-gradient(135deg,
-      rgb(var(--holo-glow, 74 150 224) / .22) 0%,
-      rgb(var(--holo-glow, 74 150 224) / .32) 50%,
-      rgb(var(--holo-panel, 15 18 24) / .5) 100%);
+      rgb(var(--holo-glow, 74 150 224) / .28) 0%,
+      rgb(var(--holo-glow, 74 150 224) / .34) 50%,
+      rgb(var(--holo-viol, 138 96 230) / .24) 100%);
     transition: background .3s ease, border-color .3s ease,
                 box-shadow .3s ease, transform .3s ease;
   }
 
+.holobtn-text { position: relative; z-index: 2; }
+
+.holobtn-glow {
+    position: absolute; inset: 0; z-index: 1; pointer-events: none;
+    background: linear-gradient(90deg, transparent 0%,
+      rgb(var(--holo-cyan, 126 224 255) / .15) 50%, transparent 100%);
+    animation: holodialog-btn-sweep 3s ease-in-out .6s both;
+  }
+
+@keyframes holodialog-btn-sweep {
+    from { transform: translateX(-100%); }
+    to   { transform: translateX(100%); }
+  }
+
 .holobtn:hover:not(:disabled) {
-    border-color: rgb(var(--holo-beam, 178 216 248) / .65);
-    box-shadow: 0 0 30px rgb(var(--holo-glow, 74 150 224) / .2),
-                inset 0 0 30px rgb(var(--holo-glow, 74 150 224) / .08);
+    border-color: rgb(var(--holo-cyan, 126 224 255) / .6);
+    background: linear-gradient(135deg,
+      rgb(var(--holo-glow, 74 150 224) / .38) 0%,
+      rgb(var(--holo-glow, 74 150 224) / .46) 50%,
+      rgb(var(--holo-viol, 138 96 230) / .3) 100%);
+    box-shadow: 0 0 30px rgb(var(--holo-glow, 74 150 224) / .15),
+                inset 0 0 30px rgb(var(--holo-glow, 74 150 224) / .05);
     transform: translateY(-1px);
   }
 
 .holobtn:active:not(:disabled) {
     transform: translateY(0);
-    box-shadow: 0 0 40px rgb(var(--holo-glow, 74 150 224) / .28);
+    box-shadow: 0 0 40px rgb(var(--holo-cyan, 126 224 255) / .25);
   }
 
 .holobtn:focus-visible {
-    outline: 2px solid rgb(var(--holo-beam, 178 216 248) / .9); outline-offset: 3px;
+    outline: 2px solid rgb(var(--holo-cyan, 126 224 255) / .9); outline-offset: 3px;
   }
 
 .holobtn:disabled { opacity: .4; cursor: default; }
 
 .holobtn--ghost {
-    margin-top: 12px; padding: 9px; background: none; border: none;
-    font-size: 10px; font-weight: 700; letter-spacing: .2em;
-    color: rgb(var(--holo-dim, 154 162 177) / .5);
-    transition: color .2s ease;
+    display: block; box-sizing: border-box; position: relative; z-index: 2;
+    width: 100%; margin-top: 14px; padding: 8px;
+    background: none; border: none; cursor: pointer;
+    font: inherit; font-size: .65em; font-weight: 700;
+    letter-spacing: .2em; text-transform: uppercase;
+    color: rgb(var(--holo-dim, 154 162 177) / .4);
+    transition: color .15s ease;
   }
 
 .holobtn--ghost:hover:not(:disabled) {
-    color: rgb(var(--holo-beam, 178 216 248) / .8);
-    box-shadow: none; transform: none;
+    color: rgb(var(--holo-cyan, 126 224 255) / .5);
+    box-shadow: none; transform: none; background: none;
   }
 
-.holodialog-note {
-    margin: 18px 0 0; font-size: 10px; letter-spacing: .08em;
-    color: rgb(var(--holo-beam, 178 216 248) / .35);
+.holobtn--ghost:focus-visible {
+    color: rgb(var(--holo-cyan, 126 224 255) / .7);
+    outline: 2px solid rgb(var(--holo-cyan, 126 224 255) / .9); outline-offset: 2px;
+  }
+
+/* the data stream line at the foot, which flickers once on arrival */
+  .holodialog-note {
+    position: relative; z-index: 2; margin: 20px 0 0;
+    font-size: .5em; letter-spacing: .08em;
     font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    color: rgb(var(--holo-cyan, 126 224 255) / .28);
+    animation: holodialog-flicker 5s ease-in-out both;
   }
 
-@media (prefers-reduced-motion: reduce) {
-    dialog.holodialog[open] { animation: none; }
-    .holodialog-input, .holobtn { transition: none; }
+@keyframes holodialog-flicker {
+    0%, 92% { opacity: 1; }
+    93%     { opacity: .3; }
+    94%     { opacity: 1; }
+    96%     { opacity: .6; }
+    97%     { opacity: 1; }
+    100%    { opacity: 1; }
+  }
+
+/* 48px of side padding is most of a phone, so the box tightens up */
+  @media (max-width: 430px) {
+    dialog.holodialog { width: calc(100% - 24px); padding: 30px 20px 24px; }
+    .holodialog-rings { width: 104px; height: 104px; margin-bottom: 10px; }
+    .holodialog-icon { width: 72px; height: 80px; }
+    .holodialog-icon svg { width: 72px; height: 80px; }
+  }
+
+/* both loops stop, and so does everything that ran once */
+  @media (prefers-reduced-motion: reduce) {
+    dialog.holodialog[open], .holodialog-rim, .holodialog-field,
+    .holodialog-ring, .holodialog-icon, .holodialog-row,
+    .holodialog-note { animation: none; }
+    .holodialog-input, .holobtn, .holobtn--ghost, .holodialog-row {
+      transition: none;
+    }
     .holobtn:hover:not(:disabled) { transform: none; }
+    .holobtn-glow { display: none; }
   }
 
 
@@ -768,6 +1004,206 @@ dialog.holodialog[open] {
   width: 15px; height: 15px; border-radius: 50%; opacity: .34;
   border: 1px solid currentColor;
 }
-@media (hover: none), (prefers-reduced-motion: reduce) {
+/* the widest mote is a 46px tick rail placed at 90 per cent, which lands past
+   the right edge of a phone and scrolls the page sideways. Below 700px it goes,
+   the same way the HUD does, because a hover treatment has no job there anyway. */
+@media (hover: none), (prefers-reduced-motion: reduce), (max-width: 700px) {
   .holoswarm { display: none; }
+}
+
+/* ---- 12. section rail ---------------------------------------------------
+   The vertical section rail off the FlyWire neuron gallery, reimplemented from
+   React state into plain CSS plus a small init. A counter, a hairline running
+   the height of the viewport, the run so far filled, a head that travels, and
+   one dot per section with a label that appears when you point at it or tab to
+   it. hologram.js builds it from every h2 on the page and an IntersectionObserver
+   keeps the active section marked.
+
+   It is fixed, so it never contributes to the document scroll width, and it
+   hides itself below the width at which there is a gutter for it to sit in.
+   Everything about it is a transition rather than an animation: nothing here
+   loops, because the position it reports is the position you are at. */
+.holorail {
+  position: fixed; left: 26px; top: 26px; bottom: 26px; z-index: 30;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 16px;
+  pointer-events: none;
+  font: 500 9px/1 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+
+.holorail-count {
+  flex: 0 0 auto; letter-spacing: .25em; text-transform: uppercase;
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+  color: rgb(var(--holo-ink, 239 244 251) / .58);
+}
+
+.holorail-count s {
+  text-decoration: none; color: rgb(var(--holo-ink, 239 244 251) / .28);
+}
+
+.holorail-track { position: relative; flex: 1 1 auto; width: 1px; }
+
+.holorail-track::before {
+  content: ""; position: absolute; inset: 0;
+  background: rgb(var(--holo-ink, 239 244 251) / .1);
+}
+
+.holorail-fill {
+  position: absolute; top: 0; left: 0; right: 0;
+  height: calc(var(--holorail-progress, 0) * 100%);
+  background: linear-gradient(180deg,
+    rgb(var(--holo-cyan, 126 224 255) / .8) 0%,
+    rgb(var(--holo-cyan, 126 224 255) / .55) 55%,
+    rgb(var(--holo-cyan, 126 224 255) / .25) 100%);
+  transition: height .7s cubic-bezier(.16,1,.3,1);
+}
+
+.holorail-head {
+  position: absolute; left: -3px; width: 7px; height: 7px; border-radius: 50%;
+  top: calc(var(--holorail-progress, 0) * 100% - 3.5px);
+  background: rgb(var(--holo-cyan, 126 224 255));
+  box-shadow: 0 0 8px rgb(var(--holo-cyan, 126 224 255) / .95),
+              0 0 18px rgb(var(--holo-cyan, 126 224 255) / .5);
+  transition: top .7s cubic-bezier(.16,1,.3,1);
+}
+
+/* a 19px hit box around a 3px dot, and it is a real link so it works with the
+   script stripped out and lands in the tab order for free */
+.holorail-dot {
+  position: absolute; left: -9px; width: 19px; height: 19px;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: auto; text-decoration: none; border-radius: 50%;
+}
+
+.holorail-dot i {
+  display: block; width: 3px; height: 3px; border-radius: 50%;
+  background: rgb(var(--holo-ink, 239 244 251) / .28);
+  transition: transform .3s ease, width .3s ease, height .3s ease,
+              background .3s ease, box-shadow .3s ease;
+}
+
+.holorail-dot[data-done] i {
+  background: rgb(var(--holo-cyan, 126 224 255) / .55);
+  box-shadow: 0 0 4px rgb(var(--holo-cyan, 126 224 255) / .45);
+}
+
+.holorail-dot[aria-current] i {
+  width: 5px; height: 5px;
+  background: rgb(var(--holo-cyan, 126 224 255) / .95);
+  box-shadow: 0 0 7px rgb(var(--holo-cyan, 126 224 255) / .85);
+}
+
+.holorail-dot:hover i, .holorail-dot:focus-visible i { transform: scale(1.5); }
+
+/* the label is capped and clipped rather than allowed to run, because past
+   132px it would cross into the reading column on a 1280px screen */
+.holorail-dot b {
+  position: absolute; left: 20px; top: 50%; translate: 0 -50%;
+  max-width: 132px; overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap; padding: 6px 9px; border-radius: 3px;
+  font-weight: 400; font-size: 9px; letter-spacing: .22em;
+  text-transform: uppercase; color: rgb(var(--holo-ink, 239 244 251) / .9);
+  background: rgb(0 0 0 / .8);
+  border: 1px solid rgb(var(--holo-line, 196 228 255) / .12);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  opacity: 0; pointer-events: none; transition: opacity .2s ease;
+}
+
+.holorail-dot:hover b, .holorail-dot:focus-visible b { opacity: 1; }
+
+.holorail-dot:focus-visible {
+  outline: 2px solid rgb(var(--holo-cyan, 126 224 255) / .9); outline-offset: 1px;
+}
+
+/* the heading the rail scrolls to needs room above it, or it lands under the
+   top of the viewport with no air */
+.holorail-anchor { scroll-margin-top: 30px; }
+
+/* 860px of column plus 60px of padding leaves 180px a side at 1280px, which
+   is room for the rail and a clipped label. Below that there is none. */
+@media (max-width: 1239px) {
+  .holorail { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .holorail-fill, .holorail-head, .holorail-dot i, .holorail-dot b {
+    transition: none;
+  }
+}
+
+/* ---- 13. holo card ------------------------------------------------------
+   The card off the FlyWire neuron gallery. Near black ink instead of the white
+   tinted glass a panel usually gets, so a render inside it pops rather than
+   being washed out, faint scanlines every 3px, and a rim plus a backlight that
+   live entirely in the box shadow so they never lighten the card body.
+
+   The hover state is shadow only. Nothing moves, nothing scales, and the image
+   is never repainted, which is why it stays calm at any size. The negative
+   spread on the middle layer, 24px at -6px, is the detail that matters: it
+   pulls the glow back so it hugs the card instead of bleeding off it.
+
+   The accent is --holo-cyan, its own token. It is a teal leaning cyan and is
+   deliberately not the blue white the rest of the library uses. */
+.holocard {
+  position: relative; isolation: isolate; border-radius: 3px;
+  background-color: rgb(4 6 12 / .78);
+  background-image: repeating-linear-gradient(0deg,
+    rgb(var(--holo-cyan, 126 224 255) / .018) 0px,
+    rgb(var(--holo-cyan, 126 224 255) / .018) 1px,
+    transparent 1px, transparent 3px);
+  border: 1px solid rgb(var(--holo-cyan, 126 224 255) / .1);
+  box-shadow: 0 0 0 1px rgb(var(--holo-cyan, 126 224 255) / .05),
+              inset 0 1px 0 rgb(var(--holo-cyan, 126 224 255) / .06);
+  transition: box-shadow 400ms ease, border-color 400ms ease, transform 400ms ease;
+}
+
+.holocard > * { position: relative; z-index: 1; }
+
+.holocard:hover, .holocard:focus-within {
+  box-shadow: 0 0 0 1px rgb(var(--holo-cyan, 126 224 255) / .32),
+              0 0 24px -6px rgb(var(--holo-cyan, 126 224 255) / .32),
+              inset 0 0 0 1px rgb(var(--holo-cyan, 126 224 255) / .1);
+}
+
+/* the edge trace: a conic gradient whose bright head covers about a quarter of
+   the turn, masked down to the 1px ring, rotating through a registered angle.
+   It is the only loop in the library outside the loading state, and it is only
+   ever running while you are pointing at the card. On a browser with no
+   @property support the angle holds still and the ring simply fades in, which
+   is a fine degradation. */
+@property --holocard-angle {
+  syntax: "<angle>"; inherits: false; initial-value: 0deg;
+}
+
+@keyframes holocard-trace { to { --holocard-angle: 360deg; } }
+
+.holocard > .holocard-trace {
+  position: absolute; inset: 0; z-index: 3; border-radius: inherit;
+  pointer-events: none; opacity: 0; padding: 1px;
+  transition: opacity 600ms ease;
+  background: conic-gradient(from var(--holocard-angle, 0deg),
+    transparent 0deg,
+    transparent 270deg,
+    rgb(var(--holo-cyan, 126 224 255) / 0) 290deg,
+    rgb(var(--holo-cyan, 126 224 255) / .9) 350deg,
+    rgb(var(--holo-cyan, 126 224 255) / 0) 360deg);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          mask-composite: exclude;
+  filter: drop-shadow(0 0 4px rgb(var(--holo-cyan, 126 224 255) / .7));
+}
+
+.holocard:hover > .holocard-trace,
+.holocard:focus-within > .holocard-trace {
+  opacity: 1; animation: holocard-trace 3.4s linear infinite;
+}
+
+.holocard img, .holocard video {
+  display: block; width: 100%; max-width: 100%; height: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .holocard { transition: none; }
+  .holocard > .holocard-trace { display: none; }
 }

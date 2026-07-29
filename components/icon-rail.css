@@ -1,0 +1,132 @@
+/* ---- icon rail (holorail) -----------------------------------------------
+   A horizontal row of icon buttons with rest, hover, focus and pressed
+   states.
+
+   Reimplemented, not extracted, and it is worth saying why. The hover state
+   Amy liked lives in ExtensionBar.vue, but the rules that produce it are
+   written against neuroglancer's own DOM and look like this:
+
+     #insertNGTopBar [class*="share" i]:hover {
+       background: rgba(74, 158, 255, 0.2) !important;
+       border-color: rgba(74, 158, 255, 0.5) !important;
+     }
+
+   Six selectors, all of them guessing at another application's markup by
+   substring, every declaration forced with !important. That is surgery on
+   someone else's page. It is the correct thing to do when you are a browser
+   extension restyling a host you do not control, and it is the wrong thing to
+   ship in a library: the selectors match nothing outside that one app, and
+   the !important flags would fight any host that tried to restyle the result.
+
+   So only the two values crossed over, the hover fill and the hover border.
+   Everything else here is a real button in markup this file owns, with no
+   !important anywhere. Icons are inline SVG authored for this demo. No third
+   party marks.
+
+   Every colour carries a concrete fallback. */
+
+.holorail {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px;
+  border-radius: 10px;
+  background: rgb(var(--holo-panel, 15 18 24) / .55);
+  border: 1px solid rgb(var(--holo-line, 196 228 255) / .08);
+  /* a rail wider than its column scrolls itself rather than scrolling the
+     page sideways */
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.holorail-btn {
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 8px;
+  /* rest */
+  color: rgb(var(--holo-beam, 178 216 248) / .9);
+  background: rgb(var(--holo-glow, 74 150 224) / .1);
+  border: 1px solid rgb(var(--holo-glow, 74 150 224) / .3);
+  transition:
+    background .15s ease,
+    border-color .15s ease,
+    color .15s ease,
+    transform .12s ease;
+}
+
+.holorail-btn svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* hover. These are the two values from the original, and the only two */
+.holorail-btn:hover,
+.holorail-btn:focus-visible {
+  background: rgb(var(--holo-glow, 74 150 224) / .2);
+  border-color: rgb(var(--holo-glow, 74 150 224) / .5);
+  color: rgb(var(--holo-ink, 239 244 251));
+}
+
+/* focus. A real ring, with a real colour behind it. A bare var() with no
+   fallback computes to an invalid value and the whole declaration is dropped,
+   which is how focus rings silently disappear on a host page. */
+.holorail-btn:focus-visible {
+  outline: 2px solid rgb(var(--holo-beam, 178 216 248) / .9);
+  outline-offset: 2px;
+}
+
+/* pressed, as in the mouse is down on it */
+.holorail-btn:active {
+  transform: translateY(1px) scale(.97);
+  background: rgb(var(--holo-glow, 74 150 224) / .28);
+  border-color: rgb(var(--holo-beam, 178 216 248) / .7);
+}
+
+/* selected, as in this tool is the one currently on. A toggle button says so
+   with aria-pressed, so the style keys off the same attribute the assistive
+   technology reads rather than off a class that only the eye can see. */
+.holorail-btn[aria-pressed="true"] {
+  color: rgb(var(--holo-ink, 239 244 251));
+  background: rgb(var(--holo-glow, 74 150 224) / .26);
+  border-color: rgb(var(--holo-beam, 178 216 248) / .6);
+  box-shadow: inset 0 0 12px rgb(var(--holo-glow, 74 150 224) / .35);
+}
+
+.holorail-btn[disabled] {
+  opacity: .35;
+  cursor: default;
+  transform: none;
+}
+
+.holorail-btn[disabled]:hover {
+  background: rgb(var(--holo-glow, 74 150 224) / .1);
+  border-color: rgb(var(--holo-glow, 74 150 224) / .3);
+  color: rgb(var(--holo-beam, 178 216 248) / .9);
+}
+
+/* a hairline to group tools, one element, no border tricks */
+.holorail-sep {
+  flex: 0 0 auto;
+  width: 1px;
+  height: 22px;
+  margin: 0 2px;
+  background: rgb(var(--holo-line, 196 228 255) / .16);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .holorail-btn { transition: none; }
+  .holorail-btn:active { transform: none; }
+}
