@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>scifi-ui</title>
+<link rel="stylesheet" href="hologram.css">
+<style>
+  /* demo page chrome only, none of this is part of the system */
+  body {
+    margin: 0; background: #07080B; color: #EFF2F7;
+    font: 400 17px/1.7 ui-sans-serif, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-text-size-adjust: 100%;
+  }
+  * { box-sizing: border-box; }
+  /* 30px, because the trace canvas overhangs its frame by 26 and less
+     than that puts it past the viewport and scrolls the page */
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 30px 96px; }
+
+  /* the masthead, itself a floating panel over a render */
+  .top { position: relative; margin: 0 0 34px; }
+  .top > img { display: block; width: 100%; height: auto; }
+  .topveil {
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, rgba(7,8,11,.55), rgba(7,8,11,.92) 74%, #07080B);
+  }
+  .masthead {
+    position: absolute; left: 50%; top: 46%; transform: translate(-50%,-50%);
+    width: min(660px, calc(100% - 40px));
+    background: linear-gradient(178deg, rgba(13,26,45,.80), rgba(6,12,22,.90));
+    border: 1px solid rgba(122,186,246,.26); border-radius: 3px;
+    backdrop-filter: blur(9px) saturate(1.15);
+    -webkit-backdrop-filter: blur(9px) saturate(1.15);
+    box-shadow: 0 18px 54px rgba(0,0,0,.62), 0 0 40px rgba(62,150,240,.10);
+    padding: 26px 30px 24px;
+  }
+  .masthead::before {
+    content: ""; position: absolute; left: 9%; right: 9%; top: -1px; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(214,240,255,1) 50%, transparent);
+    box-shadow: 0 0 11px rgba(120,196,255,.62);
+  }
+  .masthead::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background-image: repeating-linear-gradient(0deg,
+      rgba(158,210,255,.035) 0 1px, transparent 1px 3px);
+  }
+  .eyebrow {
+    display: flex; align-items: center; gap: 9px; margin: 0 0 12px;
+    font-size: 9.5px; letter-spacing: .2em; text-transform: uppercase;
+    color: rgba(140,190,240,.9);
+  }
+  .eyebrow s { width: 5px; height: 5px; border-radius: 50%; text-decoration: none;
+    background: rgb(120,205,255); box-shadow: 0 0 8px rgba(120,205,255,.9); flex: 0 0 auto; }
+  .eyebrow u { flex: 1 1 auto; height: 5px; text-decoration: none;
+    background-image: repeating-linear-gradient(90deg,
+      rgba(140,196,246,.42) 0 1px, transparent 1px 7px); }
+  h1 { margin: 0; font-size: clamp(27px,4.6vw,38px); font-weight: 500;
+       letter-spacing: -.02em; line-height: 1.08; }
+  .lede { margin: 9px 0 0; color: #A7BCD6; font-size: 15.5px; max-width: 48ch; }
+
+  h2 {
+    margin: 52px 0 8px; font-size: 12.5px; font-weight: 500; letter-spacing: .13em;
+    text-transform: uppercase; color: #666E7C; padding-left: 15px; position: relative;
+  }
+  h2::before {
+    content: ""; position: absolute; left: 0; top: 50%; width: 8px; height: 1px;
+    background: rgb(62 150 240); opacity: .65; transform: translateY(-50%);
+    transition: width .35s ease;
+  }
+  h2:hover::before { width: 13px; }
+  p { margin: 0 0 14px; color: #C4CCD8; }
+  figure { margin: 0 0 6px; }
+  figcaption { margin-top: 9px; color: #9AA2B1; font-size: 14px; }
+  code { font-size: 13.5px; background: #10141C; padding: 2px 6px; border-radius: 3px;
+         color: #B9D6F5; }
+  pre { background: #0C1017; border: 1px solid #1B2130; border-radius: 6px;
+        padding: 14px 16px; overflow-x: auto; font-size: 13px; line-height: 1.6;
+        color: #C7D6E8; }
+  .grid { display: grid; gap: 34px; }
+  @media (min-width: 640px) { .grid { grid-template-columns: 1fr 1fr; } }
+  .cta {
+    display: inline-block; margin-top: 6px; font-size: 12px; letter-spacing: .12em;
+    text-transform: uppercase; color: #EFF2F7; text-decoration: none;
+    border: 1px solid rgba(112,190,255,.28); border-radius: 3px; padding: 9px 16px;
+    background: rgba(16,28,46,.8);
+    transition: border-color .25s ease, background .25s ease;
+  }
+  .cta:hover { border-color: rgba(150,212,255,.7); background: rgba(22,40,66,.9); }
+  footer { margin-top: 66px; padding-top: 22px; border-top: 1px solid #1B2130;
+           color: #666E7C; font-size: 14px; }
+  footer a, .lede a, p a { color: #3E96F0; text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <img src="media/somas.jpg" alt="Reconstructed CA3 pyramidal cell bodies, each in a different colour">
+  <div class="topveil"></div>
+  <div class="masthead">
+    <p class="eyebrow"><s></s>hologram ui components<u></u>no dependencies</p>
+    <h1>scifi-ui</h1>
+    <p class="lede">Hover treatments for media on a dark page. A particle trace
+    that runs the frame, hairline brackets with readouts pulled from the media
+    itself, a visible play affordance, and orientation aware video. Two files and
+    a wrapper div.</p>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <h2>The trace</h2>
+  <p>A short arc of light runs the boundary once, starting from wherever your
+  pointer crossed it, then breaks into particles that decay along a branching
+  tree. Corner brackets push outward and the readouts fade in. Every value shown
+  is real, read off the media element at runtime.</p>
+  <figure data-hud="337 × 266 × 92 µm">
+    <div class="holoframe">
+      <canvas class="trace"></canvas>
+      <img src="media/cell.jpg" alt="A CA3 pyramidal cell with the six mossy fibers that reach it">
+    </div>
+    <figcaption>Enter from different edges. The light is struck where you cross.
+    One thorny pyramidal cell, 4.5 million triangles in the original.</figcaption>
+  </figure>
+
+  <h2>Video, with a play affordance</h2>
+  <p>The native control is small and often lands on top of whatever is burned into
+  the frame, so the frame carries its own. It hides on play and returns on pause,
+  and native controls stay for scrubbing.</p>
+  <figure data-hud="165 synapses · 6 fibers">
+    <div class="holoframe">
+      <canvas class="trace"></canvas>
+      <video controls playsinline muted loop preload="metadata" poster="media/pulse.jpg">
+        <source src="media/pulse.mp4" type="video/mp4">
+      </video>
+    </div>
+    <figcaption>An action potential travelling real reconstructed cable. Hover the
+    frame, then press play.</figcaption>
+  </figure>
+
+  <h2>Two at once</h2>
+  <p>Each frame owns its canvas and only the hovered one runs, so a page can carry
+  a lot of these without cost.</p>
+  <div class="grid">
+    <figure data-hud="one bouton, one thorn">
+      <div class="holoframe">
+        <canvas class="trace"></canvas>
+        <img src="media/thorn.jpg" alt="A mossy fiber terminal wrapped around a thorny excrescence">
+      </div>
+    </figure>
+    <figure data-hud="56 partner cells">
+      <div class="holoframe">
+        <canvas class="trace"></canvas>
+        <video controls playsinline muted loop preload="metadata" poster="media/partners.jpg">
+          <source src="media/partners.mp4" type="video/mp4">
+        </video>
+      </div>
+    </figure>
+  </div>
+
+  <h2>On a transparent render</h2>
+  <p>The trace sits outside the media and the canvas stays transparent, so it
+  works over artwork with its own alpha without a plate behind it.</p>
+  <figure data-hud="1 × 1 × 0.1 mm block">
+    <div class="holoframe">
+      <canvas class="trace"></canvas>
+      <img src="media/volume.png" alt="Wireframe diagram of the imaged tissue block with one cell inside for scale">
+    </div>
+  </figure>
+
+  <h2>Readout panels</h2>
+  <p>The same language as a standalone block. One label, one number, one line of
+  context. This is the whole idea of the repo in one component: say something
+  true, and the ornament stops being ornament.</p>
+  <div class="holo">
+    <p class="k">this one cell receives</p>
+    <p class="v">165</p>
+    <p class="d">mossy fiber synapses, from only <b>6</b> fibers. A single terminal
+    makes dozens of contacts on one thorn.</p>
+  </div>
+
+  <h2>Usage</h2>
+<pre>&lt;link rel="stylesheet" href="hologram.css"&gt;
+
+&lt;figure data-hud="optional measured value"&gt;
+  &lt;div class="holoframe"&gt;
+    &lt;canvas class="trace"&gt;&lt;/canvas&gt;
+    &lt;img src="render.jpg" alt=""&gt;
+  &lt;/div&gt;
+  &lt;figcaption&gt;Anything you like.&lt;/figcaption&gt;
+&lt;/figure&gt;
+
+&lt;script src="hologram.js"&gt;&lt;/script&gt;</pre>
+  <p>Put the <code>canvas.trace</code> before the media. The HUD layer and the play
+  badge are created at runtime. Colours come from the tokens on <code>:root</code>
+  in the stylesheet. Read
+  <a href="README.md">README.md</a> for the reasoning, the tunables, and the
+  compositing traps that cost real time.</p>
+  <a class="cta" href="README.md">Read the README</a>
+
+  <footer>
+    The renders are from a connectomic reconstruction of mouse hippocampal CA3,
+    where this system was built:
+    <a href="https://amyleesterling.github.io/ca3">amyleesterling.github.io/ca3</a>.
+    Meshes via <a href="https://caveclient.readthedocs.io/">CAVE</a>, rendered in
+    Blender. An interactive WebGL version of the pulse is
+    <a href="https://amyleesterling.github.io/ca3/viewer.html">here</a>.
+  </footer>
+
+</div>
+<script src="hologram.js"></script>
+</body>
+</html>

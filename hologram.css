@@ -1,0 +1,239 @@
+/* scifi-ui  ...  see README.md
+ * Drop this in, wrap any media in <div class="holoframe">, load hologram.js.
+ * Tokens you will want to change are at the top. */
+
+:root {
+  --holo-line: 196 228 255;   /* hairlines and readouts */
+  --holo-beam: 178 216 248;   /* the running beam core  */
+  --holo-glow:  74 150 224;   /* its soft outer glow    */
+  --holo-warm: 232 169  58;   /* the single warm accent */
+  --holo-ink:  239 244 251;
+  --holo-dim:  154 162 177;
+  --holo-panel: 15 18 24;
+}
+
+/* A projected panel rather than a black bar: cool blue instead of true black,
+     faint scanlines, a lit lower edge, and bloom where it meets the render. */
+  .heropanel {
+    position: absolute; top: 0; left: 0; right: 0; z-index: 2;
+    background: linear-gradient(to bottom,
+      rgba(6,13,24,.975) 0%, rgba(7,15,28,.955) 58%,
+      rgba(9,19,34,.80) 84%, rgba(10,20,36,.26) 96%, transparent 100%);
+    border-bottom: 1px solid rgba(112,190,255,.30);
+    box-shadow: 0 1px 26px rgba(62,150,240,.16);
+  }
+
+.heropanel::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background-image: repeating-linear-gradient(0deg,
+      rgba(150,205,255,.05) 0 1px, transparent 1px 3px);
+  }
+
+.heropanel .inner {
+    position: relative; z-index: 1; max-width: 800px; margin: 0 auto;
+    padding: clamp(20px,4vw,40px) clamp(16px,5vw,32px) clamp(22px,4vw,38px);
+  }
+
+.heropanel h1 { margin: 0 0 5px; }
+
+.heropanel .lede { margin: 0 0 16px; color: #A9BDD6; }
+
+.heropanel .cite {
+    margin: 0; background: rgba(14,26,44,.62);
+    border: 1px solid rgba(96,160,230,.20);
+  }
+
+.holo {
+    background: linear-gradient(158deg, rgba(18,30,52,.86), rgba(9,14,26,.74));
+    border: 1px solid rgba(88,148,238,.34); border-radius: 3px;
+    padding: 13px 15px 12px; max-width: 268px;
+    box-shadow: 0 0 22px rgba(0,0,0,.55);
+  }
+
+.holo .k {
+    font-size: 10px; letter-spacing: .19em; text-transform: uppercase;
+    color: #6BA4E6; margin: 0 0 5px;
+  }
+
+.holo .v {
+    font-size: 27px; font-weight: 500; line-height: 1.05; margin: 0;
+    font-variant-numeric: tabular-nums; color: #EFF4FB;
+  }
+
+.holo .d { font-size: 12.5px; color: #93A3BC; margin: 5px 0 0; line-height: 1.5; }
+
+.holo + .holo { margin-top: 10px; }
+
+@media (min-width: 760px) {
+    .holo-tr { position: absolute; top: 1%; right: 0; }
+    .holo-bl { position: absolute; bottom: 3%; left: 0; }
+  }
+
+@media (max-width: 759px) {
+    .holo { max-width: none; margin-top: 10px; }
+    .holo-tr { margin-bottom: 10px; }
+  }
+
+/* ---- hologram UI ---------------------------------------------------------
+     Every piece of media sits in a frame that reads like an instrument readout:
+     corner brackets draw in, a scan line passes once, and a cyan rim lifts it off
+     the page. Transform and opacity only, so none of it costs layout. */
+  .holoframe { position: relative; isolation: isolate; margin: 26px 0; }
+
+.holoframe img, .holoframe video {
+    transition: filter .5s ease, transform .55s cubic-bezier(.22,.9,.28,1);
+    will-change: transform;
+  }
+
+.holoframe:hover img, .holoframe:hover video,
+  .holoframe:focus-within img, .holoframe:focus-within video {
+    transform: translateY(-3px) scale(1.006);
+  }
+
+.holoframe:hover img, .holoframe:hover video {
+    filter: brightness(1.03) saturate(1.03)
+            drop-shadow(0 6px 18px rgba(0,0,0,.45))
+            drop-shadow(0 0 12px rgba(62,150,240,.14));
+  }
+
+/* the readouts on the full bleed cell pick up the same idle shimmer */
+  .holo { transition: border-color .4s ease, box-shadow .4s ease, transform .4s ease; }
+
+.holo:hover {
+    border-color: rgba(120,190,255,.75); transform: translateY(-2px);
+    box-shadow: 0 0 26px rgba(0,0,0,.6), 0 0 22px rgba(62,150,240,.18);
+  }
+
+/* the particle trace draws itself on a canvas; see the script at the foot */
+  .holoframe canvas.trace {
+    position: absolute; inset: -22px; width: calc(100% + 44px);
+    height: calc(100% + 44px); z-index: 3; pointer-events: none;
+  }
+
+/* the play affordance. The native control is small and lands on top of the
+     colour key burned into some of these clips, so the frame carries its own. */
+  .playbadge {
+    position: absolute; left: 50%; top: 50%; z-index: 5;
+    transform: translate(-50%,-50%); width: 74px; height: 74px;
+    border-radius: 50%; cursor: pointer; padding: 0;
+    border: 2px solid rgba(150,215,255,.85);
+    background: radial-gradient(circle at 50% 50%,
+      rgba(20,45,80,.72), rgba(8,16,30,.62));
+    box-shadow: 0 0 0 6px rgba(62,150,240,.10), 0 0 26px rgba(62,150,240,.35);
+    transition: transform .25s ease, box-shadow .25s ease,
+                opacity .25s ease, border-color .25s ease;
+  }
+
+.playbadge::before {
+    content: ""; position: absolute; left: 52%; top: 50%;
+    transform: translate(-50%,-50%);
+    border-left: 20px solid rgba(226,244,255,.96);
+    border-top: 13px solid transparent; border-bottom: 13px solid transparent;
+  }
+
+.playbadge:hover {
+    transform: translate(-50%,-50%) scale(1.07);
+    border-color: rgba(190,235,255,1);
+    box-shadow: 0 0 0 8px rgba(62,150,240,.14), 0 0 34px rgba(62,150,240,.55);
+  }
+
+.playbadge:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+
+.holoframe.playing .playbadge { opacity: 0; pointer-events: none; }
+
+/* the play affordance. The native control is small and lands on top of the
+     colour key burned into some of these clips, so the frame carries its own. */
+  .playbadge {
+    position: absolute; left: 50%; top: 50%; z-index: 4;
+    transform: translate(-50%,-50%); width: 74px; height: 74px;
+    border-radius: 50%; cursor: pointer; padding: 0;
+    border: 2px solid rgba(150,215,255,.85);
+    background: radial-gradient(circle at 50% 50%,
+      rgba(20,45,80,.72), rgba(8,16,30,.62));
+    box-shadow: 0 0 0 6px rgba(62,150,240,.10), 0 0 26px rgba(62,150,240,.35);
+    transition: transform .25s ease, box-shadow .25s ease,
+                opacity .25s ease, border-color .25s ease;
+  }
+
+.playbadge::before {
+    content: ""; position: absolute; left: 52%; top: 50%;
+    transform: translate(-50%,-50%);
+    border-left: 20px solid rgba(226,244,255,.96);
+    border-top: 13px solid transparent; border-bottom: 13px solid transparent;
+  }
+
+.playbadge:hover {
+    transform: translate(-50%,-50%) scale(1.07);
+    border-color: rgba(190,235,255,1);
+    box-shadow: 0 0 0 8px rgba(62,150,240,.14), 0 0 34px rgba(62,150,240,.55);
+  }
+
+.playbadge:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+
+.holoframe.playing .playbadge { opacity: 0; pointer-events: none; }
+
+/* the study at a glance, in the same readout language as the cell panels */
+
+  /* ---- HUD annotation ------------------------------------------------------
+     Hairlines and small readouts, in the language of a targeting overlay. Every
+     value shown is real: media dimensions and duration are read off the element,
+     and the science figures come from measurements on the page. */
+  .hud {
+    position: absolute; inset: -1px; z-index: 4; pointer-events: none;
+    opacity: 0; transition: opacity .34s ease;
+  }
+
+.holoframe:hover .hud, .holoframe:focus-within .hud { opacity: 1; }
+
+.hud i {
+    position: absolute; width: 13px; height: 13px;
+    border: 1px solid rgba(196,228,255,.5);
+    transition: transform .42s cubic-bezier(.2,.8,.25,1);
+  }
+
+.hud i.tl { top: 0; left: 0; border-right: 0; border-bottom: 0; transform: translate(4px,4px); }
+
+.hud i.tr { top: 0; right: 0; border-left: 0; border-bottom: 0; transform: translate(-4px,4px); }
+
+.hud i.bl { bottom: 0; left: 0; border-right: 0; border-top: 0; transform: translate(4px,-4px); }
+
+.hud i.br { bottom: 0; right: 0; border-left: 0; border-top: 0; transform: translate(-4px,-4px); }
+
+.holoframe:hover .hud i.tl { transform: translate(-7px,-7px); }
+
+.holoframe:hover .hud i.tr { transform: translate(7px,-7px); }
+
+.holoframe:hover .hud i.bl { transform: translate(-7px,7px); }
+
+.holoframe:hover .hud i.br { transform: translate(7px,7px); }
+
+.hud b {
+    position: absolute; font-weight: 500; font-size: 9.5px; letter-spacing: .17em;
+    text-transform: uppercase; color: rgba(190,222,252,.82);
+    font-variant-numeric: tabular-nums; white-space: nowrap;
+    text-shadow: 0 1px 6px rgba(0,0,0,.8);
+  }
+
+.hud b.a { top: 9px; left: 22px; }
+
+.hud b.b { top: 9px; right: 22px; color: rgba(232,169,58,.9); }
+
+.hud b.c { bottom: 9px; left: 22px; }
+
+/* no hover on touch, and the canvas overhang would push past the viewport */
+  @media (max-width: 700px), (hover: none) {
+    .hud { display: none; }
+    .holoframe canvas.trace { display: none; }
+    .holoframe { margin: 10px 0; }
+  }
+
+@media (prefers-reduced-motion: reduce) {
+    .hud, .hud i { transition: none; }
+  }
+
+@media (prefers-reduced-motion: reduce) {
+        .holoframe img, .holoframe video, .holo, h2::before { transition: none; }
+    .holoframe:hover img, .holoframe:hover video { transform: none; }
+    .playbadge { transition: none; }
+    .holoframe canvas.trace { display: none; }
+  }
