@@ -388,9 +388,13 @@
   <h2>Usage</h2>
 <pre>&lt;link rel="stylesheet" href="hologram.css"&gt;
 
+&lt;nav class="holorail" data-holorail="h2"&gt;&lt;/nav&gt;
+
 &lt;div class="holobar" data-steps="10" data-step="8"&gt;&lt;/div&gt;
 
 &lt;section class="holoboot holosweep"&gt; ... &lt;/section&gt;
+
+&lt;figure class="holocard"&gt;&lt;img src="render.jpg" alt=""&gt;&lt;/figure&gt;
 
 &lt;figure data-hud="optional measured value"&gt;
   &lt;div class="holoframe"&gt;
@@ -401,8 +405,9 @@
 
 &lt;script src="hologram.js"&gt;&lt;/script&gt;</pre>
   <p>Put the <code>canvas.trace</code> before the media. The HUD layer, the play
-  badge, the step rail parts and the two boot spans are all created at runtime.
-  Colours come from five tokens on <code>:root</code> in the stylesheet, and
+  badge, the step rail parts, the section rail, the card edge trace and the two
+  boot spans are all created at runtime.
+  Colours come from nine tokens on <code>:root</code> in the stylesheet, and
   every rule carries a concrete fallback, so any one component works pasted into
   a page with no token system at all. Read
   <a href="README.md">README.md</a> for the reasoning, the tunables, and the

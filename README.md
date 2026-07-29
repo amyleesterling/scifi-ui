@@ -19,7 +19,13 @@ No build step, no framework, no CDN. Two files.
 ```html
 <link rel="stylesheet" href="hologram.css">
 
+<nav class="holorail" data-holorail="h2"></nav>
+
 <div class="holobar" data-steps="10" data-step="8"></div>
+
+<figure class="holocard">
+  <img src="render.jpg" alt="">
+</figure>
 
 <figure>
   <div class="holoframe">
@@ -145,19 +151,45 @@ whatever its height. Off entirely on touch, where hover means nothing.
 
 ### 6. Hologram dialog (`.holodialog`)
 
-A modal surface: rim gradient, still particle field, lit inside edge, a field
-with a lit left border, and a button with hover, active, focus and disabled
-states.
+The EyeWire II sign in modal, reproduced, with the authentication taken out. It
+is the densest thing in this repo and every layer earns its place:
+
+**A drifting particle field.** Six `radial-gradient` dots, each a single dot
+placed at its own percentage, each tiled at its own `background-size`, so the six
+layers beat against one another and never line up into a grid. The whole field
+travels 60px by 40px over twenty seconds. The original translates the element,
+which opens a gap at the trailing edge once the box is only 460px wide, so here
+the `background-position` moves instead.
+
+**A cycling gradient border.** A `linear-gradient` at `background-size: 300%`,
+masked down to a 1px ring with `mask-composite: exclude`, cycling through blue,
+violet and teal on a six second loop. In the original this is a `::before` at
+`inset: -1px` sitting at `z-index: -1`, which a dialog with `overflow: hidden`
+clips away, so here it is a real element at `inset: 0`.
+
+**An inner ambient glow**, a radial wash down from the top edge, on `::after` at
+200 per cent of the box so the ellipse has room to be an ellipse.
+
+**A materialise entrance**, 0.8s at `cubic-bezier(.16,1,.3,1)`: it arrives at
+`scale(1.04)`, `blur(20px)` and `brightness(3)` and settles through a soft
+overshoot at 60 per cent. Two counter rotating rings around the glyph, a single
+breath on the glyph itself, one pulse on the status row, one band of light across
+the button, and one flicker on the data stream line at the foot.
+
+**Exactly two things loop:** the particle drift and the border cycle, because
+both are ambient rather than event driven. Everything else runs once per open,
+which costs nothing to arrange, because a closed `<dialog>` is `display: none`
+and opening it starts every animation over.
 
 It is a real `<dialog>` opened with `showModal`, so focus trapping and Escape
 come from the user agent rather than from a script. The script adds initial
 focus, focus restored to the opener on close, a backdrop click to dismiss, and a
 Tab wrap for the one case where `showModal` is missing.
 
-**There is no authentication in it.** It is a visual component. The demo carries
-an ordinary text input, a button that does nothing, and no form element at all.
-If you wire it to real credentials, that is on you, and none of the styling here
-helps you do it safely.
+**There is no authentication in it.** It is a visual component. It carries an
+ordinary text input, a button that does nothing, no `<form>` element at all, no
+password field, and no wordmark. If you wire it to real credentials, that is on
+you, and none of the styling here helps you do it safely.
 
 ### 7. Loading state (`.holoload`)
 
@@ -227,6 +259,75 @@ Serves a vertical cut to phones and a widescreen cut to everything else:
 Vertical stays the markup default so a phone never begins downloading the wide
 file.
 
+### 12. Section rail (`.holorail`)
+
+```html
+<nav class="holorail" data-holorail=".wrap > h2"></nav>
+```
+
+A hairline down the left gutter marking the sections of the page: a counter, the
+run so far filled, a head that travels, and one dot per heading with a label that
+appears when you point at it or tab to it. `data-holorail` takes any selector and
+defaults to `h2`. The script gives every matched heading an id if it has none,
+builds one anchor per heading, and an `IntersectionObserver` keeps the current one
+marked.
+
+The active section is worked out from geometry rather than from the observer's
+entry list. A heading is a thin element, so it can sit between two crossings with
+nothing intersecting at all, and an entry driven implementation goes blank in the
+middle of a long section. The observer is the cheap trigger; the handler then asks
+each heading where it is and takes the last one that has passed a line 30 per cent
+down the viewport. That is exact at any section length, and it costs one bounding
+box per heading on a crossing.
+
+The dots are real anchors with real `href`s, so with the script stripped out you
+still have a list of links to the sections rather than dead spans, and they land
+in the tab order for free. `aria-current="true"` marks the active one and the
+counter is an `aria-live` region.
+
+It is `position: fixed`, so it never contributes to the document scroll width.
+It hides itself below 1240px, which is the width at which an 860px column stops
+leaving a gutter to sit in, and the labels are capped at 132px and clipped,
+because past that they would cross into the reading column at 1280px.
+
+Nothing here loops. The position it reports is the position you are at, so a
+transition is the honest tool and an animation is not.
+
+### 13. Image card (`.holocard`)
+
+```html
+<figure class="holocard">
+  <img src="render.jpg" alt="">
+</figure>
+```
+
+Near black ink instead of the white tinted glass a panel usually gets, so a
+render inside it pops rather than being washed out. Faint scanlines every 3px. A
+rim and a backlight that live entirely in the `box-shadow`, so they never lighten
+the card body, which is the point of doing it that way rather than with a border
+and a background.
+
+**The hover state is shadow only.** Nothing moves, nothing scales, and the image
+is never repainted, which is why it stays calm at any size and costs nothing.
+
+The middle shadow layer is `0 0 24px -6px`. The negative spread pulls the glow
+back so it hugs the card instead of bleeding off it, and that one number is the
+difference between a lit card and a smudge. It is the detail worth copying.
+
+The edge trace is a `conic-gradient` whose bright head covers about a quarter of
+the turn, masked to the 1px ring, rotating through a registered `@property`
+angle. It is the only loop in the library outside the loading state, and it only
+ever runs while you are pointing at the card, which is what makes it a response
+rather than a status light. On a browser without `@property` the angle holds still
+and the ring simply fades in.
+
+**The accent is a second token**, `--holo-cyan`, at `126 224 255`. It is a teal
+leaning cyan and it is deliberately not `--holo-line` at `196 228 255`. The card
+reads cooler and harder than the rest of the library, and that difference is the
+whole reason it is a separate component. Do not force them to match.
+
+The section rail above uses the same token, for the same reason.
+
 ---
 
 ## Tokens
@@ -243,6 +344,8 @@ Set these on `:root` in `hologram.css`. Space separated RGB so they compose with
 | `--holo-panel` | panel fills |
 | `--holo-ink` | type, and the unlit half of a rail |
 | `--holo-dim` | secondary type |
+| `--holo-cyan` | the second accent, for the card and the section rail |
+| `--holo-viol` | the violet the dialog rim cycles through |
 
 **Every reference carries a concrete fallback**, as in
 `rgb(var(--holo-beam, 178 216 248) / .55)`. Paste any one component into a page
@@ -252,6 +355,12 @@ declaration is dropped, which is how focus rings silently disappear.
 
 **One warm accent, used sparingly, against a cool field.** Every good HUD in film
 does this. Two accents and it stops reading as an instrument.
+
+`--holo-cyan` is not a second warm accent, it is a second cool one, and it is
+scoped: the card and the section rail use it and nothing else does. `--holo-viol`
+is narrower still, and exists only so the dialog rim has somewhere to travel
+between blue and teal. Neither is a general purpose colour, and pulling either of
+them into the rest of a page is how a palette stops holding together.
 
 Sizing hooks: `--holoload-size`, `--holoload-bar`. Tunables at the top of the
 trace block in `hologram.js`: `PAD`, `N`, `DUR`, `R`.
@@ -276,10 +385,25 @@ will sit on top of a title inside that figure, not behind it. Give the scrim
 7px wide and shifts left. If you can, put the element outside the constrained
 column instead; no viewport units, exact result.
 
-**Nothing should loop except a loading state.** A trace that animates infinitely
-while hovered reads as a status indicator, which is not what you meant. One pass
-per hover. The loader is the single exception in this repo, and it earns the loop
-by genuinely reporting that something is still happening.
+**Nothing should loop except a loading state, or something ambient.** A trace that
+animates infinitely on a panel you are not touching reads as a status indicator,
+which is not what you meant. The loader earns its loop by genuinely reporting that
+something is still happening. The dialog's particle drift and border cycle earn
+theirs by being weather rather than information: nothing about them claims to
+report anything. The card's edge trace runs only while you are pointing at it, so
+it is a response with a long tail rather than a light left on. Everything else in
+here runs once.
+
+**A closed `<dialog>` is `display: none`, which is a free animation reset.** Every
+one shot animation inside a modal starts over on the next `showModal` with no
+class juggling and no reflow trick. That is the reason the dialog can afford six
+separate entrance animations and still only play them when someone is looking.
+
+**An entrance with `animation-fill-mode: both` is invisible if the animation never
+runs.** The 0 per cent keyframe is `opacity: 0`, and `both` holds it before the
+animation starts. In any real browser it plays and this never comes up. In a
+headless or background context where the frame loop is throttled, the panel is
+simply not there. Worth knowing before you debug it as a CSS bug.
 
 **Media does not constrain itself.** A `<figure>` wrapper does not stop a 1400px
 render laying itself out at 1400px and scrolling the page sideways. The frame has
@@ -331,13 +455,24 @@ label and a visible focus ring, never a styled div.
 
 The step rail is a roving tabindex group: `aria-current="step"` marks the current
 tick, only that tick is tabbable, the arrows move the selection, and the counter
-is an `aria-live="polite"` region so the change is announced. The dialog is a real
-`<dialog>`, so the focus trap and Escape are the user agent's job rather than a
-script's. The loader carries `role="status"`.
+is an `aria-live="polite"` region so the change is announced. Dragging does not
+break any of that: focus moves to the tick you drop on, so the focused tick is
+always the current one, and the counter announces the step you landed on.
+
+The section rail is a `<nav>` of real anchors with real `href`s, `aria-current`
+on the active one, a visible focus ring, its own `aria-live` counter, and an
+`aria-label` on every dot carrying the section title, because the visible label
+only appears on hover or focus.
+
+The dialog is a real `<dialog>`, so the focus trap and Escape are the user
+agent's job rather than a script's. The loader carries `role="status"`.
 
 `prefers-reduced-motion: reduce` disables the canvas, every transition and every
-animation. The one loop that survives is neutered: the cell is simply drawn, and
-the indeterminate bar stops pretending to know something it does not.
+animation, including all four loops: the loader is neutered so the cell is simply
+drawn and the indeterminate bar stops pretending to know something it does not,
+the dialog's particle drift and border cycle stop, and the card's edge trace
+element is removed outright. The section rail scrolls instantly rather than
+smoothly.
 
 Nothing here is load bearing. Strip every line and the page still works.
 
@@ -352,11 +487,23 @@ reconstruction.
 
 The pieces were pulled out of four working sites and generalised so none of them
 depends on the markup it came from. The step rail is from the Inner Cosmos
-explorer, reimplemented from React to plain CSS with a small init. The loader, the
-panel boot, the underline and the scan sweep are from the FlyWire neuron gallery,
-where they were Tailwind utilities bound to that project's class names. The dialog
-surface is the EyeWire II sign in modal with the authentication removed and every
-looping animation replaced by the still it was cycling around.
+explorer, reimplemented from React to plain CSS with a small init, with pointer
+dragging added here. The loader, the panel boot, the underline, the scan sweep,
+the section rail and the image card are from the FlyWire neuron gallery, where
+they were Tailwind utilities and React state bound to that project's class names.
+The dialog is the EyeWire II sign in modal, reproduced layer for layer, with the
+authentication removed, the third party marks removed, and every loop that was
+not ambient cut down to a single pass.
+
+Two notes on what changed in the port, so nobody has to diff it. The gallery's
+card carries a **single** headed trace that rotates a full turn every 3.4s while
+hovered, which is what `.holocard` reproduces. The **twin** headed version, two
+heads 180 degrees apart each running half the perimeter from 45deg to 225deg, is a
+different component in that project, its lightbox panel, and it is already in this
+repo as the border sweep on `.holoboot`. They are not the same effect and this
+repo keeps them apart. The dialog's neuron glyph is drawn statically here: in the
+original it carries a dozen SMIL `animateMotion` loops, and none of them survives
+the rule that only ambient things repeat.
 
 The visual vocabulary is borrowed from film and game HUD work:
 hairline strokes, tick rails, brackets, small uppercase labels, cool field with

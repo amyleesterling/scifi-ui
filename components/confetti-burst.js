@@ -28,10 +28,17 @@
    last particle is gone, and the resize listener goes with it, so an idle
    page carries no full screen canvas and no listener.
 
-   This is the one file in this set that needs requestAnimationFrame. In an
-   environment where the document is hidden, rAF does not fire, so the burst
-   will not draw. It will not leak either: with no frames the canvas simply
-   stays empty until the next visible frame arrives. */
+   This is the one file in this set that needs requestAnimationFrame, and that
+   is worth being careful about, because there are real environments where rAF
+   never fires: a background tab, and any embedded pane that reports the
+   document as hidden. Measured in one of those: the canvas was created, the
+   first frame never arrived, so the loop never reached its own teardown and a
+   full screen canvas sat there for the life of the page.
+
+   So there is a backstop timer as well. Nothing can outlive MAX_LIFE, whether
+   or not a single frame was ever drawn. A burst that was never seen because
+   nobody was looking is not worth keeping warm for a reader who comes back
+   two minutes later. */
 
 (function () {
   "use strict";
@@ -50,9 +57,14 @@
     ? window.matchMedia("(prefers-reduced-motion: reduce)")
     : { matches: false };
 
+  /* longest a particle can survive is about five and a half seconds, at the
+     slowest fade rate with no early exit off the bottom of the screen */
+  var MAX_LIFE = 8000;
+
   var canvas = null;
   var ctx = null;
   var frame = 0;
+  var backstop = 0;
   var particles = [];
 
   function size() {
@@ -65,6 +77,7 @@
 
   function teardown() {
     if (frame) { cancelAnimationFrame(frame); frame = 0; }
+    if (backstop) { window.clearTimeout(backstop); backstop = 0; }
     window.removeEventListener("resize", size);
     if (canvas) { canvas.remove(); canvas = null; ctx = null; }
     particles = [];
@@ -175,6 +188,9 @@
     var n = Math.round(80 * (Number(intensity) || 1));
     spawn(n, colors);
     if (!frame) frame = requestAnimationFrame(tick);
+    /* pushed out by each fresh burst, so a cascade of them is not cut short */
+    if (backstop) window.clearTimeout(backstop);
+    backstop = window.setTimeout(teardown, MAX_LIFE);
     return true;
   }
 

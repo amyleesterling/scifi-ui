@@ -112,13 +112,7 @@
     if (target) {
       this.target = target;
       target.classList.add("holotip-target");
-      if (!this._inView(target)) {
-        target.scrollIntoView({
-          block: "center",
-          inline: "nearest",
-          behavior: reduce.matches ? "auto" : "smooth"
-        });
-      }
+      if (!this._inView(target)) this._reveal(target);
     }
 
     this._reposition();
@@ -128,7 +122,38 @@
 
   Tour.prototype._inView = function (t) {
     var r = t.getBoundingClientRect();
-    return r.top >= 0 && r.bottom <= (window.innerHeight || 0);
+    return r.top >= 0 && r.bottom <= document.documentElement.clientHeight;
+  };
+
+  /* Bring the target on screen, then make sure it actually happened.
+
+     A smooth scroll is animated by the compositor, so in any context without
+     a frame loop, a background tab or an embedded pane that reports the
+     document hidden, the request is accepted and nothing moves. Measured in
+     one of those: scrollIntoView with behavior auto arrived at 1312px, the
+     same call with behavior smooth left the page at 0 and stayed there.
+
+     A tour whose target is off screen is broken, so ask for the smooth scroll,
+     then check, and jump if the page did not move. */
+  Tour.prototype._reveal = function (target) {
+    var self = this;
+    var where = { block: "center", inline: "nearest" };
+
+    if (reduce.matches) {
+      target.scrollIntoView(where);
+      return;
+    }
+
+    var before = window.pageYOffset;
+    where.behavior = "smooth";
+    target.scrollIntoView(where);
+
+    window.setTimeout(function () {
+      if (window.pageYOffset !== before || self.target !== target) return;
+      delete where.behavior;
+      target.scrollIntoView(where);
+      self._reposition();
+    }, 120);
   };
 
   Tour.prototype._build = function (step, i) {
