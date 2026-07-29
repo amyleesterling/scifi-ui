@@ -7,6 +7,7 @@
 //   5 step rail        builds .holobar, clicks and arrow keys, reports back
 //   6 loading state    drives the bar and the count on .holoload
 //   7 boot on view     lights .holoboot and .holounder once, when first seen
+//  10 swarm            HUD motes over a hero that flee the pointer
 //   8 dialog           opens .holodialog modally, no auth, nothing submits
 
 // ---- 1. particle trace ----------------------------------------------------
@@ -507,5 +508,83 @@
         e.preventDefault(); first.focus();
       }
     });
+  });
+})();
+
+// ---- 10. motes that flee the cursor --------------------------------------------
+// Put <div class="holoswarm"></div> inside a positioned hero. Marks are generated
+// here rather than hand written, so the count and mix are one edit. Each mark is
+// pushed along the vector away from the pointer with a smooth falloff, and CSS
+// eases both the push and the return.
+(function () {
+  if (matchMedia("(hover: none)").matches) return;
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  var RADIUS = 150;   // px of influence
+  var PUSH = 62;      // px of maximum displacement
+
+  // kind, x%, y%, and text for the readouts. Spread away from the centre so they
+  // decorate the edges rather than crowding whatever the hero is showing.
+  var MARKS = [
+    ["num", 6, 12, "SEC 04"],   ["dot", 13, 26, ""],
+    ["brk", 4, 44, ""],         ["rail", 8, 62, ""],
+    ["dot", 17, 78, ""],        ["ring", 10, 88, ""],
+    ["num", 21, 94, "0.42"],    ["dot", 33, 8, ""],
+    ["rail", 44, 5, ""],        ["dot", 58, 11, ""],
+    ["ring", 70, 7, ""],        ["num", 80, 15, "SYNC"],
+    ["dot", 88, 30, ""],        ["brk", 95, 46, ""],
+    ["rail", 90, 64, ""],       ["dot", 83, 79, ""],
+    ["num", 92, 88, "1.00"],    ["dot", 66, 92, ""],
+    ["ring", 52, 95, ""],       ["dot", 40, 90, ""]
+  ];
+
+  document.querySelectorAll(".holoswarm").forEach(function (swarm) {
+    var host = swarm.parentElement;
+    if (!host) return;
+    var els = [];
+
+    MARKS.forEach(function (m) {
+      var el = document.createElement("i");
+      el.className = "holoswarm " + m[0];
+      el.className = m[0];
+      el.style.left = m[1] + "%";
+      el.style.top = m[2] + "%";
+      if (m[3]) el.textContent = m[3];
+      el.setAttribute("aria-hidden", "true");
+      swarm.appendChild(el);
+      els.push(el);
+    });
+
+    function move(ev) {
+      var r = host.getBoundingClientRect();
+      var mx = ev.clientX - r.left, my = ev.clientY - r.top;
+      for (var i = 0; i < els.length; i++) {
+        var el = els[i];
+        var ex = el.offsetLeft + el.offsetWidth / 2;
+        var ey = el.offsetTop + el.offsetHeight / 2;
+        var dx = ex - mx, dy = ey - my;
+        var d = Math.sqrt(dx * dx + dy * dy) || 0.001;
+        if (d > RADIUS) {
+          el.style.transform = "";
+          el.style.opacity = "";
+          continue;
+        }
+        // falloff, 1 at the cursor and 0 at the edge of influence, eased so the
+        // motes drift rather than snap
+        var f = 1 - d / RADIUS;
+        f = f * f;
+        var k = (PUSH * f) / d;
+        el.style.transform = "translate(" + (dx * k).toFixed(1) + "px,"
+                                          + (dy * k).toFixed(1) + "px)";
+        el.style.opacity = String(0.9);
+      }
+    }
+
+    function leave() {
+      els.forEach(function (el) { el.style.transform = ""; el.style.opacity = ""; });
+    }
+
+    host.addEventListener("pointermove", move);
+    host.addEventListener("pointerleave", leave);
   });
 })();

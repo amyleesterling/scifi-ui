@@ -427,11 +427,23 @@
             mask-composite: exclude;
   }
 
-.holoboot.is-online { animation: holo-boot-in 900ms cubic-bezier(.16,1,.3,1) both; }
+/* boot on hover or focus, and again on each new hover, because a boot you
+   cannot replay is a boot you only ever see once by accident */
+.holoboot.is-online, .holoboot:hover, .holoboot:focus-within {
+  animation: holo-boot-in 900ms cubic-bezier(.16,1,.3,1) both;
+}
 
-.holoboot.is-online > .holoboot-ring { animation: holo-ring-sweep 1500ms linear forwards; }
+.holoboot.is-online > .holoboot-ring,
+.holoboot:hover > .holoboot-ring,
+.holoboot:focus-within > .holoboot-ring {
+  animation: holo-ring-sweep 1500ms linear forwards;
+}
 
-.holoboot.is-online > .holoboot-glow { animation: holo-panel-online 1500ms linear forwards; }
+.holoboot.is-online > .holoboot-glow,
+.holoboot:hover > .holoboot-glow,
+.holoboot:focus-within > .holoboot-glow {
+  animation: holo-panel-online 1500ms linear forwards;
+}
 
 @keyframes holo-boot-in {
     from { opacity: 0; transform: translateY(7px) scale(.994);
@@ -461,7 +473,7 @@
   }
 
 @media (prefers-reduced-motion: reduce) {
-    .holoboot.is-online { animation: none; }
+    .holoboot.is-online, .holoboot:hover, .holoboot:focus-within { animation: none; }
     .holoboot > .holoboot-ring, .holoboot > .holoboot-glow { display: none; }
   }
 
@@ -711,3 +723,51 @@ dialog.holodialog[open] {
     .holodialog-input, .holobtn { transition: none; }
     .holobtn:hover:not(:disabled) { transform: none; }
   }
+
+
+/* ---- 10. motes that flee the cursor ---------------------------------------
+   Small HUD marks scattered over a hero image that get out of the pointer's
+   way. Each one is pushed along the vector from the cursor, with a falloff, and
+   springs back on its own transition when the cursor leaves. No animation loop:
+   the transform is set on pointermove and CSS does the easing, which keeps it
+   off the main thread and costs nothing when the mouse is still.
+   Hidden on touch, where there is no cursor to flee. */
+.holoswarm { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
+.holoswarm > i {
+  position: absolute; display: block; pointer-events: none;
+  transition: transform 620ms cubic-bezier(.18,.9,.24,1), opacity 400ms ease;
+  will-change: transform;
+  color: rgb(var(--holo-line, 196 228 255));
+}
+/* a dot */
+.holoswarm > i.dot {
+  width: 4px; height: 4px; border-radius: 50%;
+  background: currentColor; opacity: .5;
+  box-shadow: 0 0 7px rgba(var(--holo-glow, 74 150 224) / .85);
+}
+/* a corner bracket */
+.holoswarm > i.brk {
+  width: 13px; height: 13px; opacity: .42;
+  border-left: 1px solid currentColor; border-top: 1px solid currentColor;
+}
+.holoswarm > i.brk.flip { transform-origin: center; rotate: 180deg; }
+/* a short tick rail */
+.holoswarm > i.rail {
+  width: 46px; height: 5px; opacity: .38;
+  background-image: repeating-linear-gradient(90deg,
+    currentColor 0 1px, transparent 1px 7px);
+}
+/* a micro readout */
+.holoswarm > i.num {
+  font: 500 8.5px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: .16em; opacity: .5; white-space: nowrap;
+  font-variant-numeric: tabular-nums; font-style: normal;
+}
+/* a tiny ring */
+.holoswarm > i.ring {
+  width: 15px; height: 15px; border-radius: 50%; opacity: .34;
+  border: 1px solid currentColor;
+}
+@media (hover: none), (prefers-reduced-motion: reduce) {
+  .holoswarm { display: none; }
+}
