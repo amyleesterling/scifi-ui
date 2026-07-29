@@ -1,9 +1,13 @@
 // scifi-ui  ...  see README.md
-// Four independent pieces. Delete any you do not want.
+// Eight independent pieces. Delete any you do not want.
 //   1 particle trace   canvas, on hover
 //   2 HUD annotation   brackets and readouts, values read off the media
 //   3 play badge       a visible play affordance over video
 //   4 source swap      vertical on phones, widescreen on desktop
+//   5 step rail        builds .holobar, clicks and arrow keys, reports back
+//   6 loading state    drives the bar and the count on .holoload
+//   7 boot on view     lights .holoboot and .holounder once, when first seen
+//   8 dialog           opens .holodialog modally, no auth, nothing submits
 
 // ---- 1. particle trace ----------------------------------------------------
 (function () {
@@ -259,4 +263,249 @@
     if (wrap) wrap.classList.add("is-wide");
     v.load();
   }
+})();
+
+// ---- 5. step rail --------------------------------------------------------
+(function () {
+  // Write <div class="holobar" data-steps="10" data-step="8"></div> and this
+  // builds the counter, the rail, the fill and one button per step. Steps are
+  // counted from 1 because that is what the counter shows. Reads back three
+  // ways: the data-step attribute, a holobar:change event, and el.holobar.
+  function pad(n, len) {
+    n = String(n);
+    while (n.length < len) n = "0" + n;
+    return n;
+  }
+
+  document.querySelectorAll(".holobar").forEach(function (bar) {
+    var steps = Math.max(1, parseInt(bar.getAttribute("data-steps"), 10) || 0);
+    var step = Math.min(steps, Math.max(1, parseInt(bar.getAttribute("data-step"), 10) || 1));
+    var digits = Math.max(2, String(steps).length);
+
+    bar.textContent = "";
+    bar.setAttribute("role", "group");
+    if (!bar.getAttribute("aria-label")) bar.setAttribute("aria-label", "Progress");
+
+    var count = document.createElement("span");
+    count.className = "holobar-count";
+    count.setAttribute("aria-live", "polite");
+
+    var rail = document.createElement("span");
+    rail.className = "holobar-rail";
+    var fill = document.createElement("span");
+    fill.className = "holobar-fill";
+    rail.appendChild(fill);
+
+    var ticks = [];
+    for (var i = 1; i <= steps; i++) {
+      var t = document.createElement("button");
+      t.type = "button";
+      t.className = "holobar-tick";
+      // one tick sits at each end, so the last one lands on 100 per cent
+      t.style.left = (steps > 1 ? ((i - 1) / (steps - 1)) * 100 : 50) + "%";
+      t.appendChild(document.createElement("i"));
+      rail.appendChild(t);
+      ticks.push(t);
+    }
+    bar.appendChild(count);
+    bar.appendChild(rail);
+
+    function paint() {
+      count.textContent = pad(step, digits);
+      var rest = document.createElement("s");
+      rest.textContent = " / " + pad(steps, digits);
+      count.appendChild(rest);
+      // the fill stops at the dot you are on rather than one step past it, so
+      // it still reads correctly at three steps as well as at thirty
+      rail.style.setProperty("--holobar-progress",
+        steps > 1 ? (step - 1) / (steps - 1) : 1);
+      for (var k = 0; k < ticks.length; k++) {
+        var n = k + 1, el = ticks[k];
+        if (n === step) el.setAttribute("aria-current", "step");
+        else el.removeAttribute("aria-current");
+        if (n < step) el.setAttribute("data-done", "");
+        else el.removeAttribute("data-done");
+        el.tabIndex = n === step ? 0 : -1;
+        el.setAttribute("aria-label", "Step " + n + " of " + steps);
+      }
+      bar.setAttribute("data-step", step);
+    }
+
+    function set(n, moveFocus) {
+      n = Math.min(steps, Math.max(1, n | 0));
+      if (n !== step) {
+        step = n;
+        paint();
+        bar.dispatchEvent(new CustomEvent("holobar:change", {
+          bubbles: true, detail: { step: step, steps: steps }
+        }));
+      }
+      if (moveFocus) ticks[step - 1].focus();
+    }
+
+    ticks.forEach(function (t, k) {
+      t.addEventListener("click", function () { set(k + 1, true); });
+    });
+
+    // roving tabindex: only the current tick is in the tab order, and the
+    // arrows move the selection, which is the whole point of the control
+    rail.addEventListener("keydown", function (e) {
+      var n = null;
+      if (e.key === "ArrowRight" || e.key === "ArrowUp") n = step + 1;
+      else if (e.key === "ArrowLeft" || e.key === "ArrowDown") n = step - 1;
+      else if (e.key === "Home") n = 1;
+      else if (e.key === "End") n = steps;
+      else return;
+      e.preventDefault();
+      set(n, true);
+    });
+
+    bar.holobar = {
+      steps: steps,
+      get step() { return step; },
+      set step(n) { set(n, false); },
+      next: function () { set(step + 1, false); },
+      prev: function () { set(step - 1, false); }
+    };
+
+    paint();
+  });
+})();
+
+// ---- 6. loading state ----------------------------------------------------
+(function () {
+  // data-total and data-loaded drive a real bar. With no total it goes
+  // indeterminate instead of inventing a number. Call el.holoload.set(n, of)
+  // as your fetches land.
+  document.querySelectorAll(".holoload").forEach(function (el) {
+    var bar = el.querySelector(".holoload-bar > i");
+    var out = el.querySelector(".holoload-count");
+
+    function set(loaded, total) {
+      loaded = Number(loaded) || 0;
+      total = Number(total) || 0;
+      if (total > 0) {
+        el.removeAttribute("data-indeterminate");
+        if (bar) bar.style.setProperty("--holoload-progress",
+          Math.min(1, Math.max(0, loaded / total)));
+        if (out) out.textContent = loaded + " / " + total;
+      } else {
+        el.setAttribute("data-indeterminate", "");
+        if (out) out.textContent = "";
+      }
+    }
+
+    el.holoload = { set: set };
+    set(el.getAttribute("data-loaded"), el.getAttribute("data-total"));
+  });
+})();
+
+// ---- 7. boot on view -----------------------------------------------------
+(function () {
+  // A panel that boots up before you have scrolled to it has booted for
+  // nobody, so the class goes on the first time each one is actually seen.
+  var nodes = document.querySelectorAll(".holoboot, .holounder");
+  if (!nodes.length) return;
+
+  document.querySelectorAll(".holoboot").forEach(function (p) {
+    if (!p.querySelector(":scope > .holoboot-ring")) {
+      var ring = document.createElement("i");
+      ring.className = "holoboot-ring";
+      var glow = document.createElement("i");
+      glow.className = "holoboot-glow";
+      p.insertBefore(glow, p.firstChild);
+      p.insertBefore(ring, p.firstChild);
+    }
+  });
+
+  function light(el) {
+    el.classList.add(el.classList.contains("holoboot") ? "is-online" : "is-drawn");
+  }
+
+  var reduce = window.matchMedia &&
+    matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduce || !("IntersectionObserver" in window)) {
+    nodes.forEach(light);
+    return;
+  }
+
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      light(e.target);
+      io.unobserve(e.target);
+    });
+  }, { threshold: 0.2 });
+
+  // anything already on screen is lit here, before the first paint, because
+  // waiting for the observer would show one frame of the finished panel and
+  // then start it over. Everything below the fold waits its turn.
+  nodes.forEach(function (n) {
+    var r = n.getBoundingClientRect();
+    if (r.height && r.top < innerHeight && r.bottom > 0) light(n);
+    else io.observe(n);
+  });
+})();
+
+// ---- 8. dialog -----------------------------------------------------------
+(function () {
+  // A visual component. There is no authentication here, no request goes
+  // anywhere, and the field is not a credential field. showModal is what
+  // traps focus and makes Escape work, so the fallback below only runs on a
+  // browser too old to have it.
+  var last = null;
+
+  document.querySelectorAll("dialog.holodialog").forEach(function (dlg) {
+    var modal = false;
+
+    function open(opener) {
+      last = opener || document.activeElement;
+      if (typeof dlg.showModal === "function") {
+        dlg.showModal();
+        modal = true;
+      } else {
+        dlg.setAttribute("open", "");
+        modal = false;
+      }
+      var first = dlg.querySelector("[data-holofocus]") ||
+                  dlg.querySelector("input, button");
+      if (first) first.focus();
+    }
+
+    function close() {
+      if (typeof dlg.close === "function") dlg.close();
+      else dlg.removeAttribute("open");
+      if (last && last.focus) last.focus();
+    }
+
+    document.querySelectorAll('[data-holodialog="' + dlg.id + '"]')
+      .forEach(function (btn) {
+        btn.addEventListener("click", function () { open(btn); });
+      });
+
+    dlg.querySelectorAll("[data-holoclose]").forEach(function (btn) {
+      btn.addEventListener("click", close);
+    });
+
+    // clicking the backdrop lands on the dialog element itself
+    dlg.addEventListener("click", function (e) { if (e.target === dlg) close(); });
+    dlg.addEventListener("cancel", function () {
+      if (last && last.focus) setTimeout(function () { last.focus(); }, 0);
+    });
+
+    dlg.addEventListener("keydown", function (e) {
+      if (modal) return;
+      if (e.key === "Escape") { e.preventDefault(); close(); return; }
+      if (e.key !== "Tab") return;
+      var f = dlg.querySelectorAll(
+        'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])');
+      if (!f.length) return;
+      var first = f[0], lastEl = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault(); lastEl.focus();
+      } else if (!e.shiftKey && document.activeElement === lastEl) {
+        e.preventDefault(); first.focus();
+      }
+    });
+  });
 })();

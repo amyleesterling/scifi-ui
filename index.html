@@ -17,27 +17,45 @@
      than that puts it past the viewport and scrolls the page */
   .wrap { max-width: 860px; margin: 0 auto; padding: 0 30px 96px; }
 
-  /* the masthead, itself a floating panel over a render */
-  .top { position: relative; margin: 0 0 34px; }
-  .top > img { display: block; width: 100%; height: auto; }
+  /* the masthead, itself a floating panel over a render. The banner gets a
+     real height rather than whatever the file aspect happens to be, and the
+     render is cropped to it rather than letterboxed into the page. */
+  .top { position: relative; margin: 0 0 34px; height: min(78vh, 720px); }
+  .top > img {
+    display: block; width: 100%; height: 100%;
+    object-fit: cover; object-position: 50% 42%;
+  }
+  /* two layers, not one blanket. A radial darkening sits behind the panel so
+     the type has contrast exactly where it needs it, and a linear fade at the
+     foot dissolves the banner into the page. The top and both sides of the
+     render stay at full strength, because the colour is the point. */
   .topveil {
-    position: absolute; inset: 0;
-    background: linear-gradient(to bottom, rgba(7,8,11,.55), rgba(7,8,11,.92) 74%, #07080B);
+    position: absolute; inset: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse 56% 44% at 50% 47%,
+        rgba(3,6,12,.88) 0%, rgba(3,6,12,.64) 40%,
+        rgba(3,6,12,.18) 72%, rgba(3,6,12,0) 100%),
+      linear-gradient(to bottom, rgba(7,8,11,0) 44%, rgba(7,8,11,.28) 66%,
+        rgba(7,8,11,.82) 89%, #07080B 100%);
   }
   .masthead {
-    position: absolute; left: 50%; top: 46%; transform: translate(-50%,-50%);
+    position: absolute; left: 50%; top: 47%;
+    /* the translate property, not transform, so the boot animation can use
+       transform without knocking the panel off centre */
+    translate: -50% -50%;
     width: min(660px, calc(100% - 40px));
-    background: linear-gradient(178deg, rgba(13,26,45,.80), rgba(6,12,22,.90));
-    border: 1px solid rgba(122,186,246,.26); border-radius: 3px;
+    background: linear-gradient(178deg, rgba(13,26,45,.86), rgba(6,12,22,.93));
+    border: 1px solid rgba(122,186,246,.30); border-radius: 3px;
     backdrop-filter: blur(9px) saturate(1.15);
     -webkit-backdrop-filter: blur(9px) saturate(1.15);
-    box-shadow: 0 18px 54px rgba(0,0,0,.62), 0 0 40px rgba(62,150,240,.10);
+    box-shadow: 0 18px 54px rgba(0,0,0,.62), 0 0 58px rgba(62,150,240,.16),
+                inset 0 1px 0 rgba(196,228,255,.14);
     padding: 26px 30px 24px;
   }
   .masthead::before {
-    content: ""; position: absolute; left: 9%; right: 9%; top: -1px; height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(214,240,255,1) 50%, transparent);
-    box-shadow: 0 0 11px rgba(120,196,255,.62);
+    content: ""; position: absolute; left: 7%; right: 7%; top: -1px; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(226,246,255,1) 50%, transparent);
+    box-shadow: 0 0 14px rgba(150,212,255,.85);
   }
   .masthead::after {
     content: ""; position: absolute; inset: 0; pointer-events: none;
@@ -56,11 +74,27 @@
       rgba(140,196,246,.42) 0 1px, transparent 1px 7px); }
   h1 { margin: 0; font-size: clamp(27px,4.6vw,38px); font-weight: 500;
        letter-spacing: -.02em; line-height: 1.08; }
-  .lede { margin: 9px 0 0; color: #A7BCD6; font-size: 15.5px; max-width: 48ch; }
+  .lede { margin: 9px 0 0; color: #BACDE4; font-size: 15.5px; max-width: 48ch; }
+
+  /* a phone cannot carry a 16:9 render cropped to a portrait box without
+     losing the cell bodies, so the banner shortens and the panel sits under
+     it instead of over it */
+  @media (max-width: 699px) {
+    .top { height: min(44vh, 320px); margin-bottom: 0; }
+    .top > img { object-position: 50% 38%; }
+    .topveil {
+      background: linear-gradient(to bottom, rgba(7,8,11,0) 26%,
+        rgba(7,8,11,.30) 56%, rgba(7,8,11,.86) 88%, #07080B 100%);
+    }
+    .masthead {
+      position: static; translate: none; width: auto;
+      margin: -26px 16px 30px; padding: 22px 20px 20px;
+    }
+  }
 
   h2 {
-    margin: 52px 0 8px; font-size: 12.5px; font-weight: 500; letter-spacing: .13em;
-    text-transform: uppercase; color: #666E7C; padding-left: 15px; position: relative;
+    margin: 56px 0 8px; font-size: 12.5px; font-weight: 500; letter-spacing: .13em;
+    text-transform: uppercase; color: #6E7686; padding-left: 15px; position: relative;
   }
   h2::before {
     content: ""; position: absolute; left: 0; top: 50%; width: 8px; height: 1px;
@@ -76,7 +110,7 @@
   pre { background: #0C1017; border: 1px solid #1B2130; border-radius: 6px;
         padding: 14px 16px; overflow-x: auto; font-size: 13px; line-height: 1.6;
         color: #C7D6E8; }
-  .grid { display: grid; gap: 34px; }
+  .grid { display: grid; gap: 24px; }
   @media (min-width: 640px) { .grid { grid-template-columns: 1fr 1fr; } }
   .cta {
     display: inline-block; margin-top: 6px; font-size: 12px; letter-spacing: .12em;
@@ -85,10 +119,34 @@
     background: rgba(16,28,46,.8);
     transition: border-color .25s ease, background .25s ease;
   }
-  .cta:hover { border-color: rgba(150,212,255,.7); background: rgba(22,40,66,.9); }
+  .cta:hover, .cta:focus-visible { border-color: rgba(150,212,255,.7);
+    background: rgba(22,40,66,.9); }
   footer { margin-top: 66px; padding-top: 22px; border-top: 1px solid #1B2130;
            color: #666E7C; font-size: 14px; }
   footer a, .lede a, p a { color: #3E96F0; text-decoration: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .cta, h2::before { transition: none; }
+  }
+
+  /* demo scaffolding for the sections below */
+  .demo { background: #0B0E14; border: 1px solid #1B2130; border-radius: 4px;
+          padding: 26px 24px; }
+  .demo + .demo { margin-top: 16px; }
+  .readback { display: block; margin-top: 14px; font-size: 12px; color: #8FA6C2;
+              font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+              letter-spacing: .08em; }
+  .panelcard { border-radius: 3px; }
+  .panelcard img, .panelcard video { display: block; width: 100%; height: auto; }
+  .panelrow { display: flex; align-items: baseline; justify-content: space-between;
+              gap: 14px; padding: 12px 14px 13px; }
+  .panelrow b { font-size: 10px; letter-spacing: .19em; text-transform: uppercase;
+                color: #6BA4E6; font-weight: 500; }
+  .panelrow span { font-size: 12.5px; color: #93A3BC;
+                   font-variant-numeric: tabular-nums; }
+  .swept { border: 1px solid rgba(88,148,238,.28); border-radius: 3px;
+           background: rgba(9,14,26,.8); }
+  .swept img { display: block; width: 100%; height: auto; }
+  .swept figcaption { margin: 0; padding: 11px 13px 12px; font-size: 13px; }
 </style>
 </head>
 <body>
@@ -96,19 +154,173 @@
 <div class="top">
   <img src="media/somas.jpg" alt="Reconstructed CA3 pyramidal cell bodies, each in a different colour">
   <div class="topveil"></div>
-  <div class="masthead">
+  <div class="masthead holoboot">
     <p class="eyebrow"><s></s>hologram ui components<u></u>no dependencies</p>
     <h1>scifi-ui</h1>
-    <p class="lede">Hover treatments for media on a dark page. A particle trace
-    that runs the frame, hairline brackets with readouts pulled from the media
-    itself, a visible play affordance, and orientation aware video. Two files and
-    a wrapper div.</p>
+    <p class="lede">A library of hologram and HUD parts for a dark page. Step
+    rails, panels that boot up, a loading state that draws a cell, a modal
+    surface, and a particle trace for media. Two files, no build step, nothing
+    to install.</p>
   </div>
 </div>
 
 <div class="wrap">
 
-  <h2>The trace</h2>
+  <h2>Step rail</h2>
+  <p>A counter in tabular caps, a hairline rail, the run so far filled and
+  glowing, a brighter dot where you are, dimmer ticks after it. Click a tick to
+  jump. Focus one and use the arrow keys, or Home and End. It takes any number
+  of steps and reports the current one back on a <code>holobar:change</code>
+  event, on a <code>data-step</code> attribute, and on <code>el.holobar</code>.</p>
+  <div class="demo">
+    <div class="holobar" data-steps="10" data-step="8" aria-label="Tour stage"></div>
+    <output class="readback" id="railout">waiting</output>
+  </div>
+  <div class="demo">
+    <div class="holobar" data-steps="3" data-step="1" aria-label="Upload stage"></div>
+    <output class="readback" id="railout2">waiting</output>
+  </div>
+  <p>The fill stops at the dot you are on rather than one step past it, so it
+  still reads correctly at three steps as well as at thirty.</p>
+
+  <h2>Readout panel</h2>
+  <p>One label, one number, one line of context. This is the whole idea of the
+  repo in one component: say something true, and the ornament stops being
+  ornament.</p>
+  <div class="holo">
+    <p class="k">this one cell receives</p>
+    <p class="v">165</p>
+    <p class="d">mossy fiber synapses, from only <b>6</b> fibers. A single terminal
+    makes dozens of contacts on one thorn.</p>
+  </div>
+
+  <h2>Underline that draws itself</h2>
+  <p>A hairline runs out from under a heading the first time that heading comes
+  into view. One pass, left to right, then it stays. Cheap, and it does more for
+  a page of flat sections than any amount of glow.</p>
+  <div class="demo">
+    <h3 class="holounder" style="margin:0;font-size:19px;font-weight:400;letter-spacing:.01em">
+      Reconstruction, stage two</h3>
+  </div>
+
+  <h2>Panel that boots up</h2>
+  <p>Two bright heads run the border in opposite directions and meet, an inner
+  backlight swells and tapers, and the panel resolves out of a blur. It happens
+  once, the first time the panel is actually on screen, because a panel that
+  boots before you scroll to it has booted for nobody.</p>
+  <figure class="panelcard holoboot" style="background:rgba(9,14,26,.8);border:1px solid rgba(88,148,238,.3)">
+    <img src="media/partners.jpg" alt="One CA3 cell drawn with the fifty six cells it is connected to">
+    <div class="panelrow"><b>partner cells</b><span>56 reconstructed</span></div>
+  </figure>
+  <p>The two decorative spans are added at runtime and sit behind the panel
+  content, so the panel keeps its own border, its own shadow and both of its
+  pseudo elements. The masthead at the top of this page is the same component.</p>
+
+  <h2>Scan sweep</h2>
+  <p>A thin line passes across a panel once when you point at it or tab into it.
+  The band is a background on a full size overlay, so a single pass covers the
+  panel whatever its height.</p>
+  <div class="grid">
+    <figure class="swept holosweep">
+      <img src="media/thorn.jpg" alt="A mossy fiber terminal wrapped around a thorny excrescence">
+      <figcaption>One bouton, one thorn.</figcaption>
+    </figure>
+    <figure class="swept holosweep">
+      <img src="media/volume.png" alt="Wireframe diagram of the imaged tissue block with one cell inside for scale">
+      <figcaption>The imaged block, 1 by 1 by 0.1 mm.</figcaption>
+    </figure>
+  </div>
+
+  <h2>Dialog</h2>
+  <p>A modal surface: rim gradient, still particle field, lit inside edge, field
+  with a lit left border, and a button with three states. It is a real
+  <code>&lt;dialog&gt;</code> opened with <code>showModal</code>, so focus is
+  trapped and Escape closes it without a line of script.</p>
+  <p><strong>This is a visual component only.</strong> There is no
+  authentication in it. The field is an ordinary text input, the button does
+  nothing when you press it, and no request goes anywhere.</p>
+  <div class="demo">
+    <button class="cta" type="button" data-holodialog="demodialog">Open the dialog</button>
+  </div>
+
+  <h2>Loading state</h2>
+  <p>A cell draws itself in while you wait. The basal arbor is half a cycle
+  behind the apical one so the two trees do not pulse in lockstep, which is what
+  makes it read as alive rather than as a spinner. The bar underneath reports a
+  real count when you have one to report, and goes indeterminate when you do
+  not, rather than inventing a number.</p>
+  <div class="grid">
+    <div class="demo">
+      <div class="holoload" data-loaded="4" data-total="9" role="status">
+        <div class="holoload-figure">
+          <svg class="holoload-glyph" viewBox="0 0 200 280" aria-hidden="true">
+            <g class="arbor apical" fill="none" stroke="currentColor" stroke-width="2.6"
+               stroke-linecap="round" stroke-linejoin="round">
+              <path d="M100 168 L100 60"></path>
+              <path d="M100 60 L82 30"></path>
+              <path d="M100 60 L118 30"></path>
+              <path d="M100 60 L72 42"></path>
+              <path d="M100 60 L128 42"></path>
+              <path d="M100 88 L74 58"></path>
+              <path d="M100 92 L126 62"></path>
+              <path d="M100 116 L70 96"></path>
+              <path d="M100 122 L130 102"></path>
+            </g>
+            <g class="arbor basal" fill="none" stroke="currentColor" stroke-width="2.2"
+               stroke-linecap="round" stroke-linejoin="round" opacity=".9">
+              <path d="M88 196 L52 218"></path>
+              <path d="M112 196 L148 218"></path>
+              <path d="M100 200 L82 252"></path>
+              <path d="M100 200 L118 252"></path>
+              <path d="M84 192 L40 196"></path>
+              <path d="M116 192 L160 196"></path>
+            </g>
+            <ellipse class="soma" cx="100" cy="184" rx="13" ry="12" fill="currentColor"></ellipse>
+          </svg>
+        </div>
+        <p class="holoload-label">loading meshes</p>
+        <div class="holoload-bar"><i></i></div>
+        <p class="holoload-count"></p>
+      </div>
+    </div>
+    <div class="demo">
+      <div class="holoload" role="status">
+        <div class="holoload-figure" style="--holoload-size:104px">
+          <svg class="holoload-glyph" viewBox="0 0 200 280" aria-hidden="true">
+            <g class="arbor apical" fill="none" stroke="currentColor" stroke-width="2.6"
+               stroke-linecap="round" stroke-linejoin="round">
+              <path d="M100 168 L100 60"></path>
+              <path d="M100 60 L82 30"></path>
+              <path d="M100 60 L118 30"></path>
+              <path d="M100 60 L72 42"></path>
+              <path d="M100 60 L128 42"></path>
+              <path d="M100 88 L74 58"></path>
+              <path d="M100 92 L126 62"></path>
+              <path d="M100 116 L70 96"></path>
+              <path d="M100 122 L130 102"></path>
+            </g>
+            <g class="arbor basal" fill="none" stroke="currentColor" stroke-width="2.2"
+               stroke-linecap="round" stroke-linejoin="round" opacity=".9">
+              <path d="M88 196 L52 218"></path>
+              <path d="M112 196 L148 218"></path>
+              <path d="M100 200 L82 252"></path>
+              <path d="M100 200 L118 252"></path>
+              <path d="M84 192 L40 196"></path>
+              <path d="M116 192 L160 196"></path>
+            </g>
+            <ellipse class="soma" cx="100" cy="184" rx="13" ry="12" fill="currentColor"></ellipse>
+          </svg>
+        </div>
+        <p class="holoload-label">no total yet</p>
+        <div class="holoload-bar"><i></i></div>
+        <p class="holoload-count"></p>
+      </div>
+    </div>
+  </div>
+  <p>This is the only piece in the library that repeats, because a loading state
+  is the one place a loop is honest.</p>
+
+  <h2>Particle trace, on an image</h2>
   <p>A short arc of light runs the boundary once, starting from wherever your
   pointer crossed it, then breaks into particles that decay along a branching
   tree. Corner brackets push outward and the readouts fade in. Every value shown
@@ -122,10 +334,11 @@
     One thorny pyramidal cell, 4.5 million triangles in the original.</figcaption>
   </figure>
 
-  <h2>Video, with a play affordance</h2>
-  <p>The native control is small and often lands on top of whatever is burned into
-  the frame, so the frame carries its own. It hides on play and returns on pause,
-  and native controls stay for scrubbing.</p>
+  <h2>Particle trace, on a video</h2>
+  <p>The same treatment over video, plus a play affordance, because the native
+  control is small and often lands on top of whatever is burned into the frame.
+  It hides on play and returns on pause, and the native controls stay for
+  scrubbing. Each frame owns its canvas and only the hovered one runs.</p>
   <figure data-hud="165 synapses · 6 fibers">
     <div class="holoframe">
       <canvas class="trace"></canvas>
@@ -137,62 +350,26 @@
     frame, then press play.</figcaption>
   </figure>
 
-  <h2>Two at once</h2>
-  <p>Each frame owns its canvas and only the hovered one runs, so a page can carry
-  a lot of these without cost.</p>
-  <div class="grid">
-    <figure data-hud="one bouton, one thorn">
-      <div class="holoframe">
-        <canvas class="trace"></canvas>
-        <img src="media/thorn.jpg" alt="A mossy fiber terminal wrapped around a thorny excrescence">
-      </div>
-    </figure>
-    <figure data-hud="56 partner cells">
-      <div class="holoframe">
-        <canvas class="trace"></canvas>
-        <video controls playsinline muted loop preload="metadata" poster="media/partners.jpg">
-          <source src="media/partners.mp4" type="video/mp4">
-        </video>
-      </div>
-    </figure>
-  </div>
-
-  <h2>On a transparent render</h2>
-  <p>The trace sits outside the media and the canvas stays transparent, so it
-  works over artwork with its own alpha without a plate behind it.</p>
-  <figure data-hud="1 × 1 × 0.1 mm block">
-    <div class="holoframe">
-      <canvas class="trace"></canvas>
-      <img src="media/volume.png" alt="Wireframe diagram of the imaged tissue block with one cell inside for scale">
-    </div>
-  </figure>
-
-  <h2>Readout panels</h2>
-  <p>The same language as a standalone block. One label, one number, one line of
-  context. This is the whole idea of the repo in one component: say something
-  true, and the ornament stops being ornament.</p>
-  <div class="holo">
-    <p class="k">this one cell receives</p>
-    <p class="v">165</p>
-    <p class="d">mossy fiber synapses, from only <b>6</b> fibers. A single terminal
-    makes dozens of contacts on one thorn.</p>
-  </div>
-
   <h2>Usage</h2>
 <pre>&lt;link rel="stylesheet" href="hologram.css"&gt;
+
+&lt;div class="holobar" data-steps="10" data-step="8"&gt;&lt;/div&gt;
+
+&lt;section class="holoboot holosweep"&gt; ... &lt;/section&gt;
 
 &lt;figure data-hud="optional measured value"&gt;
   &lt;div class="holoframe"&gt;
     &lt;canvas class="trace"&gt;&lt;/canvas&gt;
     &lt;img src="render.jpg" alt=""&gt;
   &lt;/div&gt;
-  &lt;figcaption&gt;Anything you like.&lt;/figcaption&gt;
 &lt;/figure&gt;
 
 &lt;script src="hologram.js"&gt;&lt;/script&gt;</pre>
-  <p>Put the <code>canvas.trace</code> before the media. The HUD layer and the play
-  badge are created at runtime. Colours come from the tokens on <code>:root</code>
-  in the stylesheet. Read
+  <p>Put the <code>canvas.trace</code> before the media. The HUD layer, the play
+  badge, the step rail parts and the two boot spans are all created at runtime.
+  Colours come from five tokens on <code>:root</code> in the stylesheet, and
+  every rule carries a concrete fallback, so any one component works pasted into
+  a page with no token system at all. Read
   <a href="README.md">README.md</a> for the reasoning, the tunables, and the
   compositing traps that cost real time.</p>
   <a class="cta" href="README.md">Read the README</a>
@@ -207,6 +384,38 @@
   </footer>
 
 </div>
+
+<dialog class="holodialog" id="demodialog" aria-labelledby="demodialog-title">
+  <span class="holodialog-rim"></span>
+  <span class="holodialog-field"></span>
+  <div class="holodialog-body">
+    <p class="holodialog-eyebrow">surface only</p>
+    <h2 class="holodialog-title" id="demodialog-title">Hologram dialog</h2>
+    <p class="holodialog-desc">The panel treatment, lifted off a real sign in
+    modal with the authentication taken out. Nothing here submits anywhere and
+    the field below is not a credential field.</p>
+    <label class="holodialog-label" for="demodialog-input">operator label</label>
+    <input class="holodialog-input" id="demodialog-input" type="text"
+           placeholder="type anything, it goes nowhere"
+           autocomplete="off" spellcheck="false" data-holofocus>
+    <button class="holobtn" type="button">This button does nothing</button>
+    <button class="holobtn holobtn--ghost" type="button" data-holoclose>close</button>
+    <p class="holodialog-note">no request, no storage, no credential field</p>
+  </div>
+</dialog>
+
 <script src="hologram.js"></script>
+<script>
+  /* demo glue, to show that the rail reports its state */
+  document.querySelectorAll(".holobar").forEach(function (bar, i) {
+    var out = document.getElementById(i ? "railout2" : "railout");
+    function show(step) {
+      out.textContent = "step " + step + " of " + bar.holobar.steps +
+        "  ...  data-step=" + bar.getAttribute("data-step");
+    }
+    bar.addEventListener("holobar:change", function (e) { show(e.detail.step); });
+    show(bar.holobar.step);
+  });
+</script>
 </body>
 </html>
