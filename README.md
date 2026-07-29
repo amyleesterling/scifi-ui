@@ -1,7 +1,4 @@
 # scifi-ui
-<<<<<<< HEAD
-hologram and scifi inspired UI endpoint for agents
-=======
 
 **A hologram and scifi inspired UI endpoint for agents.**
 
@@ -189,4 +186,3 @@ one warm accent. Worth studying if you are going further:
 [scifiinterfaces.com](https://scifiinterfaces.com),
 [interfaceingame.com](https://interfaceingame.com),
 [hudsandguis.com](https://www.hudsandguis.com).
->>>>>>> c2aa0d9 (Keep the repo tagline as the README subtitle)
