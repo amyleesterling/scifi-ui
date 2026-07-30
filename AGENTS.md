@@ -255,3 +255,72 @@ under the repulsion.
 lesson: two components sharing a base class break both the day a page loads
 both, which is how the icon rail's `.holorail` met the section rail's, now
 renamed `.holoiconrail`. The whole components set is wired into the main page.
+
+**Version 5**, 30 July 2026. The researcher profile, badge coin and award screen
+are reproduced from the EyeWire II profile, and the loader is redrawn. Lessons
+worth keeping:
+
+- **A travelling dot along a path is `<animateMotion>` with a `path` attribute,
+  no length maths.** The loader signals ride dendrite to soma to axon that way.
+  SMIL does not read `prefers-reduced-motion`, so the reduced motion rule sets
+  the dots to `display: none` rather than trying to stop the animation; a dot
+  frozen mid arbor is worse than no dot.
+
+- **Draw direction is authored, not set in CSS.** The loader arbor grows out of
+  the soma because every path's `M` is at the soma and the stroke dashoffset
+  reveals from there. To reverse a draw, reverse the path, not the keyframe.
+
+- **A hero title should not carry a component that blurs itself out.** The
+  masthead used to be a `.holoboot`, so it re-materialised on every hover and
+  tap and the title vanished for a beat. It is now a plain `data-holo-tap` host:
+  it lights its edge, nothing disappears. Boot entrances belong on cards you
+  scroll past, not on the one thing that is on screen from the first frame.
+
+- **Reproducing a screen you cannot get the assets for: build the layout, mark
+  the placeholders.** A first pass built the profile as an emoji-coin lookalike
+  because the real assets seemed out of reach. They were not.
+
+- **A built bundle with source maps IS the source. Go get it before you
+  approximate.** `amyleesterling/eyewire-ii` ships `main.bundle.js/.css` with
+  `.map` files, and the maps carry `sourcesContent`: the real Vue templates, the
+  real SCSS-compiled CSS, the badge catalogue, and the demo data, all readable.
+  `json.load(map)['sources']` lists the files; `['sourcesContent'][i]` is each
+  one whole. That is how the researcher profile went from a recreation to the
+  actual `UserProfilePanel`: real CSS de-scoped from its `data-v` hash, DOM
+  rebuilt from the real class names, badge art resized from the game's
+  `center-art` PNGs, numbers from the shipped demo profile. When a repo is a
+  built front end, look for `.map` before you reproduce anything by eye. This is
+  the §2 rule with teeth: the real thing was one clone away.
+
+- **`hidden` loses to `display: flex`/`block`.** The profile's tab panels are
+  `display: flex` and the special-awards overlay is `display: flex`, so the
+  `[hidden]` attribute did nothing: every tab stacked at once and the overlay ate
+  every click. A component that toggles visibility with `hidden` needs
+  `.thing[hidden] { display: none !important }` spelled out whenever its base
+  rule sets a display.
+
+**Version 6**, 30 July 2026. The profile is no longer a recreation: it is the
+real EyeWire II `UserProfilePanel`, lifted from the `amyleesterling/eyewire-ii`
+bundle's source maps, real CSS and real `center-art` badge art and the shipped
+demo data. Adds the two lessons above: a built bundle's `.map` files are the
+source, so fetch them before approximating; and `hidden` loses to a base
+`display` rule. The invented `.holobadge` coin and `.holoaward` screen are gone.
+
+**Version 7**, 30 July 2026. Sharpens the animation-restart lesson, because the
+v3 fix only worked once. Restarting a CSS animation from inside a pointer
+handler differs by what it is on:
+
+- **A pseudo element (`::after`) cannot be reliably restarted by re-adding a
+  class, not with a synchronous reflow and not with a pair of rAFs.** The
+  browser coalesces the remove and the re-add into no change and the play never
+  starts over. What always works is a change of the computed animation *name*,
+  so the underline alternates two identically-drawn but differently-named
+  classes, `is-drawn` and `is-redraw`, on every tap. This is why the underline
+  only drew once before.
+- **A real element can be restarted the classic way:** drop its animation to
+  `none` inline, force a reflow, hand it back to the stylesheet. The boot does
+  that on its panel and its two spans.
+
+Also: `hologram-tap.js` now re-fires `holotap:on` when you re-tap the thing
+already lit. Without it a repeat tap on the same element was a dead no-op, so
+any effect whose point is a replay could only ever play on the first tap.

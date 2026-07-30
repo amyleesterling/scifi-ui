@@ -85,7 +85,11 @@
   }
 
   function set(el, ev) {
-    if (el === active) return;   // a second tap on the same thing is a no op
+    // a re-tap of the thing already lit does not relight it or disturb the one
+    // at a time rule, but it does re-fire the signal. That is what lets an
+    // effect whose whole point is a replay, the boot, the underline, the trace,
+    // play again on every tap rather than only on the first one that lit it.
+    if (el === active) { fire(el, "holotap:on", ev); return; }
     clear();
     active = el;
     el.classList.add(CLASS);

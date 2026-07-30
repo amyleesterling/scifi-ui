@@ -518,20 +518,37 @@
     });
   }, { threshold: 0.2 });
 
-  // The class comes back off once the play is over. is-online and is-drawn
-  // apply the same animation the :hover and .holo-on selectors do, and a CSS
-  // animation only restarts when its computed name changes, so a class that
-  // stays on is a replay that can never happen: the page promised a boot on
-  // every hover and tap, and delivered one boot ever. The boot's longest
-  // animation is the 1500ms ring sweep on a child span, so the panel waits
-  // for that one rather than cutting the sweep off at the 900ms mark where
-  // its own animation ends. The underline has only the one animation, on its
-  // ::after, whose events arrive on the heading itself.
-  document.addEventListener("animationend", function (e) {
-    if (e.animationName === "holo-ring-sweep" && e.target.parentElement)
-      e.target.parentElement.classList.remove("is-online");
-    else if (e.animationName === "holo-underline-draw")
-      e.target.classList.remove("is-drawn");
+  // The on-view class stays on: the resting state of both the boot and the
+  // underline is their finished frame, so nothing has to come back off.
+
+  // A tap replays the boot or the draw, on every tap. hologram-tap.js re-fires
+  // holotap:on for a re-tap of the thing already lit, so this fires each time.
+  // Restarting a CSS animation reliably from inside a pointer handler is the
+  // whole trick, and it differs by what the animation is on:
+  //   - the underline is a ::after pseudo, which cannot take an inline style, so
+  //     it alternates two identically-drawn but differently-named trigger
+  //     classes. A change of the computed animation name always restarts it,
+  //     where a single class re-added, even across a reflow or a pair of rAFs,
+  //     is coalesced away and does nothing.
+  //   - the boot is on real elements, the panel and its two decorative spans,
+  //     so each is restarted by dropping its animation to none inline, forcing
+  //     a reflow, and handing it back to the stylesheet.
+  document.addEventListener("holotap:on", function (e) {
+    var el = e.target;
+    if (!el || !el.classList) return;
+    if (el.classList.contains("holounder")) {
+      var re = el.classList.contains("is-redraw");
+      el.classList.toggle("is-redraw", !re);
+      el.classList.toggle("is-drawn", re);
+    } else if (el.classList.contains("holoboot")) {
+      [el, el.querySelector(".holoboot-ring"), el.querySelector(".holoboot-glow")]
+        .forEach(function (n) {
+          if (!n) return;
+          n.style.animation = "none";
+          void n.offsetWidth;   // reflow, so handing the animation back restarts it
+          n.style.animation = "";
+        });
+    }
   });
 
   // anything already on screen is lit here, before the first paint, because

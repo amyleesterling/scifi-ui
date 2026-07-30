@@ -25,9 +25,10 @@ own [demo page](https://amyleesterling.github.io/scifi-ui/components/): a
 tutorial callout, an achievement toast, a confetti burst, a tinted lift card, an
 icon rail (`.holoiconrail`, kept clear of the section rail's `.holorail`), a page
 finale that fires the confetti once when the reader reaches the bottom and floats
-a mascot up on balloons, a shared panel surface (`.holopanel`), and a profile
-panel built on it. They are split one per file so you can take one without taking
-the set, and the whole set also runs inline on the main
+a mascot up on balloons, a shared panel surface (`.holopanel`), a profile card
+built on it, and the full EyeWire II researcher profile it opens into. They are
+split one per file so you can take one without taking the set, and the whole set
+also runs inline on the main
 [demo page](https://amyleesterling.github.io/scifi-ui/).
 
 The panel surface is the one worth a word here. A dark gradient panel with a lit
@@ -35,6 +36,21 @@ top edge and a materialise entrance recurred in four upstream places, each with
 its own copy; `components/panel-surface.css` is that surface pulled out once, and
 the profile panel is the first component built on it rather than a fifth copy. It
 wins without `!important`: a library has no host page to fight.
+
+The researcher profile is not a lookalike, it is the EyeWire II
+`UserProfilePanel` carried across whole. The component ships in a built bundle
+with source maps, so its real compiled CSS was lifted from the map and de-scoped
+from its Vue `data-v` hash, the DOM rebuilt from the same class names, the badge
+art taken from the game's own `center-art` PNGs and resized into
+[`media/badges/`](media/badges), and the numbers filled from the demo profile
+the game itself ships (Amy Sterling). The `nge-profile-*` classes are the
+originals. It carries the three column overview, the trophy case with the
+animated featured badge (spinning rings, orbit dots, a pulsing aura), the badge
+detail that swaps into the right column when you click a badge, and the all
+special awards modal. A visual component: no account, no request. The only
+adaptations are the container, the game mounted it in neuroglancer's overlay and
+here a `<dialog>` plays that role, and a phone breakpoint that stacks the three
+columns.
 
 ```html
 <link rel="stylesheet" href="hologram.css">

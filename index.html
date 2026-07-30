@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="components/page-finale.css">
 <link rel="stylesheet" href="components/panel-surface.css">
 <link rel="stylesheet" href="components/profile-panel.css">
+<link rel="stylesheet" href="components/researcher-profile.css">
 <link rel="stylesheet" href="components/achievement-toast.css">
 <link rel="stylesheet" href="components/tinted-card.css">
 <link rel="stylesheet" href="components/icon-rail.css">
@@ -141,9 +142,30 @@
   h1 { margin: 0; font-size: clamp(27px,4.6vw,38px); font-weight: 500;
        letter-spacing: -.02em; line-height: 1.08; }
   .lede { margin: 9px 0 0; color: #BACDE4; font-size: 15.5px; max-width: 48ch; }
-  /* the lede lives under the banner now, not inside the box, so the box
-     carries only the name and the instruction */
-  .wrap > .lede { margin: 0 0 4px; max-width: 60ch; }
+  /* the lede lives under the banner now, not inside the box, and it runs the
+     full reading column so it lines up with the section copy below it */
+  .wrap > .lede { margin: 0 0 4px; max-width: none; }
+  /* the wordmark. A cool gradient fill with a soft glow and a slow sheen, and
+     nothing that blurs out or disappears: the masthead no longer boots, it
+     just lights its edge on hover or a tap. */
+  .wordmark {
+    font-size: clamp(34px, 6.2vw, 52px); font-weight: 600; letter-spacing: .006em;
+    line-height: 1;
+    background: linear-gradient(100deg, #6FB0FF 0%, #EAF4FF 26%, #BBDBFF 46%,
+      #64A6EE 68%, #A6D2FF 100%);
+    background-size: 220% 100%;
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent; -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 2px 16px rgba(74,150,240,.42));
+    animation: wordmark-sheen 9s ease-in-out infinite;
+  }
+  @keyframes wordmark-sheen {
+    0%, 100% { background-position: 0% 0; }
+    50%      { background-position: 100% 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .wordmark { animation: none; background-position: 0 0; }
+  }
   .tapline {
     margin: 13px 0 0; font-size: 10px; letter-spacing: .26em;
     text-transform: uppercase; color: rgba(140,190,240,.72);
@@ -246,10 +268,50 @@
   @media (prefers-reduced-motion: reduce) {
     .swept:hover, .swept:focus-within, .swept.holo-on { animation: none; }
   }
-  /* the attract loop deck, given an edge so the crossfade has a box to happen
-     in. Scaffolding for this page only, like everything else in this block. */
-  #attractdeck { margin-bottom: 18px; border: 1px solid #1B2130; border-radius: 3px;
-                 background: #090C12; }
+  /* The attract deck, restyled as a hologram projected up off the step rail
+     below it. No frame: a cone of light pools at the foot where the rail sits
+     and thins toward the top, faint scanlines drift over the projected copy,
+     and the type glows the cool blue of a projection rather than sitting on a
+     card. Compact, so the panel is the size of its line, not a box round it.
+     Scaffolding for this page only, like everything else in this block. */
+  /* the whole attract section floats: no card frame, so the projection reads
+     as light in the air rather than a boxed panel */
+  #attractdemo { border: none; background: none; padding: 6px 2px 0; }
+  #attractdeck {
+    position: relative; isolation: isolate;
+    margin: 6px 0 2px; border: none; background: none; overflow: visible;
+  }
+  /* the projection cone, widest and brightest at the foot centre, thinning up */
+  #attractdeck::before {
+    content: ""; position: absolute; z-index: -1; pointer-events: none;
+    left: 4%; right: 4%; top: -2px; bottom: -18px;
+    background: radial-gradient(130% 140% at 50% 122%,
+      rgba(96,176,255,.26) 0%, rgba(96,176,255,.10) 28%,
+      rgba(96,176,255,.02) 52%, transparent 70%);
+  }
+  /* scanlines over the projected copy, masked so they fade to nothing at the
+     edges instead of filling a hard rectangle, and drifting slowly like a
+     refresh */
+  #attractdeck::after {
+    content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+    opacity: .5; mix-blend-mode: screen;
+    background: repeating-linear-gradient(0deg,
+      rgba(150,210,255,.06) 0 1px, transparent 1px 3px);
+    -webkit-mask: radial-gradient(115% 100% at 50% 62%, #000 38%, transparent 82%);
+            mask: radial-gradient(115% 100% at 50% 62%, #000 38%, transparent 82%);
+    animation: attract-scan 7s linear infinite;
+  }
+  @keyframes attract-scan { to { background-position: 0 -30px; } }
+  /* the panel itself: compact, centred in its cell, and lit like a hologram */
+  #attractdeck .holoattract-panel { filter: drop-shadow(0 0 8px rgba(96,170,255,.35)); }
+  #attractdeck .panelrow { align-items: center; padding: 12px 14px; }
+  #attractdeck .panelrow b {
+    color: #96d0fb; text-shadow: 0 0 9px rgba(120,200,255,.7);
+  }
+  #attractdeck .panelrow span {
+    color: rgba(160,208,248,.92); text-shadow: 0 0 7px rgba(120,200,255,.4);
+  }
+  @media (prefers-reduced-motion: reduce) { #attractdeck::after { animation: none; } }
 
   /* the loader sat in a tall demo box with a small glyph marooned in the
      middle of it, which read as empty rather than as loading. A phone gets a
@@ -275,9 +337,9 @@
   <img src="media/somas.jpg" alt="Reconstructed CA3 pyramidal cell bodies, each in a different colour">
   <div class="topveil"></div>
   <div class="holoswarm"></div>
-  <div class="masthead holoboot">
+  <div class="masthead" data-holo-tap>
     <p class="eyebrow"><s></s>hologram ui components<u></u><span id="elcount"></span></p>
-    <h1>scifi-ui</h1>
+    <h1 class="wordmark">scifi-ui</h1>
     <p class="tapline">tap to activate</p>
   </div>
 </div>
@@ -286,7 +348,7 @@
 
   <p class="lede">A library of hologram and HUD parts for a dark page. Step
   rails, panels that boot up, a loading state that draws a cell, a modal
-  surface, and a particle trace for media. No build step, nothing to install.</p>
+  surface, and a particle trace for media.</p>
 
   <h2>Particle trace, on an image</h2>
   <p>An arc of light runs the boundary once, struck from wherever your pointer
@@ -393,29 +455,52 @@
     <div class="demo">
       <div class="holoload" data-loaded="4" data-total="9" role="status">
         <div class="holoload-figure">
-          <svg class="holoload-glyph" viewBox="0 0 200 280" aria-hidden="true">
-            <g class="arbor apical" fill="none" stroke="currentColor" stroke-width="2.6"
+          <svg class="holoload-glyph" viewBox="0 0 200 260" aria-hidden="true">
+            <!-- every path starts at the soma (100,140) and runs outward, so the
+                 draw grows the arbor out from the cell body -->
+            <g class="arbor apical" fill="none" stroke="currentColor" stroke-width="2.4"
                stroke-linecap="round" stroke-linejoin="round">
-              <path d="M100 168 L100 60"></path>
-              <path d="M100 60 L82 30"></path>
-              <path d="M100 60 L118 30"></path>
-              <path d="M100 60 L72 42"></path>
-              <path d="M100 60 L128 42"></path>
-              <path d="M100 88 L74 58"></path>
-              <path d="M100 92 L126 62"></path>
-              <path d="M100 116 L70 96"></path>
-              <path d="M100 122 L130 102"></path>
+              <path d="M100 140 L100 54"></path>
+              <path d="M100 66 L80 40"></path>
+              <path d="M100 66 L120 40"></path>
+              <path d="M100 54 L88 34"></path>
+              <path d="M100 54 L112 34"></path>
+              <path d="M100 96 L76 74"></path>
+              <path d="M100 104 L124 82"></path>
+              <path d="M100 140 L58 112"></path>
+              <path d="M78 126 L54 100"></path>
+              <path d="M100 140 L142 112"></path>
+              <path d="M122 126 L146 100"></path>
             </g>
             <g class="arbor basal" fill="none" stroke="currentColor" stroke-width="2.2"
-               stroke-linecap="round" stroke-linejoin="round" opacity=".9">
-              <path d="M88 196 L52 218"></path>
-              <path d="M112 196 L148 218"></path>
-              <path d="M100 200 L82 252"></path>
-              <path d="M100 200 L118 252"></path>
-              <path d="M84 192 L40 196"></path>
-              <path d="M116 192 L160 196"></path>
+               stroke-linecap="round" stroke-linejoin="round" opacity=".92">
+              <path d="M100 140 L66 172"></path>
+              <path d="M82 152 L58 186"></path>
+              <path d="M100 140 L134 172"></path>
+              <path d="M118 152 L142 186"></path>
+              <path class="axon" d="M100 140 L100 244"></path>
+              <path d="M100 244 L90 253"></path>
+              <path d="M100 244 L110 253"></path>
             </g>
-            <ellipse class="soma" cx="100" cy="184" rx="13" ry="12" fill="currentColor"></ellipse>
+            <ellipse class="soma-halo" cx="100" cy="140" rx="13" ry="12" fill="currentColor"></ellipse>
+            <ellipse class="soma" cx="100" cy="140" rx="6.6" ry="6" fill="currentColor"></ellipse>
+            <!-- the signal: a dot rides in along a dendrite, through the soma,
+                 and out the axon. Three routes, staggered, so the cell keeps
+                 firing while it draws. -->
+            <g class="signals">
+              <circle class="signal-dot" r="2.8">
+                <animateMotion dur="2.6s" repeatCount="indefinite"
+                  path="M100 54 L100 140 L100 244"></animateMotion>
+              </circle>
+              <circle class="signal-dot" r="2.8">
+                <animateMotion dur="2.6s" begin="-0.87s" repeatCount="indefinite"
+                  path="M58 112 L100 140 L100 244"></animateMotion>
+              </circle>
+              <circle class="signal-dot" r="2.8">
+                <animateMotion dur="2.6s" begin="-1.73s" repeatCount="indefinite"
+                  path="M142 112 L100 140 L100 244"></animateMotion>
+              </circle>
+            </g>
           </svg>
         </div>
         <p class="holoload-label">loading meshes</p>
@@ -426,29 +511,52 @@
     <div class="demo">
       <div class="holoload" role="status">
         <div class="holoload-figure" style="--holoload-size:104px">
-          <svg class="holoload-glyph" viewBox="0 0 200 280" aria-hidden="true">
-            <g class="arbor apical" fill="none" stroke="currentColor" stroke-width="2.6"
+          <svg class="holoload-glyph" viewBox="0 0 200 260" aria-hidden="true">
+            <!-- every path starts at the soma (100,140) and runs outward, so the
+                 draw grows the arbor out from the cell body -->
+            <g class="arbor apical" fill="none" stroke="currentColor" stroke-width="2.4"
                stroke-linecap="round" stroke-linejoin="round">
-              <path d="M100 168 L100 60"></path>
-              <path d="M100 60 L82 30"></path>
-              <path d="M100 60 L118 30"></path>
-              <path d="M100 60 L72 42"></path>
-              <path d="M100 60 L128 42"></path>
-              <path d="M100 88 L74 58"></path>
-              <path d="M100 92 L126 62"></path>
-              <path d="M100 116 L70 96"></path>
-              <path d="M100 122 L130 102"></path>
+              <path d="M100 140 L100 54"></path>
+              <path d="M100 66 L80 40"></path>
+              <path d="M100 66 L120 40"></path>
+              <path d="M100 54 L88 34"></path>
+              <path d="M100 54 L112 34"></path>
+              <path d="M100 96 L76 74"></path>
+              <path d="M100 104 L124 82"></path>
+              <path d="M100 140 L58 112"></path>
+              <path d="M78 126 L54 100"></path>
+              <path d="M100 140 L142 112"></path>
+              <path d="M122 126 L146 100"></path>
             </g>
             <g class="arbor basal" fill="none" stroke="currentColor" stroke-width="2.2"
-               stroke-linecap="round" stroke-linejoin="round" opacity=".9">
-              <path d="M88 196 L52 218"></path>
-              <path d="M112 196 L148 218"></path>
-              <path d="M100 200 L82 252"></path>
-              <path d="M100 200 L118 252"></path>
-              <path d="M84 192 L40 196"></path>
-              <path d="M116 192 L160 196"></path>
+               stroke-linecap="round" stroke-linejoin="round" opacity=".92">
+              <path d="M100 140 L66 172"></path>
+              <path d="M82 152 L58 186"></path>
+              <path d="M100 140 L134 172"></path>
+              <path d="M118 152 L142 186"></path>
+              <path class="axon" d="M100 140 L100 244"></path>
+              <path d="M100 244 L90 253"></path>
+              <path d="M100 244 L110 253"></path>
             </g>
-            <ellipse class="soma" cx="100" cy="184" rx="13" ry="12" fill="currentColor"></ellipse>
+            <ellipse class="soma-halo" cx="100" cy="140" rx="13" ry="12" fill="currentColor"></ellipse>
+            <ellipse class="soma" cx="100" cy="140" rx="6.6" ry="6" fill="currentColor"></ellipse>
+            <!-- the signal: a dot rides in along a dendrite, through the soma,
+                 and out the axon. Three routes, staggered, so the cell keeps
+                 firing while it draws. -->
+            <g class="signals">
+              <circle class="signal-dot" r="2.8">
+                <animateMotion dur="2.6s" repeatCount="indefinite"
+                  path="M100 54 L100 140 L100 244"></animateMotion>
+              </circle>
+              <circle class="signal-dot" r="2.8">
+                <animateMotion dur="2.6s" begin="-0.87s" repeatCount="indefinite"
+                  path="M58 112 L100 140 L100 244"></animateMotion>
+              </circle>
+              <circle class="signal-dot" r="2.8">
+                <animateMotion dur="2.6s" begin="-1.73s" repeatCount="indefinite"
+                  path="M142 112 L100 140 L100 244"></animateMotion>
+              </circle>
+            </g>
           </svg>
         </div>
         <p class="holoload-label">no total yet</p>
@@ -510,43 +618,27 @@
   <p>Drag the rail and the loop holds where you put it, because touching the box
   counts as somebody being present. It resumes after a quiet spell.</p>
 
-  <h2>Profile panel</h2>
-  <p>An operator card built on a surface shared with the toast, the settings
-  panel and the dialog, extracted once as <code>.holopanel</code> rather than
-  copied a fourth time. Real numbers from the reconstruction. A visual
-  component: no account, nothing to sign into.</p>
-  <div class="holopanel holoprofile" aria-label="Operator profile">
+  <h2>Researcher profile</h2>
+  <p>The EyeWire II researcher profile, the real component carried across whole:
+  the tabs, the achievement badges, the streak and the trophy case. Open it, then
+  click any badge for its detail. A visual component: no account, nothing to
+  sign into.</p>
+  <div class="holopanel holoprofile" aria-label="Researcher profile summary">
     <p class="holoprofile-eyebrow">visual component only</p>
     <div class="holoprofile-head">
-      <div class="holoprofile-avatar">
-        <svg viewBox="0 0 60 68" fill="none" aria-hidden="true"
-             stroke="currentColor" stroke-width="2.4" stroke-linecap="round"
-             stroke-linejoin="round">
-          <path d="M30 40 L30 16 M30 16 L22 6 M30 16 L38 6 M30 24 L20 15 M30 24 L40 15"></path>
-          <path d="M26 44 L16 54 M34 44 L44 54 M30 46 L30 60"></path>
-          <ellipse cx="30" cy="41" rx="6" ry="5.4" fill="currentColor" stroke="none"></ellipse>
-        </svg>
-      </div>
+      <div class="holoprofile-avatar"><span class="holoprofile-gem">&#128142;</span></div>
       <div class="holoprofile-id">
-        <p class="holoprofile-name">Reconstruction operator</p>
-        <p class="holoprofile-handle">CA3 &middot; mouse hippocampus</p>
+        <p class="holoprofile-name">Amy Sterling</p>
+        <p class="holoprofile-handle">@amy &middot; 48,732 edits &middot; 7 day streak</p>
       </div>
-      <span class="holoprofile-rank">stage two</span>
+      <button class="cta" type="button" data-holoresearcher="researcherProfile">Open profile</button>
     </div>
-    <div class="holoprofile-stats">
-      <div class="holoprofile-stat"><b>118</b><span>cells</span></div>
-      <div class="holoprofile-stat"><b>1,024</b><span>edits</span></div>
-      <div class="holoprofile-stat"><b>165</b><span>synapses</span></div>
-    </div>
-    <div class="holoprofile-meters">
-      <div class="holoprofile-meter">
-        <p><span>proofreading</span><em>72%</em></p>
-        <i style="--v:72%"></i>
-      </div>
-      <div class="holoprofile-meter">
-        <p><span>mesh cache</span><em>56 of 56</em></p>
-        <i style="--v:100%"></i>
-      </div>
+    <div class="holoprofile-badges">
+      <img src="media/badges/special/citizen-scientist.png" alt="Citizen Scientist badge" width="52" height="52" loading="lazy">
+      <img src="media/badges/building/hammer.png" alt="Hammer badge" width="52" height="52" loading="lazy">
+      <img src="media/badges/exploration/astrolabe.png" alt="Astrolabe badge" width="52" height="52" loading="lazy">
+      <img src="media/badges/building/chisel.png" alt="Chisel badge" width="52" height="52" loading="lazy">
+      <img src="media/badges/exploration/compass.png" alt="Compass badge" width="52" height="52" loading="lazy">
     </div>
   </div>
 
@@ -838,12 +930,490 @@
          autocomplete="off" spellcheck="false" data-holofocus>
 
   <button class="holobtn" type="button" data-holoclose>
-    <span class="holobtn-text">Close</span>
+    <span class="holobtn-text">OK</span>
     <span class="holobtn-glow"></span>
   </button>
 
   <p class="holodialog-note">NO AUTH &middot; NO FORM &middot; NO REQUEST &middot; NO STORAGE</p>
 </dialog>
+
+
+<!-- The EyeWire II researcher profile, the real UserProfilePanel component
+     carried across whole. Real CSS (components/researcher-profile.css), real
+     badge art (media/badges/, resized center-art), example data from the game's
+     own demo profile (Amy Sterling). A visual component: no account, no request.
+     researcher-profile.js opens it, drives the tabs, and swaps the right column
+     to a badge's detail on click. -->
+<dialog class="nge-profile-modal" id="researcherProfile" aria-label="Researcher profile">
+  <div class="nge-overlay">
+    <div class="nge-profile-shell">
+
+      <div class="nge-profile-topbar">
+        <span class="nge-profile-topbar-label">&#9672; RESEARCHER PROFILE</span>
+        <button class="nge-profile-exit" type="button" data-rp-close aria-label="Close profile">&times;</button>
+      </div>
+
+      <div class="nge-profile-tabbar" role="tablist" aria-label="Profile sections">
+        <button class="nge-profile-tab nge-profile-tab--active" role="tab" id="rp-t-ov" aria-controls="rp-b-ov" aria-selected="true">Overview</button>
+        <button class="nge-profile-tab" role="tab" id="rp-t-tr" aria-controls="rp-b-tr" aria-selected="false" tabindex="-1">&#127942; Trophy Case</button>
+        <button class="nge-profile-tab" role="tab" id="rp-t-wk" aria-controls="rp-b-wk" aria-selected="false" tabindex="-1">&#128197; My Week in Science</button>
+        <button class="nge-profile-tab" role="tab" id="rp-t-ad" aria-controls="rp-b-ad" aria-selected="false" tabindex="-1">&#128295; Admin Hub</button>
+      </div>
+
+      <!-- OVERVIEW -->
+      <div class="nge-profile-body" id="rp-b-ov" role="tabpanel" aria-labelledby="rp-t-ov">
+
+        <div class="nge-profile-col nge-profile-col--left">
+          <div class="nge-profile-header">
+            <div class="nge-profile-name-row">
+              <span class="nge-profile-flag" aria-hidden="true">&#127482;&#127480;</span>
+              <span class="nge-profile-name">Amy Sterling</span>
+              <button class="nge-profile-edit-btn" type="button" aria-label="Edit profile">&#9881;</button>
+            </div>
+            <div class="nge-profile-email">@amy</div>
+            <div class="nge-profile-bio">Executive Director of EyeWire. #3 author on FlyWire. Mapping brains since 2012.</div>
+          </div>
+
+          <div class="nge-profile-section nge-profile-section--edits">
+            <div class="nge-profile-section-label">&#9612; Edits</div>
+            <div class="nge-profile-stat-row">
+              <div class="nge-profile-stat-col">
+                <div class="nge-profile-stat-label">Today</div>
+                <div class="nge-profile-stat-val">0</div>
+                <div class="nge-profile-stat-breakdown"><span class="nge-profile-stat-bp" title="Merges">&#9096; 0</span><span class="nge-profile-stat-bp" title="Splits">&#9095; 0</span></div>
+              </div>
+              <div class="nge-profile-stat-col">
+                <div class="nge-profile-stat-label">Past 7d</div>
+                <div class="nge-profile-stat-val">312</div>
+                <div class="nge-profile-stat-breakdown"><span class="nge-profile-stat-bp" title="Merges">&#9096; 191</span><span class="nge-profile-stat-bp" title="Splits">&#9095; 121</span></div>
+              </div>
+              <div class="nge-profile-stat-col">
+                <div class="nge-profile-stat-label">All time</div>
+                <div class="nge-profile-stat-val nge-profile-stat-val--hero">48,732</div>
+                <div class="nge-profile-stat-breakdown"><span class="nge-profile-stat-bp" title="Merges">&#9096; 29,800</span><span class="nge-profile-stat-bp" title="Splits">&#9095; 18,932</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="nge-profile-section nge-profile-section--cells">
+            <div class="nge-profile-section-label nge-profile-section-label--green">&#9612; Cells</div>
+            <div class="nge-profile-stat-row">
+              <div class="nge-profile-stat-col"><div class="nge-profile-stat-label">Completed</div><div class="nge-profile-stat-val">892</div><div class="nge-profile-stat-sub">proofread</div></div>
+              <div class="nge-profile-stat-col"><div class="nge-profile-stat-label">Identified</div><div class="nge-profile-stat-val">210</div><div class="nge-profile-stat-sub">typed only</div></div>
+              <div class="nge-profile-stat-col"><div class="nge-profile-stat-label">Total</div><div class="nge-profile-stat-val">1,104</div><div class="nge-profile-stat-sub">touched</div></div>
+              <div class="nge-profile-stat-col"><div class="nge-profile-stat-label">Assists</div><div class="nge-profile-stat-val">96</div><div class="nge-profile-stat-sub">helped</div></div>
+            </div>
+          </div>
+
+          <div class="nge-cell-list">
+            <div class="nge-cell-list-header">
+              <span class="nge-cell-list-title">Recent Cells</span>
+              <span class="nge-cell-list-dataset">pinky_nf_v2</span>
+            </div>
+            <div class="nge-cell-list-columns">
+              <span class="nge-cell-col-label nge-cell-col-label--id">Segment</span>
+              <span class="nge-cell-col-label nge-cell-col-label--type">Type</span>
+              <span class="nge-cell-col-label nge-cell-col-label--time">When</span>
+            </div>
+            <div class="nge-cell-list-scroll">
+              <div class="nge-cell-row"><span class="nge-cell-fav nge-cell-fav--active">&#9733;</span><span class="nge-cell-pip nge-cell-status--complete">&#10003;</span><span class="nge-cell-id">86469_39570</span><span class="nge-cell-type">L2/3 Pyramidal</span><span class="nge-cell-time">138d</span></div>
+              <div class="nge-cell-row"><span class="nge-cell-fav nge-cell-fav--active">&#9733;</span><span class="nge-cell-pip nge-cell-status--complete">&#10003;</span><span class="nge-cell-id">86469_05836</span><span class="nge-cell-type">PV+ Basket Cell</span><span class="nge-cell-time">139d</span></div>
+              <div class="nge-cell-row"><span class="nge-cell-fav">&#9734;</span><span class="nge-cell-pip nge-cell-status--complete">&#10003;</span><span class="nge-cell-id">64851_39674</span><span class="nge-cell-type">pyramidal cell</span><span class="nge-cell-time">21d</span></div>
+              <div class="nge-cell-row"><span class="nge-cell-fav">&#9734;</span><span class="nge-cell-pip nge-cell-status--typed">&#10003;</span><span class="nge-cell-id">64851_38687</span><span class="nge-cell-type">interneuron</span><span class="nge-cell-time">113d</span></div>
+              <div class="nge-cell-row"><span class="nge-cell-fav">&#9734;</span><span class="nge-cell-pip nge-cell-status--typed">&#10003;</span><span class="nge-cell-id">64851_13584</span><span class="nge-cell-type">granule cell</span><span class="nge-cell-time">113d</span></div>
+              <div class="nge-cell-row"><span class="nge-cell-fav">&#9734;</span><span class="nge-cell-pip nge-cell-status--complete">&#10003;</span><span class="nge-cell-id">86469_65390</span><span class="nge-cell-type">L2/3 Pyramidal</span><span class="nge-cell-time">138d</span></div>
+              <div class="nge-cell-row"><span class="nge-cell-fav">&#9734;</span><span class="nge-cell-pip nge-cell-status--pending">&#9711;</span><span class="nge-cell-id">86469_04831</span><span class="nge-cell-type">L2/3 Pyramidal</span><span class="nge-cell-time">138d</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="nge-profile-col nge-profile-col--center">
+          <div class="nge-profile-section nge-profile-section--badges">
+            <div class="nge-profile-countdown-row">
+              <span class="nge-profile-section-label nge-profile-section-label--amber">&#9612; Proofreading Achievements</span>
+              <span class="nge-profile-countdown-remaining">126 edits to go</span>
+            </div>
+            <div class="nge-profile-countdown-track"><div class="nge-profile-countdown-fill nge-profile-countdown-fill--building" style="width:64%"></div></div>
+            <div class="nge-profile-badges-grid">
+        <div class="nge-profile-badge nge-profile-badge--building" role="button" tabindex="0" data-badge-name="Glue" data-badge-desc="Glue expands the materials toolkit for advanced fabrication." data-badge-threshold="50 edits" data-badge-img="media/badges/building/glue.png" data-badge-track="building">
+          <div class="nge-profile-badge-img"><img class="nge-profile-badge-icon" src="media/badges/building/glue.png" alt="Glue badge" loading="lazy"></div>
+          <div class="nge-profile-badge-name">Glue</div>
+        </div>
+        <div class="nge-profile-badge nge-profile-badge--building" role="button" tabindex="0" data-badge-name="Mallet" data-badge-desc="Mallet is a core fabrication milestone on the building track." data-badge-threshold="100 edits" data-badge-img="media/badges/building/mallet.png" data-badge-track="building">
+          <div class="nge-profile-badge-img"><img class="nge-profile-badge-icon" src="media/badges/building/mallet.png" alt="Mallet badge" loading="lazy"></div>
+          <div class="nge-profile-badge-name">Mallet</div>
+        </div>
+        <div class="nge-profile-badge nge-profile-badge--building" role="button" tabindex="0" data-badge-name="Awl" data-badge-desc="Awl is a core fabrication milestone on the building track." data-badge-threshold="200 edits" data-badge-img="media/badges/building/awl.png" data-badge-track="building">
+          <div class="nge-profile-badge-img"><img class="nge-profile-badge-icon" src="media/badges/building/awl.png" alt="Awl badge" loading="lazy"></div>
+          <div class="nge-profile-badge-name">Awl</div>
+        </div>
+        <div class="nge-profile-badge nge-profile-badge--building" role="button" tabindex="0" data-badge-name="Hammer" data-badge-desc="Hammer is a core fabrication milestone on the building track." data-badge-threshold="350 edits" data-badge-img="media/badges/building/hammer.png" data-badge-track="building">
+          <div class="nge-profile-badge-img"><img class="nge-profile-badge-icon" src="media/badges/building/hammer.png" alt="Hammer badge" loading="lazy"></div>
+          <div class="nge-profile-badge-name">Hammer</div>
+        </div>
+        <div class="nge-profile-badge nge-profile-badge--building" role="button" tabindex="0" data-badge-name="Chisel" data-badge-desc="Chisel is a core fabrication milestone on the building track." data-badge-threshold="500 edits" data-badge-img="media/badges/building/chisel.png" data-badge-track="building">
+          <div class="nge-profile-badge-img"><img class="nge-profile-badge-icon" src="media/badges/building/chisel.png" alt="Chisel badge" loading="lazy"></div>
+          <div class="nge-profile-badge-name">Chisel</div>
+        </div>
+        <div class="nge-profile-badge nge-profile-badge--building" role="button" tabindex="0" data-badge-name="Wrench" data-badge-desc="Wrench is a core fabrication milestone on the building track." data-badge-threshold="750 edits" data-badge-img="media/badges/building/wrench.png" data-badge-track="building">
+          <div class="nge-profile-badge-img"><img class="nge-profile-badge-icon" src="media/badges/building/wrench.png" alt="Wrench badge" loading="lazy"></div>
+          <div class="nge-profile-badge-name">Wrench</div>
+        </div>
+        <div class="nge-profile-badge nge-profile-badge--building nge-profile-badge--latest" role="button" tabindex="0" data-badge-name="Screwdriver" data-badge-desc="Screwdriver is a core fabrication milestone on the building track." data-badge-threshold="1,000 edits" data-badge-img="media/badges/building/screwdriver.png" data-badge-track="building">
+          <div class="nge-profile-badge-img"><img class="nge-profile-badge-icon" src="media/badges/building/screwdriver.png" alt="Screwdriver badge" loading="lazy"></div>
+          <div class="nge-profile-badge-name">Screwdriver</div>
+        </div>
+        <div class="nge-profile-badge nge-profile-badge--viewall" role="button" tabindex="0" data-rp-tab="rp-t-tr">
+          <div class="nge-profile-badge-viewall-icon">&#8594;</div>
+          <div class="nge-profile-badge-name">View all</div>
+        </div>
+            </div>
+          </div>
+
+          <div class="nge-profile-section nge-profile-section--badges">
+            <div class="nge-profile-countdown-row">
+              <span class="nge-profile-section-label nge-profile-section-label--green">&#9612; Cell Achievements</span>
+              <span class="nge-profile-countdown-remaining">25 cells to go</span>
+            </div>
+            <div class="nge-profile-countdown-track"><div class="nge-profile-countdown-fill nge-profile-countdown-fill--exploration" style="width:22%"></div></div>
+            <div class="nge-profile-badges-grid">
+        <div class="nge-profile-badge nge-profile-badge--exploration" role="button" tabindex="0" data-badge-name="Map" data-badge-desc="Map captures the record-keeping side of exploration." data-badge-threshold="15 cells" data-badge-img="media/badges/exploration/map.png" data-badge-track="exploration">
+          <div class="nge-profile-badge-img"><img class="nge-profile-badge-icon" src="media/badges/exploration/map.png" alt="Map badge" loading="lazy"></div>
+          <div class="nge-profile-badge-name">Map</div>
+        </div>
+        <div class="nge-profile-badge nge-profile-badge--exploration" role="button" tabindex="0" data-badge-name="Compass" data-badge-desc="Compass is a scientific observation milestone on the exploration track." data-badge-threshold="25 cells" data-badge-img="media/badges/exploration/compass.png" data-badge-track="exploration">
+          <div class="nge-profile-badge-img"><img class="nge-profile-badge-icon" src="media/badges/exploration/compass.png" alt="Compass badge" loading="lazy"></div>
+          <div class="nge-profile-badge-name">Compass</div>
+        </div>
+        <div class="nge-profile-badge nge-profile-badge--exploration" role="button" tabindex="0" data-badge-name="Cairn" data-badge-desc="Cairn represents a discovery milestone on the exploration track." data-badge-threshold="35 cells" data-badge-img="media/badges/exploration/cairn.png" data-badge-track="exploration">
+          <div class="nge-profile-badge-img"><img class="nge-profile-badge-icon" src="media/badges/exploration/cairn.png" alt="Cairn badge" loading="lazy"></div>
+          <div class="nge-profile-badge-name">Cairn</div>
+        </div>
+        <div class="nge-profile-badge nge-profile-badge--exploration" role="button" tabindex="0" data-badge-name="Reflecting Circle" data-badge-desc="Reflecting Circle is a scientific observation milestone on the exploration track." data-badge-threshold="50 cells" data-badge-img="media/badges/exploration/sextant.png" data-badge-track="exploration">
+          <div class="nge-profile-badge-img"><img class="nge-profile-badge-icon" src="media/badges/exploration/sextant.png" alt="Reflecting Circle badge" loading="lazy"></div>
+          <div class="nge-profile-badge-name">Reflecting Circle</div>
+        </div>
+        <div class="nge-profile-badge nge-profile-badge--exploration" role="button" tabindex="0" data-badge-name="Astrolabe" data-badge-desc="Astrolabe is a scientific observation milestone on the exploration track." data-badge-threshold="75 cells" data-badge-img="media/badges/exploration/astrolabe.png" data-badge-track="exploration">
+          <div class="nge-profile-badge-img"><img class="nge-profile-badge-icon" src="media/badges/exploration/astrolabe.png" alt="Astrolabe badge" loading="lazy"></div>
+          <div class="nge-profile-badge-name">Astrolabe</div>
+        </div>
+        <div class="nge-profile-badge nge-profile-badge--exploration" role="button" tabindex="0" data-badge-name="Sundial" data-badge-desc="Sundial represents a discovery milestone on the exploration track." data-badge-threshold="100 cells" data-badge-img="media/badges/exploration/sundial.png" data-badge-track="exploration">
+          <div class="nge-profile-badge-img"><img class="nge-profile-badge-icon" src="media/badges/exploration/sundial.png" alt="Sundial badge" loading="lazy"></div>
+          <div class="nge-profile-badge-name">Sundial</div>
+        </div>
+        <div class="nge-profile-badge nge-profile-badge--exploration nge-profile-badge--latest" role="button" tabindex="0" data-badge-name="Telescope" data-badge-desc="Telescope is a scientific observation milestone on the exploration track." data-badge-threshold="250 cells" data-badge-img="media/badges/exploration/telescope.png" data-badge-track="exploration">
+          <div class="nge-profile-badge-img"><img class="nge-profile-badge-icon" src="media/badges/exploration/telescope.png" alt="Telescope badge" loading="lazy"></div>
+          <div class="nge-profile-badge-name">Telescope</div>
+        </div>
+        <div class="nge-profile-badge nge-profile-badge--viewall" role="button" tabindex="0" data-rp-tab="rp-t-tr">
+          <div class="nge-profile-badge-viewall-icon">&#8594;</div>
+          <div class="nge-profile-badge-name">View all</div>
+        </div>
+            </div>
+          </div>
+
+          <div class="nge-profile-section nge-profile-section--special">
+            <div class="nge-profile-section-label">&#9612; Special Awards</div>
+            <div class="nge-profile-badges-grid">
+              <div class="nge-profile-badge" role="button" tabindex="0" data-badge-name="Citizen Scientist" data-badge-desc="Three Cheers for the Heroes of Citizen Science!" data-badge-threshold="Special Award &middot; Won Mar 20, 2026" data-badge-img="media/badges/special/citizen-scientist.png" data-badge-track="special">
+                <div class="nge-profile-badge-img"><img class="nge-profile-badge-icon" src="media/badges/special/citizen-scientist.png" alt="Citizen Scientist badge" loading="lazy"></div>
+                <div class="nge-profile-badge-name">Citizen Scientist</div>
+              </div>
+              <div class="nge-profile-badge" role="button" tabindex="0" data-badge-name="Connectome" data-badge-desc="Awarded for reconstructing a complete connectome." data-badge-threshold="Special Award" data-badge-img="media/badges/special/connectome-coin.png" data-badge-track="special">
+                <div class="nge-profile-badge-img"><img class="nge-profile-badge-icon" src="media/badges/special/connectome-coin.png" alt="Connectome badge" loading="lazy"></div>
+                <div class="nge-profile-badge-name">Connectome</div>
+              </div>
+        <div class="nge-profile-badge nge-profile-badge--viewall" role="button" tabindex="0" data-rp-special="1">
+          <div class="nge-profile-badge-viewall-icon">&#8594;</div>
+          <div class="nge-profile-badge-name">View all</div>
+        </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="nge-profile-col nge-profile-col--right">
+          <div class="nge-profile-viz-panel" id="rp-viz">
+            <div class="nge-profile-viz-title">Favorite Badge</div>
+            <div class="nge-profile-viz-badge nge-profile-viz-badge--detail">
+              <img class="nge-profile-viz-badge-icon nge-profile-viz-badge-icon--large" id="rp-viz-img" src="media/badges/special/citizen-scientist.png" alt="Citizen Scientist badge">
+              <div class="nge-profile-viz-badge-name" id="rp-viz-name">Citizen Scientist</div>
+              <div class="nge-profile-viz-badge-desc" id="rp-viz-desc">Three Cheers for the Heroes of Citizen Science!</div>
+              <div class="nge-profile-viz-badge-threshold" id="rp-viz-thr">Special Award &middot; Won <strong>Mar 20, 2026</strong></div>
+            </div>
+          </div>
+
+          <div class="nge-profile-right-divider"></div>
+
+          <div class="nge-profile-section nge-profile-section--podium">
+            <div class="nge-profile-section-label">&#9612; Top of the Week</div>
+            <div class="nge-profile-podium-metric">
+              <div class="nge-profile-podium-metric-label">Edits</div>
+              <div class="nge-profile-podium-row"><span class="nge-profile-podium-tile nge-profile-podium-tile--gold"><span class="nge-profile-podium-medal">&#129351;</span><span class="nge-profile-podium-count">&times;9</span></span></div>
+            </div>
+            <div class="nge-profile-podium-metric">
+              <div class="nge-profile-podium-metric-label">Cells</div>
+              <div class="nge-profile-podium-row"><span class="nge-profile-podium-tile nge-profile-podium-tile--silver"><span class="nge-profile-podium-medal">&#129352;</span><span class="nge-profile-podium-count">&times;2</span></span></div>
+            </div>
+          </div>
+
+          <div class="nge-profile-right-divider"></div>
+
+          <div class="nge-profile-section nge-profile-section--streak">
+            <div class="nge-profile-section-label">&#9612; Streak</div>
+            <div class="nge-profile-streak-row">
+              <div class="nge-profile-streak-current"><span class="nge-profile-streak-flame">&#128293;</span><span class="nge-profile-streak-count">7</span><span class="nge-profile-streak-unit">days current</span></div>
+              <div class="nge-profile-streak-best"><span class="nge-profile-streak-best-label">Best</span><span class="nge-profile-streak-best-val">31d</span></div>
+            </div>
+            <div class="nge-profile-activity-chart">
+              <div class="nge-profile-chart-label">Last 14 Days</div>
+              <div class="nge-profile-chart-bars">
+          <div class="nge-profile-chart-col">
+            <div class="nge-profile-chart-bar-wrap"><div class="nge-profile-chart-bar nge-profile-chart-bar--edit" style="height:20%"></div></div>
+            <div class="nge-profile-chart-day">F</div>
+          </div>
+          <div class="nge-profile-chart-col">
+            <div class="nge-profile-chart-bar-wrap"><div class="nge-profile-chart-bar nge-profile-chart-bar--edit" style="height:55%"></div><div class="nge-profile-chart-bar nge-profile-chart-bar--completion" style="height:11px"></div></div>
+            <div class="nge-profile-chart-day">S</div>
+          </div>
+          <div class="nge-profile-chart-col">
+            <div class="nge-profile-chart-bar-wrap"><div class="nge-profile-chart-bar nge-profile-chart-bar--edit" style="height:35%"></div></div>
+            <div class="nge-profile-chart-day">S</div>
+          </div>
+          <div class="nge-profile-chart-col">
+            <div class="nge-profile-chart-bar-wrap"><div class="nge-profile-chart-bar nge-profile-chart-bar--edit" style="height:80%"></div><div class="nge-profile-chart-bar nge-profile-chart-bar--completion" style="height:16px"></div></div>
+            <div class="nge-profile-chart-day">M</div>
+          </div>
+          <div class="nge-profile-chart-col">
+            <div class="nge-profile-chart-bar-wrap"><div class="nge-profile-chart-bar nge-profile-chart-bar--edit" style="height:45%"></div></div>
+            <div class="nge-profile-chart-day">T</div>
+          </div>
+          <div class="nge-profile-chart-col">
+            <div class="nge-profile-chart-bar-wrap"><div class="nge-profile-chart-bar nge-profile-chart-bar--edit" style="height:30%"></div></div>
+            <div class="nge-profile-chart-day">W</div>
+          </div>
+          <div class="nge-profile-chart-col">
+            <div class="nge-profile-chart-bar-wrap"><div class="nge-profile-chart-bar nge-profile-chart-bar--edit" style="height:70%"></div><div class="nge-profile-chart-bar nge-profile-chart-bar--completion" style="height:14px"></div></div>
+            <div class="nge-profile-chart-day">T</div>
+          </div>
+          <div class="nge-profile-chart-col">
+            <div class="nge-profile-chart-bar-wrap"><div class="nge-profile-chart-bar nge-profile-chart-bar--edit" style="height:25%"></div></div>
+            <div class="nge-profile-chart-day">F</div>
+          </div>
+          <div class="nge-profile-chart-col">
+            <div class="nge-profile-chart-bar-wrap"><div class="nge-profile-chart-bar nge-profile-chart-bar--edit" style="height:60%"></div><div class="nge-profile-chart-bar nge-profile-chart-bar--completion" style="height:12px"></div></div>
+            <div class="nge-profile-chart-day">S</div>
+          </div>
+          <div class="nge-profile-chart-col">
+            <div class="nge-profile-chart-bar-wrap"><div class="nge-profile-chart-bar nge-profile-chart-bar--edit" style="height:40%"></div></div>
+            <div class="nge-profile-chart-day">S</div>
+          </div>
+          <div class="nge-profile-chart-col">
+            <div class="nge-profile-chart-bar-wrap"><div class="nge-profile-chart-bar nge-profile-chart-bar--edit" style="height:90%"></div><div class="nge-profile-chart-bar nge-profile-chart-bar--completion" style="height:18px"></div></div>
+            <div class="nge-profile-chart-day">M</div>
+          </div>
+          <div class="nge-profile-chart-col">
+            <div class="nge-profile-chart-bar-wrap"><div class="nge-profile-chart-bar nge-profile-chart-bar--edit" style="height:50%"></div></div>
+            <div class="nge-profile-chart-day">T</div>
+          </div>
+          <div class="nge-profile-chart-col">
+            <div class="nge-profile-chart-bar-wrap"><div class="nge-profile-chart-bar nge-profile-chart-bar--edit" style="height:75%"></div><div class="nge-profile-chart-bar nge-profile-chart-bar--completion" style="height:15px"></div></div>
+            <div class="nge-profile-chart-day">W</div>
+          </div>
+          <div class="nge-profile-chart-col">
+            <div class="nge-profile-chart-bar-wrap"><div class="nge-profile-chart-bar nge-profile-chart-bar--edit" style="height:65%"></div><div class="nge-profile-chart-bar nge-profile-chart-bar--completion" style="height:13px"></div></div>
+            <div class="nge-profile-chart-day">Today</div>
+          </div>
+              </div>
+              <div class="nge-profile-chart-legend">
+                <span class="nge-profile-chart-legend-item"><span class="nge-profile-chart-legend-dot nge-profile-chart-legend-dot--edit"></span>Edits</span>
+                <span class="nge-profile-chart-legend-item"><span class="nge-profile-chart-legend-dot nge-profile-chart-legend-dot--completion"></span>Completions</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TROPHY CASE -->
+      <div class="nge-profile-body nge-profile-body--trophy" id="rp-b-tr" role="tabpanel" aria-labelledby="rp-t-tr" hidden>
+        <div class="nge-trophy-scroll">
+          <div class="nge-trophy-featured">
+            <div class="nge-trophy-featured-effects" aria-hidden="true">
+              <div class="nge-trophy-aura"></div>
+              <div class="nge-trophy-ring nge-trophy-ring--1"></div>
+              <div class="nge-trophy-ring nge-trophy-ring--2"></div>
+              <div class="nge-trophy-ring nge-trophy-ring--3"></div>
+              <div class="nge-trophy-ring nge-trophy-ring--4"></div>
+              <div class="nge-trophy-ring nge-trophy-ring--5"></div>
+          <div class="nge-trophy-orbit-dot" style="--j:1"></div>
+          <div class="nge-trophy-orbit-dot" style="--j:2"></div>
+          <div class="nge-trophy-orbit-dot" style="--j:3"></div>
+          <div class="nge-trophy-orbit-dot" style="--j:4"></div>
+          <div class="nge-trophy-orbit-dot" style="--j:5"></div>
+          <div class="nge-trophy-orbit-dot" style="--j:6"></div>
+          <div class="nge-trophy-orbit-dot" style="--j:7"></div>
+          <div class="nge-trophy-orbit-dot" style="--j:8"></div>
+          <div class="nge-trophy-orbit-dot" style="--j:9"></div>
+          <div class="nge-trophy-orbit-dot" style="--j:10"></div>
+          <div class="nge-trophy-orbit-dot" style="--j:11"></div>
+          <div class="nge-trophy-orbit-dot" style="--j:12"></div>
+            </div>
+            <img class="nge-trophy-featured-icon nge-trophy-featured-icon--animated" src="media/badges/special/citizen-scientist.png" alt="Citizen Scientist badge">
+            <div class="nge-trophy-featured-info">
+              <div class="nge-trophy-featured-name nge-trophy-featured-name--scifi">Citizen Scientist</div>
+              <div class="nge-trophy-featured-desc">Three Cheers for the Heroes of Citizen Science!</div>
+              <div class="nge-trophy-featured-fav-label">&#9733; Favorite badge</div>
+            </div>
+            <button class="nge-trophy-featured-star nge-trophy-featured-star--active" type="button" aria-label="Favorite">&#9733;</button>
+          </div>
+
+          <div class="nge-trophy-track">
+            <div class="nge-trophy-track-label">&#9612; Building <span class="nge-trophy-track-count">9 / 100</span></div>
+            <div class="nge-trophy-grid">
+        <div class="nge-trophy-badge nge-trophy-badge--building" role="button" tabindex="0" data-badge-name="Stylus" data-badge-desc="Stylus marks the point where making starts with a mark on the page." data-badge-threshold="10 edits" data-badge-img="media/badges/building/stylus.png" data-badge-track="building">
+          <img class="nge-trophy-badge-icon" src="media/badges/building/stylus.png" alt="Stylus badge" loading="lazy">
+          <div class="nge-trophy-badge-name">Stylus</div>
+          <div class="nge-trophy-badge-desc">Stylus marks the point where making starts with a mark on the page.</div>
+          <div class="nge-trophy-badge-threshold">10 edits</div>
+        </div>
+        <div class="nge-trophy-badge nge-trophy-badge--building" role="button" tabindex="0" data-badge-name="Twine" data-badge-desc="Twine anchors the structural side of the building track." data-badge-threshold="25 edits" data-badge-img="media/badges/building/twine.png" data-badge-track="building">
+          <img class="nge-trophy-badge-icon" src="media/badges/building/twine.png" alt="Twine badge" loading="lazy">
+          <div class="nge-trophy-badge-name">Twine</div>
+          <div class="nge-trophy-badge-desc">Twine anchors the structural side of the building track.</div>
+          <div class="nge-trophy-badge-threshold">25 edits</div>
+        </div>
+        <div class="nge-trophy-badge nge-trophy-badge--building" role="button" tabindex="0" data-badge-name="Glue" data-badge-desc="Glue expands the materials toolkit for advanced fabrication." data-badge-threshold="50 edits" data-badge-img="media/badges/building/glue.png" data-badge-track="building">
+          <img class="nge-trophy-badge-icon" src="media/badges/building/glue.png" alt="Glue badge" loading="lazy">
+          <div class="nge-trophy-badge-name">Glue</div>
+          <div class="nge-trophy-badge-desc">Glue expands the materials toolkit for advanced fabrication.</div>
+          <div class="nge-trophy-badge-threshold">50 edits</div>
+        </div>
+        <div class="nge-trophy-badge nge-trophy-badge--building" role="button" tabindex="0" data-badge-name="Mallet" data-badge-desc="Mallet is a core fabrication milestone on the building track." data-badge-threshold="100 edits" data-badge-img="media/badges/building/mallet.png" data-badge-track="building">
+          <img class="nge-trophy-badge-icon" src="media/badges/building/mallet.png" alt="Mallet badge" loading="lazy">
+          <div class="nge-trophy-badge-name">Mallet</div>
+          <div class="nge-trophy-badge-desc">Mallet is a core fabrication milestone on the building track.</div>
+          <div class="nge-trophy-badge-threshold">100 edits</div>
+        </div>
+        <div class="nge-trophy-badge nge-trophy-badge--building" role="button" tabindex="0" data-badge-name="Awl" data-badge-desc="Awl is a core fabrication milestone on the building track." data-badge-threshold="200 edits" data-badge-img="media/badges/building/awl.png" data-badge-track="building">
+          <img class="nge-trophy-badge-icon" src="media/badges/building/awl.png" alt="Awl badge" loading="lazy">
+          <div class="nge-trophy-badge-name">Awl</div>
+          <div class="nge-trophy-badge-desc">Awl is a core fabrication milestone on the building track.</div>
+          <div class="nge-trophy-badge-threshold">200 edits</div>
+        </div>
+        <div class="nge-trophy-badge nge-trophy-badge--building" role="button" tabindex="0" data-badge-name="Hammer" data-badge-desc="Hammer is a core fabrication milestone on the building track." data-badge-threshold="350 edits" data-badge-img="media/badges/building/hammer.png" data-badge-track="building">
+          <img class="nge-trophy-badge-icon" src="media/badges/building/hammer.png" alt="Hammer badge" loading="lazy">
+          <div class="nge-trophy-badge-name">Hammer</div>
+          <div class="nge-trophy-badge-desc">Hammer is a core fabrication milestone on the building track.</div>
+          <div class="nge-trophy-badge-threshold">350 edits</div>
+        </div>
+        <div class="nge-trophy-badge nge-trophy-badge--building" role="button" tabindex="0" data-badge-name="Chisel" data-badge-desc="Chisel is a core fabrication milestone on the building track." data-badge-threshold="500 edits" data-badge-img="media/badges/building/chisel.png" data-badge-track="building">
+          <img class="nge-trophy-badge-icon" src="media/badges/building/chisel.png" alt="Chisel badge" loading="lazy">
+          <div class="nge-trophy-badge-name">Chisel</div>
+          <div class="nge-trophy-badge-desc">Chisel is a core fabrication milestone on the building track.</div>
+          <div class="nge-trophy-badge-threshold">500 edits</div>
+        </div>
+        <div class="nge-trophy-badge nge-trophy-badge--building" role="button" tabindex="0" data-badge-name="Wrench" data-badge-desc="Wrench is a core fabrication milestone on the building track." data-badge-threshold="750 edits" data-badge-img="media/badges/building/wrench.png" data-badge-track="building">
+          <img class="nge-trophy-badge-icon" src="media/badges/building/wrench.png" alt="Wrench badge" loading="lazy">
+          <div class="nge-trophy-badge-name">Wrench</div>
+          <div class="nge-trophy-badge-desc">Wrench is a core fabrication milestone on the building track.</div>
+          <div class="nge-trophy-badge-threshold">750 edits</div>
+        </div>
+        <div class="nge-trophy-badge nge-trophy-badge--building" role="button" tabindex="0" data-badge-name="Screwdriver" data-badge-desc="Screwdriver is a core fabrication milestone on the building track." data-badge-threshold="1,000 edits" data-badge-img="media/badges/building/screwdriver.png" data-badge-track="building">
+          <img class="nge-trophy-badge-icon" src="media/badges/building/screwdriver.png" alt="Screwdriver badge" loading="lazy">
+          <div class="nge-trophy-badge-name">Screwdriver</div>
+          <div class="nge-trophy-badge-desc">Screwdriver is a core fabrication milestone on the building track.</div>
+          <div class="nge-trophy-badge-threshold">1,000 edits</div>
+        </div>
+            </div>
+          </div>
+
+          <div class="nge-trophy-track">
+            <div class="nge-trophy-track-label">&#9612; Exploration <span class="nge-trophy-track-count">8 / 100</span></div>
+            <div class="nge-trophy-grid">
+        <div class="nge-trophy-badge nge-trophy-badge--exploration" role="button" tabindex="0" data-badge-name="Abacus" data-badge-desc="Abacus is a scientific observation milestone on the exploration track." data-badge-threshold="10 cells" data-badge-img="media/badges/exploration/abacus.png" data-badge-track="exploration">
+          <img class="nge-trophy-badge-icon" src="media/badges/exploration/abacus.png" alt="Abacus badge" loading="lazy">
+          <div class="nge-trophy-badge-name">Abacus</div>
+          <div class="nge-trophy-badge-desc">Abacus is a scientific observation milestone on the exploration track.</div>
+          <div class="nge-trophy-badge-threshold">10 cells</div>
+        </div>
+        <div class="nge-trophy-badge nge-trophy-badge--exploration" role="button" tabindex="0" data-badge-name="Map" data-badge-desc="Map captures the record-keeping side of exploration." data-badge-threshold="15 cells" data-badge-img="media/badges/exploration/map.png" data-badge-track="exploration">
+          <img class="nge-trophy-badge-icon" src="media/badges/exploration/map.png" alt="Map badge" loading="lazy">
+          <div class="nge-trophy-badge-name">Map</div>
+          <div class="nge-trophy-badge-desc">Map captures the record-keeping side of exploration.</div>
+          <div class="nge-trophy-badge-threshold">15 cells</div>
+        </div>
+        <div class="nge-trophy-badge nge-trophy-badge--exploration" role="button" tabindex="0" data-badge-name="Compass" data-badge-desc="Compass is a scientific observation milestone on the exploration track." data-badge-threshold="25 cells" data-badge-img="media/badges/exploration/compass.png" data-badge-track="exploration">
+          <img class="nge-trophy-badge-icon" src="media/badges/exploration/compass.png" alt="Compass badge" loading="lazy">
+          <div class="nge-trophy-badge-name">Compass</div>
+          <div class="nge-trophy-badge-desc">Compass is a scientific observation milestone on the exploration track.</div>
+          <div class="nge-trophy-badge-threshold">25 cells</div>
+        </div>
+        <div class="nge-trophy-badge nge-trophy-badge--exploration" role="button" tabindex="0" data-badge-name="Cairn" data-badge-desc="Cairn represents a discovery milestone on the exploration track." data-badge-threshold="35 cells" data-badge-img="media/badges/exploration/cairn.png" data-badge-track="exploration">
+          <img class="nge-trophy-badge-icon" src="media/badges/exploration/cairn.png" alt="Cairn badge" loading="lazy">
+          <div class="nge-trophy-badge-name">Cairn</div>
+          <div class="nge-trophy-badge-desc">Cairn represents a discovery milestone on the exploration track.</div>
+          <div class="nge-trophy-badge-threshold">35 cells</div>
+        </div>
+        <div class="nge-trophy-badge nge-trophy-badge--exploration" role="button" tabindex="0" data-badge-name="Reflecting Circle" data-badge-desc="Reflecting Circle is a scientific observation milestone on the exploration track." data-badge-threshold="50 cells" data-badge-img="media/badges/exploration/sextant.png" data-badge-track="exploration">
+          <img class="nge-trophy-badge-icon" src="media/badges/exploration/sextant.png" alt="Reflecting Circle badge" loading="lazy">
+          <div class="nge-trophy-badge-name">Reflecting Circle</div>
+          <div class="nge-trophy-badge-desc">Reflecting Circle is a scientific observation milestone on the exploration track.</div>
+          <div class="nge-trophy-badge-threshold">50 cells</div>
+        </div>
+        <div class="nge-trophy-badge nge-trophy-badge--exploration" role="button" tabindex="0" data-badge-name="Astrolabe" data-badge-desc="Astrolabe is a scientific observation milestone on the exploration track." data-badge-threshold="75 cells" data-badge-img="media/badges/exploration/astrolabe.png" data-badge-track="exploration">
+          <img class="nge-trophy-badge-icon" src="media/badges/exploration/astrolabe.png" alt="Astrolabe badge" loading="lazy">
+          <div class="nge-trophy-badge-name">Astrolabe</div>
+          <div class="nge-trophy-badge-desc">Astrolabe is a scientific observation milestone on the exploration track.</div>
+          <div class="nge-trophy-badge-threshold">75 cells</div>
+        </div>
+        <div class="nge-trophy-badge nge-trophy-badge--exploration" role="button" tabindex="0" data-badge-name="Sundial" data-badge-desc="Sundial represents a discovery milestone on the exploration track." data-badge-threshold="100 cells" data-badge-img="media/badges/exploration/sundial.png" data-badge-track="exploration">
+          <img class="nge-trophy-badge-icon" src="media/badges/exploration/sundial.png" alt="Sundial badge" loading="lazy">
+          <div class="nge-trophy-badge-name">Sundial</div>
+          <div class="nge-trophy-badge-desc">Sundial represents a discovery milestone on the exploration track.</div>
+          <div class="nge-trophy-badge-threshold">100 cells</div>
+        </div>
+        <div class="nge-trophy-badge nge-trophy-badge--exploration" role="button" tabindex="0" data-badge-name="Telescope" data-badge-desc="Telescope is a scientific observation milestone on the exploration track." data-badge-threshold="250 cells" data-badge-img="media/badges/exploration/telescope.png" data-badge-track="exploration">
+          <img class="nge-trophy-badge-icon" src="media/badges/exploration/telescope.png" alt="Telescope badge" loading="lazy">
+          <div class="nge-trophy-badge-name">Telescope</div>
+          <div class="nge-trophy-badge-desc">Telescope is a scientific observation milestone on the exploration track.</div>
+          <div class="nge-trophy-badge-threshold">250 cells</div>
+        </div>
+        <div class="nge-trophy-badge nge-trophy-badge--exploration nge-trophy-badge--locked">
+          <div class="nge-trophy-badge-mystery">?</div>
+          <div class="nge-trophy-badge-name nge-trophy-badge-name--locked">???</div>
+          <div class="nge-trophy-badge-threshold">42,869</div>
+        </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WEEK / ADMIN placeholders -->
+      <div class="nge-profile-body" id="rp-b-wk" role="tabpanel" aria-labelledby="rp-t-wk" hidden>
+        <div style="padding:60px 24px;text-align:center;color:#778;font-size:.9em">My Week in Science is its own component (WeeklyRecapPanel) in the game. The streak chart on the Overview tab is the short version.</div>
+      </div>
+      <div class="nge-profile-body" id="rp-b-ad" role="tabpanel" aria-labelledby="rp-t-ad" hidden>
+        <div style="padding:60px 24px;text-align:center;color:#778;font-size:.9em">Admin tools live here in the shipping game. This is a visual reproduction, so the tab is a placeholder.</div>
+      </div>
+
+    </div>
+  </div>
+</dialog>
+
+<!-- All special awards modal (nge-special-modal), the game's real "view all" -->
+<div class="nge-special-modal-backdrop" id="rp-special" hidden>
+  <div class="nge-special-modal" role="dialog" aria-label="All special awards">
+    <div class="nge-special-modal-head">
+      <span class="nge-special-modal-title">All Special Awards</span>
+      <button class="nge-special-modal-close" type="button" data-rp-special-close aria-label="Close">&times;</button>
+    </div>
+    <div class="nge-special-modal-grid">
+      <div class="nge-special-modal-tile"><img class="nge-special-modal-icon" src="media/badges/special/citizen-scientist.png" alt=""><div class="nge-special-modal-name">Citizen Scientist</div><div class="nge-special-modal-reason">Three Cheers for the Heroes of Citizen Science!</div></div>
+      <div class="nge-special-modal-tile"><img class="nge-special-modal-icon" src="media/badges/special/connectome-coin.png" alt=""><div class="nge-special-modal-name">Connectome</div><div class="nge-special-modal-reason">Reconstructed a complete connectome.</div></div>
+      <div class="nge-special-modal-tile"><img class="nge-special-modal-icon" src="media/badges/building/hammer.png" alt=""><div class="nge-special-modal-name">Advanced Operator</div><div class="nge-special-modal-reason">Cleared advanced proofreading certification.</div></div>
+      <div class="nge-special-modal-tile"><img class="nge-special-modal-icon" src="media/badges/exploration/astrolabe.png" alt=""><div class="nge-special-modal-name">Citizen Explorer</div><div class="nge-special-modal-reason">Charted new territory across datasets.</div></div>
+    </div>
+  </div>
+</div>
 
 <script src="hologram.js"></script>
 <script src="hologram-tap.js"></script>
@@ -853,6 +1423,7 @@
 <script src="components/panel-surface.js"></script>
 <script src="components/achievement-toast.js"></script>
 <script src="components/tutorial-callout.js"></script>
+<script src="components/researcher-profile.js"></script>
 <script>
   /* the eyebrow readout is measured rather than written: the number of
      elements this page is made of, counted after the runtime parts are built.
