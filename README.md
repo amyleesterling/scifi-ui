@@ -55,7 +55,9 @@ columns.
 The readout (`.holoreadout`) is the one to reach for when you have real numbers
 to show: a stat row, the distribution behind those stats, and one line saying
 where the numbers came from. Hand `holoReadout()` the data and it derives every
-figure, so the panel cannot drift away from what it describes.
+figure, so the panel cannot drift away from what it describes. It is the banner
+panel from the [MICrONS cortex page](https://amyleesterling.github.io/microns/),
+reporting the 38 proofread cells the render behind it was built from.
 
 ```js
 holoReadout(el, {
@@ -578,12 +580,15 @@ Built for a connectomics rendering site
 media is 3D renders of neurons and the readouts are real measurements from the
 reconstruction.
 
-The pieces were pulled out of four working sites and generalised so none of them
-depends on the markup it came from. The step rail is from the Inner Cosmos
-explorer, reimplemented from React to plain CSS with a small init, with pointer
-dragging added here. The loader, the panel boot, the underline, the scan sweep,
-the section rail and the image card are from the FlyWire neuron gallery, where
-they were Tailwind utilities and React state bound to that project's class names.
+The pieces were pulled out of working sites and generalised so none of them
+depends on the markup it came from. The data readout is the banner panel from
+the [MICrONS cortex page](https://amyleesterling.github.io/microns/), where it
+reports the 38 proofread cells behind the render it sits on. The step rail is
+from the Inner Cosmos explorer, reimplemented from React to plain CSS with a
+small init, with pointer dragging added here. The loader, the panel boot, the
+underline, the scan sweep, the section rail and the image card are from the
+FlyWire neuron gallery, where they were Tailwind utilities and React state
+bound to that project's class names.
 The dialog is the EyeWire II sign in modal, reproduced layer for layer, with the
 authentication removed, the third party marks removed, and every loop that was
 not ambient cut down to a single pass.
