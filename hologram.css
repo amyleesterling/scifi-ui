@@ -493,24 +493,24 @@
   }
 
 /* boot on hover or focus, and again on each new hover, because a boot you
-   cannot replay is a boot you only ever see once by accident. On touch the same
-   replay comes from a tap, which is what .holo-on is. */
-.holoboot.is-online, .holoboot:hover, .holoboot:focus-within,
-.holoboot.holo-on {
+   cannot replay is a boot you only ever see once by accident. On touch the
+   replay comes from a tap: not the sticky .holo-on class, which stays on and so
+   could never restart the animation, but is-online, which the script lifts and
+   re-adds on each holotap:on. That is why a tap replays every time now, not
+   only the first. Hover and focus stay pure CSS. */
+.holoboot.is-online, .holoboot:hover, .holoboot:focus-within {
   animation: holo-boot-in 900ms cubic-bezier(.16,1,.3,1) both;
 }
 
 .holoboot.is-online > .holoboot-ring,
 .holoboot:hover > .holoboot-ring,
-.holoboot:focus-within > .holoboot-ring,
-.holoboot.holo-on > .holoboot-ring {
+.holoboot:focus-within > .holoboot-ring {
   animation: holo-ring-sweep 1500ms linear forwards;
 }
 
 .holoboot.is-online > .holoboot-glow,
 .holoboot:hover > .holoboot-glow,
-.holoboot:focus-within > .holoboot-glow,
-.holoboot.holo-on > .holoboot-glow {
+.holoboot:focus-within > .holoboot-glow {
   animation: holo-panel-online 1500ms linear forwards;
 }
 
@@ -542,8 +542,7 @@
   }
 
 @media (prefers-reduced-motion: reduce) {
-    .holoboot.is-online, .holoboot:hover, .holoboot:focus-within,
-    .holoboot.holo-on { animation: none; }
+    .holoboot.is-online, .holoboot:hover, .holoboot:focus-within { animation: none; }
     .holoboot > .holoboot-ring, .holoboot > .holoboot-glow { display: none; }
   }
 
@@ -562,25 +561,32 @@
   }
 
 /* the resting state is the finished line, so a page with the script stripped
-     out, or a tab that was never looked at, still shows the underline. It
-     draws again from hover and from a tap, which works because the script
-     takes is-drawn back off at animationend: the same animation under a class
-     that never leaves can never restart. */
+     out, or a tab that was never looked at, still shows the underline. It draws
+     again from hover, and from a tap on every tap. The tap path alternates two
+     trigger classes, is-drawn and is-redraw, whose animations are identical but
+     differently named: a single class re-added cannot be trusted to restart a
+     pseudo element's animation from inside a pointer handler, but a change of
+     the computed animation name always restarts it. Hover stays pure CSS. */
   .holounder.is-drawn::after,
-  .holounder:hover::after,
-  .holounder.holo-on::after {
+  .holounder.is-redraw::after,
+  .holounder:hover::after {
     animation: holo-underline-draw 900ms cubic-bezier(.16,1,.3,1) both;
   }
+  .holounder.is-redraw::after { animation-name: holo-underline-redraw; }
 
 @keyframes holo-underline-draw {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(1); }
+  }
+@keyframes holo-underline-redraw {
     from { transform: scaleX(0); }
     to   { transform: scaleX(1); }
   }
 
 @media (prefers-reduced-motion: reduce) {
     .holounder.is-drawn::after,
-    .holounder:hover::after,
-    .holounder.holo-on::after { animation: none; }
+    .holounder.is-redraw::after,
+    .holounder:hover::after { animation: none; }
   }
 
 /* ---- 9. scan sweep ------------------------------------------------------

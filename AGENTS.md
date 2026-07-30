@@ -305,3 +305,22 @@ bundle's source maps, real CSS and real `center-art` badge art and the shipped
 demo data. Adds the two lessons above: a built bundle's `.map` files are the
 source, so fetch them before approximating; and `hidden` loses to a base
 `display` rule. The invented `.holobadge` coin and `.holoaward` screen are gone.
+
+**Version 7**, 30 July 2026. Sharpens the animation-restart lesson, because the
+v3 fix only worked once. Restarting a CSS animation from inside a pointer
+handler differs by what it is on:
+
+- **A pseudo element (`::after`) cannot be reliably restarted by re-adding a
+  class, not with a synchronous reflow and not with a pair of rAFs.** The
+  browser coalesces the remove and the re-add into no change and the play never
+  starts over. What always works is a change of the computed animation *name*,
+  so the underline alternates two identically-drawn but differently-named
+  classes, `is-drawn` and `is-redraw`, on every tap. This is why the underline
+  only drew once before.
+- **A real element can be restarted the classic way:** drop its animation to
+  `none` inline, force a reflow, hand it back to the stylesheet. The boot does
+  that on its panel and its two spans.
+
+Also: `hologram-tap.js` now re-fires `holotap:on` when you re-tap the thing
+already lit. Without it a repeat tap on the same element was a dead no-op, so
+any effect whose point is a replay could only ever play on the first tap.
