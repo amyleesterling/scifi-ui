@@ -95,6 +95,16 @@ revealed on hover. The twin head version, two heads 180 degrees apart running
 that tears down inside itself never tears down if the first frame never arrives,
 and a full screen canvas then sits over the page for its lifetime. Use a timeout.
 
+**Two components must never share a base class, or loading both on one page
+breaks both.** The icon rail shipped as `.holorail`, the exact class the section
+rail already owns in `hologram.css`. Alone on the components demo it looked
+fine; the moment the main page loaded both stylesheets the two base rules
+collided, one a fixed vertical rail and the other a flex toolbar, each element
+getting the other's `position`, `display` and `background`. The fix was to
+rename the newer one to `.holoiconrail`. Before naming a component's class, grep
+the set for it: the collision is invisible until the day someone uses both, and
+that day is when a page tries to be complete.
+
 **A CSS animation only restarts when its computed name changes, so a state class
 that never comes off is a replay that can never happen.** `.holoboot.is-online`,
 `:hover` and `.holo-on` all apply the same boot animation, and with `is-online`
@@ -175,12 +185,16 @@ Known debt: the shared accent `rgba(74,158,255, x)` appears upstream at eleven
 different alphas (0.01, 0.015, 0.04, 0.08, 0.1, 0.12, 0.15, 0.18, 0.2, 0.28,
 0.4). One accent token plus a defined alpha ladder would collapse a lot of it.
 
-Also unextracted: the dark 135 degree gradient panel surface recurs in at least
-four upstream places with three inconsistent hues, and the same entrance
-keyframe (opacity 0, `scale(.97)`, `blur(10px) brightness(2.5)` with an 80px
-bloom) appears in `UserProfilePanel`, `SettingsPanel`, the toast hero card, and
-here as `holo-dialog-in`. That surface should be extracted once. Whoever does it
-must win without `!important`, since the upstream profile panel uses it.
+The dark gradient panel surface, once unextracted, now is: `.holopanel` in
+`components/panel-surface.css` carries the surface, the lit top hairline and the
+shared materialise entrance (opacity 0, a small rise and shrink, a blurred
+overbright bloom that settles), and the profile panel in
+`components/profile-panel.css` is the first thing built on it rather than a
+fourth private copy. It wins on its own weight with no `!important`; a library
+has no host DOM to fight, which is the only reason the upstream profile panel
+forced its rules. The dialog and the toast still carry their own surfaces for
+now, because both predate the primitive and neither is broken; fold them onto
+`.holopanel` the next time either is opened up, not before.
 
 ## 7. Verification, and its hard limit
 
@@ -235,3 +249,9 @@ the fixed height parent a formerly absolute child overflows at a breakpoint.
 class must come off at animationend or hover and tap replays are dead on
 arrival, and the two-transform-property trick that lets the mote drift ride
 under the repulsion.
+
+**Version 4**, 30 July 2026. The shared panel surface is extracted as
+`.holopanel` and the profile panel is built on it. Adds the class collision
+lesson: two components sharing a base class break both the day a page loads
+both, which is how the icon rail's `.holorail` met the section rail's, now
+renamed `.holoiconrail`. The whole components set is wired into the main page.

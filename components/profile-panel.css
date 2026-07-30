@@ -1,0 +1,179 @@
+/* ---- profile panel (holoprofile) ----------------------------------------
+   An operator profile card, built on the shared .holopanel surface rather than
+   on a fourth private copy of it. That is the whole point of the pair: the
+   surface, the rim and the entrance come from panel-surface.css, and this file
+   is only the contents, the avatar, the identity line, the stat row and the
+   two meters.
+
+   From ng-extend's UserProfilePanel in outline. The upstream panel is a signed
+   in account card; this repo has no accounts and never will, so the layout is
+   kept and the fields are filled with real numbers from the CA3
+   reconstruction the rest of the page draws on. It is a visual component: no
+   account, no request, nothing to sign into.
+
+   Every value reads a token with a fallback, so it drops onto a page with no
+   token system and still works. Nothing here needs !important. */
+
+.holoprofile {
+  display: block;
+  max-width: 420px;
+  padding: 22px 22px 20px;
+}
+
+.holoprofile-eyebrow {
+  margin: 0 0 14px;
+  font-size: 9px;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: rgb(var(--holo-beam, 178 216 248) / .6);
+}
+
+/* the identity line: avatar, name and handle, and a rank pill pushed to the
+   end. It wraps the pill under the name on a narrow card rather than crushing
+   the three into one row. */
+.holoprofile-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.holoprofile-avatar {
+  flex: 0 0 auto;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 50% 38%,
+    rgb(var(--holo-cyan, 126 224 255) / .35),
+    rgb(var(--holo-glow, 74 150 224) / .12) 60%,
+    transparent 72%);
+  border: 1px solid rgb(var(--holo-cyan, 126 224 255) / .4);
+  box-shadow: inset 0 0 14px rgb(var(--holo-cyan, 126 224 255) / .2),
+              0 0 18px rgb(var(--holo-glow, 74 150 224) / .18);
+}
+
+.holoprofile-avatar svg {
+  display: block;
+  width: 30px;
+  height: 34px;
+  color: rgb(var(--holo-beam, 178 216 248));
+  filter: drop-shadow(0 0 4px rgb(var(--holo-beam, 178 216 248) / .7));
+}
+
+.holoprofile-id { flex: 1 1 auto; min-width: 0; }
+
+.holoprofile-name {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -.01em;
+  color: rgb(var(--holo-ink, 239 244 251));
+}
+
+.holoprofile-handle {
+  margin: 2px 0 0;
+  font-size: 12.5px;
+  color: rgb(var(--holo-dim, 154 162 177));
+  font-variant-numeric: tabular-nums;
+}
+
+.holoprofile-rank {
+  flex: 0 0 auto;
+  padding: 5px 11px;
+  font-size: 9.5px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: rgb(var(--holo-cyan, 126 224 255));
+  border: 1px solid rgb(var(--holo-cyan, 126 224 255) / .4);
+  border-radius: 999px;
+  background: rgb(var(--holo-cyan, 126 224 255) / .08);
+  white-space: nowrap;
+}
+
+/* three numbers on one line, split by hairlines, the way the upstream account
+   card counts a contributor's work */
+.holoprofile-stats {
+  display: flex;
+  margin: 20px 0 4px;
+  border: 1px solid rgb(var(--holo-line, 196 228 255) / .08);
+  border-radius: 8px;
+  background: rgb(var(--holo-line, 196 228 255) / .02);
+}
+
+.holoprofile-stat {
+  flex: 1 1 0;
+  padding: 12px 6px;
+  text-align: center;
+}
+
+.holoprofile-stat + .holoprofile-stat {
+  border-left: 1px solid rgb(var(--holo-line, 196 228 255) / .08);
+}
+
+.holoprofile-stat b {
+  display: block;
+  font: 500 20px/1 ui-sans-serif, system-ui, sans-serif;
+  color: rgb(var(--holo-beam, 178 216 248));
+  font-variant-numeric: tabular-nums;
+}
+
+.holoprofile-stat span {
+  display: block;
+  margin-top: 5px;
+  font-size: 9px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: rgb(var(--holo-dim, 154 162 177));
+}
+
+/* two labelled meters. The fill width is one custom property per meter, so a
+   new row is one declaration, the same idea the tinted card runs on. */
+.holoprofile-meters { margin-top: 16px; }
+
+.holoprofile-meter + .holoprofile-meter { margin-top: 12px; }
+
+.holoprofile-meter p {
+  margin: 0 0 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 12px;
+  color: rgb(var(--holo-ink, 239 244 251) / .82);
+}
+
+.holoprofile-meter em {
+  font-style: normal;
+  font-variant-numeric: tabular-nums;
+  color: rgb(var(--holo-dim, 154 162 177));
+}
+
+.holoprofile-meter i {
+  display: block;
+  position: relative;
+  height: 3px;
+  border-radius: 999px;
+  background: rgb(var(--holo-ink, 239 244 251) / .1);
+  overflow: hidden;
+}
+
+.holoprofile-meter i::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--v, 0%);
+  border-radius: 999px;
+  background: linear-gradient(90deg,
+    rgb(var(--holo-cyan, 126 224 255) / .55),
+    rgb(var(--holo-cyan, 126 224 255) / .95));
+  box-shadow: 0 0 10px rgb(var(--holo-cyan, 126 224 255) / .6);
+}
+
+/* on a phone the card takes the full column and the rank pill drops under the
+   name rather than squeezing the identity line */
+@media (max-width: 480px) {
+  .holoprofile { max-width: none; padding: 20px 18px 18px; }
+  .holoprofile-head { flex-wrap: wrap; }
+  .holoprofile-rank { order: 3; margin-left: 66px; }
+  .holoprofile-stat b { font-size: 18px; }
+}

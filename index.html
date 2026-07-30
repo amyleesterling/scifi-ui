@@ -5,11 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>scifi-ui</title>
 <link rel="stylesheet" href="hologram.css">
-<!-- the attract loop and the page finale are components/ parts, so they bring
-     their own stylesheets -->
+<!-- the components/ parts each bring their own stylesheet, self contained and
+     working alone -->
 <link rel="stylesheet" href="components/attract-loop.css">
 <link rel="stylesheet" href="components/confetti-burst.css">
 <link rel="stylesheet" href="components/page-finale.css">
+<link rel="stylesheet" href="components/panel-surface.css">
+<link rel="stylesheet" href="components/profile-panel.css">
+<link rel="stylesheet" href="components/achievement-toast.css">
+<link rel="stylesheet" href="components/tinted-card.css">
+<link rel="stylesheet" href="components/icon-rail.css">
+<link rel="stylesheet" href="components/tutorial-callout.css">
 <style>
   /* demo page chrome only, none of this is part of the system */
   body {
@@ -244,6 +250,23 @@
      in. Scaffolding for this page only, like everything else in this block. */
   #attractdeck { margin-bottom: 18px; border: 1px solid #1B2130; border-radius: 3px;
                  background: #090C12; }
+
+  /* the loader sat in a tall demo box with a small glyph marooned in the
+     middle of it, which read as empty rather than as loading. A phone gets a
+     smaller cell, a tighter box, and the two examples side by side instead of
+     stacked, so the section is a compact pair of loaders rather than two
+     caverns. */
+  @media (max-width: 699px) {
+    .loadgrid { grid-template-columns: 1fr; gap: 12px; }
+    .loadgrid .demo { padding: 20px 16px 18px; }
+    .loadgrid .holoload { gap: 12px; }
+    .loadgrid .holoload-figure { --holoload-size: 92px; }
+  }
+
+  /* triggers for the ported component demos reuse the page's own .cta, and the
+     tinted cards and icon rail bring their own layout, so this block stays
+     scaffolding only */
+  .btnrow { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 </style>
 </head>
 <body>
@@ -366,7 +389,7 @@
   <p>A cell draws itself in while you wait, the basal arbor half a cycle behind
   the apical one. The bar reports a real count when you have one, and goes
   indeterminate when you do not, rather than inventing a number.</p>
-  <div class="grid">
+  <div class="grid loadgrid">
     <div class="demo">
       <div class="holoload" data-loaded="4" data-total="9" role="status">
         <div class="holoload-figure">
@@ -487,6 +510,144 @@
   <p>Drag the rail and the loop holds where you put it, because touching the box
   counts as somebody being present. It resumes after a quiet spell.</p>
 
+  <h2>Profile panel</h2>
+  <p>An operator card built on a surface shared with the toast, the settings
+  panel and the dialog, extracted once as <code>.holopanel</code> rather than
+  copied a fourth time. Real numbers from the reconstruction. A visual
+  component: no account, nothing to sign into.</p>
+  <div class="holopanel holoprofile" aria-label="Operator profile">
+    <p class="holoprofile-eyebrow">visual component only</p>
+    <div class="holoprofile-head">
+      <div class="holoprofile-avatar">
+        <svg viewBox="0 0 60 68" fill="none" aria-hidden="true"
+             stroke="currentColor" stroke-width="2.4" stroke-linecap="round"
+             stroke-linejoin="round">
+          <path d="M30 40 L30 16 M30 16 L22 6 M30 16 L38 6 M30 24 L20 15 M30 24 L40 15"></path>
+          <path d="M26 44 L16 54 M34 44 L44 54 M30 46 L30 60"></path>
+          <ellipse cx="30" cy="41" rx="6" ry="5.4" fill="currentColor" stroke="none"></ellipse>
+        </svg>
+      </div>
+      <div class="holoprofile-id">
+        <p class="holoprofile-name">Reconstruction operator</p>
+        <p class="holoprofile-handle">CA3 &middot; mouse hippocampus</p>
+      </div>
+      <span class="holoprofile-rank">stage two</span>
+    </div>
+    <div class="holoprofile-stats">
+      <div class="holoprofile-stat"><b>118</b><span>cells</span></div>
+      <div class="holoprofile-stat"><b>1,024</b><span>edits</span></div>
+      <div class="holoprofile-stat"><b>165</b><span>synapses</span></div>
+    </div>
+    <div class="holoprofile-meters">
+      <div class="holoprofile-meter">
+        <p><span>proofreading</span><em>72%</em></p>
+        <i style="--v:72%"></i>
+      </div>
+      <div class="holoprofile-meter">
+        <p><span>mesh cache</span><em>56 of 56</em></p>
+        <i style="--v:100%"></i>
+      </div>
+    </div>
+  </div>
+
+  <h2>Achievement toast</h2>
+  <p>The success state from EyeWire II Brain Quest: a toast and a confetti burst
+  fired together. The card announces through a live region, dismisses on a timer
+  that pauses while you point at it or tap it, and the burst respects reduced
+  motion.</p>
+  <div class="demo">
+    <p class="btnrow">
+      <button class="cta" type="button" id="fire-quest">Daily quests complete</button>
+      <button class="cta" type="button" id="fire-badge">Badge only</button>
+    </p>
+  </div>
+
+  <h2>Tinted lift card</h2>
+  <p>Each card sets one property, <code>--holotint</code>, and that single value
+  colours both the corner glow and the shadow it pools as it lifts. Point at one,
+  or tap it, and it comes up.</p>
+  <div class="holotint-grid">
+    <article class="holotint" style="--holotint: rgba(126,224,255,0.18); --holotint-solid: rgba(126,224,255,0.75)">
+      <p class="holotint-kicker"><span class="holotint-dot"></span>cyan</p>
+      <h3 class="holotint-title">One property per card</h3>
+      <p class="holotint-body">The tint reaches the shadow as well as the
+      overlay. Tint only one and it collapses into a coloured smudge.</p>
+    </article>
+    <article class="holotint" style="--holotint: rgba(183,139,255,0.18); --holotint-solid: rgba(183,139,255,0.75)">
+      <p class="holotint-kicker"><span class="holotint-dot"></span>violet</p>
+      <h3 class="holotint-title">Hover, focus and tap agree</h3>
+      <p class="holotint-body">Everything the pointer gets, a keyboard and a
+      finger get too. The card lifts on focus-within and on a tap.</p>
+    </article>
+    <article class="holotint" style="--holotint: rgba(255,200,97,0.18); --holotint-solid: rgba(255,200,97,0.75)">
+      <p class="holotint-kicker"><span class="holotint-dot"></span>warm</p>
+      <h3 class="holotint-title">The one warm accent</h3>
+      <p class="holotint-body">A cool field with a single warm card in it. Two
+      warm accents and the grid stops reading as an instrument.</p>
+    </article>
+  </div>
+
+  <h2>Icon rail</h2>
+  <p>A toolbar of icon buttons with rest, hover, focus, pressed and selected
+  states. Real buttons, inline SVG, no <code>!important</code>. The third is a
+  toggle and reports with <code>aria-pressed</code>.</p>
+  <div class="demo">
+    <div class="holoiconrail" role="toolbar" aria-label="Viewer tools">
+      <button class="holoiconrail-btn" type="button" title="Center the view" aria-label="Center the view">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="7"></circle>
+          <path d="M12 2v4M12 18v4M2 12h4M18 12h4"></path>
+        </svg>
+      </button>
+      <button class="holoiconrail-btn" type="button" title="Layers" aria-label="Layers">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 3l9 5-9 5-9-5 9-5z"></path>
+          <path d="M3 13l9 5 9-5"></path>
+        </svg>
+      </button>
+      <button class="holoiconrail-btn" type="button" title="Follow the trace"
+              aria-label="Follow the trace" aria-pressed="true">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 20V9M4 13h6l3-4h7"></path>
+          <circle cx="4" cy="20" r="1.6"></circle>
+          <circle cx="20" cy="9" r="1.6"></circle>
+        </svg>
+      </button>
+      <span class="holoiconrail-sep" aria-hidden="true"></span>
+      <button class="holoiconrail-btn" type="button" title="Search" aria-label="Search">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="11" cy="11" r="6"></circle>
+          <path d="M15.5 15.5L21 21"></path>
+        </svg>
+      </button>
+      <button class="holoiconrail-btn" type="button" title="Capture a frame" aria-label="Capture a frame">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="3" y="6" width="18" height="13" rx="2"></rect>
+          <circle cx="12" cy="12.5" r="3.4"></circle>
+          <path d="M8 6l1.6-2h4.8L16 6"></path>
+        </svg>
+      </button>
+      <span class="holoiconrail-sep" aria-hidden="true"></span>
+      <button class="holoiconrail-btn" type="button" title="Nothing loaded yet"
+              aria-label="Nothing loaded yet" disabled>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 4v11M7.5 10.5L12 15l4.5-4.5"></path>
+          <path d="M4 19h16"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <h2>Tutorial callout</h2>
+  <p>A callout that anchors to a target, flips to the side that fits, clamps
+  into the viewport, then slides its beak to keep pointing. Escape dismisses,
+  the arrows step, and the page scrolls the whole time.</p>
+  <div class="demo">
+    <p class="btnrow">
+      <button class="cta" type="button" data-holotip-start="#pagetour">Take the tour</button>
+    </p>
+  </div>
+
   <h2>Usage</h2>
 <pre>&lt;link rel="stylesheet" href="hologram.css"&gt;
 
@@ -532,6 +693,27 @@
      data-holofinale-src="media/nurro-balloons.png"
      data-holofinale-palette="rainbow"
      data-holofinale-intensity="2"></div>
+
+<!-- the tutorial callout's tour. Copy lives in the markup, hidden until the
+     script reads it, so a step is edited in one place. Each step names a
+     target already on the page. -->
+<ol class="holotip-steps" id="pagetour" hidden>
+  <li data-holotip-target=".holoprofile" data-holotip-side="top"
+      data-holotip-title="The shared surface">
+    <p>This card and the toast are the same panel underneath, pulled out once
+    as .holopanel instead of copied a fourth time.</p>
+  </li>
+  <li data-holotip-target="#fire-quest" data-holotip-side="bottom"
+      data-holotip-title="The success state">
+    <p>Press this after the tour for a toast and a confetti burst together, the
+    way Brain Quest fires them.</p>
+  </li>
+  <li data-holotip-target=".holoiconrail" data-holotip-side="top"
+      data-holotip-title="Icon rail" data-holotip-next="finish">
+    <p>Real buttons with rest, hover, pressed and selected states, and no
+    !important anywhere in the file.</p>
+  </li>
+</ol>
 
 <nav class="holorail" data-holorail=".wrap > h2"></nav>
 
@@ -668,12 +850,36 @@
 <script src="components/attract-loop.js"></script>
 <script src="components/confetti-burst.js"></script>
 <script src="components/page-finale.js"></script>
+<script src="components/panel-surface.js"></script>
+<script src="components/achievement-toast.js"></script>
+<script src="components/tutorial-callout.js"></script>
 <script>
   /* the eyebrow readout is measured rather than written: the number of
      elements this page is made of, counted after the runtime parts are built.
      Once now, for the first paint, and once more on DOMContentLoaded, which is
      when the attract loop builds its stage. The scripts above ran first, so
      their listener fires before this one and the count includes their work. */
+  /* the ported toast demo. One button fires the Brain Quest success state, a
+     toast and a rainbow burst together; the other fires a plain badge. Both go
+     through the component's own holotoast and holoburst, nothing special. */
+  (function () {
+    var quest = document.getElementById("fire-quest");
+    var badge = document.getElementById("fire-badge");
+    if (quest && window.holotoast) {
+      quest.addEventListener("click", function () {
+        holotoast({ tone: "quest", icon: "\u{1F9E0}", title: "Daily quests complete",
+          sub: "All three quests done. You are a neuroscience hero.", duration: 6000 });
+        if (window.holoburst) holoburst("rainbow", 2);
+      });
+    }
+    if (badge && window.holotoast) {
+      badge.addEventListener("click", function () {
+        holotoast({ tone: "badge", icon: "\u{1F3C5}", title: "Astrolabe",
+          sub: "You explored 25 cells across three datasets.", duration: 5000 });
+      });
+    }
+  })();
+
   (function () {
     var out = document.getElementById("elcount");
     if (!out) return;

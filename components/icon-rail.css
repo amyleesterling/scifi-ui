@@ -1,4 +1,4 @@
-/* ---- icon rail (holorail) -----------------------------------------------
+/* ---- icon rail (holoiconrail) -----------------------------------------------
    A horizontal row of icon buttons with rest, hover, focus and pressed
    states.
 
@@ -26,11 +26,11 @@
    The blue is written out as 74 158 255 rather than borrowed from the library
    token, because these are the numbers Amy pointed at and rounding them to a
    neighbouring token would be quietly changing the thing she asked for. A host
-   that wants the rail to follow its own accent sets --holorail-accent, which
+   that wants the rail to follow its own accent sets --holoiconrail-accent, which
    every rule below reads with 74 158 255 behind it as the fallback. Every
    other colour here carries a concrete fallback the same way. */
 
-.holorail {
+.holoiconrail {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -44,7 +44,7 @@
   scrollbar-width: thin;
 }
 
-.holorail-btn {
+.holoiconrail-btn {
   flex: 0 0 auto;
   box-sizing: border-box;
   width: 36px;
@@ -56,9 +56,9 @@
   cursor: pointer;
   border-radius: 8px;
   /* rest */
-  color: rgb(var(--holorail-accent, 74 158 255) / .9);
-  background: rgb(var(--holorail-accent, 74 158 255) / .1);
-  border: 1px solid rgb(var(--holorail-accent, 74 158 255) / .3);
+  color: rgb(var(--holoiconrail-accent, 74 158 255) / .9);
+  background: rgb(var(--holoiconrail-accent, 74 158 255) / .1);
+  border: 1px solid rgb(var(--holoiconrail-accent, 74 158 255) / .3);
   transition:
     background .15s ease,
     border-color .15s ease,
@@ -66,7 +66,7 @@
     transform .12s ease;
 }
 
-.holorail-btn svg {
+.holoiconrail-btn svg {
   width: 18px;
   height: 18px;
   display: block;
@@ -78,54 +78,54 @@
 }
 
 /* hover. These are the two values from the original, and the only two */
-.holorail-btn:hover,
-.holorail-btn:focus-visible,
-.holorail-btn.holo-on {
-  background: rgb(var(--holorail-accent, 74 158 255) / .2);
-  border-color: rgb(var(--holorail-accent, 74 158 255) / .5);
+.holoiconrail-btn:hover,
+.holoiconrail-btn:focus-visible,
+.holoiconrail-btn.holo-on {
+  background: rgb(var(--holoiconrail-accent, 74 158 255) / .2);
+  border-color: rgb(var(--holoiconrail-accent, 74 158 255) / .5);
   color: rgb(var(--holo-ink, 239 244 251));
 }
 
 /* focus. A real ring, with a real colour behind it. A bare var() with no
    fallback computes to an invalid value and the whole declaration is dropped,
    which is how focus rings silently disappear on a host page. */
-.holorail-btn:focus-visible {
+.holoiconrail-btn:focus-visible {
   outline: 2px solid rgb(var(--holo-beam, 178 216 248) / .9);
   outline-offset: 2px;
 }
 
 /* pressed, as in the mouse is down on it */
-.holorail-btn:active {
+.holoiconrail-btn:active {
   transform: translateY(1px) scale(.97);
-  background: rgb(var(--holorail-accent, 74 158 255) / .28);
+  background: rgb(var(--holoiconrail-accent, 74 158 255) / .28);
   border-color: rgb(var(--holo-beam, 178 216 248) / .7);
 }
 
 /* selected, as in this tool is the one currently on. A toggle button says so
    with aria-pressed, so the style keys off the same attribute the assistive
    technology reads rather than off a class that only the eye can see. */
-.holorail-btn[aria-pressed="true"] {
+.holoiconrail-btn[aria-pressed="true"] {
   color: rgb(var(--holo-ink, 239 244 251));
-  background: rgb(var(--holorail-accent, 74 158 255) / .26);
+  background: rgb(var(--holoiconrail-accent, 74 158 255) / .26);
   border-color: rgb(var(--holo-beam, 178 216 248) / .6);
-  box-shadow: inset 0 0 12px rgb(var(--holorail-accent, 74 158 255) / .35);
+  box-shadow: inset 0 0 12px rgb(var(--holoiconrail-accent, 74 158 255) / .35);
 }
 
-.holorail-btn[disabled] {
+.holoiconrail-btn[disabled] {
   opacity: .35;
   cursor: default;
   transform: none;
 }
 
-.holorail-btn[disabled]:hover,
-.holorail-btn[disabled].holo-on {
-  background: rgb(var(--holorail-accent, 74 158 255) / .1);
-  border-color: rgb(var(--holorail-accent, 74 158 255) / .3);
-  color: rgb(var(--holorail-accent, 74 158 255) / .9);
+.holoiconrail-btn[disabled]:hover,
+.holoiconrail-btn[disabled].holo-on {
+  background: rgb(var(--holoiconrail-accent, 74 158 255) / .1);
+  border-color: rgb(var(--holoiconrail-accent, 74 158 255) / .3);
+  color: rgb(var(--holoiconrail-accent, 74 158 255) / .9);
 }
 
 /* a hairline to group tools, one element, no border tricks */
-.holorail-sep {
+.holoiconrail-sep {
   flex: 0 0 auto;
   width: 1px;
   height: 22px;
@@ -134,6 +134,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .holorail-btn { transition: none; }
-  .holorail-btn:active { transform: none; }
+  .holoiconrail-btn { transition: none; }
+  .holoiconrail-btn:active { transform: none; }
 }
