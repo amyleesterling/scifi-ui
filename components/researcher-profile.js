@@ -1,23 +1,11 @@
-/* ---- researcher profile + badge award (holoresearcher, holoaward) --------
-   Opens the profile modal, switches its tabs, and turns any badge into an
-   award screen.
+/* ---- researcher profile (nge-profile-*) ----------------------------------
+   Drives the reproduced EyeWire II researcher profile: opens the dialog,
+   switches tabs, swaps the right column to a badge's detail when a badge is
+   clicked, and opens the "all special awards" modal.
 
-     <button data-holoresearcher="researcherProfile">Open profile</button>
-     <dialog class="holoresearcher" id="researcherProfile"> ... </dialog>
-     <dialog class="holoaward" id="badgeAward"> ... </dialog>
-
-   Tabs are buttons with role=tab and aria-controls; clicking one shows its
-   panel and hides the rest, and the arrow keys move between them, which is the
-   tab pattern a screen reader expects.
-
-   A badge is any element with data-award. Its label, glyph and colours are read
-   off the badge itself, dropped into the single .holoaward dialog, and the
-   confetti burst fires if confetti-burst.js is on the page. One award dialog is
-   reused for every badge rather than one per badge.
-
-   Both dialogs are real <dialog>s opened with showModal, so focus trapping and
-   Escape are the user agent's job. Nothing here authenticates or sends
-   anything. */
+   The profile is a real <dialog> opened with showModal, so focus trapping and
+   Escape are the user agent's job. The special-awards overlay is a plain
+   element toggled with [hidden]. Nothing here signs in or sends anything. */
 
 (function () {
   "use strict";
@@ -35,89 +23,101 @@
     if (dlg._opener && dlg._opener.focus) dlg._opener.focus();
   }
 
-  /* ---- tabs ------------------------------------------------------------- */
   function wireTabs(root) {
-    var tabs = [].slice.call(root.querySelectorAll("[role=tab]"));
+    var tabs = [].slice.call(root.querySelectorAll(".nge-profile-tabbar [role=tab]"));
     if (!tabs.length) return;
-
     function select(tab) {
       tabs.forEach(function (t) {
         var on = t === tab;
+        t.classList.toggle("nge-profile-tab--active", on);
         t.setAttribute("aria-selected", on ? "true" : "false");
         t.tabIndex = on ? 0 : -1;
         var panel = document.getElementById(t.getAttribute("aria-controls"));
         if (panel) panel.hidden = !on;
       });
     }
-
     root.addEventListener("click", function (e) {
-      var tab = e.target.closest("[role=tab]");
+      var tab = e.target.closest(".nge-profile-tabbar [role=tab]");
       if (tab) select(tab);
+      var jump = e.target.closest("[data-rp-tab]");
+      if (jump) { var t = document.getElementById(jump.getAttribute("data-rp-tab")); if (t) select(t); }
     });
-
     root.addEventListener("keydown", function (e) {
       if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
       var i = tabs.indexOf(document.activeElement);
       if (i < 0) return;
       e.preventDefault();
-      var next = e.key === "ArrowRight" ? (i + 1) % tabs.length
-                                        : (i - 1 + tabs.length) % tabs.length;
-      tabs[next].focus();
-      select(tabs[next]);
+      var n = e.key === "ArrowRight" ? (i + 1) % tabs.length : (i - 1 + tabs.length) % tabs.length;
+      tabs[n].focus(); select(tabs[n]);
     });
+    root._selectTab = select;
   }
 
-  /* ---- award screen ----------------------------------------------------- */
-  function wireAward(award, profile) {
-    if (!award) return;
-    var coin = award.querySelector(".holobadge");
-    var glyph = award.querySelector(".holobadge-glyph");
-    var nameEl = award.querySelector(".holoaward-name");
-
-    function show(badge) {
-      var label = badge.getAttribute("data-award") || "Badge";
-      var g = badge.querySelector(".holobadge-glyph");
-      if (glyph && g) glyph.textContent = g.textContent;
-      if (coin) {
-        coin.style.setProperty("--b1", badge.style.getPropertyValue("--b1") || "#7fd0ff");
-        coin.style.setProperty("--b2", badge.style.getPropertyValue("--b2") || "#2f6fd6");
-        coin.style.setProperty("--bglow", badge.style.getPropertyValue("--bglow") || "rgb(120 170 255 / .6)");
+  // clicking a badge swaps the right column's viz panel to that badge's detail
+  function wireBadgeDetail(root) {
+    var img = root.querySelector("#rp-viz-img");
+    var name = root.querySelector("#rp-viz-name");
+    var desc = root.querySelector("#rp-viz-desc");
+    var thr = root.querySelector("#rp-viz-thr");
+    var title = root.querySelector(".nge-profile-viz-title");
+    if (!img) return;
+    function show(b) {
+      var src = b.getAttribute("data-badge-img");
+      if (src) img.src = src;
+      if (name) name.textContent = b.getAttribute("data-badge-name") || "";
+      if (desc) desc.textContent = b.getAttribute("data-badge-desc") || "";
+      if (thr) {
+        var t = b.getAttribute("data-badge-threshold") || "";
+        var track = b.getAttribute("data-badge-track");
+        thr.innerHTML = track === "special" ? t
+          : "Unlocked at <strong>" + t + "</strong>";
       }
-      if (nameEl) nameEl.textContent = label;
-      openDialog(award, badge);
-      if (typeof window.holoburst === "function") window.holoburst("rainbow", 1.5);
+      if (title) title.textContent = b.getAttribute("data-badge-track") === "special"
+        ? "Special Award" : "Badge Detail";
     }
-
-    // any earned badge on the page opens the award; a locked one does not
-    document.addEventListener("click", function (e) {
-      var badge = e.target.closest("[data-award]");
-      if (!badge || badge.classList.contains("is-locked")) return;
-      // a badge inside the profile still works; the profile stays open behind it
-      show(badge);
-    });
-
-    award.querySelectorAll("[data-holoaward-close]").forEach(function (b) {
-      b.addEventListener("click", function () { closeDialog(award); });
-    });
-    award.addEventListener("click", function (e) { if (e.target === award) closeDialog(award); });
+    function handle(e) {
+      var b = e.target.closest("[data-badge-name]");
+      if (!b) return;
+      if (e.type === "keydown" && e.key !== "Enter" && e.key !== " ") return;
+      if (e.type === "keydown") e.preventDefault();
+      show(b);
+      // if the viz is off-screen (trophy tab), bring the overview forward
+      var ov = document.getElementById("rp-t-ov");
+      if (root._selectTab && ov && document.getElementById("rp-b-ov").hidden) root._selectTab(ov);
+    }
+    root.addEventListener("click", handle);
+    root.addEventListener("keydown", handle);
   }
 
   document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll("dialog.holoresearcher").forEach(function (dlg) {
+    var dlg = document.querySelector("dialog.nge-profile-modal");
+    if (dlg) {
       wireTabs(dlg);
-      dlg.querySelectorAll("[data-holoresearcher-close]").forEach(function (b) {
+      wireBadgeDetail(dlg);
+      dlg.querySelectorAll("[data-rp-close]").forEach(function (b) {
         b.addEventListener("click", function () { closeDialog(dlg); });
       });
       dlg.addEventListener("click", function (e) { if (e.target === dlg) closeDialog(dlg); });
-    });
+    }
 
     document.querySelectorAll("[data-holoresearcher]").forEach(function (btn) {
-      var dlg = document.getElementById(btn.getAttribute("data-holoresearcher"));
-      btn.addEventListener("click", function () { openDialog(dlg, btn); });
+      var target = document.getElementById(btn.getAttribute("data-holoresearcher"));
+      btn.addEventListener("click", function () { openDialog(target, btn); });
     });
 
-    var award = document.querySelector("dialog.holoaward");
-    var profile = document.querySelector("dialog.holoresearcher");
-    wireAward(award, profile);
+    // all special awards overlay
+    var special = document.getElementById("rp-special");
+    if (special) {
+      function openS() { special.hidden = false; }
+      function closeS() { special.hidden = true; }
+      document.addEventListener("click", function (e) {
+        if (e.target.closest("[data-rp-special]")) openS();
+        else if (e.target.closest("[data-rp-special-close]")) closeS();
+        else if (e.target === special) closeS();
+      });
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && !special.hidden) closeS();
+      });
+    }
   });
 })();

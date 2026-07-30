@@ -26,9 +26,9 @@ tutorial callout, an achievement toast, a confetti burst, a tinted lift card, an
 icon rail (`.holoiconrail`, kept clear of the section rail's `.holorail`), a page
 finale that fires the confetti once when the reader reaches the bottom and floats
 a mascot up on balloons, a shared panel surface (`.holopanel`), a profile card
-built on it, the full EyeWire II researcher profile it opens into, and a badge
-coin with the award screen it triggers. They are split one per file so you can
-take one without taking the set, and the whole set also runs inline on the main
+built on it, and the full EyeWire II researcher profile it opens into. They are
+split one per file so you can take one without taking the set, and the whole set
+also runs inline on the main
 [demo page](https://amyleesterling.github.io/scifi-ui/).
 
 The panel surface is the one worth a word here. A dark gradient panel with a lit
@@ -37,15 +37,20 @@ its own copy; `components/panel-surface.css` is that surface pulled out once, an
 the profile panel is the first component built on it rather than a fifth copy. It
 wins without `!important`: a library has no host page to fight.
 
-The researcher profile is the EyeWire II profile reproduced: a header with tabs,
-an identity column, badge grids for the achievements, and a sidebar with the
-featured badge, the week's totals and the streak, opened as a modal from the
-summary card. Any badge is a `.holobadge` coin, and clicking one opens the award
-screen (`components/badge-award.css`), which reuses the trophy case's featured
-badge animation and fires the confetti burst. The badge art is a stand in: the
-shipping game renders each badge in 3D, and this reproduces the layout and the
-coin with an emoji glyph where the render would be, stated rather than passed off
-as the original.
+The researcher profile is not a lookalike, it is the EyeWire II
+`UserProfilePanel` carried across whole. The component ships in a built bundle
+with source maps, so its real compiled CSS was lifted from the map and de-scoped
+from its Vue `data-v` hash, the DOM rebuilt from the same class names, the badge
+art taken from the game's own `center-art` PNGs and resized into
+[`media/badges/`](media/badges), and the numbers filled from the demo profile
+the game itself ships (Amy Sterling). The `nge-profile-*` classes are the
+originals. It carries the three column overview, the trophy case with the
+animated featured badge (spinning rings, orbit dots, a pulsing aura), the badge
+detail that swaps into the right column when you click a badge, and the all
+special awards modal. A visual component: no account, no request. The only
+adaptations are the container, the game mounted it in neuroglancer's overlay and
+here a `<dialog>` plays that role, and a phone breakpoint that stacks the three
+columns.
 
 ```html
 <link rel="stylesheet" href="hologram.css">

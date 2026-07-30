@@ -277,8 +277,31 @@ worth keeping:
   scroll past, not on the one thing that is on screen from the first frame.
 
 - **Reproducing a screen you cannot get the assets for: build the layout, mark
-  the placeholders.** The profile is faithful to the EyeWire II screenshot, but
-  the 3D badge renders are not in this repo, so each badge is a CSS coin with an
-  emoji glyph, and both the CSS and the README say so. That is the §2 rule
-  applied to art rather than to numbers: reproduce what you can, and never let a
-  stand in read as the original.
+  the placeholders.** A first pass built the profile as an emoji-coin lookalike
+  because the real assets seemed out of reach. They were not.
+
+- **A built bundle with source maps IS the source. Go get it before you
+  approximate.** `amyleesterling/eyewire-ii` ships `main.bundle.js/.css` with
+  `.map` files, and the maps carry `sourcesContent`: the real Vue templates, the
+  real SCSS-compiled CSS, the badge catalogue, and the demo data, all readable.
+  `json.load(map)['sources']` lists the files; `['sourcesContent'][i]` is each
+  one whole. That is how the researcher profile went from a recreation to the
+  actual `UserProfilePanel`: real CSS de-scoped from its `data-v` hash, DOM
+  rebuilt from the real class names, badge art resized from the game's
+  `center-art` PNGs, numbers from the shipped demo profile. When a repo is a
+  built front end, look for `.map` before you reproduce anything by eye. This is
+  the §2 rule with teeth: the real thing was one clone away.
+
+- **`hidden` loses to `display: flex`/`block`.** The profile's tab panels are
+  `display: flex` and the special-awards overlay is `display: flex`, so the
+  `[hidden]` attribute did nothing: every tab stacked at once and the overlay ate
+  every click. A component that toggles visibility with `hidden` needs
+  `.thing[hidden] { display: none !important }` spelled out whenever its base
+  rule sets a display.
+
+**Version 6**, 30 July 2026. The profile is no longer a recreation: it is the
+real EyeWire II `UserProfilePanel`, lifted from the `amyleesterling/eyewire-ii`
+bundle's source maps, real CSS and real `center-art` badge art and the shipped
+demo data. Adds the two lessons above: a built bundle's `.map` files are the
+source, so fetch them before approximating; and `hidden` loses to a base
+`display` rule. The invented `.holobadge` coin and `.holoaward` screen are gone.
