@@ -108,7 +108,11 @@
      Every piece of media sits in a frame that reads like an instrument readout:
      corner brackets draw in, a scan line passes once, and a cyan rim lifts it off
      the page. Transform and opacity only, so none of it costs layout. */
-  .holoframe { position: relative; isolation: isolate; margin: 26px 0; }
+  /* the trace runs a beam a good 22px outside the frame, plus its glow, so the
+     frame needs more vertical room than a plain figure would: 34px keeps the
+     light clear of the paragraph above and the caption below rather than letting
+     it wash over the text. */
+  .holoframe { position: relative; isolation: isolate; margin: 34px 0; }
 
 /* the frame owns the fit. Without this the media lays itself out at its
      intrinsic width and a 1400px render scrolls the page sideways */
@@ -247,7 +251,9 @@
      the page to lose on a phone. So it runs on touch now, struck by the tap
      that lights the frame; only reduced motion still turns it off, below. */
   @media (max-width: 700px) {
-    .holoframe { margin: 10px 0; }
+    /* 30px, not 10: now the beam runs on touch too, its 22px overhang needs
+       clearance from the caption and the copy above or it paints over them */
+    .holoframe { margin: 30px 0; }
   }
 
 @media (prefers-reduced-motion: reduce) {

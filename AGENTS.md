@@ -465,3 +465,13 @@ spike crossing one synapse. Lessons worth keeping:
   reveals loads and renders, and stepping away halts the one you left. This is
   also why the attract-loop auto-advance was dropped here: cycling heavy WebGL
   viewers on a timer is the opposite of what they are for.
+
+**Version 11**, 30 July 2026. The particle-trace section moves to the end,
+where the lede already lists it ("…and a particle trace for media"), so the page
+reads in the order the first sentence promises. And it gets the vertical room it
+always needed: the trace beam runs a good 22px outside its frame, plus glow, so
+`.holoframe` carries 34px of vertical margin (30px on phones) rather than
+letting the light wash over the paragraph above and the caption below. A halo
+that overhangs its own box has to be paid for in the margins of the box, not
+just the box; the day the trace started running on touch, the old 10px phone
+margin stopped being enough.

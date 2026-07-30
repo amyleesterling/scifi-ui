@@ -386,33 +386,6 @@
   rails, panels that boot up, a loading state that draws a cell, a modal
   surface, and a particle trace for media.</p>
 
-  <h2>Particle trace, on an image</h2>
-  <p>An arc of light runs the boundary once, struck from wherever your pointer
-  crossed or your finger landed, then breaks into particles. Every value in the
-  HUD is read off the media element at runtime.</p>
-  <figure data-hud="337 × 266 × 92 µm">
-    <div class="holoframe">
-      <canvas class="trace"></canvas>
-      <img src="media/cell.jpg" alt="A CA3 pyramidal cell with the six mossy fibers that reach it">
-    </div>
-    <figcaption>One thorny pyramidal cell, 4.5 million triangles in the
-    original.</figcaption>
-  </figure>
-
-  <h2>Particle trace, on a video</h2>
-  <p>The same treatment over video, plus a play affordance that hides on play
-  and returns on pause. The native controls stay for scrubbing.</p>
-  <figure data-hud="165 synapses · 6 fibers">
-    <div class="holoframe">
-      <canvas class="trace"></canvas>
-      <video controls playsinline muted loop preload="metadata" poster="media/pulse.jpg">
-        <source src="media/pulse.mp4" type="video/mp4">
-      </video>
-    </div>
-    <figcaption>An action potential travelling real reconstructed cable. Tap or
-    hover the frame, then press play.</figcaption>
-  </figure>
-
   <h2>Step rail</h2>
   <p>One rail, three stops, each reported on a <code>holobar:change</code>
   event. Here it steps through three measured MICrONS viewers, carried across
@@ -761,6 +734,33 @@
       <button class="cta" type="button" data-holotip-start="#pagetour">Take the tour</button>
     </p>
   </div>
+
+  <h2>Particle trace, on an image</h2>
+  <p>An arc of light runs the boundary once, struck from wherever your pointer
+  crossed or your finger landed, then breaks into particles. Every value in the
+  HUD is read off the media element at runtime.</p>
+  <figure data-hud="337 × 266 × 92 µm">
+    <div class="holoframe">
+      <canvas class="trace"></canvas>
+      <img src="media/cell.jpg" alt="A CA3 pyramidal cell with the six mossy fibers that reach it">
+    </div>
+    <figcaption>One thorny pyramidal cell, 4.5 million triangles in the
+    original.</figcaption>
+  </figure>
+
+  <h2>Particle trace, on a video</h2>
+  <p>The same treatment over video, plus a play affordance that hides on play
+  and returns on pause. The native controls stay for scrubbing.</p>
+  <figure data-hud="165 synapses · 6 fibers">
+    <div class="holoframe">
+      <canvas class="trace"></canvas>
+      <video controls playsinline muted loop preload="metadata" poster="media/pulse.jpg">
+        <source src="media/pulse.mp4" type="video/mp4">
+      </video>
+    </div>
+    <figcaption>An action potential travelling real reconstructed cable. Tap or
+    hover the frame, then press play.</figcaption>
+  </figure>
 
   <h2>Usage</h2>
 <pre>&lt;link rel="stylesheet" href="hologram.css"&gt;
