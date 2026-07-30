@@ -5,8 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>scifi-ui</title>
 <link rel="stylesheet" href="hologram.css">
-<!-- the attract loop is a components/ part, so it brings its own stylesheet -->
+<!-- the attract loop and the page finale are components/ parts, so they bring
+     their own stylesheets -->
 <link rel="stylesheet" href="components/attract-loop.css">
+<link rel="stylesheet" href="components/confetti-burst.css">
+<link rel="stylesheet" href="components/page-finale.css">
 <style>
   /* demo page chrome only, none of this is part of the system */
   body {
@@ -220,6 +223,23 @@
            background: rgba(9,14,26,.8); }
   .swept img { display: block; width: 100%; height: auto; }
   .swept figcaption { margin: 0; padding: 11px 13px 12px; font-size: 13px; }
+  /* the frame lights as the scan passes: a bright edge and a brief glow that
+     rise and fall with the sweep. Demo dressing, so it lives here rather than
+     on the .holosweep component, and it is triggered by the same hover, focus
+     and tap the sweep line is. */
+  .swept:hover, .swept:focus-within, .swept.holo-on {
+    animation: swept-edge 820ms cubic-bezier(.16,1,.3,1);
+  }
+  @keyframes swept-edge {
+    0%   { border-color: rgba(88,148,238,.28); box-shadow: none; }
+    40%  { border-color: rgba(150,212,255,.92);
+           box-shadow: 0 0 20px rgba(88,148,238,.5),
+                       inset 0 0 14px rgba(120,190,255,.22); }
+    100% { border-color: rgba(88,148,238,.28); box-shadow: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .swept:hover, .swept:focus-within, .swept.holo-on { animation: none; }
+  }
   /* the attract loop deck, given an edge so the crossfade has a box to happen
      in. Scaffolding for this page only, like everything else in this block. */
   #attractdeck { margin-bottom: 18px; border: 1px solid #1B2130; border-radius: 3px;
@@ -316,32 +336,20 @@
   <h2>Scan sweep</h2>
   <p>A thin line passes across a panel once when you point at it, tab into it
   or tap it, whatever the panel's height.</p>
-  <div class="grid">
-    <figure class="swept holosweep">
-      <img src="media/thorn.jpg" alt="A mossy fiber terminal wrapped around a thorny excrescence">
-      <figcaption>One bouton, one thorn.</figcaption>
-    </figure>
-    <figure class="swept holosweep">
-      <img src="media/volume.png" alt="Wireframe diagram of the imaged tissue block with one cell inside for scale">
-      <figcaption>The imaged block, 1 by 1 by 0.1 mm.</figcaption>
-    </figure>
-  </div>
+  <figure class="swept holosweep" style="max-width:420px">
+    <img src="media/volume.png" alt="Wireframe diagram of the imaged tissue block with one cell inside for scale">
+    <figcaption>The imaged block, 1 by 1 by 0.1 mm.</figcaption>
+  </figure>
 
   <h2>Image card</h2>
   <p>Near black ink instead of tinted glass, so the render pops. The rim and
   backlight live entirely in the box shadow, so nothing moves and the image is
   never repainted. Point at a card, or tap it, and a bright head runs the
   perimeter.</p>
-  <div class="grid">
-    <figure class="holocard">
-      <img src="media/partners.jpg" alt="One CA3 cell drawn with the fifty six cells it is connected to">
-      <div class="panelrow"><b>partner cells</b><span>56 reconstructed</span></div>
-    </figure>
-    <figure class="holocard">
-      <img src="media/thorn.jpg" alt="A mossy fiber terminal wrapped around a thorny excrescence">
-      <div class="panelrow"><b>one bouton</b><span>1 thorn, dozens of contacts</span></div>
-    </figure>
-  </div>
+  <figure class="holocard" style="max-width:360px">
+    <img src="media/thorn.jpg" alt="A mossy fiber terminal wrapped around a thorny excrescence">
+    <div class="panelrow"><b>one bouton</b><span>1 thorn, dozens of contacts</span></div>
+  </figure>
 
   <h2>Dialog</h2>
   <p>The EyeWire II sign in modal, reproduced. A drifting particle field, a
@@ -476,37 +484,8 @@
     </div>
     <output class="readback" id="attractout">waiting</output>
   </div>
-  <p>Drag the rail and the loop goes where you put it and holds, because
-  touching anything in the box counts as a person being present. This demo
-  resumes after 8 seconds of quiet, and the default is 45. Reduced motion turns
-  the auto advance off entirely and leaves a thing you step through at your own
-  pace.</p>
-
-  <h2>Portrait gate</h2>
-  <p>The wall is landscape, and a portrait phone reflowed it into a column that
-  could not be read, so the museum covered the page and asked for a rotation
-  instead.</p>
-  <div class="demo">
-    <div class="holorotate is-preview" role="note">
-      <div class="holorotate-inner">
-        <svg class="holorotate-icon" width="54" height="54" viewBox="0 0 24 24"
-             fill="none" aria-hidden="true">
-          <rect x="7" y="2" width="10" height="20" rx="2.5"
-                stroke="currentColor" stroke-width="1.4"></rect>
-          <path d="M3.5 8.5A6.5 6.5 0 0 1 8 4M20.5 15.5A6.5 6.5 0 0 1 16 20"
-                stroke="currentColor" stroke-width="1.4"
-                stroke-linecap="round"></path>
-        </svg>
-        <p class="holorotate-title">Built for a landscape screen</p>
-        <p class="holorotate-note">Rotate your phone to watch, or open it on
-        something larger.</p>
-      </div>
-    </div>
-  </div>
-  <p>The real gate is a fixed cover that appears only in portrait under 820px
-  wide, so this is the same panel with <code>is-preview</code> on it, shown
-  inline. A page demonstrating a full page cover should not be covered by
-  one.</p>
+  <p>Drag the rail and the loop holds where you put it, because touching the box
+  counts as somebody being present. It resumes after a quiet spell.</p>
 
   <h2>Usage</h2>
 <pre>&lt;link rel="stylesheet" href="hologram.css"&gt;
@@ -545,6 +524,14 @@
   </footer>
 
 </div>
+
+<!-- the page finale. When this marker reaches the viewport the confetti fires
+     and the mascot rides up on balloons, once per load. A components/ part, so
+     it brings its own two files, loaded at the foot of the page. -->
+<div class="holofinale"
+     data-holofinale-src="media/nurro-balloons.png"
+     data-holofinale-palette="rainbow"
+     data-holofinale-intensity="2"></div>
 
 <nav class="holorail" data-holorail=".wrap > h2"></nav>
 
@@ -647,8 +634,9 @@
 
   <p class="holodialog-eyebrow">visual component only</p>
   <h2 class="holodialog-title" id="demodialog-title">Surface Treatment</h2>
-  <p class="holodialog-desc">This is the panel, the field, the rim and the
-  entrance. It is not a sign in. Nothing here submits anywhere.</p>
+  <p class="holodialog-desc">Laid end to end, the myelinated wiring in one
+  human brain runs about 176,000 km, enough to circle the equator four and a
+  half times.</p>
 
   <div class="holodialog-rows">
     <div class="holodialog-row" data-state="done">
@@ -667,11 +655,10 @@
          placeholder="type anything, it goes nowhere"
          autocomplete="off" spellcheck="false" data-holofocus>
 
-  <button class="holobtn" type="button">
-    <span class="holobtn-text">This button does nothing</span>
+  <button class="holobtn" type="button" data-holoclose>
+    <span class="holobtn-text">Close</span>
     <span class="holobtn-glow"></span>
   </button>
-  <button class="holobtn--ghost" type="button" data-holoclose>close &#8250;</button>
 
   <p class="holodialog-note">NO AUTH &middot; NO FORM &middot; NO REQUEST &middot; NO STORAGE</p>
 </dialog>
@@ -679,6 +666,8 @@
 <script src="hologram.js"></script>
 <script src="hologram-tap.js"></script>
 <script src="components/attract-loop.js"></script>
+<script src="components/confetti-burst.js"></script>
+<script src="components/page-finale.js"></script>
 <script>
   /* the eyebrow readout is measured rather than written: the number of
      elements this page is made of, counted after the runtime parts are built.

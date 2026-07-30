@@ -984,9 +984,12 @@
     100%    { opacity: 1; }
   }
 
-/* 48px of side padding is most of a phone, so the box tightens up */
+/* 48px of side padding is most of a phone, so the box tightens up. It also
+     caps its width rather than running to the edges: a modal that fills the
+     screen reads as a page, not a panel, so it keeps a real margin on both
+     sides. */
   @media (max-width: 430px) {
-    dialog.holodialog { width: calc(100% - 24px); padding: 30px 20px 24px; }
+    dialog.holodialog { width: min(100% - 40px, 348px); padding: 28px 20px 24px; }
     .holodialog-rings { width: 104px; height: 104px; margin-bottom: 10px; }
     .holodialog-icon { width: 72px; height: 80px; }
     .holodialog-icon svg { width: 72px; height: 80px; }
