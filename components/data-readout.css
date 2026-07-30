@@ -1,0 +1,139 @@
+/* ---- measured data readout (holoreadout) ---------------------------------
+   From the banner panel on the MICrONS cortex page,
+   https://amyleesterling.github.io/microns/ , where it reports the 38 cell
+   dataset the render behind it was built from.
+
+   THE IDEA WORTH PRESERVING: this is the readout for a number you actually
+   measured. A stat row, a histogram of the distribution behind those stats,
+   and one line saying where the numbers came from. The provenance line is the
+   part people leave off, and it is the part that turns an ornament into an
+   instrument. A HUD that says 809,115 µm² OF MEMBRANE and then says
+   NUCLEUS_DETECTION_V0 · MAT 1853 is making a checkable claim.
+
+   Nothing here is typed into the markup. holoReadout() is handed the data and
+   derives every figure, so the panel cannot drift away from what it describes.
+   The markup values are only what a reader with no script sees.
+
+   ---- THE BUG THIS COMPONENT EXISTS TO STOP YOU REPEATING -----------------
+
+   **A unit symbol must never sit inside text-transform: uppercase.** Browsers
+   map the micro sign to a Greek capital Mu, so `481 µm of cortex` in an
+   uppercased label renders as "481 MM OF CORTEX": a different character, and
+   off by a thousand. It was live and in a screenshot for weeks, because MM
+   reads as a plausible unit. The same trap turns seconds into siemens.
+
+   Every unit therefore goes in `.holoreadout-u`, which opts out. The JS wraps
+   them for you; if you write markup by hand, wrap them yourself.
+
+   **And the unit has to be a span, never an <i> or other bare tag.** In the
+   page this came from, `.heropanel i` and `.hud i` are corner tick selectors
+   that claim every <i> in their subtree and turn it into an 11px absolutely
+   positioned box. A unit written as <i> disappeared into a bracket, and the
+   histogram bars written as <i> were absolutely positioned at up to 343px
+   inside a 26px strip. Name the hook after the component, not the tag: the
+   bars are .holoreadout-bar for the same reason. */
+
+.holoreadout {
+  color: rgb(var(--holo-dim, 154 162 177));
+  font-variant-numeric: tabular-nums;
+}
+
+/* the stat row: a value, its unit, and what it counts */
+.holoreadout-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 0;
+  font-size: 11.5px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: rgba(126, 146, 172, .95);
+}
+
+.holoreadout-stats b {
+  color: rgb(var(--holo-ink, 203 216 232));
+  font-weight: 500;
+  letter-spacing: .06em;
+}
+
+/* The histogram. Bars are sized as a percentage of the tallest, so the strip
+   keeps its shape at any container width, and an empty bin still draws a
+   1px seat rather than vanishing: a gap in a distribution is information, and
+   a missing bar and a zero bar have to look different. */
+.holoreadout-hist {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 26px;
+  margin: 13px 0 0;
+}
+
+.holoreadout-bar {
+  flex: 1 1 0;
+  min-height: 1px;
+  border-radius: 1px 1px 0 0;
+  align-self: flex-end;
+  background: rgb(var(--holo-line, 196 228 255));
+}
+
+.holoreadout-cap {
+  margin: 6px 0 0;
+  font-size: 9.5px;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  color: rgba(126, 146, 172, .95);
+}
+
+.holoreadout-cap b {
+  color: rgb(var(--holo-ink, 203 216 232));
+  font-weight: 500;
+  letter-spacing: .06em;
+}
+
+/* Where the numbers came from. Quieter than everything above it on purpose:
+   it is meant to be read once, by the one person who wants to check. */
+.holoreadout-prov {
+  margin: 9px 0 0;
+  font-size: 9px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: rgba(112, 132, 158, .95);
+  word-spacing: .12em;
+}
+
+/* the unit. See the note at the top: this is not optional styling. */
+.holoreadout-u {
+  text-transform: none;
+  font-style: normal;
+}
+
+/* DEVIATION FROM THE SOURCE, DELIBERATE. The banner this came from draws the
+   histogram as a static strip with no hover at all. A library histogram that
+   cannot tell you which bin you are pointing at is worth less than one that
+   can, so the bars take a hover, a focus and a tap when the caller supplies a
+   binLabel, and stay inert when it does not. The tap path ships in the same
+   commit as the hover, per the rule: .holo-on comes from hologram-tap.js, and
+   without it a phone gets a histogram it cannot interrogate. */
+.holoreadout[data-holo-tap] .holoreadout-bar {
+  transition: filter .2s ease, transform .2s ease;
+  transform-origin: bottom;
+}
+
+.holoreadout-bar:hover,
+.holoreadout-bar:focus-visible,
+.holoreadout-bar.holo-on {
+  filter: brightness(1.35);
+  transform: scaleY(1.06);
+}
+
+.holoreadout-bar:focus-visible {
+  outline: 1px solid rgb(var(--holo-line, 196 228 255) / .8);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .holoreadout[data-holo-tap] .holoreadout-bar { transition: none; }
+  .holoreadout-bar:hover,
+  .holoreadout-bar:focus-visible,
+  .holoreadout-bar.holo-on { transform: none; }
+}

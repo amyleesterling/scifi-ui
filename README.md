@@ -26,9 +26,9 @@ tutorial callout, an achievement toast, a confetti burst, a tinted lift card, an
 icon rail (`.holoiconrail`, kept clear of the section rail's `.holorail`), a page
 finale that fires the confetti once when the reader reaches the bottom and floats
 a mascot up on balloons, a shared panel surface (`.holopanel`), a profile card
-built on it, and the full EyeWire II researcher profile it opens into. They are
-split one per file so you can take one without taking the set, and the whole set
-also runs inline on the main
+built on it, the full EyeWire II researcher profile it opens into, and a measured
+data readout. They are split one per file so you can take one without taking
+the set, and the whole set also runs inline on the main
 [demo page](https://amyleesterling.github.io/scifi-ui/).
 
 The panel surface is the one worth a word here. A dark gradient panel with a lit
@@ -51,6 +51,29 @@ special awards modal. A visual component: no account, no request. The only
 adaptations are the container, the game mounted it in neuroglancer's overlay and
 here a `<dialog>` plays that role, and a phone breakpoint that stacks the three
 columns.
+
+The readout (`.holoreadout`) is the one to reach for when you have real numbers
+to show: a stat row, the distribution behind those stats, and one line saying
+where the numbers came from. Hand `holoReadout()` the data and it derives every
+figure, so the panel cannot drift away from what it describes.
+
+```js
+holoReadout(el, {
+  stats: [{ value: 38, label: "cells" },
+          { value: 481, unit: "µm", label: "of cortex" }],
+  histogram: { values: [4, 4, 3, 3, 6, 2, 3, 7, 1, 0, 1],
+               colour: i => depthColour(400 + i * 50) },
+  caption: holoReadout.value(34) + " somata by depth",
+  provenance: "CAVE · minnie65_phase3_v1 · mat 1853",
+});
+```
+
+**Read the top of `data-readout.css` before you write any HUD label anywhere.**
+A unit symbol inside `text-transform: uppercase` is corrupted by the browser:
+the micro sign becomes a Greek capital Mu, so `481 µm` renders as `481 MM`, a
+different character and off by a thousand. That was live on a published page
+for weeks, because MM reads as a plausible unit. Units belong in
+`.holoreadout-u`, and `holoReadout.value()` puts them there for you.
 
 ```html
 <link rel="stylesheet" href="hologram.css">

@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="tinted-card.css">
 <link rel="stylesheet" href="icon-rail.css">
 <link rel="stylesheet" href="page-finale.css">
+<link rel="stylesheet" href="data-readout.css">
 
 <style>
   /* Page chrome only. Nothing here is part of any component: the five
@@ -392,6 +393,33 @@
     </p>
   </section>
 
+  <!-- ============================================================ 6 -->
+  <section>
+    <p class="eyebrow">Six</p>
+    <h2>Measured data readout</h2>
+    <p class="note">
+      A stat row, the distribution behind those stats, and one line saying
+      where the numbers came from. Every figure below is computed from the
+      array at render time, so the panel cannot drift away from the data it
+      describes. Point at a bar to see its bin.
+    </p>
+    <div class="holoreadout" id="demo-readout"></div>
+    <p class="note">
+      The real numbers here are the 38 proofread MICrONS cells behind
+      <a href="https://amyleesterling.github.io/microns/">the cortex page</a>
+      this was extracted from, coloured on that render's own depth ramp.
+    </p>
+    <p class="note">
+      <b>The reason this component is documented so heavily.</b> A unit symbol
+      inside <code>text-transform: uppercase</code> is corrupted by the
+      browser: the micro sign becomes a Greek capital Mu, so
+      <code>481 µm</code> renders as <code>481 MM</code>, which is a different
+      character and off by a thousand. It was live for weeks because MM reads
+      as a plausible unit. Units go in <code>.holoreadout-u</code>, and
+      <code>holoReadout.value()</code> puts them there for you.
+    </p>
+  </section>
+
 </div>
 
 <!-- The sentinel. Zero height, watched by an IntersectionObserver. The image
@@ -434,11 +462,18 @@
   </li>
 </ol>
 
+<!-- The main set's script rides along with the components, the way it would on
+     a real page using both. It finds nothing of its own to build here, and the
+     point is that it now leaves the icon rail alone: before the rail was
+     renamed off `holorail`, the section rail builder claimed this page's rail
+     and emptied it. -->
+<script src="../hologram.js"></script>
 <script src="../hologram-tap.js"></script>
 <script src="tutorial-callout.js"></script>
 <script src="achievement-toast.js"></script>
 <script src="confetti-burst.js"></script>
 <script src="page-finale.js"></script>
+<script src="data-readout.js"></script>
 
 <script>
   /* Demo wiring only. None of this is part of a component. */
@@ -494,6 +529,60 @@
   }
   measure();
   window.addEventListener("resize", measure);
+</script>
+
+<script>
+  /* Demo wiring for the readout. The numbers are the real ones: the 38
+     proofread MICrONS cells behind the cortex page this was extracted from,
+     34 of which have a soma on record, binned at 50 µm. */
+  (function () {
+    var BINS = [4, 4, 3, 3, 6, 2, 3, 7, 1, 0, 1];   // 400 µm to 950 µm
+    var LO = 400, W = 50;
+
+    /* the render's own ramp: gold at the pia, through violet, to deep blue,
+       lerped in sRGB. Never lerp a ramp like this in HSV; blue to gold takes
+       the long way round and invents a green neither stop contains. */
+    var STOPS = [[0, [0xFF, 0xC2, 0x4A]], [0.5, [0x8E, 0x46, 0xC0]],
+                 [1, [0x1D, 0x35, 0x8F]]];
+    function ramp(t) {
+      t = Math.min(1, Math.max(0, t));
+      for (var i = 0; i < STOPS.length - 1; i++) {
+        var a = STOPS[i], b = STOPS[i + 1];
+        if (t <= b[0]) {
+          var u = (t - a[0]) / (b[0] - a[0]);
+          return "rgb(" + a[1].map(function (c, k) {
+            return Math.round(c + (b[1][k] - c) * u);
+          }).join(",") + ")";
+        }
+      }
+      return "rgb(29,53,143)";
+    }
+    /* the same normalisation the render used: per vertex depth percentiles */
+    function depthColour(d) { return ramp((d - 321) / (1074 - 321)); }
+
+    var v = holoReadout.value;
+    holoReadout(document.getElementById("demo-readout"), {
+      stats: [
+        { value: 38, label: "cells" },
+        { value: 481, unit: "µm", label: "of cortex" },
+        { value: 34, label: "located somata" },
+        { value: 809115, unit: "µm²", label: "of membrane" },
+      ],
+      histogram: {
+        values: BINS,
+        colour: function (i) { return depthColour(LO + (i + 0.5) * W); },
+        label: "34 somata by depth, 429 to 910 micrometres below the pia",
+        binLabel: function (i, n) {
+          return (LO + i * W) + " to " + (LO + (i + 1) * W) + " µm: " +
+                 n + (n === 1 ? " soma" : " somata");
+        },
+      },
+      caption: v(34) + " somata by depth, " + v(429) + " to " +
+               v(910, "µm") + " below the pia",
+      provenance: "CAVE · minnie65_phase3_v1 · nucleus_detection_v0 · " +
+                  "mat 1853 · 4×4×40 nm",
+    });
+  })();
 </script>
 
 </body>
