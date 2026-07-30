@@ -95,6 +95,22 @@ revealed on hover. The twin head version, two heads 180 degrees apart running
 that tears down inside itself never tears down if the first frame never arrives,
 and a full screen canvas then sits over the page for its lifetime. Use a timeout.
 
+**A CSS animation only restarts when its computed name changes, so a state class
+that never comes off is a replay that can never happen.** `.holoboot.is-online`,
+`:hover` and `.holo-on` all apply the same boot animation, and with `is-online`
+left on forever the computed value never changed, so the page promised a boot on
+every hover and tap and delivered one boot ever. The fix is to take the class
+back off at `animationend`, and to wait for the longest of the animations it
+drives, the 1500ms ring sweep, not the 900ms entrance, or the sweep is cut off
+mid run. Same for the underline's `is-drawn`. If a one-shot class also has hover
+and tap selectors, ask where the class comes off.
+
+**Two transforms on one element can share it if they use different properties.**
+The mote repulsion writes an inline `transform` and the ambient drift animates
+the `translate` property, and the two compose instead of fighting. The masthead
+uses the same trick the other way round, centred with `translate` so the boot
+animation is free to own `transform`.
+
 ## 5. Every hover state ships its tap path, in the same commit
 
 **A hover treatment behind `@media (hover: none)` is not a decision, it is a
@@ -135,10 +151,11 @@ The mechanism is one file, `hologram-tap.js`, and one class, `holo-on`.
   achievement toast holds its real timer, since a rail paused while the
   countdown it reports keeps running is a lie.
 
-One thing is deliberately hover only, the `.holoswarm` motes. A tap cannot say
-"the pointer is here and travelling", which is the entire input the repulsion
-reads. The marks stay on touch as the ornament they already were, they simply do
-not move, and no listener is bound where there is no hover.
+One thing is deliberately hover only, the `.holoswarm` repulsion. A tap cannot
+say "the pointer is here and travelling", which is the entire input the effect
+reads, and no listener is bound where there is no hover. What every device gets
+instead is the ambient drift, a few pixels of slow wander on the `translate`
+property, allowed to loop because it is ambient.
 
 **When a component stops being absolutely positioned at a breakpoint, its
 parent's fixed height has to go with it.** A static child cannot grow a fixed
@@ -213,3 +230,8 @@ precisely how overflow gets reintroduced.
 **Version 2**, 29 July 2026. Adds section 5: every hover state ships its tap
 path in the same commit, one mechanism and one class for the whole library, and
 the fixed height parent a formerly absolute child overflows at a breakpoint.
+
+**Version 3**, 30 July 2026. Adds the animation restart trap, a one-shot state
+class must come off at animationend or hover and tap replays are dead on
+arrival, and the two-transform-property trick that lets the mote drift ride
+under the repulsion.

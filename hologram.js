@@ -6,8 +6,9 @@
 //   4 source swap      vertical on phones, widescreen on desktop
 //   5 step rail        builds .holobar, clicks and arrow keys, reports back
 //   6 loading state    drives the bar and the count on .holoload
-//   7 boot on view     lights .holoboot and .holounder once, when first seen
-//  10 swarm            HUD motes over a hero that flee the pointer
+//   7 boot on view     lights .holoboot and .holounder when first seen, and
+//                      clears the class after the play so hover and tap replay
+//  10 swarm            HUD motes over a hero that drift, and flee the pointer
 //   8 dialog           opens .holodialog modally, no auth, nothing submits
 //  12 section rail     builds .holorail from the page headings, marks the
 //                      section you are in with an IntersectionObserver
@@ -516,6 +517,22 @@
       io.unobserve(e.target);
     });
   }, { threshold: 0.2 });
+
+  // The class comes back off once the play is over. is-online and is-drawn
+  // apply the same animation the :hover and .holo-on selectors do, and a CSS
+  // animation only restarts when its computed name changes, so a class that
+  // stays on is a replay that can never happen: the page promised a boot on
+  // every hover and tap, and delivered one boot ever. The boot's longest
+  // animation is the 1500ms ring sweep on a child span, so the panel waits
+  // for that one rather than cutting the sweep off at the 900ms mark where
+  // its own animation ends. The underline has only the one animation, on its
+  // ::after, whose events arrive on the heading itself.
+  document.addEventListener("animationend", function (e) {
+    if (e.animationName === "holo-ring-sweep" && e.target.parentElement)
+      e.target.parentElement.classList.remove("is-online");
+    else if (e.animationName === "holo-underline-draw")
+      e.target.classList.remove("is-drawn");
+  });
 
   // anything already on screen is lit here, before the first paint, because
   // waiting for the observer would show one frame of the finished panel and

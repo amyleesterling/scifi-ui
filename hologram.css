@@ -534,8 +534,13 @@
   }
 
 /* the resting state is the finished line, so a page with the script stripped
-     out, or a tab that was never looked at, still shows the underline */
-  .holounder.is-drawn::after {
+     out, or a tab that was never looked at, still shows the underline. It
+     draws again from hover and from a tap, which works because the script
+     takes is-drawn back off at animationend: the same animation under a class
+     that never leaves can never restart. */
+  .holounder.is-drawn::after,
+  .holounder:hover::after,
+  .holounder.holo-on::after {
     animation: holo-underline-draw 900ms cubic-bezier(.16,1,.3,1) both;
   }
 
@@ -545,7 +550,9 @@
   }
 
 @media (prefers-reduced-motion: reduce) {
-    .holounder.is-drawn::after { animation: none; }
+    .holounder.is-drawn::after,
+    .holounder:hover::after,
+    .holounder.holo-on::after { animation: none; }
   }
 
 /* ---- 9. scan sweep ------------------------------------------------------
@@ -1006,13 +1013,14 @@
    the transform is set on pointermove and CSS does the easing, which keeps it
    off the main thread and costs nothing when the mouse is still.
 
-   On touch the marks stay, and they simply do not move. This is the one hover
-   treatment in the library with no tap equivalent, and not for want of trying:
-   a tap cannot say "the pointer is here and travelling", which is the whole
-   input the effect reads. So the repulsion is left to devices with a real
-   pointer, and the marks are left as what they already were, HUD ornament on a
-   hero image. No listeners are bound where there is no hover, so nothing is
-   running to no purpose. */
+   The repulsion is the one hover treatment in the library with no tap
+   equivalent, and not for want of trying: a tap cannot say "the pointer is
+   here and travelling", which is the whole input the effect reads. So the
+   repulsion is left to devices with a real pointer, and every device gets the
+   ambient drift below instead, a few pixels of slow wander on the translate
+   property. It rides on translate precisely because the repulsion writes an
+   inline transform: the two compose instead of fighting, so a mote can drift
+   and flee at once. Drift is ambient, which is what earns it a loop. */
 .holoswarm {
   position: absolute; inset: 0; pointer-events: none; z-index: 2;
   /* the widest mark is a 46px tick rail, and one placed near the right edge of
@@ -1027,6 +1035,26 @@
   transition: transform 620ms cubic-bezier(.18,.9,.24,1), opacity 400ms ease;
   will-change: transform;
   color: rgb(var(--holo-line, 196 228 255));
+  animation: holo-mote-drift 9s ease-in-out infinite;
+}
+/* two drift paths and four periods, dealt out by child index with negative
+   delays, so twenty marks sharing two keyframe sets never read as a formation.
+   The amplitude stays under 7px: the marks should breathe, not patrol. */
+.holoswarm > i:nth-child(2n) {
+  animation-name: holo-mote-drift-b; animation-delay: -3.1s;
+}
+.holoswarm > i:nth-child(3n) { animation-duration: 12s; animation-delay: -7.4s; }
+.holoswarm > i:nth-child(4n + 1) { animation-duration: 10.5s; }
+.holoswarm > i:nth-child(5n) { animation-duration: 13.5s; animation-delay: -5.2s; }
+@keyframes holo-mote-drift {
+  0%, 100% { translate: 0 0; }
+  33%      { translate: 4px -6px; }
+  66%      { translate: -3px 3px; }
+}
+@keyframes holo-mote-drift-b {
+  0%, 100% { translate: 0 0; }
+  33%      { translate: -5px 4px; }
+  66%      { translate: 3px -4px; }
 }
 /* a dot */
 .holoswarm > i.dot {

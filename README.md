@@ -134,16 +134,27 @@ ornament.
 
 ### 3. Underline that draws itself (`.holounder`)
 
-A hairline runs out from under a heading, once, the first time that heading is
-actually on screen. Its resting state is the finished line, so a page with the
-script stripped out still shows the underline instead of nothing.
+A hairline runs out from under a heading the first time that heading is
+actually on screen, and draws again on hover or on a tap. Its resting state is
+the finished line, so a page with the script stripped out still shows the
+underline instead of nothing.
 
 ### 4. Panel that boots up (`.holoboot`)
 
 Add the class to any panel. Two bright heads run the border in opposite
 directions and meet, an inner backlight swells and tapers, and the panel resolves
-out of a blur. Once, the first time it is seen, because a panel that boots before
-you scroll to it has booted for nobody.
+out of a blur. It runs the first time the panel is seen, because a panel that
+boots before you scroll to it has booted for nobody, and again on every hover
+and every tap.
+
+The replay is why the script removes `is-online` at `animationend` rather than
+leaving it on. The `:hover` and `.holo-on` selectors apply the same animation
+the class does, and a CSS animation only restarts when its computed name
+changes, so a class that never leaves is a replay that can never happen. This
+bug shipped: the page promised a boot on every hover and tap and delivered one
+boot ever. The class waits for the 1500ms ring sweep to end, not the 900ms
+panel entrance, so the sweep is never cut off mid run. The underline's
+`is-drawn` comes off the same way.
 
 The two decorative spans are added at runtime and sit at `z-index: -1` inside an
 isolated stacking context, which puts them above the panel background and below
@@ -445,7 +456,10 @@ reason a touch user got a static page. Give the treatment a tap path instead:
 a time, and every `:hover` rule in this library names that class as a second
 selector. A tap on a real link or button inside the element still belongs to the
 control, and a tap that turns into a scroll activates nothing. The one exception
-is the motes, because a tap cannot express a pointer that is here and moving.
+is the mote repulsion, because a tap cannot express a pointer that is here and
+moving. The motes drift ambiently on every device instead, a few pixels of slow
+wander animated on the `translate` property, which composes with the inline
+`transform` the repulsion writes rather than fighting it.
 
 ---
 
