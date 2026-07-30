@@ -433,3 +433,35 @@ real hero award. Lessons worth keeping:
   blocks appended after it, so reduced motion and the mobile scale both quietly
   did nothing. A brace-count (open vs close) is the one-line check that catches
   it; a screenshot at the affected width or preference is the other.
+
+**Version 10**, 30 July 2026. The step rail stops pretending. Its four
+hand-drawn SVG "inner cosmos" stages are gone, replaced by the three real
+MICrONS viewers the rail was always meant to hold, carried across whole from
+`amyleesterling/microns`: the brain at true scale, the nine cell types, and one
+spike crossing one synapse. Lessons worth keeping:
+
+- **Do not reinvent what the author already built.** The placeholder brain,
+  neuron, synapse and action-potential SVGs were a smaller, worse copy of work
+  that already existed as measured, interactive WebGL. When a demo stands in for
+  something real the author has shipped, the move is to carry the real thing
+  across, not to approximate it. The whole of this version is deleting an
+  approximation and wiring in the source.
+- **Carry a component across whole: code, assets, and its coordinate system.**
+  The viewers came over verbatim, `three.js` and its addons, `holo3d.js` and the
+  three panel modules, and their real meshes (~33 MB of brain surfaces, nine
+  cell `.glb`s, and the synapse skeletons). Their mesh fetches are page-relative
+  (`meshes/…`), so the meshes sit at the site root exactly as they do in the
+  source, and an import map at the top of the head resolves `three`. Nothing was
+  re-pathed or re-authored; re-pathing is how a carried-across component breaks.
+- **Scope the borrowed page's variables, do not adopt them.** The `.mviz` CSS
+  reads `var(--accent)`, `var(--panel)` and the rest, which are the microns
+  page's `:root` tokens. Dropping those into this page's `:root` would recolour
+  half of scifi-ui. They live on `.mviz` instead, so they reach every card
+  descendant and nothing else.
+- **Let the component's own laziness drive the rail.** Each viewer already
+  fetches no mesh and runs no render loop until an IntersectionObserver says it
+  is on screen. So the rail switches cards by `display`, not opacity: a
+  `display:none` card never trips its observer, so only the card the rail
+  reveals loads and renders, and stepping away halts the one you left. This is
+  also why the attract-loop auto-advance was dropped here: cycling heavy WebGL
+  viewers on a timer is the opposite of what they are for.

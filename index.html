@@ -4,7 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>scifi-ui</title>
+<!-- three.js for the MICrONS cards the step rail steps through, carried across
+     from amyleesterling/microns. An import map has to come before any module
+     that imports "three", so it sits here at the top of the head. -->
+<script type="importmap">
+{"imports":{"three":"./vendor/three/three.module.min.js","three/addons/":"./vendor/three/addons/"}}
+</script>
 <link rel="stylesheet" href="hologram.css">
+<link rel="stylesheet" href="microns-cards.css">
 <!-- the components/ parts each bring their own stylesheet, self contained and
      working alone -->
 <link rel="stylesheet" href="components/confetti-burst.css">
@@ -305,121 +312,15 @@
               font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
               letter-spacing: .08em; }
 
-  /* the inner-cosmos demo: one step rail descending four scales of the brain.
-     The rail drives which .cosmos-stage is lit; the stages are stacked and
-     cross-fade, so the panel height never jumps as you move through them. Line
-     art is stroked in the beam blue and breathes; the last stage, the action
-     potential, is the one that actually plots a signal. Every bit of motion is
-     off under prefers-reduced-motion, where the stages hard-cut and the spike
-     shows fully drawn. Scale labels are NOT uppercased on purpose: the micro
-     sign in "100 µm" turns into MM under text-transform, the unit bug this repo
-     already carries a scar from. */
-  .cosmos { max-width: 560px; }
-  .cosmos .holobar { margin-bottom: 20px; }
-  .cosmos-view {
-    position: relative; height: 300px; border-radius: 4px;
-    border: 1px solid rgba(88,148,238,.28);
-    background:
-      radial-gradient(120% 90% at 50% 40%, rgba(20,40,74,.55), rgba(7,11,20,.9) 70%),
-      #070B14;
-    overflow: hidden;
-  }
-  /* a faint starfield, so an empty stage reads as inner space, not a blank box */
-  .cosmos-view::before {
-    content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .6;
-    background-image:
-      radial-gradient(1px 1px at 20% 30%, rgba(190,224,255,.7), transparent),
-      radial-gradient(1px 1px at 70% 22%, rgba(150,200,255,.6), transparent),
-      radial-gradient(1px 1px at 84% 62%, rgba(190,224,255,.55), transparent),
-      radial-gradient(1px 1px at 34% 74%, rgba(150,200,255,.5), transparent),
-      radial-gradient(1px 1px at 55% 52%, rgba(210,235,255,.5), transparent),
-      radial-gradient(1px 1px at 12% 60%, rgba(150,200,255,.45), transparent);
-  }
-  .cosmos-scale {
-    position: absolute; top: 12px; right: 14px; z-index: 3; margin: 0;
-    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-    font-size: 11px; letter-spacing: .12em; color: #6BA9EE;
-    text-shadow: 0 0 12px rgba(62,150,240,.5);
-  }
-  .cosmos-stage {
-    position: absolute; inset: 0; margin: 0; display: flex; z-index: 2;
-    flex-direction: column; align-items: center; justify-content: center;
-    gap: 8px; opacity: 0; visibility: hidden; transform: scale(.96);
-    transition: opacity .6s ease, transform .6s ease;
-  }
-  .cosmos-stage.on { opacity: 1; visibility: visible; transform: none; }
-  .cosmos-art { width: min(72%, 300px); height: auto; overflow: visible; }
-  .cosmos-art .ln path, .cosmos-art .ln circle, .cosmos-art .ap-spike {
-    fill: none; stroke: #8FCBFF; stroke-width: 2;
-    stroke-linecap: round; stroke-linejoin: round;
-    filter: drop-shadow(0 0 5px rgba(88,170,255,.65));
-  }
-  .cosmos-art .ln .thin { stroke-width: 1.4; opacity: .82; }
-  .cosmos-art .ln .dim {
-    stroke: rgba(120,160,210,.4); stroke-width: 1.2; filter: none;
-  }
-  .cosmos-art .nt circle {
-    fill: #7FE4FF; stroke: none;
-    filter: drop-shadow(0 0 5px rgba(80,220,255,.9));
-  }
-  .cosmos-art .ap-pulse circle {
-    fill: #EAF4FF; stroke: none;
-    filter: drop-shadow(0 0 8px rgba(120,200,255,1)) drop-shadow(0 0 16px rgba(80,170,255,.8));
-  }
-  /* the line art breathes, so a still stage is not a dead one */
-  .cosmos-stage.on .cosmos-art .ln {
-    animation: cosmos-breathe 4.4s ease-in-out infinite;
-  }
-  @keyframes cosmos-breathe { 0%, 100% { opacity: .82; } 50% { opacity: 1; } }
-  /* stage 3: the neurotransmitters drift across the cleft and restart */
-  .cosmos-stage.on[data-stage="3"] .nt circle {
-    animation: cosmos-nt 2.6s ease-in infinite;
-  }
-  .cosmos-stage.on[data-stage="3"] .nt circle:nth-child(2) { animation-delay: .5s; }
-  .cosmos-stage.on[data-stage="3"] .nt circle:nth-child(3) { animation-delay: 1s; }
-  @keyframes cosmos-nt {
-    0%   { transform: translateY(-8px); opacity: 0; }
-    30%  { opacity: 1; }
-    100% { transform: translateY(30px); opacity: 0; }
-  }
-  /* stage 4: the pulse runs the axon and the spike plots itself in step. The
-     translate is in SVG user units, which the 16..224 axon is drawn in, so the
-     pulse travels its full length. */
-  .cosmos-stage.on[data-stage="4"] .ap-pulse {
-    animation: cosmos-ap-travel 2.4s cubic-bezier(.5,0,.5,1) infinite;
-  }
-  @keyframes cosmos-ap-travel {
-    0%   { transform: translateX(0); opacity: 0; }
-    8%   { opacity: 1; }
-    90%  { opacity: 1; }
-    100% { transform: translateX(208px); opacity: 0; }
-  }
-  .cosmos-stage.on[data-stage="4"] .ap-spike {
-    stroke-dasharray: 360; stroke-dashoffset: 360;
-    animation: cosmos-ap-draw 2.4s cubic-bezier(.5,0,.5,1) infinite;
-  }
-  @keyframes cosmos-ap-draw {
-    0% { stroke-dashoffset: 360; } 88% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 0; }
-  }
-  .cosmos-stage figcaption { text-align: center; z-index: 2; }
-  .cosmos-stage figcaption b {
-    display: block; font-size: 17px; font-weight: 500; color: #EAF2FC;
-    letter-spacing: .01em;
-  }
-  .cosmos-stage figcaption span {
-    display: block; margin-top: 2px; font-size: 12.5px; color: #93A8C6;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .cosmos-stage { transition: none; }
-    .cosmos-stage.on .cosmos-art .ln,
-    .cosmos-stage.on[data-stage="3"] .nt circle,
-    .cosmos-stage.on[data-stage="4"] .ap-pulse,
-    .cosmos-stage.on[data-stage="4"] .ap-spike { animation: none; }
-    .cosmos-stage.on[data-stage="4"] .ap-spike { stroke-dashoffset: 0; }
-    .cosmos-stage.on[data-stage="4"] .ap-pulse {
-      transform: translateX(100px); opacity: 1;
-    }
-  }
+  /* the step rail now steps through three real MICrONS viewers, carried across
+     from the Cortex page (microns-cards.css, and the modules in js/). The rail
+     shows one card at a time by display rather than opacity, on purpose: each
+     viewer loads its meshes and runs its render loop off an IntersectionObserver,
+     so a card at display:none never fetches a mesh or spins a GPU, and the card
+     the rail reveals loads itself the first time it is shown. */
+  .cosmos .holobar { margin-bottom: 18px; }
+  .cosmos-card { display: none; }
+  .cosmos-card.cosmos-on { display: block; }
 
   .panelcard { border-radius: 3px; }
   .panelcard img, .panelcard video { display: block; width: 100%; height: auto; }
@@ -513,82 +414,84 @@
   </figure>
 
   <h2>Step rail</h2>
-  <p>One rail, any number of stops, each reported on a
-  <code>holobar:change</code> event. Here it drives a descent through four
-  scales of the brain: drag it, tap a tick, or arrow-key from the whole organ
-  down to a single spike.</p>
+  <p>One rail, three stops, each reported on a <code>holobar:change</code>
+  event. Here it steps through three measured MICrONS viewers, carried across
+  whole from the Cortex page: the brain at true scale, the nine cell types, and
+  one spike crossing one synapse. Drag it, tap a tick, or arrow-key from the
+  whole brain down to a single spike. Each viewer loads its real meshes the
+  first time the rail reaches it, and only the one on screen renders.</p>
   <div class="cosmos">
-    <div class="holobar" id="cosmosrail" data-steps="4" data-step="1"
-         aria-label="Descend from brain to action potential"></div>
-    <div class="cosmos-view">
-      <p class="cosmos-scale" id="cosmosscale" aria-live="polite">≈ 15 cm</p>
+    <div class="holobar" id="cosmosrail" data-steps="3" data-step="1"
+         aria-label="Step from the brain to a single spike"></div>
+    <div class="cosmos-cards">
+      <!-- card 1: the brain at true scale (brainscale.js) -->
+  <div class="mviz cosmos-card cosmos-on" id="brainScale" data-cosmos-stage="1">
+    <b class="k tl"></b><b class="k tr"></b><b class="k bl"></b><b class="k br"></b>
+    <p class="mviz-eyebrow"><s></s>two brains, one space<u></u>true relative size</p>
+    <div class="mviz-stage">
+      <div class="mviz-mount" data-mount></div>
+      <p class="mviz-status" data-status>Surfaces load when you reach them</p>
+    </div>
+    <div class="mviz-bar">
+      <button class="mviz-btn" type="button" data-truescale aria-pressed="false">Match their sizes</button>
+      <button class="mviz-btn" type="button" data-turn="human">Turn the human brain</button>
+      <button class="mviz-btn" type="button" data-turn="mouse">Turn the mouse brain</button>
+      <span class="mviz-scalelabel" data-scalelabel></span>
+    </div>
+    <p class="mviz-legend">
+      <span><i style="background:#b072e0"></i>Human cortex and cerebellum</span>
+      <span><i style="background:#6fd0ff"></i>Mouse brain</span>
+      <span><i style="background:#ffc24a"></i>Mouse V1, inside the brain, where this volume was cut</span>
+    </p>
+    <div class="mviz-facts" data-facts></div>
+    <p class="mviz-cap">The two buttons are for a keyboard: focus one and the
+    arrow keys turn that brain, with shift for a bigger step. Every figure above
+    is arithmetic on the bounding boxes recorded beside the meshes, so it moves
+    if the surfaces are ever re exported.</p>
+  </div>
 
-      <figure class="cosmos-stage on" data-stage="1">
-        <svg class="cosmos-art" viewBox="0 0 240 150" aria-hidden="true">
-          <g class="ln">
-            <path d="M58 96 C38 92 33 71 48 61 C43 45 62 35 79 42 C87 29 110 27 120 40
-                     C137 31 159 38 160 57 C179 60 184 81 168 92 C172 107 154 118 138 111
-                     C127 123 103 122 96 108 C77 114 60 109 58 96 Z"/>
-            <path class="thin" d="M71 60 C83 67 85 82 76 92"/>
-            <path class="thin" d="M96 48 C105 63 101 84 92 98"/>
-            <path class="thin" d="M121 46 C130 61 127 84 118 100"/>
-            <path class="thin" d="M145 55 C151 67 149 84 140 94"/>
-            <path class="thin" d="M112 110 C110 124 105 134 99 142"/>
-          </g>
-        </svg>
-        <figcaption><b>The human brain</b><span>~86 billion neurons, 1.4 kg</span></figcaption>
-      </figure>
+      <!-- card 2: nine cell types (celltypes.js) -->
+  <div class="mviz cosmos-card" id="cellTypes" data-cosmos-stage="2">
+    <b class="k tl"></b><b class="k tr"></b><b class="k bl"></b><b class="k br"></b>
+    <p class="mviz-eyebrow"><s></s>nine cells, one volume<u></u>drag to turn, scroll to zoom</p>
+    <div class="mviz-stage">
+      <div class="mviz-mount" data-mount></div>
+      <p class="mviz-status" data-status>Meshes load when you reach them</p>
+    </div>
+    <div class="mviz-rail" data-rail></div>
+    <p class="mviz-blurb" data-blurb></p>
+    <div class="mviz-facts" data-facts></div>
+    <p class="mviz-cap">Each cell is framed to the same size on screen so the
+    shapes can be compared. Their real extents differ by more than a factor of
+    ten, and that number is in the readout rather than in the framing.</p>
+  </div>
 
-      <figure class="cosmos-stage" data-stage="2">
-        <svg class="cosmos-art" viewBox="0 0 240 150" aria-hidden="true">
-          <g class="ln">
-            <circle cx="72" cy="74" r="9"/>
-            <path class="thin" d="M72 65 L67 46 M72 65 L82 48 M63 70 L47 58 M63 80 L45 90 M81 79 L96 70"/>
-            <path d="M81 74 C112 74 122 96 152 96"/>
-            <path class="thin" d="M152 96 l11 -6 M152 96 l11 6 M152 96 l13 0"/>
-            <circle cx="150" cy="44" r="7"/>
-            <path class="thin" d="M150 37 L148 23 M143 40 L130 31 M158 40 L171 33"/>
-            <path d="M150 51 C150 71 131 79 119 102"/>
-            <path class="thin" d="M119 102 l-10 3 M119 102 l-3 11"/>
-          </g>
-        </svg>
-        <figcaption><b>Neurons</b><span>a soma, its dendrites, one long axon</span></figcaption>
-      </figure>
-
-      <figure class="cosmos-stage" data-stage="3">
-        <svg class="cosmos-art" viewBox="0 0 240 150" aria-hidden="true">
-          <g class="ln">
-            <path d="M120 8 L120 33"/>
-            <path d="M93 40 C88 22 152 22 147 40 C150 60 90 60 93 40 Z"/>
-            <circle class="thin" cx="108" cy="42" r="4"/>
-            <circle class="thin" cx="122" cy="47" r="4"/>
-            <circle class="thin" cx="134" cy="40" r="4"/>
-            <path d="M78 96 L162 96"/>
-            <path class="thin" d="M104 96 l0 -9 M120 96 l0 -9 M136 96 l0 -9"/>
-            <path d="M120 96 L120 122"/>
-          </g>
-          <g class="nt">
-            <circle cx="112" cy="64" r="2.4"/>
-            <circle cx="124" cy="70" r="2.4"/>
-            <circle cx="132" cy="62" r="2.4"/>
-          </g>
-        </svg>
-        <figcaption><b>A synapse</b><span>vesicles cross a 20 nm cleft</span></figcaption>
-      </figure>
-
-      <figure class="cosmos-stage" data-stage="4">
-        <svg class="cosmos-art" viewBox="0 0 240 150" aria-hidden="true">
-          <g class="ln">
-            <path d="M16 46 L224 46"/>
-            <path class="thin" d="M64 40 L64 52 M116 40 L116 52 M168 40 L168 52"/>
-            <path class="dim" d="M16 124 L224 124"/>
-          </g>
-          <path class="ap-spike" d="M16 112 L74 112 C84 112 84 108 90 108 C95 108 97 40 104 40
-                                     C111 40 113 132 120 132 C127 132 129 106 138 110 L224 110"/>
-          <g class="ap-pulse"><circle cx="16" cy="46" r="7"/></g>
-        </svg>
-        <figcaption><b>An action potential</b><span>+40 mV, one spike, about 1 ms</span></figcaption>
-      </figure>
+      <!-- card 3: one spike, one synapse (actionpotential.js) -->
+  <div class="mviz cosmos-card" id="actionPotential" data-cosmos-stage="3">
+    <b class="k tl"></b><b class="k tr"></b><b class="k bl"></b><b class="k br"></b>
+    <p class="mviz-eyebrow"><s></s>one spike, one synapse<u></u>the route is measured</p>
+    <div class="mviz-stage">
+      <div class="mviz-mount" data-mount></div>
+      <p class="mviz-status" data-status>Both cells load when you reach them</p>
+    </div>
+    <div class="mviz-bar">
+      <button class="mviz-btn" type="button" data-fire>Fire a spike</button>
+      <span class="mviz-scalelabel">Press it again before the first one lands</span>
+    </div>
+    <p class="mviz-legend">
+      <span><i style="background:#ffc24a"></i>Presynaptic cell, the one that fires</span>
+      <span><i style="background:#6fa8ff"></i>Postsynaptic cell, the one that receives</span>
+      <span><i style="background:#9ce8c0"></i>The synapse, and the origin of this scene</span>
+    </p>
+    <div class="mviz-facts" data-facts></div>
+    <p class="mviz-cap"><b>What this animation is not.</b> There is no membrane
+    model behind it: no millivolts, no channel kinetics, no refractory period.
+    The spark takes four seconds to cross those two and a bit millimetres
+    because that is long enough to watch, and a real spike would cross them in
+    a few thousandths of a second. What is measured is the route and the
+    distances. Both meshes were re extracted in one frame centred on the
+    synapse, so the bright green point is a real place in a mouse brain.</p>
+  </div>
     </div>
   </div>
 
@@ -1757,63 +1660,46 @@
     show(bar.holobar.step);
   });
 
-  /* the inner-cosmos rail. The rail's step, one to four, lights the matching
-     stage and writes the scale label; the stages themselves cross-fade in CSS.
-     The rail builds synchronously when hologram.js runs above, so its step is
-     readable now, but init also runs on DOMContentLoaded in case that order
-     ever changes. The scale strings live here rather than in the markup so the
-     label and the stage can never fall out of step.
-
-     It also carries what the attract loop used to demo on its own: the descent
-     walks itself, one stage every DWELL, and holds the moment you touch it,
-     resuming only after the section has been quiet for IDLE. Reduced motion
-     turns the walk off and leaves the rail entirely hand-driven. */
+  /* the step rail drives the three MICrONS cards: its step, one to three, shows
+     the matching .cosmos-card and hides the rest by display, which is exactly
+     what keeps each viewer dormant until the rail reaches it (a display:none
+     card never trips its IntersectionObserver, so it fetches no mesh and spins
+     no GPU). No auto-advance here, on purpose: these are heavy WebGL viewers a
+     reader sits and turns, not slides to cycle past. The rail builds
+     synchronously when hologram.js runs above, so its step is readable now;
+     init also runs on DOMContentLoaded in case that order ever changes. */
   (function () {
     var rail = document.getElementById("cosmosrail");
-    var view = document.querySelector(".cosmos-view");
-    var cosmos = document.querySelector(".cosmos");
-    if (!rail || !view) return;
-    var stages = view.querySelectorAll(".cosmos-stage");
-    var scale = document.getElementById("cosmosscale");
-    var SCALES = ["≈ 15 cm", "≈ 100 µm", "≈ 20 nm", "≈ 1 ms"];
+    var cards = document.querySelectorAll(".cosmos-card");
+    if (!rail || !cards.length) return;
     function show(step) {
-      var idx = Math.max(1, Math.min(stages.length, step | 0)) - 1;
-      for (var i = 0; i < stages.length; i++) {
-        stages[i].classList.toggle("on", i === idx);
+      var idx = Math.max(1, Math.min(cards.length, step | 0)) - 1;
+      for (var i = 0; i < cards.length; i++) {
+        cards[i].classList.toggle("cosmos-on", i === idx);
       }
-      if (scale) scale.textContent = SCALES[idx] || "";
     }
     rail.addEventListener("holobar:change", function (e) { show(e.detail.step); });
     function init() { show(rail.holobar ? rail.holobar.step : 1); }
     init();
     addEventListener("DOMContentLoaded", init);
-
-    // ── auto-advance, folded in from the attract loop ──────────────────────
-    var reduce = window.matchMedia
-      ? matchMedia("(prefers-reduced-motion: reduce)").matches : false;
-    var DWELL = 4200, IDLE = 9000, tick = 0, idle = 0;
-
-    function step() {
-      var n = rail.holobar ? rail.holobar.step : 1;
-      n = n >= stages.length ? 1 : n + 1;      // wrap 4 -> 1
-      if (rail.holobar) rail.holobar.step = n; else show(n);
-    }
-    function play() { if (!reduce && !tick) tick = window.setInterval(step, DWELL); }
-    function stop() { if (tick) { window.clearInterval(tick); tick = 0; } }
-    // touching it holds the walk; it resumes only after a quiet spell, so a
-    // reader who grabbed the rail is not fought for control a beat later
-    function hold() { stop(); if (idle) window.clearTimeout(idle);
-      idle = window.setTimeout(play, IDLE); }
-
-    if (cosmos) {
-      cosmos.addEventListener("pointerenter", stop);
-      cosmos.addEventListener("pointerleave", hold);
-      cosmos.addEventListener("pointerdown", hold);   // touch has no hover
-      cosmos.addEventListener("focusin", hold);
-      cosmos.addEventListener("keydown", hold);
-    }
-    play();
   })();
+</script>
+<script type="module">
+  /* mount the three MICrONS viewers, exactly as the Cortex page mounts them.
+     Each one mounts and then waits on an IntersectionObserver: nothing fetches a
+     mesh or runs a render loop until the rail reveals its card and it comes on
+     screen. The modules and their meshes are carried across verbatim; this is
+     the same four lines of wiring the source uses, minus the activity panel. */
+  import { mountBrainScale } from "./js/brainscale.js";
+  import { mountCellTypes } from "./js/celltypes.js";
+  import { mountActionPotential } from "./js/actionpotential.js";
+
+  var b = document.getElementById("brainScale");
+  if (b) window.__brainScale = mountBrainScale(b);
+  var c = document.getElementById("cellTypes");
+  if (c) window.__cellTypes = mountCellTypes(c);
+  var a = document.getElementById("actionPotential");
+  if (a) window.__actionPotential = mountActionPotential(a);
 </script>
 </body>
 </html>

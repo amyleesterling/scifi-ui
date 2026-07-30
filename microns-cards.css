@@ -1,0 +1,189 @@
+/* ---- MICrONS interactive cards (.mviz-) ----------------------------------
+   Carried across verbatim from amyleesterling/microns (the "Cortex" page,
+   itself descended from Inner Cosmos): the three measured WebGL viewers, brain
+   scale, nine cell types, and one spike across a synapse, that the step rail
+   steps through. The rule block below the divider is the microns page's own
+   `.mviz` CSS, untouched. The only scifi-ui change is up here: the page-level
+   custom properties those rules read are scoped to `.mviz` instead of :root, so
+   they colour the cards without touching this page's own variables. */
+.mviz {
+  --ink: #EFF2F7; --dim: #9AA2B1; --faint: #666E7C;
+  --ground: #07080B; --panel: #0F1218; --line: #1D222B;
+  --edge: #4A5568; --accent: #3E96F0;
+}
+
+/* ═══ microns .mviz CSS, verbatim ═══════════════════════════════════════ */
+  /* ---- the interactive panels (.mviz-) ------------------------------------
+     One instrument case, three occupants: the two brains, the cell types, and
+     the activity. They all want the same frame, the same readout grid and the
+     same "this is measured, here is where from" line under the stage. */
+  .mviz {
+    position: relative; isolation: isolate; margin: 22px 0 8px;
+    background: linear-gradient(168deg, rgba(14,25,44,.72), rgba(8,13,24,.62));
+    border: 1px solid rgba(88,148,238,.28); border-radius: 4px;
+    padding: 15px 16px 14px;
+  }
+  /* corner brackets, the same machined read as the banner panel */
+  .mviz > b.k {
+    position: absolute; width: 12px; height: 12px; pointer-events: none;
+    border: 0 solid rgba(150,208,252,.5); z-index: 2;
+  }
+  .mviz > b.k.tl { top: 6px; left: 6px; border-top-width: 1px; border-left-width: 1px; }
+  .mviz > b.k.tr { top: 6px; right: 6px; border-top-width: 1px; border-right-width: 1px; }
+  .mviz > b.k.bl { bottom: 6px; left: 6px; border-bottom-width: 1px; border-left-width: 1px; }
+  .mviz > b.k.br { bottom: 6px; right: 6px; border-bottom-width: 1px; border-right-width: 1px; }
+  .mviz-eyebrow {
+    display: flex; align-items: center; gap: 9px; margin: 0 0 11px;
+    font-size: 9.5px; letter-spacing: .2em; text-transform: uppercase;
+    color: rgba(140,190,240,.9);
+  }
+  .mviz-eyebrow s {
+    width: 5px; height: 5px; border-radius: 50%; flex: 0 0 auto;
+    background: rgb(120,205,255); box-shadow: 0 0 8px rgba(120,205,255,.9);
+    text-decoration: none;
+  }
+  .mviz-eyebrow u {
+    flex: 1 1 auto; height: 5px; text-decoration: none;
+    background-image: repeating-linear-gradient(90deg,
+      rgba(140,196,246,.42) 0 1px, transparent 1px 7px);
+  }
+  /* The stage keeps its own aspect so the canvas never collapses to zero
+     height before the renderer has been sized, which is what leaves a WebGL
+     panel permanently blank. */
+  .mviz-stage {
+    position: relative; aspect-ratio: 16 / 9; width: 100%;
+    background: radial-gradient(120% 90% at 50% 42%,
+      rgba(20,38,66,.5), rgba(6,11,20,.75) 70%);
+    border: 1px solid rgba(88,148,238,.18); border-radius: 3px;
+    overflow: hidden;
+  }
+  @media (max-width: 620px) { .mviz-stage { aspect-ratio: 4 / 3; } }
+  .mviz-mount { position: absolute; inset: 0; }
+  .mviz-status {
+    position: absolute; inset: 0; display: flex; align-items: center;
+    justify-content: center; text-align: center; padding: 0 20px;
+    font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+    color: rgba(140,190,240,.75); pointer-events: none;
+  }
+  /* A class selector beats the user agent's [hidden] { display: none }, so
+     without this the loading line stays painted over the thing it finished
+     loading, and the panel looks permanently stuck. */
+  .mviz-status[hidden] { display: none; }
+  /* the scanline wash over the stage, so it reads as a screen not a photo */
+  .mviz-stage::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 3;
+    background-image: repeating-linear-gradient(0deg,
+      rgba(158,210,255,.028) 0 1px, transparent 1px 3px);
+  }
+  .mviz-bar {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px;
+    margin: 11px 0 0;
+  }
+  .mviz-btn {
+    font: inherit; font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+    color: #CFE0F4; background: rgba(20,38,66,.6); cursor: pointer;
+    border: 1px solid rgba(112,180,246,.34); border-radius: 3px;
+    padding: 6px 11px; transition: border-color .25s ease, background .25s ease;
+  }
+  .mviz-btn:hover, .mviz-btn:focus-visible {
+    border-color: rgba(160,214,255,.85); background: rgba(28,52,88,.72);
+  }
+  .mviz-btn[aria-pressed="true"] {
+    border-color: rgba(232,169,58,.7); color: #F3DCAE;
+  }
+  .mviz-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .mviz-scalelabel {
+    font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase;
+    color: rgba(126,146,172,.95);
+  }
+  /* the readout grid under the stage */
+  .mviz-facts {
+    display: grid; gap: 9px 20px; margin: 12px 0 0;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 620px) { .mviz-facts { grid-template-columns: 1fr 1fr; } }
+  .mviz-row { display: block; }
+  .mviz-row span {
+    display: block; font-size: 9.5px; letter-spacing: .16em;
+    text-transform: uppercase; color: #6BA4E6; margin-bottom: 3px;
+  }
+  .mviz-row b {
+    display: block; font-weight: 500; font-size: 15px; color: #EFF4FB;
+    font-variant-numeric: tabular-nums; line-height: 1.25;
+  }
+  .mviz-note {
+    display: block; font-style: normal; font-size: 11.5px; line-height: 1.45;
+    color: #8E9DB5; margin-top: 2px;
+  }
+  .mviz-cap { margin: 12px 0 0; font-size: 13.5px; line-height: 1.6; color: var(--dim); }
+  .mviz-cap b { color: var(--ink); font-weight: 500; }
+  .mviz-legend {
+    display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 10px 0 0;
+    font-size: 11px; letter-spacing: .08em; color: rgba(150,166,190,.95);
+  }
+  .mviz-legend i {
+    display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+    margin-right: 6px; vertical-align: baseline;
+  }
+  /* the brain under the pointer is the one a drag will turn, so say so */
+  .mviz[data-holding] .mviz-stage { border-color: rgba(150,208,252,.5); }
+
+  /* the cell picker. A wrapping row on a wide page, a horizontally scrolling
+     one on a phone, where nine stacked buttons would bury the stage. */
+  .mviz-rail {
+    display: grid; gap: 6px; margin: 11px 0 0;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+  .mviz-pick {
+    font: inherit; text-align: left; cursor: pointer; color: #C4D4E8;
+    background: rgba(14,26,46,.55); border: 1px solid rgba(88,148,238,.22);
+    border-left: 2px solid var(--pick, #6BA4E6); border-radius: 2px;
+    padding: 7px 9px 8px; display: block;
+    transition: background .22s ease, border-color .22s ease;
+  }
+  .mviz-pick i {
+    display: none;
+  }
+  .mviz-pick b {
+    display: block; font-weight: 500; font-size: 12.5px; color: #E6EEF9;
+    line-height: 1.2;
+  }
+  .mviz-pick em {
+    display: block; font-style: normal; font-size: 10.5px; line-height: 1.35;
+    color: #8494AB; margin-top: 2px;
+  }
+  .mviz-pick:hover, .mviz-pick:focus-visible {
+    background: rgba(24,44,76,.7); border-color: rgba(150,208,252,.5);
+    border-left-color: var(--pick, #6BA4E6);
+  }
+  .mviz-pick[aria-pressed="true"] {
+    background: rgba(28,52,90,.85);
+    border-color: color-mix(in srgb, var(--pick, #6BA4E6) 60%, transparent);
+    border-left-width: 3px; padding-left: 8px;
+  }
+  .mviz-pick[aria-pressed="true"] b { color: #FFF; }
+  .mviz-pick:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .mviz-facts a { color: var(--accent); text-decoration: none; }
+  .mviz-facts a:hover { text-decoration: underline; }
+  .mviz-blurb {
+    margin: 11px 0 0; font-size: 14.5px; line-height: 1.6; color: #B3C1D6;
+  }
+  /* the scrubber. A real range input, so it arrives with a keyboard and a
+     screen reader already working. */
+  .mviz-scrubwrap { display: flex; align-items: center; gap: 8px; flex: 1 1 220px; }
+  .mviz-scrub {
+    flex: 1 1 auto; min-width: 120px; height: 3px; appearance: none;
+    background: linear-gradient(90deg, rgba(122,186,246,.5), rgba(122,186,246,.18));
+    border-radius: 2px; cursor: pointer;
+  }
+  .mviz-scrub::-webkit-slider-thumb {
+    appearance: none; width: 12px; height: 12px; border-radius: 50%;
+    background: #CFE7FF; border: 0; box-shadow: 0 0 9px rgba(120,205,255,.85);
+    cursor: pointer;
+  }
+  .mviz-scrub::-moz-range-thumb {
+    width: 12px; height: 12px; border-radius: 50%; border: 0;
+    background: #CFE7FF; box-shadow: 0 0 9px rgba(120,205,255,.85); cursor: pointer;
+  }
+  .mviz-scrub:disabled { opacity: .4; cursor: default; }
+  .mviz-scrub:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
