@@ -14,7 +14,15 @@ image card with an edge trace, a modal dialog surface, a loading state that
 draws a cell, and a particle trace for media with brackets, readouts and a play
 affordance.
 
-No build step, no framework, no CDN. Two files.
+No build step, no framework, no CDN. Two files for everything above:
+`hologram.css` and `hologram.js`.
+
+A second set lives in [`components/`](components/), one file per part, with its
+own [demo page](https://amyleesterling.github.io/scifi-ui/components/): a
+tutorial callout, an achievement toast, a confetti burst, a tinted lift card, an
+icon rail, and a page finale that fires the confetti once when the reader reaches
+the bottom of the page and floats a mascot up on balloons. They are split one per
+file so you can take one without taking the set.
 
 ```html
 <link rel="stylesheet" href="hologram.css">
@@ -479,6 +487,16 @@ Nothing here is load bearing. Strip every line and the page still works.
 ---
 
 ## Provenance
+
+**The rule, if you add a component here: extract it, do not approximate it.**
+Open the file it ships in, read the whole stylesheet, and carry the real numbers
+across. Every part of this repo came out of code that is actually deployed, and
+that is the only reason it looks like anything. The first attempt at the sign in
+dialog was built from memory of how it looked, and it was wrong in a way that was
+obvious on sight, because a HUD is made of specific values and eyeballing them
+averages the character out. If you cannot find the source, say so rather than
+inventing a plausible version. Where a port had to deviate, the deviation and its
+cause are written down, and there are only three in the whole repo.
 
 Built for a connectomics rendering site
 ([amyleesterling.github.io/ca3](https://amyleesterling.github.io/ca3)), where the

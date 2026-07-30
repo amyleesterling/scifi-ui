@@ -23,7 +23,12 @@
    !important anywhere. Icons are inline SVG authored for this demo. No third
    party marks.
 
-   Every colour carries a concrete fallback. */
+   The blue is written out as 74 158 255 rather than borrowed from the library
+   token, because these are the numbers Amy pointed at and rounding them to a
+   neighbouring token would be quietly changing the thing she asked for. A host
+   that wants the rail to follow its own accent sets --holorail-accent, which
+   every rule below reads with 74 158 255 behind it as the fallback. Every
+   other colour here carries a concrete fallback the same way. */
 
 .holorail {
   display: flex;
@@ -51,9 +56,9 @@
   cursor: pointer;
   border-radius: 8px;
   /* rest */
-  color: rgb(var(--holo-beam, 178 216 248) / .9);
-  background: rgb(var(--holo-glow, 74 150 224) / .1);
-  border: 1px solid rgb(var(--holo-glow, 74 150 224) / .3);
+  color: rgb(var(--holorail-accent, 74 158 255) / .9);
+  background: rgb(var(--holorail-accent, 74 158 255) / .1);
+  border: 1px solid rgb(var(--holorail-accent, 74 158 255) / .3);
   transition:
     background .15s ease,
     border-color .15s ease,
@@ -75,8 +80,8 @@
 /* hover. These are the two values from the original, and the only two */
 .holorail-btn:hover,
 .holorail-btn:focus-visible {
-  background: rgb(var(--holo-glow, 74 150 224) / .2);
-  border-color: rgb(var(--holo-glow, 74 150 224) / .5);
+  background: rgb(var(--holorail-accent, 74 158 255) / .2);
+  border-color: rgb(var(--holorail-accent, 74 158 255) / .5);
   color: rgb(var(--holo-ink, 239 244 251));
 }
 
@@ -91,7 +96,7 @@
 /* pressed, as in the mouse is down on it */
 .holorail-btn:active {
   transform: translateY(1px) scale(.97);
-  background: rgb(var(--holo-glow, 74 150 224) / .28);
+  background: rgb(var(--holorail-accent, 74 158 255) / .28);
   border-color: rgb(var(--holo-beam, 178 216 248) / .7);
 }
 
@@ -100,9 +105,9 @@
    technology reads rather than off a class that only the eye can see. */
 .holorail-btn[aria-pressed="true"] {
   color: rgb(var(--holo-ink, 239 244 251));
-  background: rgb(var(--holo-glow, 74 150 224) / .26);
+  background: rgb(var(--holorail-accent, 74 158 255) / .26);
   border-color: rgb(var(--holo-beam, 178 216 248) / .6);
-  box-shadow: inset 0 0 12px rgb(var(--holo-glow, 74 150 224) / .35);
+  box-shadow: inset 0 0 12px rgb(var(--holorail-accent, 74 158 255) / .35);
 }
 
 .holorail-btn[disabled] {
@@ -112,9 +117,9 @@
 }
 
 .holorail-btn[disabled]:hover {
-  background: rgb(var(--holo-glow, 74 150 224) / .1);
-  border-color: rgb(var(--holo-glow, 74 150 224) / .3);
-  color: rgb(var(--holo-beam, 178 216 248) / .9);
+  background: rgb(var(--holorail-accent, 74 158 255) / .1);
+  border-color: rgb(var(--holorail-accent, 74 158 255) / .3);
+  color: rgb(var(--holorail-accent, 74 158 255) / .9);
 }
 
 /* a hairline to group tools, one element, no border tricks */
