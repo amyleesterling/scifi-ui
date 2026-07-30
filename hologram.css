@@ -387,8 +387,13 @@
             drop-shadow(0 0 16px rgb(var(--holo-beam, 178 216 248) / .28));
   }
 
-.holoload-glyph .arbor path {
-    stroke-dasharray: 200;
+/* each path carries pathLength="1", so its length is normalised to 1 no matter
+   how long it really is. A dash of 1 with the offset trimmed 1 -> 0 then draws
+   every branch as a proper trim path, growing from its soma end to its tip at
+   the same rate, rather than the old fixed 200 dash that wiped the short
+   branches on in a single frame. */
+  .holoload-glyph .arbor path {
+    stroke-dasharray: 1;
     animation: holo-load-draw 2.6s cubic-bezier(.4,0,.2,1) infinite;
   }
 
@@ -422,10 +427,10 @@
   }
 
 @keyframes holo-load-draw {
-    0%   { stroke-dashoffset: 200; opacity: .2; }
-    35%  { stroke-dashoffset: 0;   opacity: 1; }
-    75%  { stroke-dashoffset: 0;   opacity: 1; }
-    100% { stroke-dashoffset: 200; opacity: .2; }
+    0%   { stroke-dashoffset: 1; opacity: .2; }
+    35%  { stroke-dashoffset: 0; opacity: 1; }
+    75%  { stroke-dashoffset: 0; opacity: 1; }
+    100% { stroke-dashoffset: 1; opacity: .2; }
   }
 
 @keyframes holo-load-pulse {
@@ -844,6 +849,12 @@
   }
 
 .holodialog-icon svg { display: block; width: 90px; height: 100px; }
+/* the synaptic sparks and the ripples are SMIL, which does not read the motion
+   query, so a reader who asked for less motion gets the neuron drawn but still,
+   no travelling signals. */
+@media (prefers-reduced-motion: reduce) {
+    .holodialog-icon .hd-spark, .holodialog-icon .hd-ripple { display: none; }
+  }
 
 @keyframes holodialog-breathe {
     0%, 100% { filter: drop-shadow(0 0 12px rgb(var(--holo-glow, 74 150 224) / .4)); }
