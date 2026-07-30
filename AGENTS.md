@@ -306,6 +306,39 @@ demo data. Adds the two lessons above: a built bundle's `.map` files are the
 source, so fetch them before approximating; and `hidden` loses to a base
 `display` rule. The invented `.holobadge` coin and `.holoaward` screen are gone.
 
+**Version 7**, 30 July 2026. The masthead now answers a hover or a tap with a
+chromatic-aberration shatter: the panel shears red-and-cyan, tears on a few
+scanlines, disperses to nothing for a beat while a canvas throws tinted
+particles from its own rectangle, then recomposes. Lessons worth keeping:
+
+- **An entrance boot and a deliberate trigger are not the same disappearance.**
+  §4's "a hero title should not carry a component that blurs itself out" still
+  holds: the old `.holoboot` masthead vanished its title as a *side effect* of
+  every hover, unbidden and every time the pointer crossed it. The glitch is the
+  opposite contract, an explicit effect the reader asked for by hovering or
+  tapping, self-contained, that always returns to a rest identical to the one it
+  left. The rule was never "the title may never move." It was "an entrance
+  animation has no business on the one panel that is on screen from the first
+  frame." A triggered showpiece that reforms breaks neither.
+- **A one-run effect needs a running guard, not just an animationend cleanup.**
+  Hover fires `mouseenter` once per entry and the tap path re-fires on every
+  re-tap, so without a `running` flag a second trigger mid-flight stacks a
+  second canvas and a second class add/remove race. The guard swallows anything
+  that lands before the first run's teardown, and the run's own timers own both
+  the class removal and the canvas teardown.
+- **Split an RGB ghost with `text-shadow`, not a filter, when the glyph is
+  gradient-filled.** The wordmark is `-webkit-text-fill-color: transparent` over
+  a clipped gradient, and `text-shadow` still paints under that fill, so two
+  offset shadows in red and cyan read as split glyph ghosts. A `filter`
+  drop-shadow does the same for the panel's opaque border and the particle
+  streaks read as scanline debris because half of them are thin horizontal
+  rects, not squares. The chromatic read is carried by weighting the palette
+  toward the two aberration colours.
+- **`hover: hover` gates the mouse path so a touch does not fire it twice.** A
+  tap on a touchscreen emits a synthetic `mouseenter`, so the hover trigger is
+  gated to a device that actually hovers and the tap comes through the library's
+  own `holotap:on`; the two never both fire for one touch.
+
 **Version 7**, 30 July 2026. Sharpens the animation-restart lesson, because the
 v3 fix only worked once. Restarting a CSS animation from inside a pointer
 handler differs by what it is on:
