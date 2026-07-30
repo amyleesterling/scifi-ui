@@ -1,0 +1,33 @@
+{
+  "source": "FreeSurfer pial surfaces (lh + rh) \u2014 human cortex outer surface",
+  "rawBbox": {
+    "min": [
+      -69.701225,
+      -99.889786,
+      -58.919209
+    ],
+    "max": [
+      68.920235,
+      70.159729,
+      60.284389
+    ],
+    "size": [
+      138.62146,
+      170.04951499999999,
+      119.203598
+    ]
+  },
+  "centerOriginal": [
+    -0.39049499999999426,
+    -14.865028500000001,
+    0.6825899999999976
+  ],
+  "scale": 0.011761280236524051,
+  "axesNote": "swapped Y/Z + flipped Y so +Y is up (dorsal) in three.js",
+  "exportedFaces": 150000,
+  "wowFacts": {
+    "neuronsApprox": 86000000000,
+    "neuronsMouse": 71000000,
+    "humanToMouseRatio": 1211.2676056338028
+  }
+}

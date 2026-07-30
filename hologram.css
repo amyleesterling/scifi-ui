@@ -71,6 +71,29 @@
 
 .holo + .holo { margin-top: 10px; }
 
+/* the readout is a tap host (`.holo` is in the tap list), so a tap already
+   puts .holo-on on it; without a rule to answer that class the tap did
+   nothing. Now it lights the same way every other panel does: the edge comes
+   up, a soft bloom lifts it forward, and the number caps a glow, so a point or
+   a tap reads as the panel coming alive rather than dead ornament. */
+.holo {
+    transition: border-color .42s ease, box-shadow .42s ease, transform .42s ease;
+  }
+.holo:hover, .holo:focus-within, .holo.holo-on {
+    border-color: rgba(150,208,255,.62);
+    box-shadow: 0 12px 30px rgba(0,0,0,.5), 0 0 42px rgba(62,150,240,.20),
+                inset 0 1px 0 rgba(204,232,255,.16);
+  }
+.holo:hover .v, .holo:focus-within .v, .holo.holo-on .v {
+    color: #F4F9FF; text-shadow: 0 0 20px rgba(120,190,255,.60);
+  }
+.holo:hover .k, .holo:focus-within .k, .holo.holo-on .k {
+    color: #8FC0FF;
+  }
+@media (prefers-reduced-motion: reduce) {
+    .holo { transition: none; }
+  }
+
 @media (min-width: 760px) {
     .holo-tr { position: absolute; top: 1%; right: 0; }
     .holo-bl { position: absolute; bottom: 3%; left: 0; }
@@ -208,16 +231,22 @@
 
 .hud b.b { top: 9px; right: 22px; color: rgba(232,169,58,.9); }
 
-.hud b.c { bottom: 9px; left: 22px; }
+/* b.c carries the measured science value with its unit, e.g. "337 × 266 × 92
+   µm". It must NOT be uppercased: text-transform corrupts the micro sign into a
+   Greek capital Mu, so µm renders as MM, a different unit off by a thousand per
+   axis. This is the same trap the readout component's header warns about, and
+   it was live here. a and b stay uppercase; only the value opts out. */
+  .hud b.c { bottom: 9px; left: 22px; text-transform: none; letter-spacing: .1em; }
 
 /* The HUD used to go on touch as well, on the grounds that a hover treatment
      has no job there. It has one now: a tap puts .holo-on on the frame and the
-     brackets push out. So only the canvas is still hidden on a narrow screen,
-     and only because it overhangs its frame by 22px a side and would push past
-     the viewport. That is a width problem rather than a pointer problem, so the
-     rule keys off width alone. */
+     brackets push out. The canvas used to be hidden here too, on the theory
+     that its 22px overhang a side would push past the viewport. It does not:
+     the frame sits inside the wrap's 30px gutter, so the 22px overhang lands in
+     that gutter with 8px to spare, and the beam is one of the nicer things on
+     the page to lose on a phone. So it runs on touch now, struck by the tap
+     that lights the frame; only reduced motion still turns it off, below. */
   @media (max-width: 700px) {
-    .holoframe canvas.trace { display: none; }
     .holoframe { margin: 10px 0; }
   }
 

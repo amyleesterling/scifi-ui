@@ -357,3 +357,111 @@ handler differs by what it is on:
 Also: `hologram-tap.js` now re-fires `holotap:on` when you re-tap the thing
 already lit. Without it a repeat tap on the same element was a dead no-op, so
 any effect whose point is a replay could only ever play on the first tap.
+
+**Version 8**, 30 July 2026. The masthead glitch becomes a closed loop, the
+particle trace runs on phones, the step-rail section becomes a four-stage
+descent through the brain, the readout panel answers a tap, and a live unit bug
+in the media HUD is fixed. Lessons worth keeping:
+
+- **A satisfying loop is one set of particles going out and coming back to the
+  same coordinates, not two effects that happen near each other.** The first
+  glitch threw particles that flew off and faded while the panel independently
+  faded back: the eye read them as unrelated. Now each particle stores its spawn
+  point as home, flies to an outward target for the first 42% of its life, then
+  eases back to that exact home for the rest, and the panel is pinned at
+  opacity 0 for the whole flight and only reforms over the last fifth, as the
+  particles land on it and cross-fade out. What disperses is what rebuilds.
+- **When two clocks have to meet, couple them in the comments and the
+  constants, not by eyeball.** The CSS panel keyframes (hold to 72%, reform by
+  100% of 1600ms) and the JS particle life (`THROW` 200ms, `PLIFE` 1320ms) are
+  set to land the particles into the reform. Retiming one without the other
+  breaks the illusion, so both say so at their definition.
+- **A width guard that turns a feature off entirely deserves a second look.**
+  The trace canvas was `display: none` below 700px on the theory its 22px
+  overhang would scroll the page. It would not: the frame sits inside the wrap's
+  30px gutter, so the overhang lands there with 8px to spare. It was hiding one
+  of the nicer things on the page from every phone for nothing. Measured at 360,
+  390, 700 and 860px: zero horizontal overflow. Verify the assumption a guard is
+  built on before you keep paying for it.
+- **A tap host with no rule for `.holo-on` is a dead tap.** `.holo` was in the
+  tap list, so a tap already put `.holo-on` on the readout, but nothing answered
+  that class, so the panel did nothing and read as broken. Every host in the tap
+  list needs a visible answer to the class, the same way it needs one for
+  `:hover`. Being in the list is half the contract.
+- **The µm-to-MM unit trap was not hypothetical: it was live in the HUD.** The
+  media annotation's value line, `.hud b.c`, was `text-transform: uppercase`,
+  so the real measurement `337 × 266 × 92 µm` rendered as `... 92 MM`, off by a
+  thousand an axis. The readout component's header warns about exactly this; the
+  same trap sat two files over, uncaught, because MM reads as a plausible unit.
+  The value line now opts out of uppercase. When a repo documents a trap, grep
+  the rest of it for the same shape.
+- **One rail can carry a whole demo.** The step-rail section had two bare rails
+  reporting their own step; it now has one driving a four-stage inner-cosmos,
+  brain to neurons to synapse to a plotted action potential, the stages stacked
+  and cross-faded so the panel never jumps height, the scale labels held in the
+  script so the label and the art cannot drift apart.
+
+**Version 9**, 30 July 2026. The loader becomes the sign-in dialog's own cell,
+the attract loop is retired into the step rail, and the badge button opens the
+real hero award. Lessons worth keeping:
+
+- **Reuse the cell you already drew rather than draw a second one.** The loader
+  had its own simpler neuron; it now uses the sign-in dialog's detailed arbor,
+  the same paths, so the two places that draw a cell draw the *same* cell. The
+  draw still grows from the soma because every path in that arbor is authored
+  from its soma-ward end outward, and splitting it into apical (up) and basal
+  (down plus axon) groups gets the half-cycle offset for free. One box now, not
+  two: a loading state's job is to say "working", and it says it once.
+- **A removed section can leave its behaviour behind.** The attract loop is
+  gone as a section, but its one real idea, walk the steps on a dwell and hold
+  the moment someone touches it, moved onto the inner-cosmos rail. Removing a
+  demo is not the same as removing what it taught; fold the mechanism into
+  something that stays. Its component files remain in `components/`; only the
+  page stopped loading them.
+- **A badge unlock is a hero takeover, not a corner toast.** The source
+  (`AchievementToast.vue`) routes streaks and edit milestones to the toast list
+  but gives a badge the `heroBadge` branch: a full-screen "ACHIEVEMENT
+  UNLOCKED" spectacle, hex grid, shockwave, rings, orbits, a materialising
+  badge, that stays until clicked and then opens the profile. The "Badge only"
+  button now fires that, `holoaward`, reproduced from the real markup and the
+  de-scoped styles, with the real Astrolabe badge and gold confetti. The
+  corner-toast reproduction was only half the component.
+- **When you slice a rule range out of a bundle, the last rule's brace may be
+  on the next line.** The extracted styles put each rule's `{ ...` on one line
+  and its `}` on the next; cutting the range at the property line dropped the
+  final `}`, and that one unclosed block silently swallowed the two `@media`
+  blocks appended after it, so reduced motion and the mobile scale both quietly
+  did nothing. A brace-count (open vs close) is the one-line check that catches
+  it; a screenshot at the affected width or preference is the other.
+
+**Version 10**, 30 July 2026. The step rail stops pretending. Its four
+hand-drawn SVG "inner cosmos" stages are gone, replaced by the three real
+MICrONS viewers the rail was always meant to hold, carried across whole from
+`amyleesterling/microns`: the brain at true scale, the nine cell types, and one
+spike crossing one synapse. Lessons worth keeping:
+
+- **Do not reinvent what the author already built.** The placeholder brain,
+  neuron, synapse and action-potential SVGs were a smaller, worse copy of work
+  that already existed as measured, interactive WebGL. When a demo stands in for
+  something real the author has shipped, the move is to carry the real thing
+  across, not to approximate it. The whole of this version is deleting an
+  approximation and wiring in the source.
+- **Carry a component across whole: code, assets, and its coordinate system.**
+  The viewers came over verbatim, `three.js` and its addons, `holo3d.js` and the
+  three panel modules, and their real meshes (~33 MB of brain surfaces, nine
+  cell `.glb`s, and the synapse skeletons). Their mesh fetches are page-relative
+  (`meshes/…`), so the meshes sit at the site root exactly as they do in the
+  source, and an import map at the top of the head resolves `three`. Nothing was
+  re-pathed or re-authored; re-pathing is how a carried-across component breaks.
+- **Scope the borrowed page's variables, do not adopt them.** The `.mviz` CSS
+  reads `var(--accent)`, `var(--panel)` and the rest, which are the microns
+  page's `:root` tokens. Dropping those into this page's `:root` would recolour
+  half of scifi-ui. They live on `.mviz` instead, so they reach every card
+  descendant and nothing else.
+- **Let the component's own laziness drive the rail.** Each viewer already
+  fetches no mesh and runs no render loop until an IntersectionObserver says it
+  is on screen. So the rail switches cards by `display`, not opacity: a
+  `display:none` card never trips its observer, so only the card the rail
+  reveals loads and renders, and stepping away halts the one you left. This is
+  also why the attract-loop auto-advance was dropped here: cycling heavy WebGL
+  viewers on a timer is the opposite of what they are for.

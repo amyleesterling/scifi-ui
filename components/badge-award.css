@@ -1,0 +1,486 @@
+/* ---- badge award, the EyeWire II hero unlock (.nge-hero-*) ----------------
+   Reproduced from AchievementToast.vue's heroBadge branch in the
+   amyleesterling/eyewire-ii bundle: the full-screen "ACHIEVEMENT UNLOCKED"
+   spectacle a badge earns, as against the small corner toast a streak or an
+   edit milestone earns. Real class names, real keyframes, the `data-v-...`
+   scope hash dropped so it stands on its own. The JS that builds and fires it
+   is badge-award.js; see holoaward().
+
+   Everything below the divider is scifi-ui's own: the enter and leave states
+   that stand in for the Vue <Transition name="nge-hero">, a reduced-motion
+   pass that keeps the composition and drops the motion, and a mobile scale so
+   the 380px badge and 440px rings fit a phone. The block above the divider is
+   the game's, de-scoped and otherwise untouched. */
+
+
+/* ══════════════════════════════════════════════════════════════════
+   HERO BADGE UNLOCK — Full-screen sci-fi spectacle
+   ══════════════════════════════════════════════════════════════════ */
+.nge-hero-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at center, rgba(6, 12, 28, 0.85) 0%, rgba(0, 0, 0, 0.95) 100%);
+  backdrop-filter: blur(8px) saturate(1.5);
+  cursor: pointer;
+  overflow: hidden;
+  will-change: opacity;
+  transform: translateZ(0);
+}
+
+/* ── Hex grid background ── */
+.nge-hero-hexgrid {
+  position: absolute;
+  inset: -50%;
+  background-image:
+    linear-gradient(30deg, rgba(0, 180, 255, 0.03) 12%, transparent 12.5%, transparent 87%, rgba(0, 180, 255, 0.03) 87.5%),
+    linear-gradient(150deg, rgba(0, 180, 255, 0.03) 12%, transparent 12.5%, transparent 87%, rgba(0, 180, 255, 0.03) 87.5%),
+    linear-gradient(30deg, rgba(0, 180, 255, 0.03) 12%, transparent 12.5%, transparent 87%, rgba(0, 180, 255, 0.03) 87.5%),
+    linear-gradient(150deg, rgba(0, 180, 255, 0.03) 12%, transparent 12.5%, transparent 87%, rgba(0, 180, 255, 0.03) 87.5%),
+    linear-gradient(60deg, rgba(206, 147, 216, 0.02) 25%, transparent 25.5%, transparent 75%, rgba(206, 147, 216, 0.02) 75%),
+    linear-gradient(60deg, rgba(206, 147, 216, 0.02) 25%, transparent 25.5%, transparent 75%, rgba(206, 147, 216, 0.02) 75%);
+  background-size: 80px 140px;
+  background-position: 0 0, 0 0, 40px 70px, 40px 70px, 0 0, 40px 70px;
+  animation: nge-hero-hexdrift-bcd5f0a5 20s linear infinite;
+  pointer-events: none;
+  opacity: 0;
+  animation: nge-hero-hexdrift-bcd5f0a5 20s linear infinite,nge-hero-hexfade-bcd5f0a5 1s 0.3s ease-out forwards;
+}
+@keyframes nge-hero-hexdrift-bcd5f0a5 {
+from { transform: translate(0, 0) rotate(0deg);
+}
+to { transform: translate(-40px, -70px) rotate(1deg);
+}
+}
+@keyframes nge-hero-hexfade-bcd5f0a5 {
+from { opacity: 0;
+}
+to { opacity: 1;
+}
+}
+
+/* ── Shockwave ring ── */
+.nge-hero-shockwave {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 200, 255, 0.6);
+  box-shadow: 0 0 40px rgba(0, 200, 255, 0.3), inset 0 0 40px rgba(0, 200, 255, 0.1);
+  animation: nge-hero-shockwave-bcd5f0a5 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  pointer-events: none;
+}
+@keyframes nge-hero-shockwave-bcd5f0a5 {
+0% { transform: scale(0.5); opacity: 1; border-width: 3px;
+}
+70% { opacity: 0.4; border-width: 1px;
+}
+100% { transform: scale(18); opacity: 0; border-width: 0.5px;
+}
+}
+
+/* ── Vertical energy scan ── */
+.nge-hero-scanline {
+  position: absolute;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent 0%, rgba(0, 200, 255, 0.15) 20%, rgba(0, 200, 255, 0.4) 50%, rgba(0, 200, 255, 0.15) 80%, transparent 100%);
+  box-shadow: 0 0 20px rgba(0, 200, 255, 0.3);
+  animation: nge-hero-scan-bcd5f0a5 3s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes nge-hero-scan-bcd5f0a5 {
+0% { top: -5%; opacity: 0;
+}
+10% { opacity: 1;
+}
+90% { opacity: 1;
+}
+100% { top: 105%; opacity: 0;
+}
+}
+
+/* ── Main card ── */
+.nge-hero-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 56px 80px 48px;
+  background: radial-gradient(ellipse at 50% 30%, rgba(0, 60, 120, 0.15) 0%, transparent 70%),
+    linear-gradient(145deg, rgba(8, 12, 24, 0.97) 0%, rgba(14, 18, 32, 0.96) 50%, rgba(6, 10, 22, 0.97) 100%);
+  border: 1px solid rgba(0, 180, 255, 0.15);
+  border-radius: 24px;
+  box-shadow:
+    0 0 120px rgba(0, 160, 255, 0.15),
+    0 0 300px rgba(206, 147, 216, 0.08),
+    0 0 60px rgba(0, 220, 255, 0.1),
+    inset 0 0 80px rgba(0, 100, 200, 0.03),
+    0 32px 80px rgba(0, 0, 0, 0.8);
+  position: relative;
+  overflow: visible;
+  z-index: 1;
+  animation: nge-hero-card-enter-bcd5f0a5 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+@keyframes nge-hero-card-enter-bcd5f0a5 {
+0% { transform: scale(0.3) translateY(40px); opacity: 0; filter: brightness(3) blur(10px);
+}
+40% { transform: scale(1.06) translateY(-4px); filter: brightness(1.4) blur(0px);
+}
+70% { transform: scale(0.98) translateY(2px);
+}
+100% { transform: scale(1) translateY(0); opacity: 1; filter: brightness(1) blur(0);
+}
+}
+
+/* Animated shimmer sweep across card */
+.nge-hero-card::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 24px;
+  background: conic-gradient(from 0deg, transparent 0%, rgba(0, 200, 255, 0.12) 10%, transparent 20%, rgba(206, 147, 216, 0.1) 30%, transparent 40%, rgba(0, 200, 255, 0.08) 50%, transparent 60%);
+  animation: nge-hero-border-spin-bcd5f0a5 6s linear infinite;
+  z-index: -1;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  padding: 1px;
+}
+@keyframes nge-hero-border-spin-bcd5f0a5 {
+from { transform: rotate(0deg);
+}
+to { transform: rotate(360deg);
+}
+}
+
+/* ── Holographic rings ── */
+.nge-hero-rings {
+  position: absolute;
+  top: 20px;
+  width: 440px;
+  height: 440px;
+  pointer-events: none;
+}
+.nge-hero-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  will-change: transform;
+  transform: translateZ(0);
+}
+.nge-hero-ring--1 {
+  border-color: rgba(0, 200, 255, 0.2);
+  animation: nge-hero-ring-spin-bcd5f0a5 8s linear infinite;
+  box-shadow: 0 0 15px rgba(0, 200, 255, 0.1);
+}
+.nge-hero-ring--2 {
+  inset: 20px;
+  border-color: rgba(206, 147, 216, 0.15);
+  border-style: dashed;
+  animation: nge-hero-ring-spin-bcd5f0a5 12s linear infinite reverse;
+  box-shadow: 0 0 15px rgba(206, 147, 216, 0.08);
+}
+.nge-hero-ring--3 {
+  inset: -15px;
+  border-color: rgba(0, 255, 180, 0.08);
+  border-width: 0.5px;
+  animation: nge-hero-ring-spin-bcd5f0a5 20s linear infinite;
+}
+@keyframes nge-hero-ring-spin-bcd5f0a5 {
+from { transform: rotate(0deg);
+}
+to { transform: rotate(360deg);
+}
+}
+
+/* ── Orbital electron dots ── */
+.nge-hero-orbits {
+  position: absolute;
+  top: 20px;
+  width: 440px;
+  height: 440px;
+  pointer-events: none;
+}
+.nge-hero-orbit-dot {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(0, 220, 255, 0.9);
+  box-shadow: 0 0 8px rgba(0, 220, 255, 0.6), 0 0 20px rgba(0, 220, 255, 0.3);
+  top: 50%;
+  left: 50%;
+  animation: nge-hero-orbit-bcd5f0a5 4s linear infinite;
+  animation-delay: calc(var(--j) * -0.5s);
+  offset-path: ellipse(170px 160px at 50% 50%);
+  offset-rotate: 0deg;
+  animation-name: nge-hero-orbit-path-bcd5f0a5;
+}
+.nge-hero-orbit-dot:nth-child(odd) {
+  width: 3px;
+  height: 3px;
+  background: rgba(206, 180, 255, 0.8);
+  box-shadow: 0 0 6px rgba(206, 180, 255, 0.5);
+  animation-duration: 6s;
+  animation-direction: reverse;
+}
+.nge-hero-orbit-dot:nth-child(3n) {
+  width: 4px;
+  height: 4px;
+  background: rgba(0, 255, 180, 0.7);
+  box-shadow: 0 0 6px rgba(0, 255, 180, 0.4);
+  animation-duration: 5s;
+}
+/* Fallback orbit using transform for browsers without offset-path */
+@keyframes nge-hero-orbit-path-bcd5f0a5 {
+from { offset-distance: 0%; opacity: 0.4;
+}
+50% { opacity: 1;
+}
+to { offset-distance: 100%; opacity: 0.4;
+}
+}
+/* Traditional orbit fallback */
+@keyframes nge-hero-orbit-bcd5f0a5 {
+from { transform: rotate(calc(var(--j) * 45deg)) translateX(210px) rotate(calc(var(--j) * -45deg));
+}
+to { transform: rotate(calc(var(--j) * 45deg + 360deg)) translateX(210px) rotate(calc(var(--j) * -45deg - 360deg));
+}
+}
+/* Use traditional orbit by default (better browser support) */
+.nge-hero-orbit-dot {
+  offset-path: none;
+  animation-name: nge-hero-orbit-bcd5f0a5;
+}
+
+/* ── Energy aura ── */
+.nge-hero-aura {
+  position: absolute;
+  top: 50px;
+  width: 360px;
+  height: 360px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 180, 255, 0.08) 0%, rgba(206, 147, 216, 0.04) 40%, transparent 70%);
+  animation: nge-hero-aura-pulse-bcd5f0a5 2.5s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes nge-hero-aura-pulse-bcd5f0a5 {
+0%, 100% { transform: scale(1); opacity: 0.6;
+}
+50% { transform: scale(1.15); opacity: 1;
+}
+}
+
+/* ── Badge icon ── */
+.nge-hero-icon {
+  width: 380px;
+  height: 380px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter:
+    drop-shadow(0 0 40px rgba(0, 180, 255, 0.4))
+    drop-shadow(0 0 80px rgba(206, 147, 216, 0.25))
+    drop-shadow(0 0 120px rgba(0, 220, 255, 0.15));
+  animation: nge-hero-float-bcd5f0a5 4s ease-in-out infinite alternate;
+  z-index: 2;
+  position: relative;
+}
+.nge-hero-badge-img {
+  width: 360px;
+  height: 360px;
+  object-fit: contain;
+  image-rendering: auto;
+  animation: nge-hero-badge-materialize-bcd5f0a5 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+@keyframes nge-hero-badge-materialize-bcd5f0a5 {
+0% { transform: scale(0.1) rotate(-20deg); opacity: 0; filter: brightness(4) saturate(0);
+}
+50% { filter: brightness(1.8) saturate(1.2);
+}
+80% { transform: scale(1.05) rotate(2deg);
+}
+100% { transform: scale(1) rotate(0deg); opacity: 1; filter: brightness(1) saturate(1);
+}
+}
+.nge-hero-emoji {
+  font-size: 180px;
+  animation: nge-hero-badge-materialize-bcd5f0a5 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes nge-hero-float-bcd5f0a5 {
+from { transform: translateY(0);
+}
+to { transform: translateY(-12px);
+}
+}
+
+/* ── Title ── */
+.nge-hero-title-wrap {
+  text-align: center;
+  z-index: 2;
+  margin-top: 20px;
+}
+.nge-hero-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: rgba(0, 200, 255, 0.7);
+  margin-bottom: 8px;
+  animation: nge-hero-glitch-in-bcd5f0a5 0.6s 0.3s ease-out both;
+}
+.nge-hero-title {
+  font-size: 32px;
+  font-weight: 300;
+  color: #fff;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  text-shadow:
+    0 0 30px rgba(0, 180, 255, 0.6),
+    0 0 60px rgba(0, 180, 255, 0.3),
+    0 0 100px rgba(206, 147, 216, 0.15),
+    0 2px 4px rgba(0, 0, 0, 0.8);
+  animation: nge-hero-glitch-in-bcd5f0a5 0.6s 0.5s ease-out both;
+}
+.nge-hero-subtitle {
+  font-size: 15px;
+  color: rgba(180, 200, 220, 0.7);
+  text-align: center;
+  max-width: 380px;
+  line-height: 1.6;
+  z-index: 2;
+  animation: nge-hero-glitch-in-bcd5f0a5 0.6s 0.7s ease-out both;
+}
+.nge-hero-hint {
+  font-size: 11px;
+  color: rgba(0, 200, 255, 0.3);
+  margin-top: 8px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  z-index: 2;
+  animation: nge-hero-glitch-in-bcd5f0a5 0.6s 0.9s ease-out both;
+}
+@keyframes nge-hero-glitch-in-bcd5f0a5 {
+0% { opacity: 0; transform: translateY(10px); filter: blur(4px); clip-path: inset(0 100% 0 0);
+}
+40% { clip-path: inset(0 20% 0 0);
+}
+60% { clip-path: inset(0 0 0 0); filter: blur(0);
+}
+75% { transform: translateY(-2px);
+}
+100% { opacity: 1; transform: translateY(0);
+}
+}
+
+/* ── Particles (40, multi-layered) ── */
+.nge-hero-particles { position: absolute; inset: -40px; pointer-events: none; overflow: visible; z-index: 0;
+}
+.nge-hero-particle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(0, 200, 255, 0.7);
+  animation: nge-hero-sparkle-up-bcd5f0a5 3s ease-out infinite;
+  animation-delay: calc(var(--i) * 0.075s);
+  left: calc(2% + var(--i) * 2.4%);
+  bottom: -10px;
+  width: 3px;
+  height: 3px;
+}
+.nge-hero-particle:nth-child(odd) {
+  background: rgba(206, 180, 255, 0.6);
+  width: 2px; height: 2px;
+  animation-duration: 3.5s;
+}
+.nge-hero-particle:nth-child(3n) {
+  background: rgba(0, 255, 180, 0.5);
+  width: 4px; height: 4px;
+  animation-duration: 2.8s;
+}
+.nge-hero-particle:nth-child(4n) {
+  background: rgba(255, 200, 80, 0.6);
+  width: 3px; height: 3px;
+  animation-duration: 4s;
+}
+.nge-hero-particle:nth-child(5n) {
+  background: rgba(255, 100, 200, 0.5);
+  width: 2px; height: 2px;
+  animation-duration: 3.2s;
+}
+@keyframes nge-hero-sparkle-up-bcd5f0a5 {
+0%   { opacity: 0; transform: translateY(0) translateX(0) scale(0.5);
+}
+15%  { opacity: 1; transform: translateY(-40px) translateX(calc((var(--i) - 20) * 1.5px)) scale(1);
+}
+60%  { opacity: 0.7; transform: translateY(-200px) translateX(calc((var(--i) - 20) * 4px)) scale(0.8);
+}
+100% { opacity: 0; transform: translateY(-400px) translateX(calc((var(--i) - 20) * 6px)) scale(0);
+}
+}
+
+/* ── Transitions ── */
+.nge-hero-enter-active { transition: opacity 0.3s ease-out;
+}
+.nge-hero-leave-active { transition: all 0.5s ease-in;
+}
+.nge-hero-enter-from { opacity: 0;
+}
+.nge-hero-leave-to { opacity: 0;
+}
+.nge-hero-leave-to .nge-hero-card { transform: scale(0.8) translateY(20px); opacity: 0; filter: brightness(2) blur(6px);
+}
+.nge-hero-leave-to .nge-hero-shockwave { display: none;
+}
+
+/* ═══ scifi-ui additions ════════════════════════════════════════════════ */
+
+/* enter and leave, standing in for <Transition name="nge-hero">. The card
+   already animates itself in with nge-hero-card-enter; this only fades the
+   backdrop, and on leave runs the source's own leave-to values. */
+.nge-hero-overlay { opacity: 0; transition: opacity .3s ease-out; }
+.nge-hero-overlay.is-in { opacity: 1; }
+.nge-hero-overlay.is-leaving { opacity: 0; transition: opacity .5s ease-in; }
+.nge-hero-overlay.is-leaving .nge-hero-card {
+  transform: scale(.8) translateY(20px); opacity: 0; filter: brightness(2) blur(6px);
+}
+.nge-hero-overlay.is-leaving .nge-hero-shockwave { display: none; }
+
+/* reduced motion: keep the tableau, cut the animation. The badge and the
+   lines sit at their resting values rather than mid-keyframe, and the parts
+   whose whole content is motion (particles, scan, shockwave) drop out. */
+@media (prefers-reduced-motion: reduce) {
+  .nge-hero-hexgrid, .nge-hero-card, .nge-hero-card::after,
+  .nge-hero-ring, .nge-hero-orbit-dot, .nge-hero-aura, .nge-hero-icon,
+  .nge-hero-badge-img, .nge-hero-emoji, .nge-hero-label, .nge-hero-title,
+  .nge-hero-subtitle, .nge-hero-hint { animation: none !important; }
+  .nge-hero-overlay { transition: none; }
+  .nge-hero-badge-img, .nge-hero-emoji { opacity: 1; transform: none; filter: none; }
+  .nge-hero-label, .nge-hero-title, .nge-hero-subtitle, .nge-hero-hint {
+    opacity: 1; transform: none; filter: none; clip-path: none;
+  }
+  .nge-hero-shockwave, .nge-hero-scanline, .nge-hero-particles { display: none; }
+}
+
+/* the game showed this at desktop size; scale the big fixed dimensions down so
+   the 380px badge and its rings fit a phone without overflowing the card */
+@media (max-width: 560px) {
+  .nge-hero-card { padding: 34px 24px 30px; border-radius: 18px; gap: 14px; }
+  .nge-hero-rings, .nge-hero-orbits { width: 300px; height: 300px; top: 16px; }
+  .nge-hero-aura { width: 236px; height: 236px; top: 40px; }
+  .nge-hero-icon { width: 236px; height: 236px; }
+  .nge-hero-badge-img { width: 216px; height: 216px; }
+  .nge-hero-emoji { font-size: 120px; }
+  .nge-hero-title { font-size: 23px; letter-spacing: .12em; }
+  .nge-hero-subtitle { font-size: 13.5px; max-width: 280px; }
+}

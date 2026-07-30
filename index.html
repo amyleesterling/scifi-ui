@@ -4,16 +4,23 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>scifi-ui</title>
+<!-- three.js for the MICrONS cards the step rail steps through, carried across
+     from amyleesterling/microns. An import map has to come before any module
+     that imports "three", so it sits here at the top of the head. -->
+<script type="importmap">
+{"imports":{"three":"./vendor/three/three.module.min.js","three/addons/":"./vendor/three/addons/"}}
+</script>
 <link rel="stylesheet" href="hologram.css">
+<link rel="stylesheet" href="microns-cards.css">
 <!-- the components/ parts each bring their own stylesheet, self contained and
      working alone -->
-<link rel="stylesheet" href="components/attract-loop.css">
 <link rel="stylesheet" href="components/confetti-burst.css">
 <link rel="stylesheet" href="components/page-finale.css">
 <link rel="stylesheet" href="components/panel-surface.css">
 <link rel="stylesheet" href="components/profile-panel.css">
 <link rel="stylesheet" href="components/researcher-profile.css">
 <link rel="stylesheet" href="components/achievement-toast.css">
+<link rel="stylesheet" href="components/badge-award.css">
 <link rel="stylesheet" href="components/tinted-card.css">
 <link rel="stylesheet" href="components/icon-rail.css">
 <link rel="stylesheet" href="components/tutorial-callout.css">
@@ -173,44 +180,47 @@
 
   /* Hover it with a mouse or tap it on a touch device and the panel comes
      apart on a chromatic split: it shears red-and-cyan, tears on a few
-     scanlines, drops to nothing for a beat while a burst of tinted particles
-     (thrown by the script from this same rectangle) flies off it, then
-     recomposes. It is a trigger, not a dismiss: one run and the masthead is
-     exactly as it was. The particles are canvas; everything here is the panel
-     dispersing and reassembling around them.
+     scanlines, then bursts into tinted particles that fly out, hang, and are
+     pulled back to their own start points, rebuilding the panel exactly where
+     it stood. One closed loop, box to shatter to box. It is a trigger, not a
+     dismiss: one run and the masthead is exactly as it was.
 
-     Two animations run together. The panel keyframes carry the shear, the
-     scanline tears (clip-path), the fade to nothing and the return. The
-     wordmark keyframes carry the readable half of the aberration: its own red
-     and cyan ghosts pull apart hardest at the break and snap back on reform.
-     linear, not steps, so opacity and transform still travel; the clip-path
-     changing direction sharply is what reads as a tear rather than a slide. */
+     Two things run together and they are timed to meet. The panel keyframes
+     hold the panel at opacity 0 through the whole flight (30% to 72%), so while
+     the particles are away there is nothing but the render behind, then bring
+     the panel back over the last fifth exactly as the particles land on their
+     home coordinates and cross-fade out. Retime one and you retime the other:
+     the script's PLIFE and THROW are set to land the particles into this
+     reform, not before it and not after. The wordmark keyframes carry the
+     readable half of the aberration, red and cyan glyph ghosts that pull apart
+     at the break and collapse back as it reassembles. linear, not steps, so
+     opacity and transform travel; the clip-path changing direction sharply is
+     what reads as a tear rather than a slide. */
   .masthead.holo-glitch {
-    animation: holo-glitch-shatter 1180ms linear forwards;
+    animation: holo-glitch-shatter 1600ms linear forwards;
     /* the fixed centring translate has to survive the animation, so the shake
        rides transform and this stays put */
     will-change: transform, opacity, clip-path, filter;
   }
   .masthead.holo-glitch .wordmark {
-    animation: holo-glitch-word 1180ms linear forwards;
+    animation: holo-glitch-word 1600ms linear forwards;
   }
   @keyframes holo-glitch-shatter {
     0%   { transform: translate(0,0); filter: none; opacity: 1;
            clip-path: inset(0 0 0 0); }
-    6%   { transform: translate(-5px,1px); opacity: .95; clip-path: inset(0 0 62% 0);
+    5%   { transform: translate(-5px,1px); opacity: .95; clip-path: inset(0 0 62% 0);
            filter: drop-shadow(-7px 0 rgba(255,45,107,.55)) drop-shadow(7px 0 rgba(63,232,255,.55)); }
-    12%  { transform: translate(6px,-2px); clip-path: inset(40% 0 22% 0); }
-    18%  { transform: translate(-7px,2px); clip-path: inset(72% 0 0 0); }
-    24%  { transform: translate(4px,0); opacity: .82; clip-path: inset(0 0 0 0);
+    10%  { transform: translate(6px,-2px); clip-path: inset(40% 0 22% 0); }
+    15%  { transform: translate(-7px,2px); opacity: .8; clip-path: inset(72% 0 0 0);
            filter: drop-shadow(-12px 0 rgba(255,45,107,.6)) drop-shadow(12px 0 rgba(63,232,255,.6)); }
-    38%  { transform: translate(-3px,0); opacity: .12;
+    22%  { transform: translate(4px,0); opacity: .28; clip-path: inset(0 0 0 0);
            filter: drop-shadow(-17px 0 rgba(255,45,107,.5)) drop-shadow(17px 0 rgba(63,232,255,.5)); }
-    52%  { opacity: 0; }              /* gone: the render behind shows through */
-    66%  { opacity: 0; }
-    74%  { opacity: .2; transform: translate(4px,0); clip-path: inset(0 0 46% 0);
+    30%  { opacity: 0; }              /* gone: the particles are the panel now */
+    72%  { opacity: 0; }              /* held out while they fly and return */
+    80%  { opacity: .18; transform: translate(3px,0); clip-path: inset(0 0 46% 0);
            filter: drop-shadow(-12px 0 rgba(255,45,107,.5)) drop-shadow(12px 0 rgba(63,232,255,.5)); }
-    82%  { opacity: .6; transform: translate(-3px,1px); clip-path: inset(30% 0 0 0); }
-    90%  { opacity: .9; transform: translate(1px,0); clip-path: inset(0 0 0 0);
+    88%  { opacity: .55; transform: translate(-2px,1px); clip-path: inset(28% 0 0 0); }
+    94%  { opacity: .85; transform: translate(1px,0); clip-path: inset(0 0 0 0);
            filter: drop-shadow(-4px 0 rgba(255,45,107,.4)) drop-shadow(4px 0 rgba(63,232,255,.4)); }
     100% { transform: translate(0,0); filter: none; opacity: 1;
            clip-path: inset(0 0 0 0); }
@@ -219,11 +229,12 @@
      under that, so these red/cyan offsets show as split glyph ghosts */
   @keyframes holo-glitch-word {
     0%   { text-shadow: 0 0 0 transparent; }
-    12%  { text-shadow: -4px 0 rgba(255,45,107,.9), 4px 0 rgba(63,232,255,.9); }
-    24%  { text-shadow: -9px 0 rgba(255,45,107,.95), 9px 0 rgba(63,232,255,.95); }
-    38%  { text-shadow: -16px 2px rgba(255,45,107,.85), 16px -2px rgba(63,232,255,.85); }
-    52%, 66% { text-shadow: -22px 0 rgba(255,45,107,.6), 22px 0 rgba(63,232,255,.6); }
-    82%  { text-shadow: -8px 0 rgba(255,45,107,.75), 8px 0 rgba(63,232,255,.75); }
+    10%  { text-shadow: -5px 0 rgba(255,45,107,.9), 5px 0 rgba(63,232,255,.9); }
+    15%  { text-shadow: -10px 0 rgba(255,45,107,.95), 10px 0 rgba(63,232,255,.95); }
+    22%  { text-shadow: -18px 2px rgba(255,45,107,.85), 18px -2px rgba(63,232,255,.85); }
+    30%, 72% { text-shadow: -22px 0 rgba(255,45,107,.6), 22px 0 rgba(63,232,255,.6); }
+    80%  { text-shadow: -12px 0 rgba(255,45,107,.7), 12px 0 rgba(63,232,255,.7); }
+    90%  { text-shadow: -5px 0 rgba(255,45,107,.6), 5px 0 rgba(63,232,255,.6); }
     100% { text-shadow: 0 0 0 transparent; }
   }
   /* a reader who asked for less motion gets the plain edge-light, no shatter */
@@ -300,6 +311,17 @@
   .readback { display: block; margin-top: 14px; font-size: 12px; color: #8FA6C2;
               font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
               letter-spacing: .08em; }
+
+  /* the step rail now steps through three real MICrONS viewers, carried across
+     from the Cortex page (microns-cards.css, and the modules in js/). The rail
+     shows one card at a time by display rather than opacity, on purpose: each
+     viewer loads its meshes and runs its render loop off an IntersectionObserver,
+     so a card at display:none never fetches a mesh or spins a GPU, and the card
+     the rail reveals loads itself the first time it is shown. */
+  .cosmos .holobar { margin-bottom: 18px; }
+  .cosmos-card { display: none; }
+  .cosmos-card.cosmos-on { display: block; }
+
   .panelcard { border-radius: 3px; }
   .panelcard img, .panelcard video { display: block; width: 100%; height: auto; }
   .panelrow { display: flex; align-items: baseline; justify-content: space-between;
@@ -329,61 +351,14 @@
   @media (prefers-reduced-motion: reduce) {
     .swept:hover, .swept:focus-within, .swept.holo-on { animation: none; }
   }
-  /* The attract deck, restyled as a hologram projected up off the step rail
-     below it. No frame: a cone of light pools at the foot where the rail sits
-     and thins toward the top, faint scanlines drift over the projected copy,
-     and the type glows the cool blue of a projection rather than sitting on a
-     card. Compact, so the panel is the size of its line, not a box round it.
-     Scaffolding for this page only, like everything else in this block. */
-  /* the whole attract section floats: no card frame, so the projection reads
-     as light in the air rather than a boxed panel */
-  #attractdemo { border: none; background: none; padding: 6px 2px 0; }
-  #attractdeck {
-    position: relative; isolation: isolate;
-    margin: 6px 0 2px; border: none; background: none; overflow: visible;
-  }
-  /* the projection cone, widest and brightest at the foot centre, thinning up */
-  #attractdeck::before {
-    content: ""; position: absolute; z-index: -1; pointer-events: none;
-    left: 4%; right: 4%; top: -2px; bottom: -18px;
-    background: radial-gradient(130% 140% at 50% 122%,
-      rgba(96,176,255,.26) 0%, rgba(96,176,255,.10) 28%,
-      rgba(96,176,255,.02) 52%, transparent 70%);
-  }
-  /* scanlines over the projected copy, masked so they fade to nothing at the
-     edges instead of filling a hard rectangle, and drifting slowly like a
-     refresh */
-  #attractdeck::after {
-    content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
-    opacity: .5; mix-blend-mode: screen;
-    background: repeating-linear-gradient(0deg,
-      rgba(150,210,255,.06) 0 1px, transparent 1px 3px);
-    -webkit-mask: radial-gradient(115% 100% at 50% 62%, #000 38%, transparent 82%);
-            mask: radial-gradient(115% 100% at 50% 62%, #000 38%, transparent 82%);
-    animation: attract-scan 7s linear infinite;
-  }
-  @keyframes attract-scan { to { background-position: 0 -30px; } }
-  /* the panel itself: compact, centred in its cell, and lit like a hologram */
-  #attractdeck .holoattract-panel { filter: drop-shadow(0 0 8px rgba(96,170,255,.35)); }
-  #attractdeck .panelrow { align-items: center; padding: 12px 14px; }
-  #attractdeck .panelrow b {
-    color: #96d0fb; text-shadow: 0 0 9px rgba(120,200,255,.7);
-  }
-  #attractdeck .panelrow span {
-    color: rgba(160,208,248,.92); text-shadow: 0 0 7px rgba(120,200,255,.4);
-  }
-  @media (prefers-reduced-motion: reduce) { #attractdeck::after { animation: none; } }
 
-  /* the loader sat in a tall demo box with a small glyph marooned in the
-     middle of it, which read as empty rather than as loading. A phone gets a
-     smaller cell, a tighter box, and the two examples side by side instead of
-     stacked, so the section is a compact pair of loaders rather than two
-     caverns. */
+  /* one loader now, the cell from the sign-in dialog drawing itself in. A phone
+     gets a smaller cell and a tighter box so the glyph is not marooned in a
+     cavern of padding. */
   @media (max-width: 699px) {
-    .loadgrid { grid-template-columns: 1fr; gap: 12px; }
-    .loadgrid .demo { padding: 20px 16px 18px; }
-    .loadgrid .holoload { gap: 12px; }
-    .loadgrid .holoload-figure { --holoload-size: 92px; }
+    .loaddemo { padding: 20px 16px 18px; }
+    .loaddemo .holoload { gap: 12px; }
+    .loaddemo .holoload-figure { --holoload-size: 100px; }
   }
 
   /* triggers for the ported component demos reuse the page's own .cta, and the
@@ -439,16 +414,85 @@
   </figure>
 
   <h2>Step rail</h2>
-  <p>Drag the rail and the step follows. Tap a tick to jump, or focus one and
-  use the arrow keys. Any number of steps, reported back on a
-  <code>holobar:change</code> event.</p>
-  <div class="demo">
-    <div class="holobar" data-steps="10" data-step="8" aria-label="Tour stage"></div>
-    <output class="readback" id="railout">waiting</output>
+  <p>One rail, three stops, each reported on a <code>holobar:change</code>
+  event. Here it steps through three measured MICrONS viewers, carried across
+  whole from the Cortex page: the brain at true scale, the nine cell types, and
+  one spike crossing one synapse. Drag it, tap a tick, or arrow-key from the
+  whole brain down to a single spike. Each viewer loads its real meshes the
+  first time the rail reaches it, and only the one on screen renders.</p>
+  <div class="cosmos">
+    <div class="holobar" id="cosmosrail" data-steps="3" data-step="1"
+         aria-label="Step from the brain to a single spike"></div>
+    <div class="cosmos-cards">
+      <!-- card 1: the brain at true scale (brainscale.js) -->
+  <div class="mviz cosmos-card cosmos-on" id="brainScale" data-cosmos-stage="1">
+    <b class="k tl"></b><b class="k tr"></b><b class="k bl"></b><b class="k br"></b>
+    <p class="mviz-eyebrow"><s></s>two brains, one space<u></u>true relative size</p>
+    <div class="mviz-stage">
+      <div class="mviz-mount" data-mount></div>
+      <p class="mviz-status" data-status>Surfaces load when you reach them</p>
+    </div>
+    <div class="mviz-bar">
+      <button class="mviz-btn" type="button" data-truescale aria-pressed="false">Match their sizes</button>
+      <button class="mviz-btn" type="button" data-turn="human">Turn the human brain</button>
+      <button class="mviz-btn" type="button" data-turn="mouse">Turn the mouse brain</button>
+      <span class="mviz-scalelabel" data-scalelabel></span>
+    </div>
+    <p class="mviz-legend">
+      <span><i style="background:#b072e0"></i>Human cortex and cerebellum</span>
+      <span><i style="background:#6fd0ff"></i>Mouse brain</span>
+      <span><i style="background:#ffc24a"></i>Mouse V1, inside the brain, where this volume was cut</span>
+    </p>
+    <div class="mviz-facts" data-facts></div>
+    <p class="mviz-cap">The two buttons are for a keyboard: focus one and the
+    arrow keys turn that brain, with shift for a bigger step. Every figure above
+    is arithmetic on the bounding boxes recorded beside the meshes, so it moves
+    if the surfaces are ever re exported.</p>
   </div>
-  <div class="demo">
-    <div class="holobar" data-steps="3" data-step="1" aria-label="Upload stage"></div>
-    <output class="readback" id="railout2">waiting</output>
+
+      <!-- card 2: nine cell types (celltypes.js) -->
+  <div class="mviz cosmos-card" id="cellTypes" data-cosmos-stage="2">
+    <b class="k tl"></b><b class="k tr"></b><b class="k bl"></b><b class="k br"></b>
+    <p class="mviz-eyebrow"><s></s>nine cells, one volume<u></u>drag to turn, scroll to zoom</p>
+    <div class="mviz-stage">
+      <div class="mviz-mount" data-mount></div>
+      <p class="mviz-status" data-status>Meshes load when you reach them</p>
+    </div>
+    <div class="mviz-rail" data-rail></div>
+    <p class="mviz-blurb" data-blurb></p>
+    <div class="mviz-facts" data-facts></div>
+    <p class="mviz-cap">Each cell is framed to the same size on screen so the
+    shapes can be compared. Their real extents differ by more than a factor of
+    ten, and that number is in the readout rather than in the framing.</p>
+  </div>
+
+      <!-- card 3: one spike, one synapse (actionpotential.js) -->
+  <div class="mviz cosmos-card" id="actionPotential" data-cosmos-stage="3">
+    <b class="k tl"></b><b class="k tr"></b><b class="k bl"></b><b class="k br"></b>
+    <p class="mviz-eyebrow"><s></s>one spike, one synapse<u></u>the route is measured</p>
+    <div class="mviz-stage">
+      <div class="mviz-mount" data-mount></div>
+      <p class="mviz-status" data-status>Both cells load when you reach them</p>
+    </div>
+    <div class="mviz-bar">
+      <button class="mviz-btn" type="button" data-fire>Fire a spike</button>
+      <span class="mviz-scalelabel">Press it again before the first one lands</span>
+    </div>
+    <p class="mviz-legend">
+      <span><i style="background:#ffc24a"></i>Presynaptic cell, the one that fires</span>
+      <span><i style="background:#6fa8ff"></i>Postsynaptic cell, the one that receives</span>
+      <span><i style="background:#9ce8c0"></i>The synapse, and the origin of this scene</span>
+    </p>
+    <div class="mviz-facts" data-facts></div>
+    <p class="mviz-cap"><b>What this animation is not.</b> There is no membrane
+    model behind it: no millivolts, no channel kinetics, no refractory period.
+    The spark takes four seconds to cross those two and a bit millimetres
+    because that is long enough to watch, and a real spike would cross them in
+    a few thousandths of a second. What is measured is the route and the
+    distances. Both meshes were re extracted in one frame centred on the
+    synapse, so the bright green point is a real place in a mouse brain.</p>
+  </div>
+    </div>
   </div>
 
   <h2>Readout panel</h2>
@@ -509,175 +553,92 @@
   </div>
 
   <h2>Loading state</h2>
-  <p>A cell draws itself in while you wait, the basal arbor half a cycle behind
-  the apical one. The bar reports a real count when you have one, and goes
-  indeterminate when you do not, rather than inventing a number.</p>
-  <div class="grid loadgrid">
-    <div class="demo">
-      <div class="holoload" data-loaded="4" data-total="9" role="status">
-        <div class="holoload-figure">
-          <svg class="holoload-glyph" viewBox="0 0 200 260" aria-hidden="true">
-            <!-- every path starts at the soma (100,140) and runs outward, so the
-                 draw grows the arbor out from the cell body -->
-            <g class="arbor apical" fill="none" stroke="currentColor" stroke-width="2.4"
-               stroke-linecap="round" stroke-linejoin="round">
-              <path d="M100 140 L100 54"></path>
-              <path d="M100 66 L80 40"></path>
-              <path d="M100 66 L120 40"></path>
-              <path d="M100 54 L88 34"></path>
-              <path d="M100 54 L112 34"></path>
-              <path d="M100 96 L76 74"></path>
-              <path d="M100 104 L124 82"></path>
-              <path d="M100 140 L58 112"></path>
-              <path d="M78 126 L54 100"></path>
-              <path d="M100 140 L142 112"></path>
-              <path d="M122 126 L146 100"></path>
-            </g>
-            <g class="arbor basal" fill="none" stroke="currentColor" stroke-width="2.2"
-               stroke-linecap="round" stroke-linejoin="round" opacity=".92">
-              <path d="M100 140 L66 172"></path>
-              <path d="M82 152 L58 186"></path>
-              <path d="M100 140 L134 172"></path>
-              <path d="M118 152 L142 186"></path>
-              <path class="axon" d="M100 140 L100 244"></path>
-              <path d="M100 244 L90 253"></path>
-              <path d="M100 244 L110 253"></path>
-            </g>
-            <ellipse class="soma-halo" cx="100" cy="140" rx="13" ry="12" fill="currentColor"></ellipse>
-            <ellipse class="soma" cx="100" cy="140" rx="6.6" ry="6" fill="currentColor"></ellipse>
-            <!-- the signal: a dot rides in along a dendrite, through the soma,
-                 and out the axon. Three routes, staggered, so the cell keeps
-                 firing while it draws. -->
-            <g class="signals">
-              <circle class="signal-dot" r="2.8">
-                <animateMotion dur="2.6s" repeatCount="indefinite"
-                  path="M100 54 L100 140 L100 244"></animateMotion>
-              </circle>
-              <circle class="signal-dot" r="2.8">
-                <animateMotion dur="2.6s" begin="-0.87s" repeatCount="indefinite"
-                  path="M58 112 L100 140 L100 244"></animateMotion>
-              </circle>
-              <circle class="signal-dot" r="2.8">
-                <animateMotion dur="2.6s" begin="-1.73s" repeatCount="indefinite"
-                  path="M142 112 L100 140 L100 244"></animateMotion>
-              </circle>
-            </g>
-          </svg>
-        </div>
-        <p class="holoload-label">loading meshes</p>
-        <div class="holoload-bar"><i></i></div>
-        <p class="holoload-count"></p>
+  <p>The cell from the sign-in dialog, drawn again as a loading state. Every
+  branch grows outward from the soma while you wait, the basal arbor half a
+  cycle behind the apical one. The bar reports a real count when you have one,
+  rather than inventing a number.</p>
+  <div class="demo loaddemo">
+    <div class="holoload" data-loaded="4" data-total="9" role="status">
+      <div class="holoload-figure" style="--holoload-size:156px">
+        <!-- the neuron is the sign-in dialog's own, every path authored from the
+             soma (60,58) outward so the stroke draw grows the arbor out from the
+             cell body. Split into apical (upward dendrites) and basal (lateral
+             dendrites and the axon) so the two trees draw half a cycle apart. -->
+        <svg class="holoload-glyph" viewBox="0 0 120 140" aria-hidden="true">
+          <g class="arbor apical" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M60 52 L59 42 L57 32 L55 22 L52 12 L49 4" stroke="#18cfff" stroke-width="2.2" opacity=".9"></path>
+            <path d="M57 32 L62 26 L68 20 L76 16 L84 13" stroke="#15c8f8" stroke-width="1.4" opacity=".75"></path>
+            <path d="M68 20 L72 14 L78 8" stroke="#10b8e8" stroke-width=".9" opacity=".55"></path>
+            <path d="M76 16 L82 20 L88 18" stroke="#10b8e8" stroke-width=".7" opacity=".4"></path>
+            <path d="M55 22 L48 16 L40 12 L32 10" stroke="#15c8f8" stroke-width="1.3" opacity=".7"></path>
+            <path d="M48 16 L44 10 L38 5" stroke="#10b8e8" stroke-width=".8" opacity=".5"></path>
+            <path d="M40 12 L36 16 L30 15" stroke="#10b8e8" stroke-width=".6" opacity=".35"></path>
+            <path d="M52 12 L46 6 L40 2" stroke="#12c0f0" stroke-width="1" opacity=".6"></path>
+            <path d="M49 4 L44 1" stroke="#0ab0e0" stroke-width=".7" opacity=".4"></path>
+            <path d="M49 4 L52 1" stroke="#0ab0e0" stroke-width=".7" opacity=".4"></path>
+            <path d="M59 42 L66 38 L74 36 L80 33" stroke="#15c8f8" stroke-width="1.1" opacity=".6"></path>
+            <path d="M74 36 L78 40 L84 42" stroke="#0ab0e0" stroke-width=".6" opacity=".35"></path>
+            <path d="M59 42 L52 38 L44 36" stroke="#15c8f8" stroke-width="1" opacity=".55"></path>
+            <path d="M44 36 L38 32 L32 30" stroke="#0ab0e0" stroke-width=".6" opacity=".35"></path>
+          </g>
+          <g class="arbor basal" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M54 60 L44 66 L34 74 L26 82 L20 90" stroke="#18cfff" stroke-width="1.8" opacity=".8"></path>
+            <path d="M34 74 L28 70 L20 66 L14 62" stroke="#12c0f0" stroke-width="1.1" opacity=".6"></path>
+            <path d="M20 66 L16 72 L10 74" stroke="#0ab0e0" stroke-width=".7" opacity=".4"></path>
+            <path d="M26 82 L18 80 L12 76" stroke="#0ab0e0" stroke-width=".8" opacity=".45"></path>
+            <path d="M20 90 L14 94 L8 96" stroke="#08a0d0" stroke-width=".6" opacity=".3"></path>
+            <path d="M20 90 L22 96 L20 102" stroke="#08a0d0" stroke-width=".6" opacity=".3"></path>
+            <path d="M52 56 L42 50 L32 48 L22 50" stroke="#15c8f8" stroke-width="1.4" opacity=".7"></path>
+            <path d="M32 48 L26 42 L20 38" stroke="#10b8e8" stroke-width=".9" opacity=".5"></path>
+            <path d="M22 50 L16 54 L10 56" stroke="#0ab0e0" stroke-width=".6" opacity=".35"></path>
+            <path d="M66 60 L76 66 L86 74 L94 82 L100 90" stroke="#18cfff" stroke-width="1.8" opacity=".8"></path>
+            <path d="M86 74 L92 70 L100 66 L106 62" stroke="#12c0f0" stroke-width="1.1" opacity=".6"></path>
+            <path d="M100 66 L104 72 L110 74" stroke="#0ab0e0" stroke-width=".7" opacity=".4"></path>
+            <path d="M94 82 L102 80 L108 76" stroke="#0ab0e0" stroke-width=".8" opacity=".45"></path>
+            <path d="M100 90 L106 94 L112 96" stroke="#08a0d0" stroke-width=".6" opacity=".3"></path>
+            <path d="M100 90 L98 96 L100 102" stroke="#08a0d0" stroke-width=".6" opacity=".3"></path>
+            <path d="M68 56 L78 50 L88 48 L98 50" stroke="#15c8f8" stroke-width="1.4" opacity=".7"></path>
+            <path d="M88 48 L94 42 L100 38" stroke="#10b8e8" stroke-width=".9" opacity=".5"></path>
+            <path d="M98 50 L104 54 L110 56" stroke="#0ab0e0" stroke-width=".6" opacity=".35"></path>
+            <path d="M58 64 L52 76 L48 88 L44 98" stroke="#15c8f8" stroke-width="1.2" opacity=".65"></path>
+            <path d="M48 88 L40 92 L34 90" stroke="#0ab0e0" stroke-width=".7" opacity=".35"></path>
+            <path d="M62 64 L68 76 L72 88 L76 98" stroke="#15c8f8" stroke-width="1.2" opacity=".65"></path>
+            <path d="M72 88 L80 92 L86 90" stroke="#0ab0e0" stroke-width=".7" opacity=".35"></path>
+            <path class="axon" d="M60 64 L60 78 L58 92 L56 106 L54 118 L52 130 L50 138" stroke="#18cfff" stroke-width="1.6" opacity=".7"></path>
+            <path d="M58 92 L50 98 L42 100" stroke="#10b8e8" stroke-width=".8" opacity=".4"></path>
+            <path d="M56 106 L64 112 L72 114" stroke="#10b8e8" stroke-width=".8" opacity=".4"></path>
+            <path d="M54 118 L46 122 L38 120" stroke="#08a0d0" stroke-width=".6" opacity=".3"></path>
+            <path d="M50 138 L44 140" stroke="#08a0d0" stroke-width=".5" opacity=".25"></path>
+            <path d="M50 138 L56 140" stroke="#08a0d0" stroke-width=".5" opacity=".25"></path>
+            <circle cx="57" cy="32" r=".6" fill="#40e0ff" opacity=".6" stroke="none"></circle>
+            <circle cx="44" cy="68" r=".5" fill="#40e0ff" opacity=".5" stroke="none"></circle>
+            <circle cx="76" cy="68" r=".5" fill="#40e0ff" opacity=".5" stroke="none"></circle>
+            <circle cx="28" cy="72" r=".4" fill="#40e0ff" opacity=".4" stroke="none"></circle>
+            <circle cx="92" cy="72" r=".4" fill="#40e0ff" opacity=".4" stroke="none"></circle>
+          </g>
+          <ellipse class="soma-halo" cx="60" cy="58" rx="12" ry="11" fill="#18cfff"></ellipse>
+          <ellipse class="soma" cx="60" cy="58" rx="6.5" ry="6" fill="#b0f8ff"></ellipse>
+          <!-- the signal: a dot rides in along a dendrite, through the soma and
+               out the axon, three staggered routes so the cell keeps firing
+               while it draws -->
+          <g class="signals">
+            <circle class="signal-dot" r="2.4">
+              <animateMotion dur="2.6s" repeatCount="indefinite" path="M52 12 L60 58 L50 138"></animateMotion>
+            </circle>
+            <circle class="signal-dot" r="2.4">
+              <animateMotion dur="2.6s" begin="-0.87s" repeatCount="indefinite" path="M20 90 L60 58 L50 138"></animateMotion>
+            </circle>
+            <circle class="signal-dot" r="2.4">
+              <animateMotion dur="2.6s" begin="-1.73s" repeatCount="indefinite" path="M100 90 L60 58 L50 138"></animateMotion>
+            </circle>
+          </g>
+        </svg>
       </div>
-    </div>
-    <div class="demo">
-      <div class="holoload" role="status">
-        <div class="holoload-figure" style="--holoload-size:104px">
-          <svg class="holoload-glyph" viewBox="0 0 200 260" aria-hidden="true">
-            <!-- every path starts at the soma (100,140) and runs outward, so the
-                 draw grows the arbor out from the cell body -->
-            <g class="arbor apical" fill="none" stroke="currentColor" stroke-width="2.4"
-               stroke-linecap="round" stroke-linejoin="round">
-              <path d="M100 140 L100 54"></path>
-              <path d="M100 66 L80 40"></path>
-              <path d="M100 66 L120 40"></path>
-              <path d="M100 54 L88 34"></path>
-              <path d="M100 54 L112 34"></path>
-              <path d="M100 96 L76 74"></path>
-              <path d="M100 104 L124 82"></path>
-              <path d="M100 140 L58 112"></path>
-              <path d="M78 126 L54 100"></path>
-              <path d="M100 140 L142 112"></path>
-              <path d="M122 126 L146 100"></path>
-            </g>
-            <g class="arbor basal" fill="none" stroke="currentColor" stroke-width="2.2"
-               stroke-linecap="round" stroke-linejoin="round" opacity=".92">
-              <path d="M100 140 L66 172"></path>
-              <path d="M82 152 L58 186"></path>
-              <path d="M100 140 L134 172"></path>
-              <path d="M118 152 L142 186"></path>
-              <path class="axon" d="M100 140 L100 244"></path>
-              <path d="M100 244 L90 253"></path>
-              <path d="M100 244 L110 253"></path>
-            </g>
-            <ellipse class="soma-halo" cx="100" cy="140" rx="13" ry="12" fill="currentColor"></ellipse>
-            <ellipse class="soma" cx="100" cy="140" rx="6.6" ry="6" fill="currentColor"></ellipse>
-            <!-- the signal: a dot rides in along a dendrite, through the soma,
-                 and out the axon. Three routes, staggered, so the cell keeps
-                 firing while it draws. -->
-            <g class="signals">
-              <circle class="signal-dot" r="2.8">
-                <animateMotion dur="2.6s" repeatCount="indefinite"
-                  path="M100 54 L100 140 L100 244"></animateMotion>
-              </circle>
-              <circle class="signal-dot" r="2.8">
-                <animateMotion dur="2.6s" begin="-0.87s" repeatCount="indefinite"
-                  path="M58 112 L100 140 L100 244"></animateMotion>
-              </circle>
-              <circle class="signal-dot" r="2.8">
-                <animateMotion dur="2.6s" begin="-1.73s" repeatCount="indefinite"
-                  path="M142 112 L100 140 L100 244"></animateMotion>
-              </circle>
-            </g>
-          </svg>
-        </div>
-        <p class="holoload-label">no total yet</p>
-        <div class="holoload-bar"><i></i></div>
-        <p class="holoload-count"></p>
-      </div>
+      <p class="holoload-label">loading meshes</p>
+      <div class="holoload-bar"><i></i></div>
+      <p class="holoload-count"></p>
     </div>
   </div>
-
-  <h2>Attract loop</h2>
-  <p>A loop for a screen nobody is standing at. It walks a set of panels by
-  itself, stops the moment somebody touches the page, and starts again once the
-  room has been quiet for a while. Every step carries its own dwell, so a panel
-  with something still happening in it holds longer than one you finish reading
-  in three seconds. From the museum wall edition of whatisabrain.com.</p>
-  <div class="demo" id="attractdemo">
-    <div class="holoattract-deck" id="attractdeck">
-      <div class="holoattract-panel">
-        <div class="panelrow"><b>your brain</b><span>86 billion cells</span></div>
-      </div>
-      <div class="holoattract-panel">
-        <div class="panelrow"><b>next to a mouse brain</b><span>the volume of a peanut</span></div>
-      </div>
-      <div class="holoattract-panel">
-        <div class="panelrow"><b>inside the mouse brain</b><span>70 million neurons</span></div>
-      </div>
-      <div class="holoattract-panel">
-        <div class="panelrow"><b>primary visual cortex</b><span>panel 3, never visited</span></div>
-      </div>
-      <div class="holoattract-panel">
-        <div class="panelrow"><b>a piece of cortex</b><span>523 million synapses</span></div>
-      </div>
-      <div class="holoattract-panel">
-        <div class="panelrow"><b>a neuron</b><span>thousands of connections</span></div>
-      </div>
-      <div class="holoattract-panel">
-        <div class="panelrow"><b>one synapse</b><span>an axon reaching up</span></div>
-      </div>
-      <div class="holoattract-panel">
-        <div class="panelrow"><b>action potential</b><span>re-fired every 3.8s on the wall</span></div>
-      </div>
-      <div class="holoattract-panel">
-        <div class="panelrow"><b>activity</b><span>hundreds of cells at once</span></div>
-      </div>
-    </div>
-    <div class="holoattract"
-         data-holoattract-deck="#attractdeck"
-         data-holoattract-dwell="9000 9000 8500 7500 9000 13000 9000 13000 15000"
-         data-holoattract-sequence="0 1 2 4 5 6 7 8"
-         data-holoattract-rail="#attractrail"
-         data-holoattract-watch="#attractdemo"
-         data-holoattract-idle="8000"
-         aria-label="Attract loop stage">
-      <div class="holobar" id="attractrail" data-steps="8" data-step="1"
-           aria-label="Attract loop stage rail"></div>
-    </div>
-    <output class="readback" id="attractout">waiting</output>
-  </div>
-  <p>Drag the rail and the loop holds where you put it, because touching the box
-  counts as somebody being present. It resumes after a quiet spell.</p>
 
   <h2>Researcher profile</h2>
   <p>The EyeWire II researcher profile, the real component carried across whole:
@@ -1478,11 +1439,11 @@
 
 <script src="hologram.js"></script>
 <script src="hologram-tap.js"></script>
-<script src="components/attract-loop.js"></script>
 <script src="components/confetti-burst.js"></script>
 <script src="components/page-finale.js"></script>
 <script src="components/panel-surface.js"></script>
 <script src="components/achievement-toast.js"></script>
+<script src="components/badge-award.js"></script>
 <script src="components/tutorial-callout.js"></script>
 <script src="components/researcher-profile.js"></script>
 <script>
@@ -1491,9 +1452,13 @@
      Once now, for the first paint, and once more on DOMContentLoaded, which is
      when the attract loop builds its stage. The scripts above ran first, so
      their listener fires before this one and the count includes their work. */
-  /* the ported toast demo. One button fires the Brain Quest success state, a
-     toast and a rainbow burst together; the other fires a plain badge. Both go
-     through the component's own holotoast and holoburst, nothing special. */
+  /* the ported toast demo. "Daily quests complete" fires the Brain Quest
+     success state, a corner toast and a rainbow burst together. "Badge only"
+     fires the other half of the source's celebration model: a badge unlock is
+     not a corner toast there, it takes the screen as the hero "ACHIEVEMENT
+     UNLOCKED" spectacle, so it goes through holoaward, not holotoast. The badge
+     itself is real, the Astrolabe from the exploration track, name and
+     description straight off badge_definitions.ts. */
   (function () {
     var quest = document.getElementById("fire-quest");
     var badge = document.getElementById("fire-badge");
@@ -1504,13 +1469,24 @@
         if (window.holoburst) holoburst("rainbow", 2);
       });
     }
-    if (badge && window.holotoast) {
+    if (badge && window.holoaward) {
       badge.addEventListener("click", function () {
-        holotoast({ tone: "badge", icon: "\u{1F3C5}", title: "Astrolabe",
-          sub: "You explored 25 cells across three datasets.", duration: 5000 });
+        holoaward({
+          name: "Astrolabe",
+          desc: "Astrolabe is a scientific observation milestone on the exploration track.",
+          img: "media/badges/exploration/astrolabe.png"
+        });
       });
     }
   })();
+
+  /* the hero award ends on "Click to view profile", and the source dispatches
+     nge:open-profile when you do. The page has that profile, so honour the
+     intent: open the researcher profile the same way its own button does. */
+  document.addEventListener("nge:open-profile", function () {
+    var open = document.querySelector("[data-holoresearcher]");
+    if (open) open.click();
+  });
 
   /* the masthead glitch. Hover the panel with a mouse, or tap it on a touch
      device, and it comes apart on a chromatic-aberration shatter and reforms.
@@ -1525,14 +1501,21 @@
     var reduce = window.matchMedia
       ? window.matchMedia("(prefers-reduced-motion: reduce)") : { matches: false };
 
-    var DUR = 1180;            // must match the stylesheet animation
-    var THROW = 240;           // ms in, when the panel is dispersing, to throw
+    var DUR = 1600;            // must match the stylesheet animation
+    var THROW = 200;           // ms in, when the panel is tearing, to throw
+    var PLIFE = 1320;          // particle out-and-back life; lands at THROW+PLIFE
+    var OUT = 0.42;            // fraction of that life spent flying outward
     var running = false;
-    var canvas = null, ctx = null, frame = 0, parts = [];
+    var canvas = null, ctx = null, frame = 0, parts = [], pt0 = 0;
 
     /* the two aberration ghosts, an electric blue and a white, weighted so the
        red and cyan that carry the chromatic read come up most often */
     var COLORS = ["#ff2d6b", "#3fe8ff", "#4a9eff", "#eaf4ff", "#ff2d6b", "#3fe8ff"];
+
+    function easeOut(u) { return 1 - Math.pow(1 - u, 3); }              // cubic
+    function easeInOut(v) {
+      return v < 0.5 ? 4 * v * v * v : 1 - Math.pow(-2 * v + 2, 3) / 2;
+    }
 
     function make() {
       canvas = document.createElement("canvas");
@@ -1553,47 +1536,70 @@
     }
 
     /* seed from anywhere inside the panel's own rectangle, so the cloud starts
-       in the panel's shape. Velocity points away from the centre and is biased
-       sideways, because a chromatic split spreads on the x axis hardest. Half
-       the particles are thin horizontal streaks, which read as scanline debris
-       rather than confetti. */
+       in the panel's shape, and remember that exact spot as home. Each particle
+       also gets an outward target, away from the centre and biased sideways
+       because a chromatic split spreads on the x axis hardest, and edge
+       particles are thrown farthest. The whole trip is home to out and back to
+       the very same home, so what disperses is what rebuilds. Half the
+       particles are thin horizontal streaks, which read as scanline debris. */
     function spawn(r) {
       var cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-      var n = Math.min(340, Math.round(r.width * r.height / 220));
+      var n = Math.min(360, Math.round(r.width * r.height / 210));
       for (var i = 0; i < n; i++) {
-        var px = r.left + Math.random() * r.width;
-        var py = r.top + Math.random() * r.height;
+        var hx = r.left + Math.random() * r.width;
+        var hy = r.top + Math.random() * r.height;
+        var dirx = (hx - cx) / (r.width / 2);       // -1..1 across the panel
+        var diry = (hy - cy) / (r.height / 2);
+        var reach = 40 + Math.random() * 150;
         var streak = Math.random() < 0.5;
         parts.push({
-          x: px, y: py,
-          vx: (px - cx) / (r.width / 2) * (2 + Math.random() * 5) + (Math.random() - 0.5) * 3,
-          vy: (py - cy) / (r.height / 2) * (1 + Math.random() * 2) - Math.random() * 1.5,
-          w: streak ? 6 + Math.random() * 16 : 1 + Math.random() * 3,
-          h: streak ? 1 + Math.random() * 1.5 : 1 + Math.random() * 3,
+          hx: hx, hy: hy,                            // home: where it rebuilds
+          ox: hx + dirx * reach * 1.5 + (Math.random() - 0.5) * 80,  // throw-out
+          oy: hy + diry * reach * 0.7 - Math.random() * 40,          // slight up
+          w: streak ? 6 + Math.random() * 15 : 1 + Math.random() * 2.6,
+          h: streak ? 1 + Math.random() * 1.4 : 1 + Math.random() * 2.6,
           color: COLORS[(Math.random() * COLORS.length) | 0],
-          drag: 0.9 + Math.random() * 0.06,
-          op: 1, fade: 0.012 + Math.random() * 0.02
+          wob: (Math.random() - 0.5) * 18,          // path wobble amplitude
+          wf: 3 + Math.random() * 4, wp: Math.random() * 6.28
         });
       }
     }
 
-    function tick() {
+    function tick(now) {
       if (!ctx) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       /* lighter, so overlapping particles add up to light the way a hologram
          does rather than painting over each other */
       ctx.globalCompositeOperation = "lighter";
+      var p = (now - pt0) / PLIFE;                   // 0..1 for the whole trip
       var alive = 0;
       for (var i = 0; i < parts.length; i++) {
-        var p = parts[i];
-        if (p.op <= 0) continue;
-        p.vx *= p.drag; p.vy = p.vy * p.drag + 0.04;   // a faint gravity
-        p.x += p.vx; p.y += p.vy; p.op -= p.fade;
-        if (p.op <= 0) continue;
+        var q = parts[i];
+        if (p >= 1) continue;                        // landed and handed off
         alive++;
-        ctx.globalAlpha = p.op < 0 ? 0 : p.op;
-        ctx.fillStyle = p.color;
-        ctx.fillRect(p.x, p.y, p.w, p.h);
+        var x, y;
+        if (p < OUT) {                               // flying outward, easing out
+          var e = easeOut(p / OUT);
+          x = q.hx + (q.ox - q.hx) * e;
+          y = q.hy + (q.oy - q.hy) * e;
+        } else {                                     // pulled home, ease in-out
+          var e2 = easeInOut((p - OUT) / (1 - OUT));
+          x = q.ox + (q.hx - q.ox) * e2;
+          y = q.oy + (q.hy - q.oy) * e2;
+        }
+        // wobble decays to zero as p approaches 1, so it lands exactly on home
+        var decay = 1 - p;
+        x += Math.sin(p * q.wf + q.wp) * q.wob * decay;
+        y += Math.cos(p * q.wf * 0.9 + q.wp) * q.wob * 0.6 * decay;
+        // fade in fast, hold through the flight, cross-fade out over the last
+        // stretch as the panel keyframes bring the real surface back up
+        var op = p < 0.06 ? p / 0.06
+               : p > 0.88 ? Math.max(0, (1 - p) / 0.12) : 1;
+        // gather: shrink a touch as they converge, so they land as fine points
+        var s = p > OUT ? 0.6 + 0.4 * (1 - (p - OUT) / (1 - OUT)) : 1;
+        ctx.globalAlpha = op;
+        ctx.fillStyle = q.color;
+        ctx.fillRect(x, y, q.w * s, q.h * s);
       }
       ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
       if (alive) frame = requestAnimationFrame(tick);
@@ -1608,6 +1614,7 @@
       window.setTimeout(function () {
         if (!canvas) return;             // torn down already, do nothing
         spawn(box.getBoundingClientRect());
+        pt0 = performance.now();         // the particle clock starts at the throw
         if (!frame) frame = requestAnimationFrame(tick);
       }, THROW);
       window.setTimeout(function () {
@@ -1653,27 +1660,46 @@
     show(bar.holobar.step);
   });
 
-  /* the attract loop reports both numbers, because the point of the section is
-     that the step and the panel index are not the same once the sequence skips
-     one. Listeners are attached now and the loop initialises on
-     DOMContentLoaded, so its first paint lands here. */
+  /* the step rail drives the three MICrONS cards: its step, one to three, shows
+     the matching .cosmos-card and hides the rest by display, which is exactly
+     what keeps each viewer dormant until the rail reaches it (a display:none
+     card never trips its IntersectionObserver, so it fetches no mesh and spins
+     no GPU). No auto-advance here, on purpose: these are heavy WebGL viewers a
+     reader sits and turns, not slides to cycle past. The rail builds
+     synchronously when hologram.js runs above, so its step is readable now;
+     init also runs on DOMContentLoaded in case that order ever changes. */
   (function () {
-    var loop = document.querySelector(".holoattract");
-    var out = document.getElementById("attractout");
-    if (!loop || !out) return;
-    function show() {
-      var api = loop.holoattract;
-      if (!api) return;
-      out.textContent = "step " + api.step + " of " + api.steps +
-        "  ...  panel " + api.index +
-        "  ...  dwell " + api.dwell + "ms  ...  " +
-        (api.reduced ? "auto advance off, reduced motion"
-                     : api.paused ? "holding" : "running");
+    var rail = document.getElementById("cosmosrail");
+    var cards = document.querySelectorAll(".cosmos-card");
+    if (!rail || !cards.length) return;
+    function show(step) {
+      var idx = Math.max(1, Math.min(cards.length, step | 0)) - 1;
+      for (var i = 0; i < cards.length; i++) {
+        cards[i].classList.toggle("cosmos-on", i === idx);
+      }
     }
-    loop.addEventListener("holoattract:change", show);
-    loop.addEventListener("holoattract:state", show);
-    show();
+    rail.addEventListener("holobar:change", function (e) { show(e.detail.step); });
+    function init() { show(rail.holobar ? rail.holobar.step : 1); }
+    init();
+    addEventListener("DOMContentLoaded", init);
   })();
+</script>
+<script type="module">
+  /* mount the three MICrONS viewers, exactly as the Cortex page mounts them.
+     Each one mounts and then waits on an IntersectionObserver: nothing fetches a
+     mesh or runs a render loop until the rail reveals its card and it comes on
+     screen. The modules and their meshes are carried across verbatim; this is
+     the same four lines of wiring the source uses, minus the activity panel. */
+  import { mountBrainScale } from "./js/brainscale.js";
+  import { mountCellTypes } from "./js/celltypes.js";
+  import { mountActionPotential } from "./js/actionpotential.js";
+
+  var b = document.getElementById("brainScale");
+  if (b) window.__brainScale = mountBrainScale(b);
+  var c = document.getElementById("cellTypes");
+  if (c) window.__cellTypes = mountCellTypes(c);
+  var a = document.getElementById("actionPotential");
+  if (a) window.__actionPotential = mountActionPotential(a);
 </script>
 </body>
 </html>
