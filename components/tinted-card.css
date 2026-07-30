@@ -64,14 +64,16 @@
 
 /* the lift. The shadow is the tint, so each card pools its own colour */
 .holotint:hover,
-.holotint:focus-within {
+.holotint:focus-within,
+.holotint.holo-on {
   transform: translateY(-5px);
   border-color: rgb(var(--holo-line, 196 228 255) / .18);
   box-shadow: 0 24px 60px -30px var(--holotint-solid, var(--holotint, rgba(126, 224, 255, 0.5)));
 }
 
 .holotint:hover::after,
-.holotint:focus-within::after { opacity: 1; }
+.holotint:focus-within::after,
+.holotint.holo-on::after { opacity: 1; }
 
 /* any link that fills the card gets the same focus ring the card would */
 .holotint:focus-within { outline: none; }
@@ -170,7 +172,8 @@
 .holotint-go svg { transition: transform .3s ease; }
 
 .holotint:hover .holotint-go svg,
-.holotint:focus-within .holotint-go svg { transform: translateX(3px); }
+.holotint:focus-within .holotint-go svg,
+.holotint.holo-on .holotint-go svg { transform: translateX(3px); }
 
 /* a grid to drop them in. Cards are independent of it. */
 .holotint-grid {
@@ -181,7 +184,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .holotint, .holotint::after, .holotint-go svg { transition: none; }
-  .holotint:hover, .holotint:focus-within { transform: none; }
+  .holotint:hover, .holotint:focus-within, .holotint.holo-on { transform: none; }
   .holotint:hover .holotint-go svg,
-  .holotint:focus-within .holotint-go svg { transform: none; }
+  .holotint:focus-within .holotint-go svg,
+  .holotint.holo-on .holotint-go svg { transform: none; }
 }

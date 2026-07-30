@@ -79,7 +79,8 @@
 
 /* hover. These are the two values from the original, and the only two */
 .holorail-btn:hover,
-.holorail-btn:focus-visible {
+.holorail-btn:focus-visible,
+.holorail-btn.holo-on {
   background: rgb(var(--holorail-accent, 74 158 255) / .2);
   border-color: rgb(var(--holorail-accent, 74 158 255) / .5);
   color: rgb(var(--holo-ink, 239 244 251));
@@ -116,7 +117,8 @@
   transform: none;
 }
 
-.holorail-btn[disabled]:hover {
+.holorail-btn[disabled]:hover,
+.holorail-btn[disabled].holo-on {
   background: rgb(var(--holorail-accent, 74 158 255) / .1);
   border-color: rgb(var(--holorail-accent, 74 158 255) / .3);
   color: rgb(var(--holorail-accent, 74 158 255) / .9);

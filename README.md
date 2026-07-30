@@ -15,7 +15,10 @@ draws a cell, and a particle trace for media with brackets, readouts and a play
 affordance.
 
 No build step, no framework, no CDN. Two files for everything above:
-`hologram.css` and `hologram.js`.
+`hologram.css` and `hologram.js`, plus `hologram-tap.js`, which is what makes
+every hover treatment reachable on a screen with no pointer to hover with. That
+third file belongs on any page using any part of this library, including the
+components below.
 
 A second set lives in [`components/`](components/), one file per part, with its
 own [demo page](https://amyleesterling.github.io/scifi-ui/components/): a
@@ -44,6 +47,7 @@ file so you can take one without taking the set.
 </figure>
 
 <script src="hologram.js"></script>
+<script src="hologram-tap.js"></script>
 ```
 
 Every component is independent. Take one, delete the rest. Every colour is a
@@ -153,9 +157,9 @@ degradation.
 
 ### 5. Scan sweep (`.holosweep`)
 
-A thin line passes across a panel once on hover or focus. The band is a
+A thin line passes across a panel once on hover, focus or a tap. The band is a
 background at a fixed height on a full size overlay, so one pass covers the panel
-whatever its height. Off entirely on touch, where hover means nothing.
+whatever its height.
 
 ### 6. Hologram dialog (`.holodialog`)
 
@@ -244,7 +248,9 @@ figure:
 <figure data-hud="165 synapses · 6 fibers"> ... </figure>
 ```
 
-Hidden below 700px and on any device without hover.
+Shown on hover, on focus, and on a tap. The canvas that runs the trace around it
+is still hidden below 700px, because it overhangs its frame by 22px a side and
+that is a width problem rather than a pointer problem.
 
 ### 10. Play badge
 
@@ -420,7 +426,7 @@ to say `max-width: 100%` or every host page has to remember to.
 **Overhanging canvases cause horizontal scroll.** This one insets its canvas
 negatively to give the decay branches room, which pushes past the viewport on a
 narrow screen. Reserve matching margin on the frame, or hide it, which is what
-the touch media query does.
+the width media query does below 700px.
 
 **An entrance that waits for an observer flashes.** If the resting state is
 visible and the animation starts at opacity 0, an element already on screen
@@ -432,8 +438,14 @@ and is only revealed by script is invisible forever if the script never runs, or
 if the tab was never looked at. Make the finished state the resting state and let
 the class trigger the draw.
 
-**Hover treatments have no job on touch.** Hide them rather than leaving dead
-markup animating nothing.
+**A hover treatment hidden on touch is the component withheld.** That was the
+rule here once, and hiding the HUD, the sweep and the trace on a phone is the
+reason a touch user got a static page. Give the treatment a tap path instead:
+`hologram-tap.js` puts the class `holo-on` on whatever was tapped, one element at
+a time, and every `:hover` rule in this library names that class as a second
+selector. A tap on a real link or button inside the element still belongs to the
+control, and a tap that turns into a scroll activates nothing. The one exception
+is the motes, because a tap cannot express a pointer that is here and moving.
 
 ---
 
@@ -458,8 +470,9 @@ simulation.
 ## Accessibility
 
 Everything driven by `:hover` is also driven by `:focus-within`, so keyboard users
-get the same treatment. Every control is a real `<button>` or `<input>` with a
-label and a visible focus ring, never a styled div.
+get the same treatment, and by `.holo-on`, so touch users get it too. Every
+control is a real `<button>` or `<input>` with a label and a visible focus ring,
+never a styled div.
 
 The step rail is a roving tabindex group: `aria-current="step"` marks the current
 tick, only that tick is tabbable, the arrows move the selection, and the counter

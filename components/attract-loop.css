@@ -137,7 +137,8 @@
 }
 
 .holoattract-toggle:hover,
-.holoattract-toggle:focus-visible {
+.holoattract-toggle:focus-visible,
+.holoattract-toggle.holo-on {
   background: rgb(255 255 255 / .08);
   border-color: rgb(var(--holo-beam, 178 216 248) / .55);
 }

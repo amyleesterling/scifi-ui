@@ -221,7 +221,8 @@
 
 .holotip-body a { color: rgb(var(--holo-beam, 178 216 248)); }
 
-.holotip-body a:hover, .holotip-body a:focus-visible { color: rgb(210 238 255); }
+.holotip-body a:hover, .holotip-body a:focus-visible,
+.holotip-body a.holo-on { color: rgb(210 238 255); }
 
 /* ---- controls ---------------------------------------------------------- */
 .holotip-actions {
@@ -249,7 +250,7 @@
   font-size: 13px;
 }
 
-.holotip-next:hover, .holotip-next:focus-visible {
+.holotip-next:hover, .holotip-next:focus-visible, .holotip-next.holo-on {
   background: rgb(var(--holo-line, 196 228 255) / .16);
   border-color: rgb(var(--holo-beam, 178 216 248) / .8);
 }
@@ -264,7 +265,8 @@
   opacity: .5;
 }
 
-.holotip-back:hover, .holotip-back:focus-visible { opacity: 1; }
+.holotip-back:hover, .holotip-back:focus-visible,
+.holotip-back.holo-on { opacity: 1; }
 
 .holotip-count {
   position: absolute;
@@ -292,7 +294,7 @@
   transition: background .2s ease, color .2s ease;
 }
 
-.holotip-close:hover, .holotip-close:focus-visible {
+.holotip-close:hover, .holotip-close:focus-visible, .holotip-close.holo-on {
   background: rgb(var(--holo-line, 196 228 255) / .14);
   color: rgb(var(--holo-ink, 239 244 251));
 }

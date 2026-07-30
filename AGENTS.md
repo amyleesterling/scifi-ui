@@ -1,4 +1,4 @@
-# AGENTS.md, version 1
+# AGENTS.md, version 2
 
 Durable working knowledge for any agent contributing to **scifi-ui**. Read this
 before writing a line. It exists because the same lessons were being relearned
@@ -95,7 +95,60 @@ revealed on hover. The twin head version, two heads 180 degrees apart running
 that tears down inside itself never tears down if the first frame never arrives,
 and a full screen canvas then sits over the page for its lifetime. Use a timeout.
 
-## 5. Tokens
+## 5. Every hover state ships its tap path, in the same commit
+
+**A hover treatment behind `@media (hover: none)` is not a decision, it is a
+group of users getting a static page.** The library used to hide the HUD, the
+scan sweep and the motes on touch and call it tidy. It was not tidy: it was the
+whole point of the component, withheld.
+
+The mechanism is one file, `hologram-tap.js`, and one class, `holo-on`.
+
+- A tap puts `holo-on` on the nearest activatable ancestor and takes it off the
+  previous one. One element is lit at a time, and tapping nothing in particular
+  puts it out.
+- Every `:hover` rule in the library names `.holo-on` as a second selector.
+  `.holocard:hover` is `.holocard:hover, .holocard.holo-on`. This is mechanical:
+  if you write a hover rule and do not add the class, that state is unreachable
+  on a phone, and the omission is invisible on your desk.
+- The activatable list is the containers, not the controls. A button already has
+  `:active` and `:focus-visible`, and one left sitting in its hover state after a
+  tap reads as a stuck toggle. Add a container of your own with `data-holo-tap`.
+- **Never swallow the tap.** `preventDefault` is not called anywhere in that
+  file, and a tap that landed on a real link or button is not turned into an
+  activation at all, it is left to the control. A tap on the link inside a lit
+  card does not put the card out either.
+- `pointerdown` plus `pointerup`, never `touchstart`, with a 10px movement
+  guard, a 700ms press guard, and a `pointercancel` and `scroll` bail. A tap
+  that is the start of a scroll must light nothing.
+- A mouse is untouched. The gate is the pointer type that produced the event
+  plus a live `(hover: none)` check, so touch on a hybrid laptop works and a
+  mouse on a touchscreen does not leave a card stuck looking hovered.
+- Whatever answers to hover and tap also answers to focus. Extend
+  `:focus-within` at the same time.
+- `prefers-reduced-motion` still wins. Add the class selector to the reduced
+  motion kill rules too, or a tap resurrects the animation the preference
+  suppressed.
+- If a hover state is more than a stylesheet, listen for `holotap:on` and
+  `holotap:off`. They bubble and carry `clientX`, `clientY` and `pointerType`.
+  The particle trace strikes its light at the tap point that way, and the
+  achievement toast holds its real timer, since a rail paused while the
+  countdown it reports keeps running is a lie.
+
+One thing is deliberately hover only, the `.holoswarm` motes. A tap cannot say
+"the pointer is here and travelling", which is the entire input the repulsion
+reads. The marks stay on touch as the ornament they already were, they simply do
+not move, and no listener is bound where there is no hover.
+
+**When a component stops being absolutely positioned at a breakpoint, its
+parent's fixed height has to go with it.** A static child cannot grow a fixed
+height parent, so it overflows and paints over whatever follows. That is exactly
+how the phone masthead came to sit on top of the first section: `.top` kept
+`height: min(44vh, 320px)` while `.masthead` went `position: static` inside it.
+The height belongs on the image and on the layers pinned over the image, and the
+container goes `height: auto`.
+
+## 6. Tokens
 
 `--holo-line` is the primary cool stroke. `--holo-cyan: 126 224 255` is a
 **second, scoped** cool accent from the FlyWire gallery, not a synonym. `--holo-viol`
@@ -112,7 +165,7 @@ bloom) appears in `UserProfilePanel`, `SettingsPanel`, the toast hero card, and
 here as `holo-dialog-in`. That surface should be extracted once. Whoever does it
 must win without `!important`, since the upstream profile panel uses it.
 
-## 6. Verification, and its hard limit
+## 7. Verification, and its hard limit
 
 **You almost certainly cannot see any animation play.** The browser pane reports
 `document.hidden`, so it composites no frames: `requestAnimationFrame` never
@@ -134,11 +187,14 @@ not a bug.
 
 **Always check overflow.** `scrollWidth` must equal `clientWidth` at 375 and 1280,
 and check it with any demo-level `overflow-x: hidden` turned off so the result is
-not masked. Hover-only HUD decoration belongs behind
-`@media (hover: none), (prefers-reduced-motion: reduce)`. One 46px tick mote at
-`left: 90%` pushed the page 10px wide at 375px.
+not masked. One 46px tick mote at `left: 90%` pushed the page 10px wide at 375px.
+Hiding it on touch was the cheap fix and it cost the effect; the real fix is to
+lay a mark out from whichever edge it is nearer, so it grows inward, and to clip
+the container so no mark can contribute scroll width at all. **Measure in the
+active state, not at rest.** Un-hiding a hover treatment on a small screen is
+precisely how overflow gets reintroduced.
 
-## 7. Non-negotiables
+## 8. Non-negotiables
 
 - **No authentication, ever.** The dialog is a visual component: no `<form>`, no
   password field, one inert text input with no `name`, a button that does nothing.
@@ -154,5 +210,6 @@ not masked. Hover-only HUD decoration belongs behind
 
 ---
 
-**Version 1**, 29 July 2026. Written after the first two parallel extraction
-batches, from the mistakes they made.
+**Version 2**, 29 July 2026. Adds section 5: every hover state ships its tap
+path in the same commit, one mechanism and one class for the whole library, and
+the fixed height parent a formerly absolute child overflows at a breakpoint.

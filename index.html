@@ -81,20 +81,26 @@
      The resting bloom stays exactly as it is: raising it reads as the panel
      getting hot, where a longer shadow reads as the panel coming forward, which
      is what hovering a card actually means. */
-  .masthead:hover {
+  .masthead:hover, .masthead:focus-within, .masthead.holo-on {
     border-color: rgba(150,208,255,.52);
     box-shadow: 0 34px 78px rgba(0,0,0,.80), 0 12px 26px rgba(0,0,0,.55),
                 0 0 58px rgba(62,150,240,.16),
                 inset 0 1px 0 rgba(214,238,255,.22);
   }
-  .masthead:hover::before { left: 2%; right: 2%; }
+  .masthead:hover::before,
+  .masthead:focus-within::before,
+  .masthead.holo-on::before { left: 2%; right: 2%; }
   /* the ticks travel toward the label, so the rail reads as a live feed rather
      than a divider. 7px is the tick pitch, so one period is one tick. */
   .eyebrow u { background-position: 0 0; }
-  .masthead:hover .eyebrow u {
+  .masthead:hover .eyebrow u,
+  .masthead:focus-within .eyebrow u,
+  .masthead.holo-on .eyebrow u {
     animation: holo-eyebrow-run 900ms linear infinite;
   }
-  .masthead:hover .eyebrow s {
+  .masthead:hover .eyebrow s,
+  .masthead:focus-within .eyebrow s,
+  .masthead.holo-on .eyebrow s {
     animation: holo-eyebrow-blip 1400ms ease-in-out infinite;
   }
   @keyframes holo-eyebrow-run {
@@ -107,7 +113,11 @@
   @media (prefers-reduced-motion: reduce) {
     .masthead, .masthead::before { transition: none; }
     .masthead:hover .eyebrow u,
-    .masthead:hover .eyebrow s { animation: none; }
+    .masthead:hover .eyebrow s,
+    .masthead:focus-within .eyebrow u,
+    .masthead:focus-within .eyebrow s,
+    .masthead.holo-on .eyebrow u,
+    .masthead.holo-on .eyebrow s { animation: none; }
   }
   .eyebrow {
     display: flex; align-items: center; gap: 9px; margin: 0 0 12px;
@@ -127,15 +137,24 @@
      losing the cell bodies, so the banner shortens and the panel sits under
      it instead of over it */
   @media (max-width: 699px) {
-    .top { height: min(44vh, 320px); margin-bottom: 0; }
-    .top > img { object-position: 50% 38%; }
+    /* The panel goes static here, and a static child cannot grow a parent with
+       a fixed height. Leaving the height on .top is what put the panel on top
+       of the first section: it overflowed the banner and painted over the copy
+       below it. So the banner height moves onto the things that need it, the
+       image and the two layers pinned over it, and .top itself grows to contain
+       the panel. Any component that stops being absolutely positioned at a
+       breakpoint has to take its parent's fixed height with it. */
+    .top { --banner: min(44vh, 320px); height: auto; margin-bottom: 0; }
+    .top > img { height: var(--banner); object-position: 50% 38%; }
+    /* both are inset: 0, so bottom has to be released before a height counts */
+    .topveil, .top > .holoswarm { bottom: auto; height: var(--banner); }
     .topveil {
       background: linear-gradient(to bottom, rgba(7,8,11,0) 26%,
         rgba(7,8,11,.30) 56%, rgba(7,8,11,.86) 88%, #07080B 100%);
     }
     .masthead {
       position: static; translate: none; width: auto;
-      margin: -26px 16px 30px; padding: 22px 20px 20px;
+      margin: -26px 16px 34px; padding: 22px 20px 20px;
     }
   }
 
@@ -148,7 +167,7 @@
     background: rgb(62 150 240); opacity: .65; transform: translateY(-50%);
     transition: width .35s ease;
   }
-  h2:hover::before { width: 13px; }
+  h2:hover::before, h2.holo-on::before { width: 13px; }
   p { margin: 0 0 14px; color: #C4CCD8; }
   figure { margin: 0 0 6px; }
   figcaption { margin-top: 9px; color: #9AA2B1; font-size: 14px; }
@@ -166,8 +185,8 @@
     background: rgba(16,28,46,.8);
     transition: border-color .25s ease, background .25s ease;
   }
-  .cta:hover, .cta:focus-visible { border-color: rgba(150,212,255,.7);
-    background: rgba(22,40,66,.9); }
+  .cta:hover, .cta:focus-visible, .cta.holo-on {
+    border-color: rgba(150,212,255,.7); background: rgba(22,40,66,.9); }
   footer { margin-top: 66px; padding-top: 22px; border-top: 1px solid #1B2130;
            color: #666E7C; font-size: 14px; }
   footer a, .lede a, p a { color: #3E96F0; text-decoration: none; }
@@ -217,18 +236,28 @@
 
 <div class="wrap">
 
+  <p>Everything on this page that answers to a pointer also answers to a tap.
+  There is no hovering without a cursor, so on a touch screen a tap lights the
+  thing you tapped and holds it lit until you tap somewhere else. One thing at a
+  time. A tap that lands on a link or a button inside a panel still belongs to
+  that control, so nothing here needs tapping twice, and a tap that turns into a
+  scroll lights nothing at all. It is one mechanism for the whole library rather
+  than a behaviour per component: a tap adds one class, and every hover rule in
+  the stylesheet names that class as well.</p>
+
   <h2>Particle trace, on an image</h2>
   <p>A short arc of light runs the boundary once, starting from wherever your
-  pointer crossed it, then breaks into particles that decay along a branching
-  tree. Corner brackets push outward and the readouts fade in. Every value shown
-  is real, read off the media element at runtime.</p>
+  pointer crossed it or wherever you tapped, then breaks into particles that
+  decay along a branching tree. Corner brackets push outward and the readouts
+  fade in. Every value shown is real, read off the media element at runtime.</p>
   <figure data-hud="337 × 266 × 92 µm">
     <div class="holoframe">
       <canvas class="trace"></canvas>
       <img src="media/cell.jpg" alt="A CA3 pyramidal cell with the six mossy fibers that reach it">
     </div>
-    <figcaption>Enter from different edges. The light is struck where you cross.
-    One thorny pyramidal cell, 4.5 million triangles in the original.</figcaption>
+    <figcaption>Enter from different edges. The light is struck where you cross,
+    or where your finger landed. One thorny pyramidal cell, 4.5 million triangles
+    in the original.</figcaption>
   </figure>
 
   <h2>Step rail</h2>
@@ -275,7 +304,7 @@
   <h2>Panel that boots up</h2>
   <p>Two bright heads run the border in opposite directions and meet, an inner
   backlight swells and tapers, and the panel resolves out of a blur. It runs once when the
-  panel first comes on screen, and again every time you point at it.</p>
+  panel first comes on screen, and again every time you point at it or tap it.</p>
   <figure class="panelcard holoboot" style="max-width:330px;background:rgba(9,14,26,.8);border:1px solid rgba(88,148,238,.3)">
     <img src="media/partners.jpg" alt="One CA3 cell drawn with the fifty six cells it is connected to">
     <div class="panelrow"><b>partner cells</b><span>56 reconstructed</span></div>
@@ -285,9 +314,9 @@
   pseudo elements. The masthead at the top of this page is the same component.</p>
 
   <h2>Scan sweep</h2>
-  <p>A thin line passes across a panel once when you point at it or tab into it.
-  The band is a background on a full size overlay, so a single pass covers the
-  panel whatever its height.</p>
+  <p>A thin line passes across a panel once when you point at it, tab into it or
+  tap it. The band is a background on a full size overlay, so a single pass
+  covers the panel whatever its height.</p>
   <div class="grid">
     <figure class="swept holosweep">
       <img src="media/thorn.jpg" alt="A mossy fiber terminal wrapped around a thorny excrescence">
@@ -303,7 +332,8 @@
   <p>Near black ink instead of the white tinted glass a panel usually gets, so
   the render inside it pops rather than being washed out. Faint scanlines every
   3px. A rim and a backlight that live entirely in the box shadow, so they never
-  lighten the card body. Point at it and a bright head runs the perimeter.</p>
+  lighten the card body. Point at it, or tap it, and a bright head runs the
+  perimeter.</p>
   <div class="grid">
     <figure class="holocard">
       <img src="media/partners.jpg" alt="One CA3 cell drawn with the fifty six cells it is connected to">
@@ -573,10 +603,13 @@
   &lt;/div&gt;
 &lt;/figure&gt;
 
-&lt;script src="hologram.js"&gt;&lt;/script&gt;</pre>
+&lt;script src="hologram.js"&gt;&lt;/script&gt;
+&lt;script src="hologram-tap.js"&gt;&lt;/script&gt;</pre>
   <p>Put the <code>canvas.trace</code> before the media. The HUD layer, the play
   badge, the step rail parts, the section rail, the card edge trace and the two
-  boot spans are all created at runtime.
+  boot spans are all created at runtime. The second script is what makes every
+  hover treatment reachable by tap, and it belongs on any page that loads any
+  part of this library.
   Colours come from nine tokens on <code>:root</code> in the stylesheet, and
   every rule carries a concrete fallback, so any one component works pasted into
   a page with no token system at all. Read
@@ -726,6 +759,7 @@
 </dialog>
 
 <script src="hologram.js"></script>
+<script src="hologram-tap.js"></script>
 <script src="components/attract-loop.js"></script>
 <script>
   /* demo glue, to show that the rail reports its state. Each rail reports into

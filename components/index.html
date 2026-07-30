@@ -78,7 +78,7 @@
     border-radius: 6px;
     transition: background .2s ease, border-color .2s ease;
   }
-  .demo-btn:hover, .demo-btn:focus-visible {
+  .demo-btn:hover, .demo-btn:focus-visible, .demo-btn.holo-on {
     background: rgb(var(--holo-glow) / .28);
     border-color: rgb(var(--holo-beam) / .7);
   }
@@ -92,7 +92,8 @@
     background: rgb(0 200 255 / .18);
     border-color: rgb(0 200 255 / .45);
   }
-  .demo-btn--hero:hover, .demo-btn--hero:focus-visible {
+  .demo-btn--hero:hover, .demo-btn--hero:focus-visible,
+  .demo-btn--hero.holo-on {
     background: rgb(0 200 255 / .3);
     border-color: rgb(0 200 255 / .8);
   }
@@ -130,6 +131,15 @@
       a finale that fires when you reach the bottom. Zero dependencies, no
       build step, nothing loaded from a network.
     </p>
+    <p class="lede" style="margin-top:1rem">
+      On a touch screen, tap a card and it lifts. There is no hovering without a
+      cursor, so a tap stands in for it: whatever you tap stays lit until you tap
+      somewhere else, and only one thing is lit at a time. A tap on the link
+      inside a card still follows that link, and a tap that turns into a scroll
+      lights nothing. It is one mechanism for the whole set, in
+      <code>hologram-tap.js</code>, rather than a behaviour written into each
+      component.
+    </p>
     <p class="row" style="margin-top:1.6rem">
       <button class="demo-btn" data-holotip-start="#demo-tour">Take the tour</button>
     </p>
@@ -155,8 +165,10 @@
     <p class="note" style="margin-top:1.4rem">
       The other variants. Each announces itself through the live region, each
       has a real dismiss button, and each auto dismisses on a timer that pauses
-      while a pointer is over the card or the keyboard is focused inside it.
-      Hover one and watch the rail stop.
+      while a pointer is over the card, the keyboard is focused inside it, or a
+      finger has tapped it. Hover one and watch the rail stop. Tap one and it
+      holds until you tap elsewhere, which is the only way a finger can say that
+      somebody is still reading.
     </p>
     <p class="row" id="toast-row">
       <button class="demo-btn" data-toast="badge">badge</button>
@@ -218,10 +230,11 @@
           </svg>
         </div>
         <p class="holotint-kicker"><span class="holotint-dot"></span>violet</p>
-        <h3 class="holotint-title">Hover and focus agree</h3>
+        <h3 class="holotint-title">Hover, focus and tap agree</h3>
         <p class="holotint-body">
-          Everything the pointer gets, a keyboard gets too. The card lifts on
-          focus-within, so tabbing to the link inside it does the same thing.
+          Everything the pointer gets, a keyboard and a finger get too. The card
+          lifts on focus-within, so tabbing to the link inside it does the same
+          thing, and a tap does it on a screen with no pointer at all.
         </p>
         <a class="holotint-go" href="#demo-cards">
           Tab to me
@@ -421,6 +434,7 @@
   </li>
 </ol>
 
+<script src="../hologram-tap.js"></script>
 <script src="tutorial-callout.js"></script>
 <script src="achievement-toast.js"></script>
 <script src="confetti-burst.js"></script>

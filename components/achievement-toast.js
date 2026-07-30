@@ -152,11 +152,27 @@
 
     close.addEventListener("click", dismiss);
     /* hover pauses. So does keyboard focus, which is the same rule the rest
-       of this library follows: whatever :hover does, :focus-within does */
+       of this library follows: whatever :hover does, :focus-within does.
+       On touch a tap does it, through hologram-tap.js. The card holds until
+       the reader taps somewhere else, which is the only version of "the
+       pointer is resting on this" a finger can express. The timer is paused
+       on the same signal the stylesheet pauses the rail on, because a rail
+       that stops while the countdown it reports carries on is a lie. */
+    /* a touch fires pointerenter and then pointerleave around the tap itself,
+       and the leave arrives after the tap has been counted, so a plain resume
+       on leave would undo the hold a moment after taking it. While the card is
+       the activated one, leaving is not a release. */
+    function release() {
+      if (card.classList.contains("holo-on")) return;
+      resume();
+    }
+
     card.addEventListener("pointerenter", pause);
-    card.addEventListener("pointerleave", resume);
+    card.addEventListener("pointerleave", release);
     card.addEventListener("focusin", pause);
-    card.addEventListener("focusout", resume);
+    card.addEventListener("focusout", release);
+    card.addEventListener("holotap:on", pause);
+    card.addEventListener("holotap:off", resume);
 
     host.appendChild(card);
 

@@ -180,7 +180,8 @@
   transition: background .18s ease, color .18s ease;
 }
 
-.holotoast-close:hover, .holotoast-close:focus-visible {
+.holotoast-close:hover, .holotoast-close:focus-visible,
+.holotoast-close.holo-on {
   background: rgb(var(--holo-line, 196 228 255) / .14);
   color: rgb(var(--holo-ink, 239 244 251));
 }
@@ -211,8 +212,13 @@
   animation: holotoast-count var(--holotoast-duration, 5000ms) linear both;
 }
 
+/* a tap holds the card the same way a pointer resting on it does, so a reader
+   on a phone gets the same chance to finish the sentence. The script pauses the
+   real timer on the same signal, or the rail would stop while the countdown it
+   is reporting carried on. */
 .holotoast:hover .holotoast-rail i,
 .holotoast:focus-within .holotoast-rail i,
+.holotoast.holo-on .holotoast-rail i,
 .holotoast.is-paused .holotoast-rail i {
   animation-play-state: paused;
 }

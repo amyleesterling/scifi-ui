@@ -96,12 +96,14 @@
   }
 
 .holoframe:hover img, .holoframe:hover video,
-  .holoframe:focus-within img, .holoframe:focus-within video {
+  .holoframe:focus-within img, .holoframe:focus-within video,
+  .holoframe.holo-on img, .holoframe.holo-on video {
     transform: translateY(-3px) scale(1.006);
   }
 
 .holoframe:hover img, .holoframe:hover video,
-  .holoframe:focus-within img, .holoframe:focus-within video {
+  .holoframe:focus-within img, .holoframe:focus-within video,
+  .holoframe.holo-on img, .holoframe.holo-on video {
     filter: brightness(1.03) saturate(1.03)
             drop-shadow(0 6px 18px rgba(0,0,0,.45))
             drop-shadow(0 0 12px rgba(62,150,240,.14));
@@ -110,7 +112,7 @@
 /* the readouts on the full bleed cell pick up the same idle shimmer */
   .holo { transition: border-color .4s ease, box-shadow .4s ease, transform .4s ease; }
 
-.holo:hover, .holo:focus-within {
+.holo:hover, .holo:focus-within, .holo.holo-on {
     border-color: rgba(120,190,255,.75); transform: translateY(-2px);
     box-shadow: 0 0 26px rgba(0,0,0,.6), 0 0 22px rgba(62,150,240,.18);
   }
@@ -142,7 +144,7 @@
     border-top: 13px solid transparent; border-bottom: 13px solid transparent;
   }
 
-.playbadge:hover, .playbadge:focus-visible {
+.playbadge:hover, .playbadge:focus-visible, .playbadge.holo-on {
     transform: translate(-50%,-50%) scale(1.07);
     border-color: rgba(190,235,255,1);
     box-shadow: 0 0 0 8px rgba(62,150,240,.14), 0 0 34px rgba(62,150,240,.55);
@@ -166,7 +168,8 @@
     opacity: 0; transition: opacity .34s ease;
   }
 
-.holoframe:hover .hud, .holoframe:focus-within .hud { opacity: 1; }
+.holoframe:hover .hud, .holoframe:focus-within .hud,
+  .holoframe.holo-on .hud { opacity: 1; }
 
 .hud i {
     position: absolute; width: 13px; height: 13px;
@@ -182,13 +185,17 @@
 
 .hud i.br { bottom: 0; right: 0; border-left: 0; border-top: 0; transform: translate(-4px,-4px); }
 
-.holoframe:hover .hud i.tl, .holoframe:focus-within .hud i.tl { transform: translate(-7px,-7px); }
+.holoframe:hover .hud i.tl, .holoframe:focus-within .hud i.tl,
+  .holoframe.holo-on .hud i.tl { transform: translate(-7px,-7px); }
 
-.holoframe:hover .hud i.tr, .holoframe:focus-within .hud i.tr { transform: translate(7px,-7px); }
+.holoframe:hover .hud i.tr, .holoframe:focus-within .hud i.tr,
+  .holoframe.holo-on .hud i.tr { transform: translate(7px,-7px); }
 
-.holoframe:hover .hud i.bl, .holoframe:focus-within .hud i.bl { transform: translate(-7px,7px); }
+.holoframe:hover .hud i.bl, .holoframe:focus-within .hud i.bl,
+  .holoframe.holo-on .hud i.bl { transform: translate(-7px,7px); }
 
-.holoframe:hover .hud i.br, .holoframe:focus-within .hud i.br { transform: translate(7px,7px); }
+.holoframe:hover .hud i.br, .holoframe:focus-within .hud i.br,
+  .holoframe.holo-on .hud i.br { transform: translate(7px,7px); }
 
 .hud b {
     position: absolute; font-weight: 500; font-size: 9.5px; letter-spacing: .17em;
@@ -203,9 +210,13 @@
 
 .hud b.c { bottom: 9px; left: 22px; }
 
-/* no hover on touch, and the canvas overhang would push past the viewport */
-  @media (max-width: 700px), (hover: none) {
-    .hud { display: none; }
+/* The HUD used to go on touch as well, on the grounds that a hover treatment
+     has no job there. It has one now: a tap puts .holo-on on the frame and the
+     brackets push out. So only the canvas is still hidden on a narrow screen,
+     and only because it overhangs its frame by 22px a side and would push past
+     the viewport. That is a width problem rather than a pointer problem, so the
+     rule keys off width alone. */
+  @media (max-width: 700px) {
     .holoframe canvas.trace { display: none; }
     .holoframe { margin: 10px 0; }
   }
@@ -213,7 +224,8 @@
 @media (prefers-reduced-motion: reduce) {
     .hud, .hud i { transition: none; }
     .holoframe img, .holoframe video, .holo, h2::before { transition: none; }
-    .holoframe:hover img, .holoframe:hover video { transform: none; }
+    .holoframe:hover img, .holoframe:hover video,
+    .holoframe.holo-on img, .holoframe.holo-on video { transform: none; }
     .playbadge { transition: none; }
     .holoframe canvas.trace { display: none; }
   }
@@ -238,7 +250,8 @@
 
 .holobar-count s { text-decoration: none; color: rgb(var(--holo-ink, 239 244 251) / .28); }
 
-.holobar:hover .holobar-count, .holobar:focus-within .holobar-count {
+.holobar:hover .holobar-count, .holobar:focus-within .holobar-count,
+  .holobar.holo-on .holobar-count {
     color: rgb(var(--holo-ink, 239 244 251) / .85);
   }
 
@@ -286,7 +299,8 @@
     box-shadow: 0 0 7px rgb(var(--holo-beam, 178 216 248) / .95);
   }
 
-.holobar-tick:hover i, .holobar-tick:focus-visible i {
+.holobar-tick:hover i, .holobar-tick:focus-visible i,
+  .holobar-tick.holo-on i {
     width: 6px; height: 6px; background: rgb(var(--holo-beam, 178 216 248) / .9);
   }
 
@@ -451,20 +465,24 @@
   }
 
 /* boot on hover or focus, and again on each new hover, because a boot you
-   cannot replay is a boot you only ever see once by accident */
-.holoboot.is-online, .holoboot:hover, .holoboot:focus-within {
+   cannot replay is a boot you only ever see once by accident. On touch the same
+   replay comes from a tap, which is what .holo-on is. */
+.holoboot.is-online, .holoboot:hover, .holoboot:focus-within,
+.holoboot.holo-on {
   animation: holo-boot-in 900ms cubic-bezier(.16,1,.3,1) both;
 }
 
 .holoboot.is-online > .holoboot-ring,
 .holoboot:hover > .holoboot-ring,
-.holoboot:focus-within > .holoboot-ring {
+.holoboot:focus-within > .holoboot-ring,
+.holoboot.holo-on > .holoboot-ring {
   animation: holo-ring-sweep 1500ms linear forwards;
 }
 
 .holoboot.is-online > .holoboot-glow,
 .holoboot:hover > .holoboot-glow,
-.holoboot:focus-within > .holoboot-glow {
+.holoboot:focus-within > .holoboot-glow,
+.holoboot.holo-on > .holoboot-glow {
   animation: holo-panel-online 1500ms linear forwards;
 }
 
@@ -496,7 +514,8 @@
   }
 
 @media (prefers-reduced-motion: reduce) {
-    .holoboot.is-online, .holoboot:hover, .holoboot:focus-within { animation: none; }
+    .holoboot.is-online, .holoboot:hover, .holoboot:focus-within,
+    .holoboot.holo-on { animation: none; }
     .holoboot > .holoboot-ring, .holoboot > .holoboot-glow { display: none; }
   }
 
@@ -546,7 +565,8 @@
     filter: drop-shadow(0 0 4px rgb(var(--holo-beam, 178 216 248) / .6));
   }
 
-.holosweep:hover::after, .holosweep:focus-within::after {
+.holosweep:hover::after, .holosweep:focus-within::after,
+  .holosweep.holo-on::after {
     animation: holo-sweep 820ms cubic-bezier(.16,1,.3,1);
   }
 
@@ -555,8 +575,11 @@
     100% { transform: translateY(100%);  opacity: 0; }
   }
 
-@media (prefers-reduced-motion: reduce), (hover: none) {
-    .holosweep:hover::after, .holosweep:focus-within::after { animation: none; }
+/* the sweep used to be off on touch as well. A tap runs it now, so the only
+     thing that stops it is the motion preference. */
+  @media (prefers-reduced-motion: reduce) {
+    .holosweep:hover::after, .holosweep:focus-within::after,
+    .holosweep.holo-on::after { animation: none; }
   }
 
 /* ---- 10. glass surface --------------------------------------------------
@@ -835,7 +858,7 @@
 
 .holodialog-input::placeholder { color: rgb(var(--holo-dim, 154 162 177) / .5); }
 
-.holodialog-input:hover {
+.holodialog-input:hover, .holodialog-input.holo-on {
     background: rgb(var(--holo-glow, 74 150 224) / .1);
     border-color: rgb(var(--holo-glow, 74 150 224) / .34);
     border-left-color: rgb(var(--holo-cyan, 126 224 255) / .7);
@@ -880,7 +903,7 @@
     to   { transform: translateX(100%); }
   }
 
-.holobtn:hover:not(:disabled) {
+.holobtn:hover:not(:disabled), .holobtn.holo-on:not(:disabled) {
     border-color: rgb(var(--holo-cyan, 126 224 255) / .6);
     background: linear-gradient(135deg,
       rgb(var(--holo-glow, 74 150 224) / .38) 0%,
@@ -912,7 +935,8 @@
     transition: color .15s ease;
   }
 
-.holobtn--ghost:hover:not(:disabled) {
+.holobtn--ghost:hover:not(:disabled),
+.holobtn--ghost.holo-on:not(:disabled) {
     color: rgb(var(--holo-cyan, 126 224 255) / .5);
     box-shadow: none; transform: none; background: none;
   }
@@ -956,7 +980,8 @@
     .holodialog-input, .holobtn, .holobtn--ghost, .holodialog-row {
       transition: none;
     }
-    .holobtn:hover:not(:disabled) { transform: none; }
+    .holobtn:hover:not(:disabled),
+    .holobtn.holo-on:not(:disabled) { transform: none; }
     .holobtn-glow { display: none; }
   }
 
@@ -967,8 +992,23 @@
    springs back on its own transition when the cursor leaves. No animation loop:
    the transform is set on pointermove and CSS does the easing, which keeps it
    off the main thread and costs nothing when the mouse is still.
-   Hidden on touch, where there is no cursor to flee. */
-.holoswarm { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
+
+   On touch the marks stay, and they simply do not move. This is the one hover
+   treatment in the library with no tap equivalent, and not for want of trying:
+   a tap cannot say "the pointer is here and travelling", which is the whole
+   input the effect reads. So the repulsion is left to devices with a real
+   pointer, and the marks are left as what they already were, HUD ornament on a
+   hero image. No listeners are bound where there is no hover, so nothing is
+   running to no purpose. */
+.holoswarm {
+  position: absolute; inset: 0; pointer-events: none; z-index: 2;
+  /* the widest mark is a 46px tick rail, and one placed near the right edge of
+     a phone used to push the document 10px wider than the viewport. Two things
+     stop that now: each mark is laid out from whichever edge it is nearer, so
+     it grows inward, and this clip means no mark can contribute scroll width
+     even if a host moves one. */
+  overflow: hidden;
+}
 .holoswarm > i {
   position: absolute; display: block; pointer-events: none;
   transition: transform 620ms cubic-bezier(.18,.9,.24,1), opacity 400ms ease;
@@ -1004,10 +1044,18 @@
   width: 15px; height: 15px; border-radius: 50%; opacity: .34;
   border: 1px solid currentColor;
 }
-/* the widest mote is a 46px tick rail placed at 90 per cent, which lands past
-   the right edge of a phone and scrolls the page sideways. Below 700px it goes,
-   the same way the HUD does, because a hover treatment has no job there anyway. */
-@media (hover: none), (prefers-reduced-motion: reduce), (max-width: 700px) {
+/* a phone gets a thinned set. Twenty marks were composed for a 1280px hero and
+   read as clutter across 375px, so the ones tagged wide sit out below 700px.
+   The tick rails are all in that group: they are the widest marks and the least
+   legible at that size. */
+@media (max-width: 700px) {
+  .holoswarm > i.wide { display: none; }
+}
+
+/* with motion off nothing here moves at all, so there is nothing left to see.
+   The marks go rather than sit as decoration that implies a behaviour the
+   preference has switched off. */
+@media (prefers-reduced-motion: reduce) {
   .holoswarm { display: none; }
 }
 
@@ -1092,7 +1140,8 @@
   box-shadow: 0 0 7px rgb(var(--holo-cyan, 126 224 255) / .85);
 }
 
-.holorail-dot:hover i, .holorail-dot:focus-visible i { transform: scale(1.5); }
+.holorail-dot:hover i, .holorail-dot:focus-visible i,
+.holorail-dot.holo-on i { transform: scale(1.5); }
 
 /* the label is capped and clipped rather than allowed to run, because past
    132px it would cross into the reading column on a 1280px screen */
@@ -1109,7 +1158,8 @@
   opacity: 0; pointer-events: none; transition: opacity .2s ease;
 }
 
-.holorail-dot:hover b, .holorail-dot:focus-visible b { opacity: 1; }
+.holorail-dot:hover b, .holorail-dot:focus-visible b,
+.holorail-dot.holo-on b { opacity: 1; }
 
 .holorail-dot:focus-visible {
   outline: 2px solid rgb(var(--holo-cyan, 126 224 255) / .9); outline-offset: 1px;
@@ -1159,7 +1209,7 @@
 
 .holocard > * { position: relative; z-index: 1; }
 
-.holocard:hover, .holocard:focus-within {
+.holocard:hover, .holocard:focus-within, .holocard.holo-on {
   box-shadow: 0 0 0 1px rgb(var(--holo-cyan, 126 224 255) / .32),
               0 0 24px -6px rgb(var(--holo-cyan, 126 224 255) / .32),
               inset 0 0 0 1px rgb(var(--holo-cyan, 126 224 255) / .1);
@@ -1195,7 +1245,8 @@
 }
 
 .holocard:hover > .holocard-trace,
-.holocard:focus-within > .holocard-trace {
+.holocard:focus-within > .holocard-trace,
+.holocard.holo-on > .holocard-trace {
   opacity: 1; animation: holocard-trace 3.4s linear infinite;
 }
 

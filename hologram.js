@@ -12,6 +12,9 @@
 //  12 section rail     builds .holorail from the page headings, marks the
 //                      section you are in with an IntersectionObserver
 //  13 holo card        drops the edge trace element into every .holocard
+//
+// Tap activation, the thing that makes all of the above reachable without a
+// pointer that can hover, is its own file: hologram-tap.js. Load it too.
 
 // ---- 1. particle trace ----------------------------------------------------
 (function () {
@@ -164,9 +167,15 @@
 
     function start(ev) {
       if (raf) return;
+      // the canvas is hidden below 700px, where its 22px overhang a side would
+      // push the page wider than the viewport. No point running a loop to paint
+      // into a box with no display.
+      if (!cv.offsetWidth && !cv.offsetHeight) return;
       if (!size()) return;
       // walk the boundary and take the closest point to where the pointer
-      // crossed, so the light is struck where the cursor entered
+      // crossed, so the light is struck where the cursor entered. A tap has an
+      // entry point too, the point it landed on, and it arrives the same way:
+      // holotap:on carries clientX and clientY in its detail.
       startT = 0;
       if (ev && ev.clientX !== undefined) {
         var r = frame.getBoundingClientRect();
@@ -185,6 +194,11 @@
 
     frame.addEventListener("mouseenter", start);
     frame.addEventListener("focusin", start);
+    // the event bubbles, so check it is this frame that was activated and not
+    // something inside it that happens to be activatable in its own right
+    frame.addEventListener("holotap:on", function (e) {
+      if (e.target === frame) start(e.detail);
+    });
   });
 })();
 
@@ -581,26 +595,33 @@
 // here rather than hand written, so the count and mix are one edit. Each mark is
 // pushed along the vector away from the pointer with a smooth falloff, and CSS
 // eases both the push and the return.
+//
+// The marks are built on every device. Only the repulsion needs a pointer, so
+// only the repulsion is gated: on touch they stay as the HUD ornament they were
+// drawn as, and no listener is bound. The stylesheet thins the set below 700px
+// and drops the lot when motion is not wanted.
 (function () {
-  if (matchMedia("(hover: none)").matches) return;
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
   var RADIUS = 150;   // px of influence
   var PUSH = 62;      // px of maximum displacement
 
-  // kind, x%, y%, and text for the readouts. Spread away from the centre so they
-  // decorate the edges rather than crowding whatever the hero is showing.
+  // kind, x%, y%, text for the readouts, and whether the mark is for a wide
+  // screen only. Spread away from the centre so they decorate the edges rather
+  // than crowding whatever the hero is showing. The eleven wide ones are what a
+  // 375px hero cannot carry without turning into clutter, and all three tick
+  // rails are among them: they are the widest marks and the least legible small.
   var MARKS = [
-    ["num", 6, 12, "SEC 04"],   ["dot", 13, 26, ""],
-    ["brk", 4, 44, ""],         ["rail", 8, 62, ""],
+    ["num", 6, 12, "SEC 04"],   ["dot", 13, 26, "", 1],
+    ["brk", 4, 44, ""],         ["rail", 8, 62, "", 1],
     ["dot", 17, 78, ""],        ["ring", 10, 88, ""],
-    ["num", 21, 94, "0.42"],    ["dot", 33, 8, ""],
-    ["rail", 44, 5, ""],        ["dot", 58, 11, ""],
-    ["ring", 70, 7, ""],        ["num", 80, 15, "SYNC"],
-    ["dot", 88, 30, ""],        ["brk", 95, 46, ""],
-    ["rail", 90, 64, ""],       ["dot", 83, 79, ""],
-    ["num", 92, 88, "1.00"],    ["dot", 66, 92, ""],
-    ["ring", 52, 95, ""],       ["dot", 40, 90, ""]
+    ["num", 21, 94, "0.42", 1], ["dot", 33, 8, ""],
+    ["rail", 44, 5, "", 1],     ["dot", 58, 11, "", 1],
+    ["ring", 70, 7, ""],        ["num", 80, 15, "SYNC", 1],
+    ["dot", 88, 30, ""],        ["brk", 95, 46, "", 1],
+    ["rail", 90, 64, "", 1],    ["dot", 83, 79, "", 1],
+    ["num", 92, 88, "1.00"],    ["dot", 66, 92, "", 1],
+    ["ring", 52, 95, "", 1],    ["dot", 40, 90, ""]
   ];
 
   document.querySelectorAll(".holoswarm").forEach(function (swarm) {
@@ -610,15 +631,22 @@
 
     MARKS.forEach(function (m) {
       var el = document.createElement("i");
-      el.className = "holoswarm " + m[0];
-      el.className = m[0];
-      el.style.left = m[1] + "%";
-      el.style.top = m[2] + "%";
+      el.className = m[0] + (m[4] ? " wide" : "");
+      // laid out from whichever edge it is nearer, so every mark grows inward
+      // and none of them can reach past the box it decorates. A 46px tick rail
+      // at left 90 per cent is how this page once scrolled sideways at 375px.
+      if (m[1] > 50) el.style.right = (100 - m[1]) + "%";
+      else el.style.left = m[1] + "%";
+      if (m[2] > 50) el.style.bottom = (100 - m[2]) + "%";
+      else el.style.top = m[2] + "%";
       if (m[3]) el.textContent = m[3];
       el.setAttribute("aria-hidden", "true");
       swarm.appendChild(el);
       els.push(el);
     });
+
+    // no cursor, nothing to flee, no listeners
+    if (matchMedia("(hover: none)").matches) return;
 
     function move(ev) {
       var r = host.getBoundingClientRect();
