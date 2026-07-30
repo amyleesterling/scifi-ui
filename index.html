@@ -171,6 +171,67 @@
     text-transform: uppercase; color: rgba(140,190,240,.72);
   }
 
+  /* Hover it with a mouse or tap it on a touch device and the panel comes
+     apart on a chromatic split: it shears red-and-cyan, tears on a few
+     scanlines, drops to nothing for a beat while a burst of tinted particles
+     (thrown by the script from this same rectangle) flies off it, then
+     recomposes. It is a trigger, not a dismiss: one run and the masthead is
+     exactly as it was. The particles are canvas; everything here is the panel
+     dispersing and reassembling around them.
+
+     Two animations run together. The panel keyframes carry the shear, the
+     scanline tears (clip-path), the fade to nothing and the return. The
+     wordmark keyframes carry the readable half of the aberration: its own red
+     and cyan ghosts pull apart hardest at the break and snap back on reform.
+     linear, not steps, so opacity and transform still travel; the clip-path
+     changing direction sharply is what reads as a tear rather than a slide. */
+  .masthead.holo-glitch {
+    animation: holo-glitch-shatter 1180ms linear forwards;
+    /* the fixed centring translate has to survive the animation, so the shake
+       rides transform and this stays put */
+    will-change: transform, opacity, clip-path, filter;
+  }
+  .masthead.holo-glitch .wordmark {
+    animation: holo-glitch-word 1180ms linear forwards;
+  }
+  @keyframes holo-glitch-shatter {
+    0%   { transform: translate(0,0); filter: none; opacity: 1;
+           clip-path: inset(0 0 0 0); }
+    6%   { transform: translate(-5px,1px); opacity: .95; clip-path: inset(0 0 62% 0);
+           filter: drop-shadow(-7px 0 rgba(255,45,107,.55)) drop-shadow(7px 0 rgba(63,232,255,.55)); }
+    12%  { transform: translate(6px,-2px); clip-path: inset(40% 0 22% 0); }
+    18%  { transform: translate(-7px,2px); clip-path: inset(72% 0 0 0); }
+    24%  { transform: translate(4px,0); opacity: .82; clip-path: inset(0 0 0 0);
+           filter: drop-shadow(-12px 0 rgba(255,45,107,.6)) drop-shadow(12px 0 rgba(63,232,255,.6)); }
+    38%  { transform: translate(-3px,0); opacity: .12;
+           filter: drop-shadow(-17px 0 rgba(255,45,107,.5)) drop-shadow(17px 0 rgba(63,232,255,.5)); }
+    52%  { opacity: 0; }              /* gone: the render behind shows through */
+    66%  { opacity: 0; }
+    74%  { opacity: .2; transform: translate(4px,0); clip-path: inset(0 0 46% 0);
+           filter: drop-shadow(-12px 0 rgba(255,45,107,.5)) drop-shadow(12px 0 rgba(63,232,255,.5)); }
+    82%  { opacity: .6; transform: translate(-3px,1px); clip-path: inset(30% 0 0 0); }
+    90%  { opacity: .9; transform: translate(1px,0); clip-path: inset(0 0 0 0);
+           filter: drop-shadow(-4px 0 rgba(255,45,107,.4)) drop-shadow(4px 0 rgba(63,232,255,.4)); }
+    100% { transform: translate(0,0); filter: none; opacity: 1;
+           clip-path: inset(0 0 0 0); }
+  }
+  /* the wordmark is gradient-filled and transparent, but text-shadow draws
+     under that, so these red/cyan offsets show as split glyph ghosts */
+  @keyframes holo-glitch-word {
+    0%   { text-shadow: 0 0 0 transparent; }
+    12%  { text-shadow: -4px 0 rgba(255,45,107,.9), 4px 0 rgba(63,232,255,.9); }
+    24%  { text-shadow: -9px 0 rgba(255,45,107,.95), 9px 0 rgba(63,232,255,.95); }
+    38%  { text-shadow: -16px 2px rgba(255,45,107,.85), 16px -2px rgba(63,232,255,.85); }
+    52%, 66% { text-shadow: -22px 0 rgba(255,45,107,.6), 22px 0 rgba(63,232,255,.6); }
+    82%  { text-shadow: -8px 0 rgba(255,45,107,.75), 8px 0 rgba(63,232,255,.75); }
+    100% { text-shadow: 0 0 0 transparent; }
+  }
+  /* a reader who asked for less motion gets the plain edge-light, no shatter */
+  @media (prefers-reduced-motion: reduce) {
+    .masthead.holo-glitch,
+    .masthead.holo-glitch .wordmark { animation: none; }
+  }
+
   /* a phone cannot carry a 16:9 render cropped to a portrait box without
      losing the cell bodies, so the banner shortens and the panel sits under
      it instead of over it */
@@ -1449,6 +1510,122 @@
           sub: "You explored 25 cells across three datasets.", duration: 5000 });
       });
     }
+  })();
+
+  /* the masthead glitch. Hover the panel with a mouse, or tap it on a touch
+     device, and it comes apart on a chromatic-aberration shatter and reforms.
+     The panel half is the .holo-glitch keyframes in the stylesheet above; this
+     is the particles it throws and the wiring that fires it. A trigger, not a
+     dismiss, so a running guard keeps a second hover or tap from stacking on
+     one already in flight, and a reader who asked for less motion gets none of
+     it: no class, no canvas, just the plain edge-light. */
+  (function () {
+    var box = document.querySelector(".masthead");
+    if (!box) return;
+    var reduce = window.matchMedia
+      ? window.matchMedia("(prefers-reduced-motion: reduce)") : { matches: false };
+
+    var DUR = 1180;            // must match the stylesheet animation
+    var THROW = 240;           // ms in, when the panel is dispersing, to throw
+    var running = false;
+    var canvas = null, ctx = null, frame = 0, parts = [];
+
+    /* the two aberration ghosts, an electric blue and a white, weighted so the
+       red and cyan that carry the chromatic read come up most often */
+    var COLORS = ["#ff2d6b", "#3fe8ff", "#4a9eff", "#eaf4ff", "#ff2d6b", "#3fe8ff"];
+
+    function make() {
+      canvas = document.createElement("canvas");
+      canvas.className = "holo-glitch-canvas";
+      canvas.setAttribute("aria-hidden", "true");
+      canvas.style.cssText = "position:fixed;inset:0;width:100%;height:100%;" +
+        "pointer-events:none;z-index:60";
+      document.body.appendChild(canvas);
+      ctx = canvas.getContext("2d");
+      var d = document.documentElement;
+      canvas.width = d.clientWidth; canvas.height = d.clientHeight;
+    }
+
+    function teardown() {
+      if (frame) { cancelAnimationFrame(frame); frame = 0; }
+      if (canvas) { canvas.remove(); canvas = null; ctx = null; }
+      parts = [];
+    }
+
+    /* seed from anywhere inside the panel's own rectangle, so the cloud starts
+       in the panel's shape. Velocity points away from the centre and is biased
+       sideways, because a chromatic split spreads on the x axis hardest. Half
+       the particles are thin horizontal streaks, which read as scanline debris
+       rather than confetti. */
+    function spawn(r) {
+      var cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+      var n = Math.min(340, Math.round(r.width * r.height / 220));
+      for (var i = 0; i < n; i++) {
+        var px = r.left + Math.random() * r.width;
+        var py = r.top + Math.random() * r.height;
+        var streak = Math.random() < 0.5;
+        parts.push({
+          x: px, y: py,
+          vx: (px - cx) / (r.width / 2) * (2 + Math.random() * 5) + (Math.random() - 0.5) * 3,
+          vy: (py - cy) / (r.height / 2) * (1 + Math.random() * 2) - Math.random() * 1.5,
+          w: streak ? 6 + Math.random() * 16 : 1 + Math.random() * 3,
+          h: streak ? 1 + Math.random() * 1.5 : 1 + Math.random() * 3,
+          color: COLORS[(Math.random() * COLORS.length) | 0],
+          drag: 0.9 + Math.random() * 0.06,
+          op: 1, fade: 0.012 + Math.random() * 0.02
+        });
+      }
+    }
+
+    function tick() {
+      if (!ctx) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      /* lighter, so overlapping particles add up to light the way a hologram
+         does rather than painting over each other */
+      ctx.globalCompositeOperation = "lighter";
+      var alive = 0;
+      for (var i = 0; i < parts.length; i++) {
+        var p = parts[i];
+        if (p.op <= 0) continue;
+        p.vx *= p.drag; p.vy = p.vy * p.drag + 0.04;   // a faint gravity
+        p.x += p.vx; p.y += p.vy; p.op -= p.fade;
+        if (p.op <= 0) continue;
+        alive++;
+        ctx.globalAlpha = p.op < 0 ? 0 : p.op;
+        ctx.fillStyle = p.color;
+        ctx.fillRect(p.x, p.y, p.w, p.h);
+      }
+      ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
+      if (alive) frame = requestAnimationFrame(tick);
+      else teardown();
+    }
+
+    function run() {
+      if (running || reduce.matches) return;
+      running = true;
+      box.classList.add("holo-glitch");
+      make();
+      window.setTimeout(function () {
+        if (!canvas) return;             // torn down already, do nothing
+        spawn(box.getBoundingClientRect());
+        if (!frame) frame = requestAnimationFrame(tick);
+      }, THROW);
+      window.setTimeout(function () {
+        box.classList.remove("holo-glitch");
+        running = false;
+      }, DUR + 40);
+    }
+
+    /* mouseenter fires once per entry on a real pointer, gated to a device that
+       can actually hover so a touch's synthetic mouseenter does not double it.
+       The tap path comes through the library's own activation signal, which is
+       touch-only to begin with; the pointerType guard is belt and braces. */
+    box.addEventListener("mouseenter", function () {
+      if (window.matchMedia && matchMedia("(hover: hover)").matches) run();
+    });
+    box.addEventListener("holotap:on", function (e) {
+      if (!e.detail || e.detail.pointerType !== "mouse") run();
+    });
   })();
 
   (function () {
