@@ -169,11 +169,29 @@
   box-shadow: 0 0 10px rgb(var(--holo-cyan, 126 224 255) / .6);
 }
 
-/* on a phone the card takes the full column and the rank pill drops under the
-   name rather than squeezing the identity line */
+.holoprofile-gem { font-size: 22px; line-height: 1; }
+
+/* a row of featured badges on the summary card, each one clickable straight
+   through to its award screen */
+.holoprofile-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.holoprofile-hint {
+  margin: 12px 0 0;
+  font-size: 10px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: rgb(var(--holo-dim, 154 162 177) / .7);
+}
+
+/* on a phone the card takes the full column and the identity line wraps rather
+   than squeezing the button */
 @media (max-width: 480px) {
   .holoprofile { max-width: none; padding: 20px 18px 18px; }
   .holoprofile-head { flex-wrap: wrap; }
-  .holoprofile-rank { order: 3; margin-left: 66px; }
   .holoprofile-stat b { font-size: 18px; }
 }

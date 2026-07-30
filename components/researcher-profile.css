@@ -1,0 +1,372 @@
+/* ---- researcher profile (holoresearcher) --------------------------------
+   The EyeWire II researcher profile, reproduced: a header with tabs, an
+   identity column, an achievements column of badge grids, and a sidebar with
+   the featured badge, the week's totals and the streak.
+
+   It is a real <dialog> opened with showModal, so focus is trapped and Escape
+   closes it. researcher-profile.js opens it and wires the tabs and the badges;
+   the badges reuse .holobadge from badge-award.css, and clicking one opens the
+   award screen.
+
+   A visual component. The numbers, cells and badges are the real profile they
+   were drawn from, but nothing here signs in, and no request goes anywhere.
+
+   The badge art is a stand in. The shipping game renders each badge in 3D; this
+   reproduces the layout and the coin, with an emoji glyph where the render
+   would be, because those assets are not in this repo. Stated here rather than
+   passed off as the original, per the repo's rule about not approximating.
+
+   On a phone the three columns stack into one and the tabs scroll sideways, so
+   the same markup is a single readable column. */
+
+dialog.holoresearcher {
+  box-sizing: border-box;
+  position: fixed;
+  inset: 0;
+  width: min(100% - 32px, 1180px);
+  height: min(100% - 32px, 880px);
+  margin: auto;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid rgb(var(--holo-glow, 74 150 224) / .28);
+  border-radius: 16px;
+  background: linear-gradient(160deg,
+    rgb(11 18 34 / .98) 0%, rgb(6 10 20 / .99) 100%);
+  color: rgb(var(--holo-ink, 239 244 251));
+  box-shadow: 0 40px 100px rgb(0 0 0 / .6),
+              0 0 120px rgb(var(--holo-glow, 74 150 224) / .1);
+}
+
+dialog.holoresearcher::backdrop {
+  background: radial-gradient(ellipse at center,
+    rgba(0,12,34,.8) 0%, rgba(0,0,0,.93) 100%);
+  backdrop-filter: blur(10px) saturate(1.25);
+  -webkit-backdrop-filter: blur(10px) saturate(1.25);
+}
+
+dialog.holoresearcher[open] {
+  animation: holoresearcher-in .55s cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes holoresearcher-in {
+  0%   { opacity: 0; transform: scale(.97) translateY(10px); filter: blur(8px); }
+  100% { opacity: 1; transform: none; filter: none; }
+}
+
+/* the whole card is a column: a fixed head, then a scrolling body */
+.holoresearcher-inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* ---- head + tabs -------------------------------------------------------- */
+.rp-head {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px 0;
+}
+
+.rp-title {
+  flex: 1 1 auto;
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: rgb(var(--holo-beam, 178 216 248) / .8);
+}
+.rp-title b { color: rgb(var(--holo-cyan, 126 224 255)); font-weight: 400; margin-right: 6px; }
+
+.rp-x {
+  flex: 0 0 auto;
+  width: 30px; height: 30px;
+  display: grid; place-items: center;
+  font-size: 17px; line-height: 1;
+  color: rgb(var(--holo-ink, 239 244 251) / .6);
+  background: none;
+  border: 1px solid rgb(var(--holo-line, 196 228 255) / .12);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: color .2s ease, border-color .2s ease, background .2s ease;
+}
+.rp-x:hover, .rp-x:focus-visible {
+  color: #fff;
+  border-color: rgb(var(--holo-beam, 178 216 248) / .5);
+  background: rgb(var(--holo-glow, 74 150 224) / .12);
+}
+.rp-x:focus-visible { outline: 2px solid rgb(var(--holo-beam,178 216 248)/.9); outline-offset: 2px; }
+
+.rp-tabs {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 4px;
+  padding: 10px 20px 0;
+  margin-top: 12px;
+  border-bottom: 1px solid rgb(var(--holo-line, 196 228 255) / .1);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.rp-tabs::-webkit-scrollbar { height: 0; }
+
+.rp-tab {
+  flex: 0 0 auto;
+  font: inherit;
+  font-size: 13px;
+  padding: 9px 14px;
+  color: rgb(var(--holo-ink, 239 244 251) / .55);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color .2s ease, border-color .2s ease;
+}
+.rp-tab:hover { color: rgb(var(--holo-ink, 239 244 251) / .85); }
+.rp-tab[aria-selected="true"] {
+  color: rgb(var(--holo-cyan, 126 224 255));
+  border-bottom-color: rgb(var(--holo-cyan, 126 224 255));
+}
+.rp-tab:focus-visible { outline: 2px solid rgb(var(--holo-beam,178 216 248)/.9); outline-offset: -2px; border-radius: 4px; }
+
+/* ---- body: three columns ------------------------------------------------ */
+.rp-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--holo-glow,74 150 224)/.4) transparent;
+}
+.rp-grid {
+  display: grid;
+  grid-template-columns: 288px 1fr 268px;
+  gap: 0;
+}
+.rp-col { padding: 22px 20px; }
+.rp-col + .rp-col { border-left: 1px solid rgb(var(--holo-line, 196 228 255) / .08); }
+
+/* a labelled section, used down all three columns */
+.rp-block { margin-top: 22px; }
+.rp-block:first-child { margin-top: 0; }
+.rp-block-h {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 12px;
+  font-size: 10px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: rgb(var(--holo-beam, 178 216 248) / .75);
+}
+.rp-block-h .rp-ico { font-size: 12px; filter: saturate(1.2); }
+.rp-block-h .rp-togo {
+  margin-left: auto;
+  font-size: 10px;
+  letter-spacing: .04em;
+  text-transform: none;
+  color: rgb(var(--holo-warm, 232 169 58));
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- left column: identity --------------------------------------------- */
+.rp-user { display: flex; align-items: center; gap: 12px; }
+.rp-avatar {
+  flex: 0 0 auto;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  font-size: 22px;
+  background: radial-gradient(circle at 40% 34%,
+    rgb(var(--holo-cyan, 126 224 255) / .4), rgb(var(--holo-glow, 74 150 224) / .14) 65%, transparent 74%);
+  border: 1px solid rgb(var(--holo-cyan, 126 224 255) / .4);
+  box-shadow: 0 0 16px rgb(var(--holo-glow, 74 150 224) / .25);
+}
+.rp-user-id { flex: 1 1 auto; min-width: 0; }
+.rp-name { margin: 0; font-size: 17px; font-weight: 600; color: #fff; }
+.rp-handle { margin: 1px 0 0; font-size: 12.5px; color: rgb(var(--holo-cyan, 126 224 255) / .85); }
+.rp-gear {
+  flex: 0 0 auto; background: none; border: none; cursor: pointer;
+  color: rgb(var(--holo-ink, 239 244 251) / .4); font-size: 15px; padding: 4px;
+}
+.rp-gear:hover { color: rgb(var(--holo-ink, 239 244 251) / .8); }
+
+.rp-bio {
+  margin: 12px 0 0;
+  font-size: 13px; font-style: italic; line-height: 1.5;
+  color: rgb(var(--holo-ink, 239 244 251) / .72);
+}
+
+/* the edits row: three periods, each a small label, a big number, and two
+   sub totals with icons */
+.rp-stat-row { display: flex; gap: 6px; }
+.rp-stat {
+  flex: 1 1 0; min-width: 0;
+}
+.rp-stat-k {
+  margin: 0 0 4px; font-size: 8.5px; letter-spacing: .12em;
+  text-transform: uppercase; color: rgb(var(--holo-dim, 154 162 177));
+}
+.rp-stat-v {
+  margin: 0; font-size: 22px; font-weight: 600; line-height: 1;
+  color: rgb(var(--holo-beam, 178 216 248)); font-variant-numeric: tabular-nums;
+}
+.rp-stat-sub {
+  margin: 6px 0 0; display: flex; gap: 10px;
+  font-size: 11px; color: rgb(var(--holo-dim, 154 162 177));
+  font-variant-numeric: tabular-nums;
+}
+.rp-stat-sub span { display: inline-flex; align-items: center; gap: 3px; }
+.rp-stat-sub i { font-style: normal; opacity: .7; font-size: 10px; }
+
+/* the cells row: four smaller stat cells with a caption under each */
+.rp-cells { display: flex; gap: 4px; }
+.rp-cell { flex: 1 1 0; text-align: left; }
+.rp-cell b {
+  display: block; font-size: 19px; font-weight: 600; line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.rp-cell.done b { color: rgb(var(--holo-cyan, 126 224 255)); }
+.rp-cell.help b { color: rgb(123 224 164); }
+.rp-cell-k { display: block; margin-top: 4px; font-size: 8px; letter-spacing: .1em;
+  text-transform: uppercase; color: rgb(var(--holo-ink,239 244 251)/.7); }
+.rp-cell-d { display: block; margin-top: 1px; font-size: 10px; color: rgb(var(--holo-dim,154 162 177)/.8); }
+
+/* recent cells table */
+.rp-recent-pill {
+  float: right; font: 500 9px/1 ui-monospace, Menlo, Consolas, monospace;
+  letter-spacing: .06em; color: rgb(var(--holo-cyan, 126 224 255) / .9);
+  background: rgb(var(--holo-cyan, 126 224 255) / .1);
+  border: 1px solid rgb(var(--holo-cyan, 126 224 255) / .28);
+  border-radius: 999px; padding: 4px 9px;
+}
+.rp-recent { width: 100%; border-collapse: collapse; margin-top: 4px; }
+.rp-recent th {
+  text-align: left; font-size: 8px; letter-spacing: .12em; text-transform: uppercase;
+  font-weight: 500; color: rgb(var(--holo-dim, 154 162 177) / .7);
+  padding: 0 8px 8px 0;
+}
+.rp-recent th:last-child, .rp-recent td:last-child { text-align: right; padding-right: 0; }
+.rp-recent td {
+  padding: 7px 8px 7px 0; font-size: 11.5px;
+  border-top: 1px solid rgb(var(--holo-line, 196 228 255) / .06);
+  color: rgb(var(--holo-ink, 239 244 251) / .82);
+}
+.rp-recent .seg { font-family: ui-monospace, Menlo, Consolas, monospace; white-space: nowrap; }
+.rp-recent .star { color: rgb(var(--holo-warm, 232 169 58)); }
+.rp-recent .star.off { color: rgb(var(--holo-dim, 154 162 177) / .4); }
+.rp-recent .chk { color: rgb(123 224 164); margin-left: 2px; }
+.rp-recent .when { color: rgb(var(--holo-dim, 154 162 177)); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.rp-recent .untyped { color: rgb(var(--holo-dim, 154 162 177) / .5); font-style: italic; }
+
+/* ---- middle column: achievements --------------------------------------- */
+.rp-prog {
+  height: 6px; border-radius: 999px; margin: 0 0 14px;
+  background: rgb(var(--holo-ink, 239 244 251) / .08); overflow: hidden;
+}
+.rp-prog i {
+  display: block; height: 100%; width: var(--v, 0%); border-radius: 999px;
+  background: linear-gradient(90deg, rgb(var(--holo-warm, 232 169 58) / .7),
+    rgb(var(--holo-warm, 232 169 58)));
+  box-shadow: 0 0 10px rgb(var(--holo-warm, 232 169 58) / .5);
+}
+
+.rp-badges {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px 10px;
+}
+.rp-badge-cell {
+  display: flex; flex-direction: column; align-items: center; gap: 7px;
+  text-align: center;
+}
+.rp-badge-label {
+  font-size: 9.5px; line-height: 1.2; letter-spacing: .02em;
+  color: rgb(var(--holo-ink, 239 244 251) / .66);
+}
+
+/* the "view all" tile, a ghost coin */
+.rp-viewall {
+  width: var(--holobadge-size, 54px); height: var(--holobadge-size, 54px);
+  display: grid; place-items: center;
+  border: 1px dashed rgb(var(--holo-line, 196 228 255) / .22);
+  border-radius: 27%;
+  background: rgb(var(--holo-line, 196 228 255) / .03);
+  color: rgb(var(--holo-ink, 239 244 251) / .6);
+  font-size: 18px; cursor: pointer;
+  transition: border-color .2s ease, color .2s ease;
+}
+.rp-viewall:hover, .rp-viewall:focus-visible {
+  border-color: rgb(var(--holo-beam, 178 216 248) / .5); color: #fff;
+}
+.rp-viewall:focus-visible { outline: 2px solid rgb(var(--holo-beam,178 216 248)/.9); outline-offset: 2px; }
+
+/* ---- right column: sidebar --------------------------------------------- */
+.rp-featured-wrap { text-align: center; }
+.rp-featured-name {
+  margin: 20px 0 8px; font-size: 14px; letter-spacing: .1em; text-transform: uppercase;
+  color: rgb(var(--holo-cyan, 126 224 255));
+}
+.rp-featured-tag {
+  margin: 0 0 10px; font-size: 12px; font-style: italic;
+  color: rgb(var(--holo-ink, 239 244 251) / .7);
+}
+.rp-featured-date { margin: 0; font-size: 11px; color: rgb(var(--holo-dim, 154 162 177)); }
+.rp-featured-date b { color: rgb(var(--holo-ink, 239 244 251) / .85); font-weight: 600; }
+
+/* top of the week: two little medal chips */
+.rp-week-row { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+.rp-week-row:first-child { margin-top: 0; }
+.rp-week-k { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: rgb(var(--holo-dim,154 162 177)); }
+.rp-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  font: 600 11px/1 ui-monospace, Menlo, Consolas, monospace;
+  color: rgb(var(--holo-warm, 232 169 58));
+  background: rgb(var(--holo-warm, 232 169 58) / .1);
+  border: 1px solid rgb(var(--holo-warm, 232 169 58) / .3);
+  border-radius: 999px; padding: 4px 9px;
+}
+
+/* streak */
+.rp-streak-top { display: flex; align-items: baseline; gap: 8px; }
+.rp-streak-fire { font-size: 20px; }
+.rp-streak-n { font-size: 24px; font-weight: 700; color: #fff; font-variant-numeric: tabular-nums; }
+.rp-streak-cur { font-size: 11px; color: rgb(var(--holo-dim, 154 162 177)); }
+.rp-streak-best { margin-left: auto; font-size: 11px; color: rgb(var(--holo-dim, 154 162 177)); }
+.rp-streak-best b { color: rgb(var(--holo-ink, 239 244 251) / .85); }
+
+/* the 14 day chart: thin bars for edits with a cap dot for completions */
+.rp-week-label { margin: 14px 0 8px; font-size: 9px; letter-spacing: .16em;
+  text-transform: uppercase; color: rgb(var(--holo-dim, 154 162 177) / .8); }
+.rp-chart { display: grid; grid-template-columns: repeat(14, 1fr); gap: 4px; align-items: end; height: 56px; }
+.rp-chart-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; gap: 3px; }
+.rp-chart-bar {
+  width: 100%; max-width: 8px; border-radius: 2px; height: var(--h, 10%);
+  background: linear-gradient(180deg, rgb(var(--holo-cyan, 126 224 255) / .85), rgb(var(--holo-cyan, 126 224 255) / .35));
+}
+.rp-chart-col.has-done .rp-chart-bar { box-shadow: 0 -3px 0 0 rgb(var(--holo-warm, 232 169 58)); }
+.rp-chart-day { font-size: 7.5px; color: rgb(var(--holo-dim, 154 162 177) / .7); }
+.rp-chart-legend { display: flex; gap: 14px; margin-top: 10px; font-size: 9.5px; color: rgb(var(--holo-dim, 154 162 177)); }
+.rp-chart-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.rp-chart-legend i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
+.rp-chart-legend .ed { background: rgb(var(--holo-cyan, 126 224 255)); }
+.rp-chart-legend .co { background: rgb(var(--holo-warm, 232 169 58)); }
+
+/* the non-overview tabs are placeholders, since only Overview has real content */
+.rp-panel[hidden] { display: none; }
+.rp-empty {
+  padding: 60px 20px; text-align: center;
+  color: rgb(var(--holo-dim, 154 162 177));
+  font-size: 13px;
+}
+
+/* ---- phone: one column, tabs scroll ------------------------------------ */
+@media (max-width: 780px) {
+  dialog.holoresearcher { width: 100%; height: 100%; border-radius: 0; border: none; }
+  .rp-grid { grid-template-columns: 1fr; }
+  .rp-col + .rp-col { border-left: none; border-top: 1px solid rgb(var(--holo-line, 196 228 255) / .08); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  dialog.holoresearcher[open] { animation: none; }
+  .rp-x, .rp-tab, .rp-viewall { transition: none; }
+}

@@ -346,7 +346,10 @@
 .holoload-glyph {
     position: relative; display: block; width: 100%; height: auto;
     color: rgb(var(--holo-beam, 178 216 248));
-    filter: drop-shadow(0 0 6px rgb(var(--holo-beam, 178 216 248) / .7));
+    /* two layers of glow, the near one to define the stroke and the wide one to
+       light the space around it, the way the login box lights its own arbor */
+    filter: drop-shadow(0 0 6px rgb(var(--holo-beam, 178 216 248) / .7))
+            drop-shadow(0 0 16px rgb(var(--holo-beam, 178 216 248) / .28));
   }
 
 .holoload-glyph .arbor path {
@@ -354,11 +357,33 @@
     animation: holo-load-draw 2.6s cubic-bezier(.4,0,.2,1) infinite;
   }
 
-.holoload-glyph .arbor.basal path { animation-delay: 1.3s; }
+/* every path is authored starting at the soma, so the draw grows the tree
+   outward from the cell body rather than in toward it */
+  .holoload-glyph .arbor.basal path { animation-delay: 1.3s; }
 
 .holoload-glyph .soma {
     transform-box: fill-box; transform-origin: center;
     animation: holo-load-pulse 1.6s ease-in-out infinite;
+  }
+
+.holoload-glyph .soma-halo {
+    transform-box: fill-box; transform-origin: center; opacity: .18;
+    animation: holo-load-halo 1.6s ease-in-out infinite;
+  }
+
+/* the signal. Dots ride in along the dendrites, through the soma and out the
+   axon, the login box's travelling particle idea run along a real morphology.
+   Struck in the cyan accent so the moving light reads against the cooler
+   arbor. The motion is on <animateMotion> in the markup; here is only its
+   colour and glow. */
+  .holoload-glyph .signal-dot {
+    fill: rgb(var(--holo-cyan, 126 224 255));
+    filter: drop-shadow(0 0 5px rgb(var(--holo-cyan, 126 224 255)));
+  }
+
+@keyframes holo-load-halo {
+    0%, 100% { transform: scale(1);    opacity: .15; }
+    50%      { transform: scale(1.28); opacity: .3; }
   }
 
 @keyframes holo-load-draw {
@@ -412,7 +437,10 @@
      pretending to know something it does not */
   @media (prefers-reduced-motion: reduce) {
     .holoload-glyph .arbor path { stroke-dasharray: none; animation: none; }
-    .holoload-glyph .soma { animation: none; }
+    .holoload-glyph .soma, .holoload-glyph .soma-halo { animation: none; }
+    /* the travelling dots are motion with no information in them, so they go
+       entirely rather than sitting frozen on the arbor */
+    .holoload-glyph .signal-dot { display: none; }
     .holoload-bar i { transition: none; }
     .holoload[data-indeterminate] .holoload-bar i {
       width: 100%; animation: none; opacity: .35; box-shadow: none;
@@ -620,7 +648,11 @@
        containing block for the rim and the particle field, which is the only
        reason `relative` looked right. */
     box-sizing: border-box; position: fixed; inset: 0;
+    /* still scrollable when a short viewport needs it, but the bar itself is
+       hidden: a scrollbar down the side of a hologram reads as a browser
+       chrome leak rather than part of the panel */
     overflow-x: hidden; overflow-y: auto;
+    scrollbar-width: none;
     /* a phone in landscape is shorter than this dialog is tall, and with the
        overflow hidden the close control was simply unreachable */
     max-height: calc(100% - 24px);
@@ -639,6 +671,10 @@
       inset 0 0 80px rgb(var(--holo-glow, 74 150 224) / .04),
       0 20px 60px rgb(0 0 0 / .5);
   }
+
+/* the WebKit half of scrollbar-width: none, so the scroll bar is gone in
+   Safari and Chrome too while the dialog stays scrollable */
+  dialog.holodialog::-webkit-scrollbar { width: 0; height: 0; }
 
 /* the backdrop cannot count on inheriting your tokens, so it carries values */
   dialog.holodialog::backdrop {

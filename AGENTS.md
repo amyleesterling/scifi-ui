@@ -255,3 +255,30 @@ under the repulsion.
 lesson: two components sharing a base class break both the day a page loads
 both, which is how the icon rail's `.holorail` met the section rail's, now
 renamed `.holoiconrail`. The whole components set is wired into the main page.
+
+**Version 5**, 30 July 2026. The researcher profile, badge coin and award screen
+are reproduced from the EyeWire II profile, and the loader is redrawn. Lessons
+worth keeping:
+
+- **A travelling dot along a path is `<animateMotion>` with a `path` attribute,
+  no length maths.** The loader signals ride dendrite to soma to axon that way.
+  SMIL does not read `prefers-reduced-motion`, so the reduced motion rule sets
+  the dots to `display: none` rather than trying to stop the animation; a dot
+  frozen mid arbor is worse than no dot.
+
+- **Draw direction is authored, not set in CSS.** The loader arbor grows out of
+  the soma because every path's `M` is at the soma and the stroke dashoffset
+  reveals from there. To reverse a draw, reverse the path, not the keyframe.
+
+- **A hero title should not carry a component that blurs itself out.** The
+  masthead used to be a `.holoboot`, so it re-materialised on every hover and
+  tap and the title vanished for a beat. It is now a plain `data-holo-tap` host:
+  it lights its edge, nothing disappears. Boot entrances belong on cards you
+  scroll past, not on the one thing that is on screen from the first frame.
+
+- **Reproducing a screen you cannot get the assets for: build the layout, mark
+  the placeholders.** The profile is faithful to the EyeWire II screenshot, but
+  the 3D badge renders are not in this repo, so each badge is a CSS coin with an
+  emoji glyph, and both the CSS and the README say so. That is the §2 rule
+  applied to art rather than to numbers: reproduce what you can, and never let a
+  stand in read as the original.

@@ -1,0 +1,258 @@
+/* ---- badge and badge award (holobadge, holoaward) -----------------------
+   The EyeWire II badge coin, the trophy case featured animation, and the award
+   screen that celebrates one when you win it.
+
+   A badge is a glossy rounded coin coloured by two custom properties, --b1 and
+   --b2, so a new badge is one pair of colours and a glyph rather than a new
+   rule, the same idea the tinted card runs on. The glyph inside is an emoji or
+   inline SVG the markup supplies.
+
+     <button class="holobadge" style="--b1:#6fd3ff;--b2:#2b6fd6"
+             data-award="Astrolabe">
+       <span class="holobadge-glyph">&#9906;</span>
+     </button>
+
+   --b1 is the light face, --b2 the deep one. A locked badge that has not been
+   earned yet sets is-locked and drains to grey rather than getting its own
+   dimmed palette.
+
+   The featured badge is the same coin at a larger size with an ambient float,
+   a slow specular sweep and a breathing glow, which is the one thing in the
+   trophy case allowed to loop because it is the piece on display.
+
+   The award screen (holoaward) is a real <dialog>, opened with showModal, so
+   focus is trapped and Escape closes it with no script. badge-award.js fills
+   it from the badge that was clicked and fires the confetti burst. It is a
+   visual component: nothing is granted, stored or sent. */
+
+/* ---- the coin ----------------------------------------------------------- */
+.holobadge {
+  position: relative;
+  flex: 0 0 auto;
+  width: var(--holobadge-size, 54px);
+  height: var(--holobadge-size, 54px);
+  padding: 0;
+  border: none;
+  border-radius: 27%;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: #fff;
+  background:
+    radial-gradient(120% 120% at 30% 22%,
+      rgb(255 255 255 / .55) 0%, rgb(255 255 255 / 0) 38%),
+    linear-gradient(158deg, var(--b1, #7fd0ff) 0%, var(--b2, #2f6fd6) 100%);
+  box-shadow:
+    inset 0 1px 1px rgb(255 255 255 / .5),
+    inset 0 -6px 12px rgb(0 0 0 / .32),
+    0 6px 16px rgb(0 0 0 / .4),
+    0 0 18px var(--bglow, rgb(90 160 240 / .35));
+  transition: transform .18s cubic-bezier(.34,1.4,.64,1),
+              box-shadow .2s ease, filter .2s ease;
+}
+
+/* the rim highlight, a thin bright arc across the top, drawn as a ring so it
+   does not wash the whole face */
+.holobadge::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / .22);
+}
+
+.holobadge-glyph {
+  position: relative;
+  font-size: calc(var(--holobadge-size, 54px) * .48);
+  line-height: 1;
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / .45));
+}
+
+.holobadge:hover, .holobadge:focus-visible, .holobadge.holo-on {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow:
+    inset 0 1px 1px rgb(255 255 255 / .6),
+    inset 0 -6px 12px rgb(0 0 0 / .32),
+    0 12px 24px rgb(0 0 0 / .5),
+    0 0 28px var(--bglow, rgb(90 160 240 / .6));
+}
+
+.holobadge:focus-visible {
+  outline: 2px solid rgb(var(--holo-beam, 178 216 248) / .9);
+  outline-offset: 3px;
+}
+
+.holobadge:active { transform: translateY(-1px) scale(1.02); }
+
+/* not earned yet: the colour drains out and the coin sits flat and quiet */
+.holobadge.is-locked {
+  background:
+    radial-gradient(120% 120% at 30% 22%,
+      rgb(255 255 255 / .14) 0%, rgb(255 255 255 / 0) 40%),
+    linear-gradient(158deg, #3a4150 0%, #232833 100%);
+  box-shadow:
+    inset 0 1px 1px rgb(255 255 255 / .12),
+    inset 0 -5px 10px rgb(0 0 0 / .4),
+    0 4px 10px rgb(0 0 0 / .35);
+  color: rgb(var(--holo-dim, 154 162 177) / .6);
+  cursor: pointer;
+}
+.holobadge.is-locked .holobadge-glyph { opacity: .5; filter: grayscale(1); }
+
+/* ---- the featured coin, the one on display ------------------------------ */
+.holobadge--featured {
+  --holobadge-size: 128px;
+  border-radius: 30%;
+  animation: holobadge-float 4.5s ease-in-out infinite;
+}
+
+/* the specular sweep, a bright band that travels across the face on its own
+   loop, which is what makes the coin read as glossy and turning */
+.holobadge--featured::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(66deg,
+    transparent 30%, rgb(255 255 255 / .5) 48%, rgb(255 255 255 / .12) 56%,
+    transparent 68%);
+  background-size: 250% 100%;
+  animation: holobadge-sheen 3.6s ease-in-out infinite;
+  mix-blend-mode: screen;
+}
+
+.holobadge--featured .holobadge-glyph {
+  font-size: 58px;
+  animation: holobadge-glyph-tilt 4.5s ease-in-out infinite;
+}
+
+@keyframes holobadge-float {
+  0%, 100% { transform: translateY(0);
+             box-shadow: inset 0 2px 2px rgb(255 255 255 / .5),
+                         inset 0 -10px 20px rgb(0 0 0 / .32),
+                         0 14px 30px rgb(0 0 0 / .45),
+                         0 0 30px var(--bglow, rgb(120 170 255 / .5)); }
+  50%      { transform: translateY(-9px);
+             box-shadow: inset 0 2px 2px rgb(255 255 255 / .6),
+                         inset 0 -10px 20px rgb(0 0 0 / .32),
+                         0 26px 44px rgb(0 0 0 / .5),
+                         0 0 46px var(--bglow, rgb(120 170 255 / .75)); }
+}
+
+@keyframes holobadge-sheen {
+  0%   { background-position: 160% 0; }
+  55%  { background-position: -60% 0; }
+  100% { background-position: -60% 0; }
+}
+
+/* the glyph counter-rotates a hair against the float, so the coin reads as a
+   solid object catching the light rather than a flat sticker sliding up */
+@keyframes holobadge-glyph-tilt {
+  0%, 100% { transform: rotate(-4deg) scale(1); }
+  50%      { transform: rotate(4deg) scale(1.04); }
+}
+
+/* ---- the award screen --------------------------------------------------- */
+dialog.holoaward {
+  box-sizing: border-box;
+  position: fixed;
+  inset: 0;
+  width: min(100% - 40px, 380px);
+  max-height: calc(100% - 40px);
+  margin: auto;
+  padding: 40px 32px 30px;
+  text-align: center;
+  border: 1px solid rgb(var(--holo-glow, 74 150 224) / .3);
+  border-radius: 16px;
+  background: linear-gradient(168deg,
+    rgb(12 20 38 / .97) 0%, rgb(5 9 20 / .98) 100%);
+  color: rgb(var(--holo-ink, 239 244 251));
+  overflow: hidden;
+  scrollbar-width: none;
+  box-shadow: 0 30px 80px rgb(0 0 0 / .6),
+              0 0 90px rgb(var(--holo-glow, 74 150 224) / .12);
+}
+dialog.holoaward::-webkit-scrollbar { width: 0; height: 0; }
+
+dialog.holoaward::backdrop {
+  background: radial-gradient(ellipse at center,
+    rgba(0,12,34,.82) 0%, rgba(0,0,0,.94) 100%);
+  backdrop-filter: blur(10px) saturate(1.3);
+  -webkit-backdrop-filter: blur(10px) saturate(1.3);
+}
+
+dialog.holoaward[open] {
+  animation: holoaward-in .6s cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes holoaward-in {
+  0%   { opacity: 0; transform: scale(.9) translateY(12px); filter: blur(8px); }
+  100% { opacity: 1; transform: none; filter: none; }
+}
+
+.holoaward-eyebrow {
+  margin: 0 0 20px;
+  font-size: 10px;
+  letter-spacing: .34em;
+  text-transform: uppercase;
+  color: rgb(var(--holo-beam, 178 216 248) / .7);
+}
+
+/* the award reuses the featured coin whole, so the badge you won turns and
+   shines on the screen the same way it does in the trophy case */
+.holoaward .holobadge--featured { margin: 4px auto 22px; }
+
+.holoaward-name {
+  margin: 0 0 8px;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: .01em;
+  color: #fff;
+}
+
+.holoaward-tagline {
+  margin: 0 0 16px;
+  font-style: italic;
+  font-size: 14px;
+  color: rgb(var(--holo-ink, 239 244 251) / .72);
+}
+
+.holoaward-date {
+  margin: 0 0 24px;
+  font-size: 12px;
+  letter-spacing: .1em;
+  color: rgb(var(--holo-dim, 154 162 177));
+}
+.holoaward-date b { color: rgb(var(--holo-cyan, 126 224 255)); font-weight: 600; }
+
+.holoaward-close {
+  font: inherit;
+  font-size: 12px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgb(var(--holo-ink, 239 244 251));
+  background: rgb(var(--holo-glow, 74 150 224) / .18);
+  border: 1px solid rgb(var(--holo-glow, 74 150 224) / .4);
+  border-radius: 8px;
+  padding: 10px 22px;
+  cursor: pointer;
+  transition: background .2s ease, border-color .2s ease;
+}
+.holoaward-close:hover, .holoaward-close:focus-visible, .holoaward-close.holo-on {
+  background: rgb(var(--holo-glow, 74 150 224) / .3);
+  border-color: rgb(var(--holo-beam, 178 216 248) / .7);
+}
+.holoaward-close:focus-visible {
+  outline: 2px solid rgb(var(--holo-beam, 178 216 248) / .9);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .holobadge { transition: none; }
+  .holobadge--featured,
+  .holobadge--featured::before,
+  .holobadge--featured .holobadge-glyph { animation: none; }
+  .holobadge--featured::before { background-position: -60% 0; }
+  dialog.holoaward[open] { animation: none; }
+}

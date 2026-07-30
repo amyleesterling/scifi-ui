@@ -25,9 +25,10 @@ own [demo page](https://amyleesterling.github.io/scifi-ui/components/): a
 tutorial callout, an achievement toast, a confetti burst, a tinted lift card, an
 icon rail (`.holoiconrail`, kept clear of the section rail's `.holorail`), a page
 finale that fires the confetti once when the reader reaches the bottom and floats
-a mascot up on balloons, a shared panel surface (`.holopanel`), and a profile
-panel built on it. They are split one per file so you can take one without taking
-the set, and the whole set also runs inline on the main
+a mascot up on balloons, a shared panel surface (`.holopanel`), a profile card
+built on it, the full EyeWire II researcher profile it opens into, and a badge
+coin with the award screen it triggers. They are split one per file so you can
+take one without taking the set, and the whole set also runs inline on the main
 [demo page](https://amyleesterling.github.io/scifi-ui/).
 
 The panel surface is the one worth a word here. A dark gradient panel with a lit
@@ -35,6 +36,16 @@ top edge and a materialise entrance recurred in four upstream places, each with
 its own copy; `components/panel-surface.css` is that surface pulled out once, and
 the profile panel is the first component built on it rather than a fifth copy. It
 wins without `!important`: a library has no host page to fight.
+
+The researcher profile is the EyeWire II profile reproduced: a header with tabs,
+an identity column, badge grids for the achievements, and a sidebar with the
+featured badge, the week's totals and the streak, opened as a modal from the
+summary card. Any badge is a `.holobadge` coin, and clicking one opens the award
+screen (`components/badge-award.css`), which reuses the trophy case's featured
+badge animation and fires the confetti burst. The badge art is a stand in: the
+shipping game renders each badge in 3D, and this reproduces the layout and the
+coin with an emoji glyph where the render would be, stated rather than passed off
+as the original.
 
 ```html
 <link rel="stylesheet" href="hologram.css">

@@ -12,6 +12,8 @@
 <link rel="stylesheet" href="components/page-finale.css">
 <link rel="stylesheet" href="components/panel-surface.css">
 <link rel="stylesheet" href="components/profile-panel.css">
+<link rel="stylesheet" href="components/badge-award.css">
+<link rel="stylesheet" href="components/researcher-profile.css">
 <link rel="stylesheet" href="components/achievement-toast.css">
 <link rel="stylesheet" href="components/tinted-card.css">
 <link rel="stylesheet" href="components/icon-rail.css">
@@ -141,9 +143,30 @@
   h1 { margin: 0; font-size: clamp(27px,4.6vw,38px); font-weight: 500;
        letter-spacing: -.02em; line-height: 1.08; }
   .lede { margin: 9px 0 0; color: #BACDE4; font-size: 15.5px; max-width: 48ch; }
-  /* the lede lives under the banner now, not inside the box, so the box
-     carries only the name and the instruction */
-  .wrap > .lede { margin: 0 0 4px; max-width: 60ch; }
+  /* the lede lives under the banner now, not inside the box, and it runs the
+     full reading column so it lines up with the section copy below it */
+  .wrap > .lede { margin: 0 0 4px; max-width: none; }
+  /* the wordmark. A cool gradient fill with a soft glow and a slow sheen, and
+     nothing that blurs out or disappears: the masthead no longer boots, it
+     just lights its edge on hover or a tap. */
+  .wordmark {
+    font-size: clamp(34px, 6.2vw, 52px); font-weight: 600; letter-spacing: .006em;
+    line-height: 1;
+    background: linear-gradient(100deg, #6FB0FF 0%, #EAF4FF 26%, #BBDBFF 46%,
+      #64A6EE 68%, #A6D2FF 100%);
+    background-size: 220% 100%;
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent; -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 2px 16px rgba(74,150,240,.42));
+    animation: wordmark-sheen 9s ease-in-out infinite;
+  }
+  @keyframes wordmark-sheen {
+    0%, 100% { background-position: 0% 0; }
+    50%      { background-position: 100% 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .wordmark { animation: none; background-position: 0 0; }
+  }
   .tapline {
     margin: 13px 0 0; font-size: 10px; letter-spacing: .26em;
     text-transform: uppercase; color: rgba(140,190,240,.72);
@@ -275,9 +298,9 @@
   <img src="media/somas.jpg" alt="Reconstructed CA3 pyramidal cell bodies, each in a different colour">
   <div class="topveil"></div>
   <div class="holoswarm"></div>
-  <div class="masthead holoboot">
+  <div class="masthead" data-holo-tap>
     <p class="eyebrow"><s></s>hologram ui components<u></u><span id="elcount"></span></p>
-    <h1>scifi-ui</h1>
+    <h1 class="wordmark">scifi-ui</h1>
     <p class="tapline">tap to activate</p>
   </div>
 </div>
@@ -286,7 +309,7 @@
 
   <p class="lede">A library of hologram and HUD parts for a dark page. Step
   rails, panels that boot up, a loading state that draws a cell, a modal
-  surface, and a particle trace for media. No build step, nothing to install.</p>
+  surface, and a particle trace for media.</p>
 
   <h2>Particle trace, on an image</h2>
   <p>An arc of light runs the boundary once, struck from wherever your pointer
@@ -393,29 +416,52 @@
     <div class="demo">
       <div class="holoload" data-loaded="4" data-total="9" role="status">
         <div class="holoload-figure">
-          <svg class="holoload-glyph" viewBox="0 0 200 280" aria-hidden="true">
-            <g class="arbor apical" fill="none" stroke="currentColor" stroke-width="2.6"
+          <svg class="holoload-glyph" viewBox="0 0 200 260" aria-hidden="true">
+            <!-- every path starts at the soma (100,140) and runs outward, so the
+                 draw grows the arbor out from the cell body -->
+            <g class="arbor apical" fill="none" stroke="currentColor" stroke-width="2.4"
                stroke-linecap="round" stroke-linejoin="round">
-              <path d="M100 168 L100 60"></path>
-              <path d="M100 60 L82 30"></path>
-              <path d="M100 60 L118 30"></path>
-              <path d="M100 60 L72 42"></path>
-              <path d="M100 60 L128 42"></path>
-              <path d="M100 88 L74 58"></path>
-              <path d="M100 92 L126 62"></path>
-              <path d="M100 116 L70 96"></path>
-              <path d="M100 122 L130 102"></path>
+              <path d="M100 140 L100 54"></path>
+              <path d="M100 66 L80 40"></path>
+              <path d="M100 66 L120 40"></path>
+              <path d="M100 54 L88 34"></path>
+              <path d="M100 54 L112 34"></path>
+              <path d="M100 96 L76 74"></path>
+              <path d="M100 104 L124 82"></path>
+              <path d="M100 140 L58 112"></path>
+              <path d="M78 126 L54 100"></path>
+              <path d="M100 140 L142 112"></path>
+              <path d="M122 126 L146 100"></path>
             </g>
             <g class="arbor basal" fill="none" stroke="currentColor" stroke-width="2.2"
-               stroke-linecap="round" stroke-linejoin="round" opacity=".9">
-              <path d="M88 196 L52 218"></path>
-              <path d="M112 196 L148 218"></path>
-              <path d="M100 200 L82 252"></path>
-              <path d="M100 200 L118 252"></path>
-              <path d="M84 192 L40 196"></path>
-              <path d="M116 192 L160 196"></path>
+               stroke-linecap="round" stroke-linejoin="round" opacity=".92">
+              <path d="M100 140 L66 172"></path>
+              <path d="M82 152 L58 186"></path>
+              <path d="M100 140 L134 172"></path>
+              <path d="M118 152 L142 186"></path>
+              <path class="axon" d="M100 140 L100 244"></path>
+              <path d="M100 244 L90 253"></path>
+              <path d="M100 244 L110 253"></path>
             </g>
-            <ellipse class="soma" cx="100" cy="184" rx="13" ry="12" fill="currentColor"></ellipse>
+            <ellipse class="soma-halo" cx="100" cy="140" rx="13" ry="12" fill="currentColor"></ellipse>
+            <ellipse class="soma" cx="100" cy="140" rx="6.6" ry="6" fill="currentColor"></ellipse>
+            <!-- the signal: a dot rides in along a dendrite, through the soma,
+                 and out the axon. Three routes, staggered, so the cell keeps
+                 firing while it draws. -->
+            <g class="signals">
+              <circle class="signal-dot" r="2.8">
+                <animateMotion dur="2.6s" repeatCount="indefinite"
+                  path="M100 54 L100 140 L100 244"></animateMotion>
+              </circle>
+              <circle class="signal-dot" r="2.8">
+                <animateMotion dur="2.6s" begin="-0.87s" repeatCount="indefinite"
+                  path="M58 112 L100 140 L100 244"></animateMotion>
+              </circle>
+              <circle class="signal-dot" r="2.8">
+                <animateMotion dur="2.6s" begin="-1.73s" repeatCount="indefinite"
+                  path="M142 112 L100 140 L100 244"></animateMotion>
+              </circle>
+            </g>
           </svg>
         </div>
         <p class="holoload-label">loading meshes</p>
@@ -426,29 +472,52 @@
     <div class="demo">
       <div class="holoload" role="status">
         <div class="holoload-figure" style="--holoload-size:104px">
-          <svg class="holoload-glyph" viewBox="0 0 200 280" aria-hidden="true">
-            <g class="arbor apical" fill="none" stroke="currentColor" stroke-width="2.6"
+          <svg class="holoload-glyph" viewBox="0 0 200 260" aria-hidden="true">
+            <!-- every path starts at the soma (100,140) and runs outward, so the
+                 draw grows the arbor out from the cell body -->
+            <g class="arbor apical" fill="none" stroke="currentColor" stroke-width="2.4"
                stroke-linecap="round" stroke-linejoin="round">
-              <path d="M100 168 L100 60"></path>
-              <path d="M100 60 L82 30"></path>
-              <path d="M100 60 L118 30"></path>
-              <path d="M100 60 L72 42"></path>
-              <path d="M100 60 L128 42"></path>
-              <path d="M100 88 L74 58"></path>
-              <path d="M100 92 L126 62"></path>
-              <path d="M100 116 L70 96"></path>
-              <path d="M100 122 L130 102"></path>
+              <path d="M100 140 L100 54"></path>
+              <path d="M100 66 L80 40"></path>
+              <path d="M100 66 L120 40"></path>
+              <path d="M100 54 L88 34"></path>
+              <path d="M100 54 L112 34"></path>
+              <path d="M100 96 L76 74"></path>
+              <path d="M100 104 L124 82"></path>
+              <path d="M100 140 L58 112"></path>
+              <path d="M78 126 L54 100"></path>
+              <path d="M100 140 L142 112"></path>
+              <path d="M122 126 L146 100"></path>
             </g>
             <g class="arbor basal" fill="none" stroke="currentColor" stroke-width="2.2"
-               stroke-linecap="round" stroke-linejoin="round" opacity=".9">
-              <path d="M88 196 L52 218"></path>
-              <path d="M112 196 L148 218"></path>
-              <path d="M100 200 L82 252"></path>
-              <path d="M100 200 L118 252"></path>
-              <path d="M84 192 L40 196"></path>
-              <path d="M116 192 L160 196"></path>
+               stroke-linecap="round" stroke-linejoin="round" opacity=".92">
+              <path d="M100 140 L66 172"></path>
+              <path d="M82 152 L58 186"></path>
+              <path d="M100 140 L134 172"></path>
+              <path d="M118 152 L142 186"></path>
+              <path class="axon" d="M100 140 L100 244"></path>
+              <path d="M100 244 L90 253"></path>
+              <path d="M100 244 L110 253"></path>
             </g>
-            <ellipse class="soma" cx="100" cy="184" rx="13" ry="12" fill="currentColor"></ellipse>
+            <ellipse class="soma-halo" cx="100" cy="140" rx="13" ry="12" fill="currentColor"></ellipse>
+            <ellipse class="soma" cx="100" cy="140" rx="6.6" ry="6" fill="currentColor"></ellipse>
+            <!-- the signal: a dot rides in along a dendrite, through the soma,
+                 and out the axon. Three routes, staggered, so the cell keeps
+                 firing while it draws. -->
+            <g class="signals">
+              <circle class="signal-dot" r="2.8">
+                <animateMotion dur="2.6s" repeatCount="indefinite"
+                  path="M100 54 L100 140 L100 244"></animateMotion>
+              </circle>
+              <circle class="signal-dot" r="2.8">
+                <animateMotion dur="2.6s" begin="-0.87s" repeatCount="indefinite"
+                  path="M58 112 L100 140 L100 244"></animateMotion>
+              </circle>
+              <circle class="signal-dot" r="2.8">
+                <animateMotion dur="2.6s" begin="-1.73s" repeatCount="indefinite"
+                  path="M142 112 L100 140 L100 244"></animateMotion>
+              </circle>
+            </g>
           </svg>
         </div>
         <p class="holoload-label">no total yet</p>
@@ -510,44 +579,28 @@
   <p>Drag the rail and the loop holds where you put it, because touching the box
   counts as somebody being present. It resumes after a quiet spell.</p>
 
-  <h2>Profile panel</h2>
-  <p>An operator card built on a surface shared with the toast, the settings
-  panel and the dialog, extracted once as <code>.holopanel</code> rather than
-  copied a fourth time. Real numbers from the reconstruction. A visual
-  component: no account, nothing to sign into.</p>
-  <div class="holopanel holoprofile" aria-label="Operator profile">
+  <h2>Researcher profile</h2>
+  <p>The EyeWire II researcher profile, reproduced. Open the card for the tabs,
+  the achievements and the streak, or tap any badge for its award screen. A
+  visual component: no account, nothing to sign into.</p>
+  <div class="holopanel holoprofile" aria-label="Researcher profile summary">
     <p class="holoprofile-eyebrow">visual component only</p>
     <div class="holoprofile-head">
-      <div class="holoprofile-avatar">
-        <svg viewBox="0 0 60 68" fill="none" aria-hidden="true"
-             stroke="currentColor" stroke-width="2.4" stroke-linecap="round"
-             stroke-linejoin="round">
-          <path d="M30 40 L30 16 M30 16 L22 6 M30 16 L38 6 M30 24 L20 15 M30 24 L40 15"></path>
-          <path d="M26 44 L16 54 M34 44 L44 54 M30 46 L30 60"></path>
-          <ellipse cx="30" cy="41" rx="6" ry="5.4" fill="currentColor" stroke="none"></ellipse>
-        </svg>
-      </div>
+      <div class="holoprofile-avatar"><span class="holoprofile-gem">&#128142;</span></div>
       <div class="holoprofile-id">
-        <p class="holoprofile-name">Reconstruction operator</p>
-        <p class="holoprofile-handle">CA3 &middot; mouse hippocampus</p>
+        <p class="holoprofile-name">Amy R. Sterling</p>
+        <p class="holoprofile-handle">@amy &middot; 624 edits &middot; 2 day streak</p>
       </div>
-      <span class="holoprofile-rank">stage two</span>
+      <button class="cta" type="button" data-holoresearcher="researcherProfile">Open profile</button>
     </div>
-    <div class="holoprofile-stats">
-      <div class="holoprofile-stat"><b>118</b><span>cells</span></div>
-      <div class="holoprofile-stat"><b>1,024</b><span>edits</span></div>
-      <div class="holoprofile-stat"><b>165</b><span>synapses</span></div>
+    <div class="holoprofile-badges">
+      <button class="holobadge" data-award="Astrolabe" style="--b1:#6fd3ff;--b2:#2b6fd6;--bglow:rgb(90 170 255 / .5)"><span class="holobadge-glyph">&#129517;</span></button>
+      <button class="holobadge" data-award="Hammer" style="--b1:#ffb057;--b2:#c9721a;--bglow:rgb(240 150 60 / .5)"><span class="holobadge-glyph">&#128296;</span></button>
+      <button class="holobadge" data-award="Citizen Scientist" style="--b1:#ff8ca0;--b2:#c23a52;--bglow:rgb(240 90 120 / .5)"><span class="holobadge-glyph">&#128300;</span></button>
+      <button class="holobadge" data-award="Sundial" style="--b1:#ffd166;--b2:#d99a1a;--bglow:rgb(240 190 60 / .5)"><span class="holobadge-glyph">&#9728;&#65039;</span></button>
+      <button class="holobadge" data-award="EyeWire Icon" style="--b1:#55e0ff;--b2:#a45cff;--bglow:rgb(140 120 255 / .6)"><span class="holobadge-glyph">&#9854;</span></button>
     </div>
-    <div class="holoprofile-meters">
-      <div class="holoprofile-meter">
-        <p><span>proofreading</span><em>72%</em></p>
-        <i style="--v:72%"></i>
-      </div>
-      <div class="holoprofile-meter">
-        <p><span>mesh cache</span><em>56 of 56</em></p>
-        <i style="--v:100%"></i>
-      </div>
-    </div>
+    <p class="holoprofile-hint">tap a badge for its award</p>
   </div>
 
   <h2>Achievement toast</h2>
@@ -845,6 +898,214 @@
   <p class="holodialog-note">NO AUTH &middot; NO FORM &middot; NO REQUEST &middot; NO STORAGE</p>
 </dialog>
 
+<!-- the researcher profile. A real dialog opened with showModal by
+     researcher-profile.js. The badges reuse .holobadge; clicking one opens the
+     award screen below. A visual component: no account, no request. -->
+<dialog class="holoresearcher" id="researcherProfile" aria-label="Researcher profile">
+  <div class="holoresearcher-inner">
+    <div class="rp-head">
+      <p class="rp-title"><b>&#9670;</b>Researcher Profile</p>
+      <button class="rp-x" type="button" data-holoresearcher-close aria-label="Close profile">&#10005;</button>
+    </div>
+    <div class="rp-tabs" role="tablist" aria-label="Profile sections">
+      <button class="rp-tab" role="tab" id="rp-t-ov" aria-controls="rp-p-ov" aria-selected="true">Overview</button>
+      <button class="rp-tab" role="tab" id="rp-t-tr" aria-controls="rp-p-tr" aria-selected="false" tabindex="-1">&#127942; Trophy Case</button>
+      <button class="rp-tab" role="tab" id="rp-t-wk" aria-controls="rp-p-wk" aria-selected="false" tabindex="-1">&#128197; My Week in Science</button>
+      <button class="rp-tab" role="tab" id="rp-t-ad" aria-controls="rp-p-ad" aria-selected="false" tabindex="-1">&#128295; Admin Hub</button>
+    </div>
+    <div class="rp-body">
+      <div class="rp-panel" id="rp-p-ov" role="tabpanel" aria-labelledby="rp-t-ov">
+        <div class="rp-grid">
+
+          <!-- left: identity -->
+          <div class="rp-col">
+            <div class="rp-user">
+              <div class="rp-avatar">&#128142;</div>
+              <div class="rp-user-id">
+                <p class="rp-name">Amy R. Sterling</p>
+                <p class="rp-handle">@amy</p>
+              </div>
+              <button class="rp-gear" type="button" aria-label="Settings">&#9881;</button>
+            </div>
+            <p class="rp-bio">tai chi and neuroscience | built the EyeWire II game!</p>
+
+            <div class="rp-block">
+              <p class="rp-block-h"><span class="rp-ico">&#9998;</span> Edits</p>
+              <div class="rp-stat-row">
+                <div class="rp-stat">
+                  <p class="rp-stat-k">Today</p>
+                  <p class="rp-stat-v">0</p>
+                  <p class="rp-stat-sub"><span><i>&#9986;&#65039;</i>0</span><span><i>&#129516;</i>0</span></p>
+                </div>
+                <div class="rp-stat">
+                  <p class="rp-stat-k">Past 7d</p>
+                  <p class="rp-stat-v">0</p>
+                  <p class="rp-stat-sub"><span><i>&#9986;&#65039;</i>0</span><span><i>&#129516;</i>0</span></p>
+                </div>
+                <div class="rp-stat">
+                  <p class="rp-stat-k">All time</p>
+                  <p class="rp-stat-v">624</p>
+                  <p class="rp-stat-sub"><span><i>&#9986;&#65039;</i>133</span><span><i>&#129516;</i>491</span></p>
+                </div>
+              </div>
+            </div>
+
+            <div class="rp-block">
+              <p class="rp-block-h"><span class="rp-ico">&#129516;</span> Cells</p>
+              <div class="rp-cells">
+                <div class="rp-cell done"><b>7</b><span class="rp-cell-k">Completed</span><span class="rp-cell-d">proofread</span></div>
+                <div class="rp-cell"><b>4</b><span class="rp-cell-k">Identified</span><span class="rp-cell-d">typed only</span></div>
+                <div class="rp-cell"><b>14</b><span class="rp-cell-k">Total</span><span class="rp-cell-d">touched</span></div>
+                <div class="rp-cell help"><b>4</b><span class="rp-cell-k">Assists</span><span class="rp-cell-d">helped</span></div>
+              </div>
+            </div>
+
+            <div class="rp-block">
+              <p class="rp-block-h">Recent cells <span class="rp-recent-pill">pinky_nf_v2</span></p>
+              <table class="rp-recent">
+                <thead><tr><th>Segment</th><th>Type</th><th>When</th></tr></thead>
+                <tbody>
+                  <tr><td class="seg"><span class="star">&#9733;</span><span class="chk">&#10003;</span> 86469_39570</td><td>L2/3 Pyramidal</td><td class="when">138d ago</td></tr>
+                  <tr><td class="seg"><span class="star">&#9733;</span><span class="chk">&#10003;</span> 86469_05836</td><td>PV+ Basket Cell</td><td class="when">139d ago</td></tr>
+                  <tr><td class="seg"><span class="star off">&#9734;</span><span class="chk">&#10003;</span> 64851_39674</td><td>pyramidal cell</td><td class="when">21d ago</td></tr>
+                  <tr><td class="seg"><span class="star off">&#9734;</span><span class="chk">&#10003;</span> 64851_38687</td><td class="untyped">not typed</td><td class="when">113d ago</td></tr>
+                  <tr><td class="seg"><span class="star off">&#9734;</span><span class="chk">&#10003;</span> 64851_13584</td><td class="untyped">not typed</td><td class="when">113d ago</td></tr>
+                  <tr><td class="seg"><span class="star off">&#9734;</span><span class="chk">&#10003;</span> 86469_65390</td><td>L2/3 Pyramidal</td><td class="when">138d ago</td></tr>
+                  <tr><td class="seg"><span class="star off">&#9734;</span> 86469_04831</td><td>L2/3 Pyramidal</td><td class="when">138d ago</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- middle: achievements -->
+          <div class="rp-col">
+            <div class="rp-block">
+              <p class="rp-block-h"><span class="rp-ico">&#127942;</span> Proofreading achievements <span class="rp-togo">126 edits to go</span></p>
+              <div class="rp-prog"><i style="--v:64%"></i></div>
+              <div class="rp-badges">
+                <div class="rp-badge-cell"><button class="holobadge" data-award="Chisel" style="--b1:#6fd3ff;--b2:#2b6fd6;--bglow:rgb(90 170 255 / .5)"><span class="holobadge-glyph">&#9935;</span></button><span class="rp-badge-label">Chisel</span></div>
+                <div class="rp-badge-cell"><button class="holobadge" data-award="Hammer" style="--b1:#ffb057;--b2:#c9721a;--bglow:rgb(240 150 60 / .5)"><span class="holobadge-glyph">&#128296;</span></button><span class="rp-badge-label">Hammer</span></div>
+                <div class="rp-badge-cell"><button class="holobadge" data-award="Awl" style="--b1:#ff8ca0;--b2:#c23a52;--bglow:rgb(240 90 120 / .5)"><span class="holobadge-glyph">&#128205;</span></button><span class="rp-badge-label">Awl</span></div>
+                <div class="rp-badge-cell"><button class="holobadge" data-award="Mallet" style="--b1:#d7ab74;--b2:#8a5a2a;--bglow:rgb(210 160 90 / .5)"><span class="holobadge-glyph">&#128736;&#65039;</span></button><span class="rp-badge-label">Mallet</span></div>
+                <div class="rp-badge-cell"><button class="holobadge" data-award="Glue" style="--b1:#ffd166;--b2:#d99a1a;--bglow:rgb(240 190 60 / .5)"><span class="holobadge-glyph">&#129378;</span></button><span class="rp-badge-label">Glue</span></div>
+                <div class="rp-badge-cell"><button class="holobadge" data-award="Twine" style="--b1:#ff9a6b;--b2:#d1552a;--bglow:rgb(230 120 70 / .5)"><span class="holobadge-glyph">&#129525;</span></button><span class="rp-badge-label">Twine</span></div>
+                <div class="rp-badge-cell"><button class="holobadge" data-award="Stylus" style="--b1:#b0a8ff;--b2:#6a5fd0;--bglow:rgb(150 130 255 / .5)"><span class="holobadge-glyph">&#128394;&#65039;</span></button><span class="rp-badge-label">Stylus</span></div>
+                <div class="rp-badge-cell"><button class="rp-viewall" type="button" aria-label="View all proofreading achievements">&#8594;</button><span class="rp-badge-label">View all</span></div>
+              </div>
+            </div>
+
+            <div class="rp-block">
+              <p class="rp-block-h"><span class="rp-ico">&#129516;</span> Cell achievements <span class="rp-togo">25 cells to go</span></p>
+              <div class="rp-prog"><i style="--v:22%"></i></div>
+              <div class="rp-badges">
+                <div class="rp-badge-cell"><button class="holobadge" data-award="Sundial" style="--b1:#ffd166;--b2:#d99a1a;--bglow:rgb(240 190 60 / .5)"><span class="holobadge-glyph">&#9728;&#65039;</span></button><span class="rp-badge-label">Sundial</span></div>
+                <div class="rp-badge-cell"><button class="holobadge" data-award="Astrolabe" style="--b1:#6fd3ff;--b2:#2b6fd6;--bglow:rgb(90 170 255 / .5)"><span class="holobadge-glyph">&#129517;</span></button><span class="rp-badge-label">Astrolabe</span></div>
+                <div class="rp-badge-cell"><button class="holobadge" data-award="Reflecting Circle" style="--b1:#7fe0a4;--b2:#2f9d6a;--bglow:rgb(120 220 160 / .5)"><span class="holobadge-glyph">&#128302;</span></button><span class="rp-badge-label">Reflecting Circle</span></div>
+                <div class="rp-badge-cell"><button class="holobadge" data-award="Cairn" style="--b1:#9aa6b8;--b2:#5a6577;--bglow:rgb(150 165 185 / .45)"><span class="holobadge-glyph">&#129704;</span></button><span class="rp-badge-label">Cairn</span></div>
+                <div class="rp-badge-cell"><button class="holobadge" data-award="Compass" style="--b1:#6fb0ff;--b2:#2f6fd6;--bglow:rgb(90 150 255 / .5)"><span class="holobadge-glyph">&#129517;</span></button><span class="rp-badge-label">Compass</span></div>
+                <div class="rp-badge-cell"><button class="holobadge" data-award="Map" style="--b1:#7fe0a4;--b2:#2f9d6a;--bglow:rgb(120 220 160 / .5)"><span class="holobadge-glyph">&#128506;&#65039;</span></button><span class="rp-badge-label">Map</span></div>
+                <div class="rp-badge-cell"><button class="holobadge" data-award="Abacus" style="--b1:#b0a8ff;--b2:#6a5fd0;--bglow:rgb(150 130 255 / .5)"><span class="holobadge-glyph">&#129518;</span></button><span class="rp-badge-label">Abacus</span></div>
+                <div class="rp-badge-cell"><button class="rp-viewall" type="button" aria-label="View all cell achievements">&#8594;</button><span class="rp-badge-label">View all</span></div>
+              </div>
+            </div>
+
+            <div class="rp-block">
+              <p class="rp-block-h"><span class="rp-ico">&#11088;</span> Special awards</p>
+              <div class="rp-badges">
+                <div class="rp-badge-cell"><button class="holobadge" data-award="Advanced Operator" style="--b1:#6fd3ff;--b2:#2b6fd6;--bglow:rgb(90 170 255 / .5)"><span class="holobadge-glyph">&#10052;&#65039;</span></button><span class="rp-badge-label">Advanced Operator</span></div>
+                <div class="rp-badge-cell"><button class="holobadge" data-award="Citizen Scientist" style="--b1:#ff8ca0;--b2:#c23a52;--bglow:rgb(240 90 120 / .5)"><span class="holobadge-glyph">&#128300;</span></button><span class="rp-badge-label">Citizen Scientist</span></div>
+                <div class="rp-badge-cell"><button class="holobadge" data-award="Vibe Coder" style="--b1:#b0a8ff;--b2:#6a5fd0;--bglow:rgb(150 130 255 / .5)"><span class="holobadge-glyph">&#127911;</span></button><span class="rp-badge-label">Vibe Coder</span></div>
+                <div class="rp-badge-cell"><button class="holobadge" data-award="Seung badge" style="--b1:#6fb0ff;--b2:#2f6fd6;--bglow:rgb(90 150 255 / .5)"><span class="holobadge-glyph">&#128100;</span></button><span class="rp-badge-label">Seung badge</span></div>
+                <div class="rp-badge-cell"><button class="holobadge" data-award="Spritz" style="--b1:#6fd3ff;--b2:#2b6fd6;--bglow:rgb(90 170 255 / .5)"><span class="holobadge-glyph">&#128167;</span></button><span class="rp-badge-label">Spritz</span></div>
+                <div class="rp-badge-cell"><button class="holobadge" data-award="Geocache" style="--b1:#7fe0a4;--b2:#2f9d6a;--bglow:rgb(120 220 160 / .5)"><span class="holobadge-glyph">&#128205;</span></button><span class="rp-badge-label">Geocache</span></div>
+                <div class="rp-badge-cell"><button class="holobadge" data-award="EyeWire Icon" style="--b1:#55e0ff;--b2:#a45cff;--bglow:rgb(140 120 255 / .6)"><span class="holobadge-glyph">&#9854;</span></button><span class="rp-badge-label">Eyewire Icon</span></div>
+                <div class="rp-badge-cell"><button class="rp-viewall" type="button" aria-label="View all special awards">&#8594;</button><span class="rp-badge-label">View all</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- right: sidebar -->
+          <div class="rp-col">
+            <div class="rp-block">
+              <p class="rp-block-h"><span class="rp-ico">&#127941;</span> Favorite badge</p>
+              <div class="rp-featured-wrap">
+                <button class="holobadge holobadge--featured" data-award="EyeWire Icon"
+                        style="--b1:#55e0ff;--b2:#a45cff;--bglow:rgb(150 120 255 / .7)"
+                        aria-label="EyeWire Icon award">
+                  <span class="holobadge-glyph">&#9854;</span>
+                </button>
+                <p class="rp-featured-name">EyeWire Icon</p>
+                <p class="rp-featured-tag">Three Cheers for the Heroes of Citizen Science!</p>
+                <p class="rp-featured-date">Won on <b>Mar 20, 2026</b></p>
+              </div>
+            </div>
+
+            <div class="rp-block">
+              <p class="rp-block-h"><span class="rp-ico">&#129351;</span> Top of the week</p>
+              <div class="rp-week-row"><span class="rp-week-k">Edits</span><span class="rp-chip">&#127941; &times;9</span></div>
+              <div class="rp-week-row"><span class="rp-week-k">Cells</span><span class="rp-chip">&#127941; &times;2</span></div>
+            </div>
+
+            <div class="rp-block">
+              <p class="rp-block-h"><span class="rp-ico">&#128293;</span> Streak</p>
+              <div class="rp-streak-top">
+                <span class="rp-streak-fire">&#128293;</span>
+                <span class="rp-streak-n">2</span>
+                <span class="rp-streak-cur">days current</span>
+                <span class="rp-streak-best">Best <b>13d</b></span>
+              </div>
+              <p class="rp-week-label">Last 14 days</p>
+              <div class="rp-chart" aria-hidden="true">
+                <div class="rp-chart-col"><span class="rp-chart-bar" style="--h:20%"></span><span class="rp-chart-day">F</span></div>
+                <div class="rp-chart-col has-done"><span class="rp-chart-bar" style="--h:55%"></span><span class="rp-chart-day">S</span></div>
+                <div class="rp-chart-col"><span class="rp-chart-bar" style="--h:35%"></span><span class="rp-chart-day">S</span></div>
+                <div class="rp-chart-col has-done"><span class="rp-chart-bar" style="--h:80%"></span><span class="rp-chart-day">M</span></div>
+                <div class="rp-chart-col"><span class="rp-chart-bar" style="--h:45%"></span><span class="rp-chart-day">T</span></div>
+                <div class="rp-chart-col"><span class="rp-chart-bar" style="--h:30%"></span><span class="rp-chart-day">W</span></div>
+                <div class="rp-chart-col has-done"><span class="rp-chart-bar" style="--h:70%"></span><span class="rp-chart-day">T</span></div>
+                <div class="rp-chart-col"><span class="rp-chart-bar" style="--h:25%"></span><span class="rp-chart-day">F</span></div>
+                <div class="rp-chart-col has-done"><span class="rp-chart-bar" style="--h:60%"></span><span class="rp-chart-day">S</span></div>
+                <div class="rp-chart-col"><span class="rp-chart-bar" style="--h:40%"></span><span class="rp-chart-day">S</span></div>
+                <div class="rp-chart-col has-done"><span class="rp-chart-bar" style="--h:90%"></span><span class="rp-chart-day">M</span></div>
+                <div class="rp-chart-col"><span class="rp-chart-bar" style="--h:50%"></span><span class="rp-chart-day">T</span></div>
+                <div class="rp-chart-col has-done"><span class="rp-chart-bar" style="--h:75%"></span><span class="rp-chart-day">W</span></div>
+                <div class="rp-chart-col has-done"><span class="rp-chart-bar" style="--h:65%"></span><span class="rp-chart-day">Today</span></div>
+              </div>
+              <div class="rp-chart-legend">
+                <span><i class="ed"></i> Edits</span>
+                <span><i class="co"></i> Completions</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <div class="rp-panel" id="rp-p-tr" role="tabpanel" aria-labelledby="rp-t-tr" hidden>
+        <p class="rp-empty">Every badge, earned and locked, lives in the trophy case. Tap one on the Overview tab to see its award.</p>
+      </div>
+      <div class="rp-panel" id="rp-p-wk" role="tabpanel" aria-labelledby="rp-t-wk" hidden>
+        <p class="rp-empty">Your week in science, day by day. The streak chart on the Overview tab is the short version.</p>
+      </div>
+      <div class="rp-panel" id="rp-p-ad" role="tabpanel" aria-labelledby="rp-t-ad" hidden>
+        <p class="rp-empty">Admin tools live here in the shipping game. This is a visual reproduction, so the tab is a placeholder.</p>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<!-- the badge award screen. One dialog, reused for whichever badge is clicked,
+     filled by researcher-profile.js and celebrated with the confetti burst. -->
+<dialog class="holoaward" id="badgeAward" aria-label="Badge award">
+  <p class="holoaward-eyebrow">achievement unlocked</p>
+  <button class="holobadge holobadge--featured" type="button"
+          style="--b1:#55e0ff;--b2:#a45cff;--bglow:rgb(150 120 255 / .7)" tabindex="-1"
+          aria-hidden="true"><span class="holobadge-glyph">&#9854;</span></button>
+  <p class="holoaward-name">EyeWire Icon</p>
+  <p class="holoaward-tagline">Three Cheers for the Heroes of Citizen Science!</p>
+  <p class="holoaward-date">Won on <b>today</b></p>
+  <button class="holoaward-close" type="button" data-holoaward-close>Nice</button>
+</dialog>
+
 <script src="hologram.js"></script>
 <script src="hologram-tap.js"></script>
 <script src="components/attract-loop.js"></script>
@@ -853,6 +1114,7 @@
 <script src="components/panel-surface.js"></script>
 <script src="components/achievement-toast.js"></script>
 <script src="components/tutorial-callout.js"></script>
+<script src="components/researcher-profile.js"></script>
 <script>
   /* the eyebrow readout is measured rather than written: the number of
      elements this page is made of, counted after the runtime parts are built.
