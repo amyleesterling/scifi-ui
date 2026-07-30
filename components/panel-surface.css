@@ -1,0 +1,82 @@
+/* ---- panel surface (holopanel) ------------------------------------------
+   The dark gradient panel that four different upstream places grow their own
+   copy of: UserProfilePanel and SettingsPanel from ng-extend, the hero card
+   the achievement toast is built on, and the sign in dialog. They share a
+   surface, a soft rim and one entrance, and until now the library carried the
+   surface three or four times over rather than once.
+
+   This is that surface, extracted, so a new panel is one class rather than a
+   fourth hand rolled copy. The profile panel in this repo is built on it, and
+   the note the previous agent left in AGENTS.md, that this should be pulled
+   out once, is what this file answers.
+
+   It wins on its own weight, with no !important anywhere. The upstream profile
+   panel forces its rules because it is a browser extension fighting a host
+   page; a library has no host to fight, so a plain class is enough and a host
+   can restyle the result without a specificity war.
+
+   THE ENTRANCE IS THE SHARED PIECE. Opacity 0, a small rise and shrink, and a
+   blurred overbright bloom that settles: the same materialise all four places
+   wrote for themselves. The resting state is the finished panel, so a panel
+   with the script stripped out, or one that reduced motion never lights, still
+   shows as itself rather than as nothing. panel-surface.js adds is-in the
+   first time each panel is seen, which is what plays the entrance.
+
+     <div class="holopanel"> ... </div>
+
+   Every colour reads a token with a concrete fallback behind it, so one panel
+   pasted into a page with no token system at all is still a working dark
+   panel. */
+
+.holopanel {
+  position: relative;
+  isolation: isolate;
+  border: 1px solid rgb(var(--holo-glow, 74 150 224) / .30);
+  border-radius: 14px;
+  background: linear-gradient(158deg,
+    rgb(var(--holo-panel, 15 18 24) / .96) 0%,
+    rgb(6 10 18 / .98) 100%);
+  backdrop-filter: blur(10px) saturate(1.2);
+  -webkit-backdrop-filter: blur(10px) saturate(1.2);
+  box-shadow:
+    0 18px 50px rgb(0 0 0 / .5),
+    0 0 60px rgb(var(--holo-glow, 74 150 224) / .06),
+    inset 0 1px 0 rgb(var(--holo-line, 196 228 255) / .10);
+  color: rgb(var(--holo-ink, 239 244 251) / .92);
+}
+
+/* the lit hairline along the top edge, the same one the masthead carries, so
+   an extracted panel reads as part of the same instrument */
+.holopanel::before {
+  content: "";
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: -1px;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent,
+    rgb(var(--holo-line, 196 228 255) / .95) 50%, transparent);
+  box-shadow: 0 0 12px rgb(var(--holo-beam, 178 216 248) / .6);
+}
+
+/* the entrance. is-in is added on first sight by the script. It stays on, and
+   because the 100 per cent frame equals the resting panel, holding it costs
+   nothing and there is nothing to take back off. */
+.holopanel.is-in {
+  animation: holopanel-in 720ms cubic-bezier(.16, 1, .3, 1) both;
+}
+
+@keyframes holopanel-in {
+  0%   { opacity: 0; transform: translateY(10px) scale(.97);
+         filter: blur(10px) brightness(2.5); }
+  60%  { opacity: 1; transform: translateY(0) scale(1);
+         filter: blur(0) brightness(1.15); }
+  100% { opacity: 1; transform: none; filter: none; }
+}
+
+/* motion off leaves the finished panel, which is the resting state, so there
+   is nothing to see and nothing to disable beyond the entrance itself */
+@media (prefers-reduced-motion: reduce) {
+  .holopanel.is-in { animation: none; }
+}

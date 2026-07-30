@@ -5,8 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>scifi-ui</title>
 <link rel="stylesheet" href="hologram.css">
-<!-- the attract loop is a components/ part, so it brings its own stylesheet -->
+<!-- the components/ parts each bring their own stylesheet, self contained and
+     working alone -->
 <link rel="stylesheet" href="components/attract-loop.css">
+<link rel="stylesheet" href="components/confetti-burst.css">
+<link rel="stylesheet" href="components/page-finale.css">
+<link rel="stylesheet" href="components/panel-surface.css">
+<link rel="stylesheet" href="components/profile-panel.css">
+<link rel="stylesheet" href="components/achievement-toast.css">
+<link rel="stylesheet" href="components/tinted-card.css">
+<link rel="stylesheet" href="components/icon-rail.css">
+<link rel="stylesheet" href="components/tutorial-callout.css">
 <style>
   /* demo page chrome only, none of this is part of the system */
   body {
@@ -132,6 +141,13 @@
   h1 { margin: 0; font-size: clamp(27px,4.6vw,38px); font-weight: 500;
        letter-spacing: -.02em; line-height: 1.08; }
   .lede { margin: 9px 0 0; color: #BACDE4; font-size: 15.5px; max-width: 48ch; }
+  /* the lede lives under the banner now, not inside the box, so the box
+     carries only the name and the instruction */
+  .wrap > .lede { margin: 0 0 4px; max-width: 60ch; }
+  .tapline {
+    margin: 13px 0 0; font-size: 10px; letter-spacing: .26em;
+    text-transform: uppercase; color: rgba(140,190,240,.72);
+  }
 
   /* a phone cannot carry a 16:9 render cropped to a portrait box without
      losing the cell bodies, so the banner shortens and the panel sits under
@@ -213,10 +229,44 @@
            background: rgba(9,14,26,.8); }
   .swept img { display: block; width: 100%; height: auto; }
   .swept figcaption { margin: 0; padding: 11px 13px 12px; font-size: 13px; }
+  /* the frame lights as the scan passes: a bright edge and a brief glow that
+     rise and fall with the sweep. Demo dressing, so it lives here rather than
+     on the .holosweep component, and it is triggered by the same hover, focus
+     and tap the sweep line is. */
+  .swept:hover, .swept:focus-within, .swept.holo-on {
+    animation: swept-edge 820ms cubic-bezier(.16,1,.3,1);
+  }
+  @keyframes swept-edge {
+    0%   { border-color: rgba(88,148,238,.28); box-shadow: none; }
+    40%  { border-color: rgba(150,212,255,.92);
+           box-shadow: 0 0 20px rgba(88,148,238,.5),
+                       inset 0 0 14px rgba(120,190,255,.22); }
+    100% { border-color: rgba(88,148,238,.28); box-shadow: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .swept:hover, .swept:focus-within, .swept.holo-on { animation: none; }
+  }
   /* the attract loop deck, given an edge so the crossfade has a box to happen
      in. Scaffolding for this page only, like everything else in this block. */
   #attractdeck { margin-bottom: 18px; border: 1px solid #1B2130; border-radius: 3px;
                  background: #090C12; }
+
+  /* the loader sat in a tall demo box with a small glyph marooned in the
+     middle of it, which read as empty rather than as loading. A phone gets a
+     smaller cell, a tighter box, and the two examples side by side instead of
+     stacked, so the section is a compact pair of loaders rather than two
+     caverns. */
+  @media (max-width: 699px) {
+    .loadgrid { grid-template-columns: 1fr; gap: 12px; }
+    .loadgrid .demo { padding: 20px 16px 18px; }
+    .loadgrid .holoload { gap: 12px; }
+    .loadgrid .holoload-figure { --holoload-size: 92px; }
+  }
+
+  /* triggers for the ported component demos reuse the page's own .cta, and the
+     tinted cards and icon rail bring their own layout, so this block stays
+     scaffolding only */
+  .btnrow { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 </style>
 </head>
 <body>
@@ -226,47 +276,49 @@
   <div class="topveil"></div>
   <div class="holoswarm"></div>
   <div class="masthead holoboot">
-    <p class="eyebrow"><s></s>hologram ui components<u></u>no dependencies</p>
+    <p class="eyebrow"><s></s>hologram ui components<u></u><span id="elcount"></span></p>
     <h1>scifi-ui</h1>
-    <p class="lede">A library of hologram and HUD parts for a dark page. Step
-    rails, panels that boot up, a loading state that draws a cell, a modal
-    surface, and a particle trace for media. No build step, nothing to install.</p>
+    <p class="tapline">tap to activate</p>
   </div>
 </div>
 
 <div class="wrap">
 
-  <p>Everything on this page that answers to a pointer also answers to a tap.
-  There is no hovering without a cursor, so on a touch screen a tap lights the
-  thing you tapped and holds it lit until you tap somewhere else. One thing at a
-  time. A tap that lands on a link or a button inside a panel still belongs to
-  that control, so nothing here needs tapping twice, and a tap that turns into a
-  scroll lights nothing at all. It is one mechanism for the whole library rather
-  than a behaviour per component: a tap adds one class, and every hover rule in
-  the stylesheet names that class as well.</p>
+  <p class="lede">A library of hologram and HUD parts for a dark page. Step
+  rails, panels that boot up, a loading state that draws a cell, a modal
+  surface, and a particle trace for media. No build step, nothing to install.</p>
 
   <h2>Particle trace, on an image</h2>
-  <p>A short arc of light runs the boundary once, starting from wherever your
-  pointer crossed it or wherever you tapped, then breaks into particles that
-  decay along a branching tree. Corner brackets push outward and the readouts
-  fade in. Every value shown is real, read off the media element at runtime.</p>
+  <p>An arc of light runs the boundary once, struck from wherever your pointer
+  crossed or your finger landed, then breaks into particles. Every value in the
+  HUD is read off the media element at runtime.</p>
   <figure data-hud="337 × 266 × 92 µm">
     <div class="holoframe">
       <canvas class="trace"></canvas>
       <img src="media/cell.jpg" alt="A CA3 pyramidal cell with the six mossy fibers that reach it">
     </div>
-    <figcaption>Enter from different edges. The light is struck where you cross,
-    or where your finger landed. One thorny pyramidal cell, 4.5 million triangles
-    in the original.</figcaption>
+    <figcaption>One thorny pyramidal cell, 4.5 million triangles in the
+    original.</figcaption>
+  </figure>
+
+  <h2>Particle trace, on a video</h2>
+  <p>The same treatment over video, plus a play affordance that hides on play
+  and returns on pause. The native controls stay for scrubbing.</p>
+  <figure data-hud="165 synapses · 6 fibers">
+    <div class="holoframe">
+      <canvas class="trace"></canvas>
+      <video controls playsinline muted loop preload="metadata" poster="media/pulse.jpg">
+        <source src="media/pulse.mp4" type="video/mp4">
+      </video>
+    </div>
+    <figcaption>An action potential travelling real reconstructed cable. Tap or
+    hover the frame, then press play.</figcaption>
   </figure>
 
   <h2>Step rail</h2>
-  <p>A counter in tabular caps, a hairline rail, the run so far filled and
-  glowing, a brighter dot where you are, dimmer ticks after it. Drag the rail and
-  the step follows the pointer. Click a tick to jump. Focus one and use the arrow
-  keys, or Home and End. It takes any number
-  of steps and reports the current one back on a <code>holobar:change</code>
-  event, on a <code>data-step</code> attribute, and on <code>el.holobar</code>.</p>
+  <p>Drag the rail and the step follows. Tap a tick to jump, or focus one and
+  use the arrow keys. Any number of steps, reported back on a
+  <code>holobar:change</code> event.</p>
   <div class="demo">
     <div class="holobar" data-steps="10" data-step="8" aria-label="Tour stage"></div>
     <output class="readback" id="railout">waiting</output>
@@ -275,16 +327,10 @@
     <div class="holobar" data-steps="3" data-step="1" aria-label="Upload stage"></div>
     <output class="readback" id="railout2">waiting</output>
   </div>
-  <p>The fill stops at the dot you are on rather than one step past it, so it
-  still reads correctly at three steps as well as at thirty. The rail takes the
-  pointer capture on pointerdown, so a drag keeps working after the cursor
-  leaves the 2px line, and the 700ms ease on the fill is dropped for the
-  duration of the drag so the light tracks your hand instead of chasing it.</p>
 
   <h2>Readout panel</h2>
-  <p>One label, one number, one line of context. This is the whole idea of the
-  repo in one component: say something true, and the ornament stops being
-  ornament.</p>
+  <p>One label, one number, one line of context. Say something true, and the
+  ornament stops being ornament.</p>
   <div class="holo">
     <p class="k">this one cell receives</p>
     <p class="v">165</p>
@@ -293,9 +339,8 @@
   </div>
 
   <h2>Underline that draws itself</h2>
-  <p>A hairline runs out from under a heading the first time that heading comes
-  into view. One pass, left to right, then it stays. Cheap, and it does more for
-  a page of flat sections than any amount of glow.</p>
+  <p>A hairline draws out from under a heading when it first comes into view,
+  and draws again when you point at it or tap it.</p>
   <div class="demo">
     <h3 class="holounder" style="margin:0;font-size:19px;font-weight:400;letter-spacing:.01em">
       Reconstruction, stage two</h3>
@@ -303,82 +348,48 @@
 
   <h2>Panel that boots up</h2>
   <p>Two bright heads run the border in opposite directions and meet, an inner
-  backlight swells and tapers, and the panel resolves out of a blur. It runs once when the
-  panel first comes on screen, and again every time you point at it or tap it.</p>
-  <figure class="panelcard holoboot" style="max-width:330px;background:rgba(9,14,26,.8);border:1px solid rgba(88,148,238,.3)">
-    <img src="media/partners.jpg" alt="One CA3 cell drawn with the fifty six cells it is connected to">
-    <div class="panelrow"><b>partner cells</b><span>56 reconstructed</span></div>
+  backlight swells, and the panel resolves out of a blur. Once when it first
+  comes on screen, and again every time you point at it or tap it. The masthead
+  at the top of this page is the same component.</p>
+  <figure class="panelcard holoboot" style="max-width:360px;background:rgba(9,14,26,.8);border:1px solid rgba(88,148,238,.3)">
+    <img src="media/somas.jpg" alt="Reconstructed CA3 pyramidal cell bodies, each in a different colour">
+    <div class="panelrow"><b>cell bodies</b><span>one colour each</span></div>
   </figure>
-  <p>The two decorative spans are added at runtime and sit behind the panel
-  content, so the panel keeps its own border, its own shadow and both of its
-  pseudo elements. The masthead at the top of this page is the same component.</p>
 
   <h2>Scan sweep</h2>
-  <p>A thin line passes across a panel once when you point at it, tab into it or
-  tap it. The band is a background on a full size overlay, so a single pass
-  covers the panel whatever its height.</p>
-  <div class="grid">
-    <figure class="swept holosweep">
-      <img src="media/thorn.jpg" alt="A mossy fiber terminal wrapped around a thorny excrescence">
-      <figcaption>One bouton, one thorn.</figcaption>
-    </figure>
-    <figure class="swept holosweep">
-      <img src="media/volume.png" alt="Wireframe diagram of the imaged tissue block with one cell inside for scale">
-      <figcaption>The imaged block, 1 by 1 by 0.1 mm.</figcaption>
-    </figure>
-  </div>
+  <p>A thin line passes across a panel once when you point at it, tab into it
+  or tap it, whatever the panel's height.</p>
+  <figure class="swept holosweep" style="max-width:420px">
+    <img src="media/volume.png" alt="Wireframe diagram of the imaged tissue block with one cell inside for scale">
+    <figcaption>The imaged block, 1 by 1 by 0.1 mm.</figcaption>
+  </figure>
 
   <h2>Image card</h2>
-  <p>Near black ink instead of the white tinted glass a panel usually gets, so
-  the render inside it pops rather than being washed out. Faint scanlines every
-  3px. A rim and a backlight that live entirely in the box shadow, so they never
-  lighten the card body. Point at it, or tap it, and a bright head runs the
+  <p>Near black ink instead of tinted glass, so the render pops. The rim and
+  backlight live entirely in the box shadow, so nothing moves and the image is
+  never repainted. Point at a card, or tap it, and a bright head runs the
   perimeter.</p>
-  <div class="grid">
-    <figure class="holocard">
-      <img src="media/partners.jpg" alt="One CA3 cell drawn with the fifty six cells it is connected to">
-      <div class="panelrow"><b>partner cells</b><span>56 reconstructed</span></div>
-    </figure>
-    <figure class="holocard">
-      <img src="media/thorn.jpg" alt="A mossy fiber terminal wrapped around a thorny excrescence">
-      <div class="panelrow"><b>one bouton</b><span>1 thorn, dozens of contacts</span></div>
-    </figure>
-  </div>
-  <p>The hover state is shadow only. Nothing moves, nothing scales, the image is
-  never repainted, and that is why it stays calm at any size. The middle shadow
-  layer is <code>0 0 24px -6px</code>: the negative spread pulls the glow back so
-  it hugs the card instead of bleeding off it, and that one number is the
-  difference between a lit card and a smudge. The accent is its own token,
-  <code>--holo-cyan</code>, a teal leaning cyan rather than the blue white the
-  rest of the library uses.</p>
+  <figure class="holocard" style="max-width:360px">
+    <img src="media/thorn.jpg" alt="A mossy fiber terminal wrapped around a thorny excrescence">
+    <div class="panelrow"><b>one bouton</b><span>1 thorn, dozens of contacts</span></div>
+  </figure>
 
   <h2>Dialog</h2>
-  <p>The EyeWire II sign in modal, reproduced. A drifting particle field built
-  from six radial gradient dots at six tile sizes, a gradient border that cycles
-  blue, violet and teal on a six second loop, an ambient wash from the top edge,
-  two counter rotating rings, and a materialise that arrives blurred and
-  overbright and settles through a soft overshoot. It is a real
-  <code>&lt;dialog&gt;</code> opened with <code>showModal</code>, so focus is
-  trapped and Escape closes it without a line of script.</p>
-  <p><strong>This is a visual component only.</strong> There is no
-  authentication in it, no form element, and nothing to sign into. The field is
-  an ordinary text input, the button does nothing when you press it, and no
-  request goes anywhere.</p>
+  <p>The EyeWire II sign in modal, reproduced. A drifting particle field, a
+  cycling gradient border, two counter rotating rings, and a materialise that
+  settles through a soft overshoot. A real <code>&lt;dialog&gt;</code> opened
+  with <code>showModal</code>, so focus is trapped and Escape closes it.</p>
+  <p><strong>This is a visual component only.</strong> No authentication, no
+  form element, nothing to sign into, and no request goes anywhere.</p>
   <div class="demo">
     <button class="cta" type="button" data-holodialog="demodialog">Open the dialog</button>
   </div>
-  <p>Two things loop, because both are ambient rather than event driven: the
-  particle drift and the border cycle. Everything else runs exactly once per
-  open, which is free, because a closed <code>&lt;dialog&gt;</code> is
-  <code>display: none</code> and opening it starts every animation over.</p>
 
   <h2>Loading state</h2>
-  <p>A cell draws itself in while you wait. The basal arbor is half a cycle
-  behind the apical one so the two trees do not pulse in lockstep, which is what
-  makes it read as alive rather than as a spinner. The bar underneath reports a
-  real count when you have one to report, and goes indeterminate when you do
-  not, rather than inventing a number.</p>
-  <div class="grid">
+  <p>A cell draws itself in while you wait, the basal arbor half a cycle behind
+  the apical one. The bar reports a real count when you have one, and goes
+  indeterminate when you do not, rather than inventing a number.</p>
+  <div class="grid loadgrid">
     <div class="demo">
       <div class="holoload" data-loaded="4" data-total="9" role="status">
         <div class="holoload-figure">
@@ -446,38 +457,13 @@
       </div>
     </div>
   </div>
-  <p>This is the only piece in the library that repeats, because a loading state
-  is the one place a loop is honest.</p>
-
-  <h2>Particle trace, on a video</h2>
-  <p>The same treatment over video, plus a play affordance, because the native
-  control is small and often lands on top of whatever is burned into the frame.
-  It hides on play and returns on pause, and the native controls stay for
-  scrubbing. Each frame owns its canvas and only the hovered one runs.</p>
-  <figure data-hud="165 synapses · 6 fibers">
-    <div class="holoframe">
-      <canvas class="trace"></canvas>
-      <video controls playsinline muted loop preload="metadata" poster="media/pulse.jpg">
-        <source src="media/pulse.mp4" type="video/mp4">
-      </video>
-    </div>
-    <figcaption>An action potential travelling real reconstructed cable. Hover the
-    frame, then press play.</figcaption>
-  </figure>
 
   <h2>Attract loop</h2>
   <p>A loop for a screen nobody is standing at. It walks a set of panels by
-  itself, holds each one for as long as that panel needs, stops the moment
-  somebody touches the page, and starts again once the room has been quiet for
-  a while. From the museum wall edition of whatisabrain.com, which runs it on a
-  3628 by 1600 display.</p>
-  <p>Every step carries its own dwell, and the loop carries no interval at all.
-  That is the reason the component exists. The wall holds the neuron for 13
-  seconds and the view inside the mouse brain for 8.5, because one of them
-  still has something happening in it after you have finished reading and the
-  other does not. One interval for the whole loop either rushes the first kind
-  or stalls on the second. The eight the wall runs on, in order, are 9000, 9000,
-  8500, 9000, 13000, 9000, 13000 and 15000 milliseconds.</p>
+  itself, stops the moment somebody touches the page, and starts again once the
+  room has been quiet for a while. Every step carries its own dwell, so a panel
+  with something still happening in it holds longer than one you finish reading
+  in three seconds. From the museum wall edition of whatisabrain.com.</p>
   <div class="demo" id="attractdemo">
     <div class="holoattract-deck" id="attractdeck">
       <div class="holoattract-panel">
@@ -521,69 +507,146 @@
     </div>
     <output class="readback" id="attractout">waiting</output>
   </div>
-  <p>The order is its own list, kept separate from document order. There are
-  nine panels here and the loop visits eight of them: the fourth is never
-  shown, because on the wall the sequence reads better going straight from
-  inside the mouse brain to the cell cluster, and only the wall skips it. The
-  interactive version of the same content still visits all nine, from the same
-  markup, with a different sequence. Watch the counter as it passes: the fourth
-  step it reaches is panel four, and it still reads four of eight, because the
-  count comes from the position in the sequence rather than from the panel
-  index. Reading it off the panel is the off by one this component is easiest
-  to get wrong at.</p>
-  <p>The rail is the library's own step rail, written inside the loop's bar and
-  driven through its API, so it reports every advance on
-  <code>holobar:change</code> exactly as if you had dragged it. Drag it
-  yourself and the loop goes where you put it and holds there, because
-  touching anything inside this box counts as a person being present. The
-  demo scopes that watch to the box for the obvious reason: a kiosk should
-  hold when anything on the page is touched, a demo among eleven others should
-  not stop because you clicked a different one. This one resumes after 8
-  seconds of quiet so you can see it happen. The default is 45.</p>
-  <p>Pausing freezes the advance and nothing else, which is how the wall
-  behaves, and starting again gives the current step its whole dwell back
-  rather than the remainder of a spent one. A step somebody has just been
-  looking at deserves to be read from the top. The pause button is a separate
-  thing from that: press it and it stays pressed, and no amount of quiet will
-  start the loop again. The wall had only this button and no visitors, so
-  holding on interaction is the one behaviour here that is added rather than
-  carried across.</p>
-  <p>Reduced motion stops the auto advance completely, and the pause control
-  goes with it, since a control that cannot do anything is worse than no
-  control. What is left is the counter, the rail and the panels, which is a
-  thing you step through at your own pace. That is a deliberate choice about
-  autonomy rather than about motion: a page that moves on by itself and offers
-  no way to stop it is a problem for more people than the animation is.</p>
+  <p>Drag the rail and the loop holds where you put it, because touching the box
+  counts as somebody being present. It resumes after a quiet spell.</p>
 
-  <h2>Portrait gate</h2>
-  <p>The wall is landscape, and a portrait phone reflowed it into a column that
-  could not be read, so the museum covered the page and asked for a rotation
-  instead. It ships in the same two files as the loop, because it is the other
-  half of putting one of these on a screen you do not control.</p>
-  <div class="demo">
-    <div class="holorotate is-preview" role="note">
-      <div class="holorotate-inner">
-        <svg class="holorotate-icon" width="54" height="54" viewBox="0 0 24 24"
-             fill="none" aria-hidden="true">
-          <rect x="7" y="2" width="10" height="20" rx="2.5"
-                stroke="currentColor" stroke-width="1.4"></rect>
-          <path d="M3.5 8.5A6.5 6.5 0 0 1 8 4M20.5 15.5A6.5 6.5 0 0 1 16 20"
-                stroke="currentColor" stroke-width="1.4"
-                stroke-linecap="round"></path>
+  <h2>Profile panel</h2>
+  <p>An operator card built on a surface shared with the toast, the settings
+  panel and the dialog, extracted once as <code>.holopanel</code> rather than
+  copied a fourth time. Real numbers from the reconstruction. A visual
+  component: no account, nothing to sign into.</p>
+  <div class="holopanel holoprofile" aria-label="Operator profile">
+    <p class="holoprofile-eyebrow">visual component only</p>
+    <div class="holoprofile-head">
+      <div class="holoprofile-avatar">
+        <svg viewBox="0 0 60 68" fill="none" aria-hidden="true"
+             stroke="currentColor" stroke-width="2.4" stroke-linecap="round"
+             stroke-linejoin="round">
+          <path d="M30 40 L30 16 M30 16 L22 6 M30 16 L38 6 M30 24 L20 15 M30 24 L40 15"></path>
+          <path d="M26 44 L16 54 M34 44 L44 54 M30 46 L30 60"></path>
+          <ellipse cx="30" cy="41" rx="6" ry="5.4" fill="currentColor" stroke="none"></ellipse>
         </svg>
-        <p class="holorotate-title">Built for a landscape screen</p>
-        <p class="holorotate-note">Rotate your phone to watch, or open it on
-        something larger.</p>
+      </div>
+      <div class="holoprofile-id">
+        <p class="holoprofile-name">Reconstruction operator</p>
+        <p class="holoprofile-handle">CA3 &middot; mouse hippocampus</p>
+      </div>
+      <span class="holoprofile-rank">stage two</span>
+    </div>
+    <div class="holoprofile-stats">
+      <div class="holoprofile-stat"><b>118</b><span>cells</span></div>
+      <div class="holoprofile-stat"><b>1,024</b><span>edits</span></div>
+      <div class="holoprofile-stat"><b>165</b><span>synapses</span></div>
+    </div>
+    <div class="holoprofile-meters">
+      <div class="holoprofile-meter">
+        <p><span>proofreading</span><em>72%</em></p>
+        <i style="--v:72%"></i>
+      </div>
+      <div class="holoprofile-meter">
+        <p><span>mesh cache</span><em>56 of 56</em></p>
+        <i style="--v:100%"></i>
       </div>
     </div>
   </div>
-  <p>The icon turns a quarter and comes back on a 2.4 second cycle, and it is
-  held still for 40 per cent of that cycle. The hold is what makes it read as
-  an instruction rather than as a spinner, and it is the reason this one loop
-  is allowed to loop. The real gate is a fixed cover that appears only in
-  portrait under 820px wide, so the copy above is the same panel with
-  <code>is-preview</code> on it, shown inline. A page demonstrating a full page
-  cover should not be covered by one.</p>
+
+  <h2>Achievement toast</h2>
+  <p>The success state from EyeWire II Brain Quest: a toast and a confetti burst
+  fired together. The card announces through a live region, dismisses on a timer
+  that pauses while you point at it or tap it, and the burst respects reduced
+  motion.</p>
+  <div class="demo">
+    <p class="btnrow">
+      <button class="cta" type="button" id="fire-quest">Daily quests complete</button>
+      <button class="cta" type="button" id="fire-badge">Badge only</button>
+    </p>
+  </div>
+
+  <h2>Tinted lift card</h2>
+  <p>Each card sets one property, <code>--holotint</code>, and that single value
+  colours both the corner glow and the shadow it pools as it lifts. Point at one,
+  or tap it, and it comes up.</p>
+  <div class="holotint-grid">
+    <article class="holotint" style="--holotint: rgba(126,224,255,0.18); --holotint-solid: rgba(126,224,255,0.75)">
+      <p class="holotint-kicker"><span class="holotint-dot"></span>cyan</p>
+      <h3 class="holotint-title">One property per card</h3>
+      <p class="holotint-body">The tint reaches the shadow as well as the
+      overlay. Tint only one and it collapses into a coloured smudge.</p>
+    </article>
+    <article class="holotint" style="--holotint: rgba(183,139,255,0.18); --holotint-solid: rgba(183,139,255,0.75)">
+      <p class="holotint-kicker"><span class="holotint-dot"></span>violet</p>
+      <h3 class="holotint-title">Hover, focus and tap agree</h3>
+      <p class="holotint-body">Everything the pointer gets, a keyboard and a
+      finger get too. The card lifts on focus-within and on a tap.</p>
+    </article>
+    <article class="holotint" style="--holotint: rgba(255,200,97,0.18); --holotint-solid: rgba(255,200,97,0.75)">
+      <p class="holotint-kicker"><span class="holotint-dot"></span>warm</p>
+      <h3 class="holotint-title">The one warm accent</h3>
+      <p class="holotint-body">A cool field with a single warm card in it. Two
+      warm accents and the grid stops reading as an instrument.</p>
+    </article>
+  </div>
+
+  <h2>Icon rail</h2>
+  <p>A toolbar of icon buttons with rest, hover, focus, pressed and selected
+  states. Real buttons, inline SVG, no <code>!important</code>. The third is a
+  toggle and reports with <code>aria-pressed</code>.</p>
+  <div class="demo">
+    <div class="holoiconrail" role="toolbar" aria-label="Viewer tools">
+      <button class="holoiconrail-btn" type="button" title="Center the view" aria-label="Center the view">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="7"></circle>
+          <path d="M12 2v4M12 18v4M2 12h4M18 12h4"></path>
+        </svg>
+      </button>
+      <button class="holoiconrail-btn" type="button" title="Layers" aria-label="Layers">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 3l9 5-9 5-9-5 9-5z"></path>
+          <path d="M3 13l9 5 9-5"></path>
+        </svg>
+      </button>
+      <button class="holoiconrail-btn" type="button" title="Follow the trace"
+              aria-label="Follow the trace" aria-pressed="true">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 20V9M4 13h6l3-4h7"></path>
+          <circle cx="4" cy="20" r="1.6"></circle>
+          <circle cx="20" cy="9" r="1.6"></circle>
+        </svg>
+      </button>
+      <span class="holoiconrail-sep" aria-hidden="true"></span>
+      <button class="holoiconrail-btn" type="button" title="Search" aria-label="Search">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="11" cy="11" r="6"></circle>
+          <path d="M15.5 15.5L21 21"></path>
+        </svg>
+      </button>
+      <button class="holoiconrail-btn" type="button" title="Capture a frame" aria-label="Capture a frame">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="3" y="6" width="18" height="13" rx="2"></rect>
+          <circle cx="12" cy="12.5" r="3.4"></circle>
+          <path d="M8 6l1.6-2h4.8L16 6"></path>
+        </svg>
+      </button>
+      <span class="holoiconrail-sep" aria-hidden="true"></span>
+      <button class="holoiconrail-btn" type="button" title="Nothing loaded yet"
+              aria-label="Nothing loaded yet" disabled>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 4v11M7.5 10.5L12 15l4.5-4.5"></path>
+          <path d="M4 19h16"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <h2>Tutorial callout</h2>
+  <p>A callout that anchors to a target, flips to the side that fits, clamps
+  into the viewport, then slides its beak to keep pointing. Escape dismisses,
+  the arrows step, and the page scrolls the whole time.</p>
+  <div class="demo">
+    <p class="btnrow">
+      <button class="cta" type="button" data-holotip-start="#pagetour">Take the tour</button>
+    </p>
+  </div>
 
   <h2>Usage</h2>
 <pre>&lt;link rel="stylesheet" href="hologram.css"&gt;
@@ -605,16 +668,11 @@
 
 &lt;script src="hologram.js"&gt;&lt;/script&gt;
 &lt;script src="hologram-tap.js"&gt;&lt;/script&gt;</pre>
-  <p>Put the <code>canvas.trace</code> before the media. The HUD layer, the play
-  badge, the step rail parts, the section rail, the card edge trace and the two
-  boot spans are all created at runtime. The second script is what makes every
-  hover treatment reachable by tap, and it belongs on any page that loads any
-  part of this library.
-  Colours come from nine tokens on <code>:root</code> in the stylesheet, and
-  every rule carries a concrete fallback, so any one component works pasted into
-  a page with no token system at all. Read
-  <a href="README.md">README.md</a> for the reasoning, the tunables, and the
-  compositing traps that cost real time.</p>
+  <p>Put the <code>canvas.trace</code> before the media. Everything decorative
+  is created at runtime. The second script is what makes every hover treatment
+  reachable by tap, and it belongs on any page that loads any part of this
+  library. Read <a href="README.md">README.md</a> for the reasoning, the
+  tunables, and the compositing traps that cost real time.</p>
   <a class="cta" href="README.md">Read the README</a>
 
   <footer>
@@ -627,6 +685,35 @@
   </footer>
 
 </div>
+
+<!-- the page finale. When this marker reaches the viewport the confetti fires
+     and the mascot rides up on balloons, once per load. A components/ part, so
+     it brings its own two files, loaded at the foot of the page. -->
+<div class="holofinale"
+     data-holofinale-src="media/nurro-balloons.png"
+     data-holofinale-palette="rainbow"
+     data-holofinale-intensity="2"></div>
+
+<!-- the tutorial callout's tour. Copy lives in the markup, hidden until the
+     script reads it, so a step is edited in one place. Each step names a
+     target already on the page. -->
+<ol class="holotip-steps" id="pagetour" hidden>
+  <li data-holotip-target=".holoprofile" data-holotip-side="top"
+      data-holotip-title="The shared surface">
+    <p>This card and the toast are the same panel underneath, pulled out once
+    as .holopanel instead of copied a fourth time.</p>
+  </li>
+  <li data-holotip-target="#fire-quest" data-holotip-side="bottom"
+      data-holotip-title="The success state">
+    <p>Press this after the tour for a toast and a confetti burst together, the
+    way Brain Quest fires them.</p>
+  </li>
+  <li data-holotip-target=".holoiconrail" data-holotip-side="top"
+      data-holotip-title="Icon rail" data-holotip-next="finish">
+    <p>Real buttons with rest, hover, pressed and selected states, and no
+    !important anywhere in the file.</p>
+  </li>
+</ol>
 
 <nav class="holorail" data-holorail=".wrap > h2"></nav>
 
@@ -729,8 +816,9 @@
 
   <p class="holodialog-eyebrow">visual component only</p>
   <h2 class="holodialog-title" id="demodialog-title">Surface Treatment</h2>
-  <p class="holodialog-desc">This is the panel, the field, the rim and the
-  entrance. It is not a sign in. Nothing here submits anywhere.</p>
+  <p class="holodialog-desc">Laid end to end, the myelinated wiring in one
+  human brain runs about 176,000 km, enough to circle the equator four and a
+  half times.</p>
 
   <div class="holodialog-rows">
     <div class="holodialog-row" data-state="done">
@@ -749,11 +837,10 @@
          placeholder="type anything, it goes nowhere"
          autocomplete="off" spellcheck="false" data-holofocus>
 
-  <button class="holobtn" type="button">
-    <span class="holobtn-text">This button does nothing</span>
+  <button class="holobtn" type="button" data-holoclose>
+    <span class="holobtn-text">Close</span>
     <span class="holobtn-glow"></span>
   </button>
-  <button class="holobtn--ghost" type="button" data-holoclose>close &#8250;</button>
 
   <p class="holodialog-note">NO AUTH &middot; NO FORM &middot; NO REQUEST &middot; NO STORAGE</p>
 </dialog>
@@ -761,7 +848,48 @@
 <script src="hologram.js"></script>
 <script src="hologram-tap.js"></script>
 <script src="components/attract-loop.js"></script>
+<script src="components/confetti-burst.js"></script>
+<script src="components/page-finale.js"></script>
+<script src="components/panel-surface.js"></script>
+<script src="components/achievement-toast.js"></script>
+<script src="components/tutorial-callout.js"></script>
 <script>
+  /* the eyebrow readout is measured rather than written: the number of
+     elements this page is made of, counted after the runtime parts are built.
+     Once now, for the first paint, and once more on DOMContentLoaded, which is
+     when the attract loop builds its stage. The scripts above ran first, so
+     their listener fires before this one and the count includes their work. */
+  /* the ported toast demo. One button fires the Brain Quest success state, a
+     toast and a rainbow burst together; the other fires a plain badge. Both go
+     through the component's own holotoast and holoburst, nothing special. */
+  (function () {
+    var quest = document.getElementById("fire-quest");
+    var badge = document.getElementById("fire-badge");
+    if (quest && window.holotoast) {
+      quest.addEventListener("click", function () {
+        holotoast({ tone: "quest", icon: "\u{1F9E0}", title: "Daily quests complete",
+          sub: "All three quests done. You are a neuroscience hero.", duration: 6000 });
+        if (window.holoburst) holoburst("rainbow", 2);
+      });
+    }
+    if (badge && window.holotoast) {
+      badge.addEventListener("click", function () {
+        holotoast({ tone: "badge", icon: "\u{1F3C5}", title: "Astrolabe",
+          sub: "You explored 25 cells across three datasets.", duration: 5000 });
+      });
+    }
+  })();
+
+  (function () {
+    var out = document.getElementById("elcount");
+    if (!out) return;
+    function count() {
+      out.textContent = document.getElementsByTagName("*").length + " elements";
+    }
+    count();
+    addEventListener("DOMContentLoaded", count);
+  })();
+
   /* demo glue, to show that the rail reports its state. Each rail reports into
      the readback in its own box, found from the rail rather than by counting
      rails, so the third rail on the page does not write into the second one's

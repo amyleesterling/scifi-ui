@@ -23,9 +23,18 @@ components below.
 A second set lives in [`components/`](components/), one file per part, with its
 own [demo page](https://amyleesterling.github.io/scifi-ui/components/): a
 tutorial callout, an achievement toast, a confetti burst, a tinted lift card, an
-icon rail, and a page finale that fires the confetti once when the reader reaches
-the bottom of the page and floats a mascot up on balloons. They are split one per
-file so you can take one without taking the set.
+icon rail (`.holoiconrail`, kept clear of the section rail's `.holorail`), a page
+finale that fires the confetti once when the reader reaches the bottom and floats
+a mascot up on balloons, a shared panel surface (`.holopanel`), and a profile
+panel built on it. They are split one per file so you can take one without taking
+the set, and the whole set also runs inline on the main
+[demo page](https://amyleesterling.github.io/scifi-ui/).
+
+The panel surface is the one worth a word here. A dark gradient panel with a lit
+top edge and a materialise entrance recurred in four upstream places, each with
+its own copy; `components/panel-surface.css` is that surface pulled out once, and
+the profile panel is the first component built on it rather than a fifth copy. It
+wins without `!important`: a library has no host page to fight.
 
 ```html
 <link rel="stylesheet" href="hologram.css">
@@ -134,16 +143,27 @@ ornament.
 
 ### 3. Underline that draws itself (`.holounder`)
 
-A hairline runs out from under a heading, once, the first time that heading is
-actually on screen. Its resting state is the finished line, so a page with the
-script stripped out still shows the underline instead of nothing.
+A hairline runs out from under a heading the first time that heading is
+actually on screen, and draws again on hover or on a tap. Its resting state is
+the finished line, so a page with the script stripped out still shows the
+underline instead of nothing.
 
 ### 4. Panel that boots up (`.holoboot`)
 
 Add the class to any panel. Two bright heads run the border in opposite
 directions and meet, an inner backlight swells and tapers, and the panel resolves
-out of a blur. Once, the first time it is seen, because a panel that boots before
-you scroll to it has booted for nobody.
+out of a blur. It runs the first time the panel is seen, because a panel that
+boots before you scroll to it has booted for nobody, and again on every hover
+and every tap.
+
+The replay is why the script removes `is-online` at `animationend` rather than
+leaving it on. The `:hover` and `.holo-on` selectors apply the same animation
+the class does, and a CSS animation only restarts when its computed name
+changes, so a class that never leaves is a replay that can never happen. This
+bug shipped: the page promised a boot on every hover and tap and delivered one
+boot ever. The class waits for the 1500ms ring sweep to end, not the 900ms
+panel entrance, so the sweep is never cut off mid run. The underline's
+`is-drawn` comes off the same way.
 
 The two decorative spans are added at runtime and sit at `z-index: -1` inside an
 isolated stacking context, which puts them above the panel background and below
@@ -445,7 +465,10 @@ reason a touch user got a static page. Give the treatment a tap path instead:
 a time, and every `:hover` rule in this library names that class as a second
 selector. A tap on a real link or button inside the element still belongs to the
 control, and a tap that turns into a scroll activates nothing. The one exception
-is the motes, because a tap cannot express a pointer that is here and moving.
+is the mote repulsion, because a tap cannot express a pointer that is here and
+moving. The motes drift ambiently on every device instead, a few pixels of slow
+wander animated on the `translate` property, which composes with the inline
+`transform` the repulsion writes rather than fighting it.
 
 ---
 

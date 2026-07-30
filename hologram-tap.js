@@ -40,8 +40,8 @@
   // :focus-visible, and a button left sitting in its hover state after a tap
   // reads as a stuck toggle rather than as feedback. Add your own to the list
   // with data-holo-tap on the element.
-  var HOSTS = ".holoframe, .holo, .holoboot, .holosweep, .holocard, " +
-              ".holobar, .holotint, .holotoast, [data-holo-tap]";
+  var HOSTS = ".holoframe, .holo, .holoboot, .holounder, .holosweep, " +
+              ".holocard, .holobar, .holotint, .holotoast, [data-holo-tap]";
 
   // What counts as a real control. A media element is deliberately not one: it
   // is a surface rather than a button, it is usually the whole inside of the
