@@ -357,3 +357,46 @@ handler differs by what it is on:
 Also: `hologram-tap.js` now re-fires `holotap:on` when you re-tap the thing
 already lit. Without it a repeat tap on the same element was a dead no-op, so
 any effect whose point is a replay could only ever play on the first tap.
+
+**Version 8**, 30 July 2026. The masthead glitch becomes a closed loop, the
+particle trace runs on phones, the step-rail section becomes a four-stage
+descent through the brain, the readout panel answers a tap, and a live unit bug
+in the media HUD is fixed. Lessons worth keeping:
+
+- **A satisfying loop is one set of particles going out and coming back to the
+  same coordinates, not two effects that happen near each other.** The first
+  glitch threw particles that flew off and faded while the panel independently
+  faded back: the eye read them as unrelated. Now each particle stores its spawn
+  point as home, flies to an outward target for the first 42% of its life, then
+  eases back to that exact home for the rest, and the panel is pinned at
+  opacity 0 for the whole flight and only reforms over the last fifth, as the
+  particles land on it and cross-fade out. What disperses is what rebuilds.
+- **When two clocks have to meet, couple them in the comments and the
+  constants, not by eyeball.** The CSS panel keyframes (hold to 72%, reform by
+  100% of 1600ms) and the JS particle life (`THROW` 200ms, `PLIFE` 1320ms) are
+  set to land the particles into the reform. Retiming one without the other
+  breaks the illusion, so both say so at their definition.
+- **A width guard that turns a feature off entirely deserves a second look.**
+  The trace canvas was `display: none` below 700px on the theory its 22px
+  overhang would scroll the page. It would not: the frame sits inside the wrap's
+  30px gutter, so the overhang lands there with 8px to spare. It was hiding one
+  of the nicer things on the page from every phone for nothing. Measured at 360,
+  390, 700 and 860px: zero horizontal overflow. Verify the assumption a guard is
+  built on before you keep paying for it.
+- **A tap host with no rule for `.holo-on` is a dead tap.** `.holo` was in the
+  tap list, so a tap already put `.holo-on` on the readout, but nothing answered
+  that class, so the panel did nothing and read as broken. Every host in the tap
+  list needs a visible answer to the class, the same way it needs one for
+  `:hover`. Being in the list is half the contract.
+- **The µm-to-MM unit trap was not hypothetical: it was live in the HUD.** The
+  media annotation's value line, `.hud b.c`, was `text-transform: uppercase`,
+  so the real measurement `337 × 266 × 92 µm` rendered as `... 92 MM`, off by a
+  thousand an axis. The readout component's header warns about exactly this; the
+  same trap sat two files over, uncaught, because MM reads as a plausible unit.
+  The value line now opts out of uppercase. When a repo documents a trap, grep
+  the rest of it for the same shape.
+- **One rail can carry a whole demo.** The step-rail section had two bare rails
+  reporting their own step; it now has one driving a four-stage inner-cosmos,
+  brain to neurons to synapse to a plotted action potential, the stages stacked
+  and cross-faded so the panel never jumps height, the scale labels held in the
+  script so the label and the art cannot drift apart.

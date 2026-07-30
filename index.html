@@ -173,44 +173,47 @@
 
   /* Hover it with a mouse or tap it on a touch device and the panel comes
      apart on a chromatic split: it shears red-and-cyan, tears on a few
-     scanlines, drops to nothing for a beat while a burst of tinted particles
-     (thrown by the script from this same rectangle) flies off it, then
-     recomposes. It is a trigger, not a dismiss: one run and the masthead is
-     exactly as it was. The particles are canvas; everything here is the panel
-     dispersing and reassembling around them.
+     scanlines, then bursts into tinted particles that fly out, hang, and are
+     pulled back to their own start points, rebuilding the panel exactly where
+     it stood. One closed loop, box to shatter to box. It is a trigger, not a
+     dismiss: one run and the masthead is exactly as it was.
 
-     Two animations run together. The panel keyframes carry the shear, the
-     scanline tears (clip-path), the fade to nothing and the return. The
-     wordmark keyframes carry the readable half of the aberration: its own red
-     and cyan ghosts pull apart hardest at the break and snap back on reform.
-     linear, not steps, so opacity and transform still travel; the clip-path
-     changing direction sharply is what reads as a tear rather than a slide. */
+     Two things run together and they are timed to meet. The panel keyframes
+     hold the panel at opacity 0 through the whole flight (30% to 72%), so while
+     the particles are away there is nothing but the render behind, then bring
+     the panel back over the last fifth exactly as the particles land on their
+     home coordinates and cross-fade out. Retime one and you retime the other:
+     the script's PLIFE and THROW are set to land the particles into this
+     reform, not before it and not after. The wordmark keyframes carry the
+     readable half of the aberration, red and cyan glyph ghosts that pull apart
+     at the break and collapse back as it reassembles. linear, not steps, so
+     opacity and transform travel; the clip-path changing direction sharply is
+     what reads as a tear rather than a slide. */
   .masthead.holo-glitch {
-    animation: holo-glitch-shatter 1180ms linear forwards;
+    animation: holo-glitch-shatter 1600ms linear forwards;
     /* the fixed centring translate has to survive the animation, so the shake
        rides transform and this stays put */
     will-change: transform, opacity, clip-path, filter;
   }
   .masthead.holo-glitch .wordmark {
-    animation: holo-glitch-word 1180ms linear forwards;
+    animation: holo-glitch-word 1600ms linear forwards;
   }
   @keyframes holo-glitch-shatter {
     0%   { transform: translate(0,0); filter: none; opacity: 1;
            clip-path: inset(0 0 0 0); }
-    6%   { transform: translate(-5px,1px); opacity: .95; clip-path: inset(0 0 62% 0);
+    5%   { transform: translate(-5px,1px); opacity: .95; clip-path: inset(0 0 62% 0);
            filter: drop-shadow(-7px 0 rgba(255,45,107,.55)) drop-shadow(7px 0 rgba(63,232,255,.55)); }
-    12%  { transform: translate(6px,-2px); clip-path: inset(40% 0 22% 0); }
-    18%  { transform: translate(-7px,2px); clip-path: inset(72% 0 0 0); }
-    24%  { transform: translate(4px,0); opacity: .82; clip-path: inset(0 0 0 0);
+    10%  { transform: translate(6px,-2px); clip-path: inset(40% 0 22% 0); }
+    15%  { transform: translate(-7px,2px); opacity: .8; clip-path: inset(72% 0 0 0);
            filter: drop-shadow(-12px 0 rgba(255,45,107,.6)) drop-shadow(12px 0 rgba(63,232,255,.6)); }
-    38%  { transform: translate(-3px,0); opacity: .12;
+    22%  { transform: translate(4px,0); opacity: .28; clip-path: inset(0 0 0 0);
            filter: drop-shadow(-17px 0 rgba(255,45,107,.5)) drop-shadow(17px 0 rgba(63,232,255,.5)); }
-    52%  { opacity: 0; }              /* gone: the render behind shows through */
-    66%  { opacity: 0; }
-    74%  { opacity: .2; transform: translate(4px,0); clip-path: inset(0 0 46% 0);
+    30%  { opacity: 0; }              /* gone: the particles are the panel now */
+    72%  { opacity: 0; }              /* held out while they fly and return */
+    80%  { opacity: .18; transform: translate(3px,0); clip-path: inset(0 0 46% 0);
            filter: drop-shadow(-12px 0 rgba(255,45,107,.5)) drop-shadow(12px 0 rgba(63,232,255,.5)); }
-    82%  { opacity: .6; transform: translate(-3px,1px); clip-path: inset(30% 0 0 0); }
-    90%  { opacity: .9; transform: translate(1px,0); clip-path: inset(0 0 0 0);
+    88%  { opacity: .55; transform: translate(-2px,1px); clip-path: inset(28% 0 0 0); }
+    94%  { opacity: .85; transform: translate(1px,0); clip-path: inset(0 0 0 0);
            filter: drop-shadow(-4px 0 rgba(255,45,107,.4)) drop-shadow(4px 0 rgba(63,232,255,.4)); }
     100% { transform: translate(0,0); filter: none; opacity: 1;
            clip-path: inset(0 0 0 0); }
@@ -219,11 +222,12 @@
      under that, so these red/cyan offsets show as split glyph ghosts */
   @keyframes holo-glitch-word {
     0%   { text-shadow: 0 0 0 transparent; }
-    12%  { text-shadow: -4px 0 rgba(255,45,107,.9), 4px 0 rgba(63,232,255,.9); }
-    24%  { text-shadow: -9px 0 rgba(255,45,107,.95), 9px 0 rgba(63,232,255,.95); }
-    38%  { text-shadow: -16px 2px rgba(255,45,107,.85), 16px -2px rgba(63,232,255,.85); }
-    52%, 66% { text-shadow: -22px 0 rgba(255,45,107,.6), 22px 0 rgba(63,232,255,.6); }
-    82%  { text-shadow: -8px 0 rgba(255,45,107,.75), 8px 0 rgba(63,232,255,.75); }
+    10%  { text-shadow: -5px 0 rgba(255,45,107,.9), 5px 0 rgba(63,232,255,.9); }
+    15%  { text-shadow: -10px 0 rgba(255,45,107,.95), 10px 0 rgba(63,232,255,.95); }
+    22%  { text-shadow: -18px 2px rgba(255,45,107,.85), 18px -2px rgba(63,232,255,.85); }
+    30%, 72% { text-shadow: -22px 0 rgba(255,45,107,.6), 22px 0 rgba(63,232,255,.6); }
+    80%  { text-shadow: -12px 0 rgba(255,45,107,.7), 12px 0 rgba(63,232,255,.7); }
+    90%  { text-shadow: -5px 0 rgba(255,45,107,.6), 5px 0 rgba(63,232,255,.6); }
     100% { text-shadow: 0 0 0 transparent; }
   }
   /* a reader who asked for less motion gets the plain edge-light, no shatter */
@@ -300,6 +304,123 @@
   .readback { display: block; margin-top: 14px; font-size: 12px; color: #8FA6C2;
               font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
               letter-spacing: .08em; }
+
+  /* the inner-cosmos demo: one step rail descending four scales of the brain.
+     The rail drives which .cosmos-stage is lit; the stages are stacked and
+     cross-fade, so the panel height never jumps as you move through them. Line
+     art is stroked in the beam blue and breathes; the last stage, the action
+     potential, is the one that actually plots a signal. Every bit of motion is
+     off under prefers-reduced-motion, where the stages hard-cut and the spike
+     shows fully drawn. Scale labels are NOT uppercased on purpose: the micro
+     sign in "100 µm" turns into MM under text-transform, the unit bug this repo
+     already carries a scar from. */
+  .cosmos { max-width: 560px; }
+  .cosmos .holobar { margin-bottom: 20px; }
+  .cosmos-view {
+    position: relative; height: 300px; border-radius: 4px;
+    border: 1px solid rgba(88,148,238,.28);
+    background:
+      radial-gradient(120% 90% at 50% 40%, rgba(20,40,74,.55), rgba(7,11,20,.9) 70%),
+      #070B14;
+    overflow: hidden;
+  }
+  /* a faint starfield, so an empty stage reads as inner space, not a blank box */
+  .cosmos-view::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .6;
+    background-image:
+      radial-gradient(1px 1px at 20% 30%, rgba(190,224,255,.7), transparent),
+      radial-gradient(1px 1px at 70% 22%, rgba(150,200,255,.6), transparent),
+      radial-gradient(1px 1px at 84% 62%, rgba(190,224,255,.55), transparent),
+      radial-gradient(1px 1px at 34% 74%, rgba(150,200,255,.5), transparent),
+      radial-gradient(1px 1px at 55% 52%, rgba(210,235,255,.5), transparent),
+      radial-gradient(1px 1px at 12% 60%, rgba(150,200,255,.45), transparent);
+  }
+  .cosmos-scale {
+    position: absolute; top: 12px; right: 14px; z-index: 3; margin: 0;
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: 11px; letter-spacing: .12em; color: #6BA9EE;
+    text-shadow: 0 0 12px rgba(62,150,240,.5);
+  }
+  .cosmos-stage {
+    position: absolute; inset: 0; margin: 0; display: flex; z-index: 2;
+    flex-direction: column; align-items: center; justify-content: center;
+    gap: 8px; opacity: 0; visibility: hidden; transform: scale(.96);
+    transition: opacity .6s ease, transform .6s ease;
+  }
+  .cosmos-stage.on { opacity: 1; visibility: visible; transform: none; }
+  .cosmos-art { width: min(72%, 300px); height: auto; overflow: visible; }
+  .cosmos-art .ln path, .cosmos-art .ln circle, .cosmos-art .ap-spike {
+    fill: none; stroke: #8FCBFF; stroke-width: 2;
+    stroke-linecap: round; stroke-linejoin: round;
+    filter: drop-shadow(0 0 5px rgba(88,170,255,.65));
+  }
+  .cosmos-art .ln .thin { stroke-width: 1.4; opacity: .82; }
+  .cosmos-art .ln .dim {
+    stroke: rgba(120,160,210,.4); stroke-width: 1.2; filter: none;
+  }
+  .cosmos-art .nt circle {
+    fill: #7FE4FF; stroke: none;
+    filter: drop-shadow(0 0 5px rgba(80,220,255,.9));
+  }
+  .cosmos-art .ap-pulse circle {
+    fill: #EAF4FF; stroke: none;
+    filter: drop-shadow(0 0 8px rgba(120,200,255,1)) drop-shadow(0 0 16px rgba(80,170,255,.8));
+  }
+  /* the line art breathes, so a still stage is not a dead one */
+  .cosmos-stage.on .cosmos-art .ln {
+    animation: cosmos-breathe 4.4s ease-in-out infinite;
+  }
+  @keyframes cosmos-breathe { 0%, 100% { opacity: .82; } 50% { opacity: 1; } }
+  /* stage 3: the neurotransmitters drift across the cleft and restart */
+  .cosmos-stage.on[data-stage="3"] .nt circle {
+    animation: cosmos-nt 2.6s ease-in infinite;
+  }
+  .cosmos-stage.on[data-stage="3"] .nt circle:nth-child(2) { animation-delay: .5s; }
+  .cosmos-stage.on[data-stage="3"] .nt circle:nth-child(3) { animation-delay: 1s; }
+  @keyframes cosmos-nt {
+    0%   { transform: translateY(-8px); opacity: 0; }
+    30%  { opacity: 1; }
+    100% { transform: translateY(30px); opacity: 0; }
+  }
+  /* stage 4: the pulse runs the axon and the spike plots itself in step. The
+     translate is in SVG user units, which the 16..224 axon is drawn in, so the
+     pulse travels its full length. */
+  .cosmos-stage.on[data-stage="4"] .ap-pulse {
+    animation: cosmos-ap-travel 2.4s cubic-bezier(.5,0,.5,1) infinite;
+  }
+  @keyframes cosmos-ap-travel {
+    0%   { transform: translateX(0); opacity: 0; }
+    8%   { opacity: 1; }
+    90%  { opacity: 1; }
+    100% { transform: translateX(208px); opacity: 0; }
+  }
+  .cosmos-stage.on[data-stage="4"] .ap-spike {
+    stroke-dasharray: 360; stroke-dashoffset: 360;
+    animation: cosmos-ap-draw 2.4s cubic-bezier(.5,0,.5,1) infinite;
+  }
+  @keyframes cosmos-ap-draw {
+    0% { stroke-dashoffset: 360; } 88% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 0; }
+  }
+  .cosmos-stage figcaption { text-align: center; z-index: 2; }
+  .cosmos-stage figcaption b {
+    display: block; font-size: 17px; font-weight: 500; color: #EAF2FC;
+    letter-spacing: .01em;
+  }
+  .cosmos-stage figcaption span {
+    display: block; margin-top: 2px; font-size: 12.5px; color: #93A8C6;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cosmos-stage { transition: none; }
+    .cosmos-stage.on .cosmos-art .ln,
+    .cosmos-stage.on[data-stage="3"] .nt circle,
+    .cosmos-stage.on[data-stage="4"] .ap-pulse,
+    .cosmos-stage.on[data-stage="4"] .ap-spike { animation: none; }
+    .cosmos-stage.on[data-stage="4"] .ap-spike { stroke-dashoffset: 0; }
+    .cosmos-stage.on[data-stage="4"] .ap-pulse {
+      transform: translateX(100px); opacity: 1;
+    }
+  }
+
   .panelcard { border-radius: 3px; }
   .panelcard img, .panelcard video { display: block; width: 100%; height: auto; }
   .panelrow { display: flex; align-items: baseline; justify-content: space-between;
@@ -439,16 +560,83 @@
   </figure>
 
   <h2>Step rail</h2>
-  <p>Drag the rail and the step follows. Tap a tick to jump, or focus one and
-  use the arrow keys. Any number of steps, reported back on a
-  <code>holobar:change</code> event.</p>
-  <div class="demo">
-    <div class="holobar" data-steps="10" data-step="8" aria-label="Tour stage"></div>
-    <output class="readback" id="railout">waiting</output>
-  </div>
-  <div class="demo">
-    <div class="holobar" data-steps="3" data-step="1" aria-label="Upload stage"></div>
-    <output class="readback" id="railout2">waiting</output>
+  <p>One rail, any number of stops, each reported on a
+  <code>holobar:change</code> event. Here it drives a descent through four
+  scales of the brain: drag it, tap a tick, or arrow-key from the whole organ
+  down to a single spike.</p>
+  <div class="cosmos">
+    <div class="holobar" id="cosmosrail" data-steps="4" data-step="1"
+         aria-label="Descend from brain to action potential"></div>
+    <div class="cosmos-view">
+      <p class="cosmos-scale" id="cosmosscale" aria-live="polite">≈ 15 cm</p>
+
+      <figure class="cosmos-stage on" data-stage="1">
+        <svg class="cosmos-art" viewBox="0 0 240 150" aria-hidden="true">
+          <g class="ln">
+            <path d="M58 96 C38 92 33 71 48 61 C43 45 62 35 79 42 C87 29 110 27 120 40
+                     C137 31 159 38 160 57 C179 60 184 81 168 92 C172 107 154 118 138 111
+                     C127 123 103 122 96 108 C77 114 60 109 58 96 Z"/>
+            <path class="thin" d="M71 60 C83 67 85 82 76 92"/>
+            <path class="thin" d="M96 48 C105 63 101 84 92 98"/>
+            <path class="thin" d="M121 46 C130 61 127 84 118 100"/>
+            <path class="thin" d="M145 55 C151 67 149 84 140 94"/>
+            <path class="thin" d="M112 110 C110 124 105 134 99 142"/>
+          </g>
+        </svg>
+        <figcaption><b>The human brain</b><span>~86 billion neurons, 1.4 kg</span></figcaption>
+      </figure>
+
+      <figure class="cosmos-stage" data-stage="2">
+        <svg class="cosmos-art" viewBox="0 0 240 150" aria-hidden="true">
+          <g class="ln">
+            <circle cx="72" cy="74" r="9"/>
+            <path class="thin" d="M72 65 L67 46 M72 65 L82 48 M63 70 L47 58 M63 80 L45 90 M81 79 L96 70"/>
+            <path d="M81 74 C112 74 122 96 152 96"/>
+            <path class="thin" d="M152 96 l11 -6 M152 96 l11 6 M152 96 l13 0"/>
+            <circle cx="150" cy="44" r="7"/>
+            <path class="thin" d="M150 37 L148 23 M143 40 L130 31 M158 40 L171 33"/>
+            <path d="M150 51 C150 71 131 79 119 102"/>
+            <path class="thin" d="M119 102 l-10 3 M119 102 l-3 11"/>
+          </g>
+        </svg>
+        <figcaption><b>Neurons</b><span>a soma, its dendrites, one long axon</span></figcaption>
+      </figure>
+
+      <figure class="cosmos-stage" data-stage="3">
+        <svg class="cosmos-art" viewBox="0 0 240 150" aria-hidden="true">
+          <g class="ln">
+            <path d="M120 8 L120 33"/>
+            <path d="M93 40 C88 22 152 22 147 40 C150 60 90 60 93 40 Z"/>
+            <circle class="thin" cx="108" cy="42" r="4"/>
+            <circle class="thin" cx="122" cy="47" r="4"/>
+            <circle class="thin" cx="134" cy="40" r="4"/>
+            <path d="M78 96 L162 96"/>
+            <path class="thin" d="M104 96 l0 -9 M120 96 l0 -9 M136 96 l0 -9"/>
+            <path d="M120 96 L120 122"/>
+          </g>
+          <g class="nt">
+            <circle cx="112" cy="64" r="2.4"/>
+            <circle cx="124" cy="70" r="2.4"/>
+            <circle cx="132" cy="62" r="2.4"/>
+          </g>
+        </svg>
+        <figcaption><b>A synapse</b><span>vesicles cross a 20 nm cleft</span></figcaption>
+      </figure>
+
+      <figure class="cosmos-stage" data-stage="4">
+        <svg class="cosmos-art" viewBox="0 0 240 150" aria-hidden="true">
+          <g class="ln">
+            <path d="M16 46 L224 46"/>
+            <path class="thin" d="M64 40 L64 52 M116 40 L116 52 M168 40 L168 52"/>
+            <path class="dim" d="M16 124 L224 124"/>
+          </g>
+          <path class="ap-spike" d="M16 112 L74 112 C84 112 84 108 90 108 C95 108 97 40 104 40
+                                     C111 40 113 132 120 132 C127 132 129 106 138 110 L224 110"/>
+          <g class="ap-pulse"><circle cx="16" cy="46" r="7"/></g>
+        </svg>
+        <figcaption><b>An action potential</b><span>+40 mV, one spike, about 1 ms</span></figcaption>
+      </figure>
+    </div>
   </div>
 
   <h2>Readout panel</h2>
@@ -1525,14 +1713,21 @@
     var reduce = window.matchMedia
       ? window.matchMedia("(prefers-reduced-motion: reduce)") : { matches: false };
 
-    var DUR = 1180;            // must match the stylesheet animation
-    var THROW = 240;           // ms in, when the panel is dispersing, to throw
+    var DUR = 1600;            // must match the stylesheet animation
+    var THROW = 200;           // ms in, when the panel is tearing, to throw
+    var PLIFE = 1320;          // particle out-and-back life; lands at THROW+PLIFE
+    var OUT = 0.42;            // fraction of that life spent flying outward
     var running = false;
-    var canvas = null, ctx = null, frame = 0, parts = [];
+    var canvas = null, ctx = null, frame = 0, parts = [], pt0 = 0;
 
     /* the two aberration ghosts, an electric blue and a white, weighted so the
        red and cyan that carry the chromatic read come up most often */
     var COLORS = ["#ff2d6b", "#3fe8ff", "#4a9eff", "#eaf4ff", "#ff2d6b", "#3fe8ff"];
+
+    function easeOut(u) { return 1 - Math.pow(1 - u, 3); }              // cubic
+    function easeInOut(v) {
+      return v < 0.5 ? 4 * v * v * v : 1 - Math.pow(-2 * v + 2, 3) / 2;
+    }
 
     function make() {
       canvas = document.createElement("canvas");
@@ -1553,47 +1748,70 @@
     }
 
     /* seed from anywhere inside the panel's own rectangle, so the cloud starts
-       in the panel's shape. Velocity points away from the centre and is biased
-       sideways, because a chromatic split spreads on the x axis hardest. Half
-       the particles are thin horizontal streaks, which read as scanline debris
-       rather than confetti. */
+       in the panel's shape, and remember that exact spot as home. Each particle
+       also gets an outward target, away from the centre and biased sideways
+       because a chromatic split spreads on the x axis hardest, and edge
+       particles are thrown farthest. The whole trip is home to out and back to
+       the very same home, so what disperses is what rebuilds. Half the
+       particles are thin horizontal streaks, which read as scanline debris. */
     function spawn(r) {
       var cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-      var n = Math.min(340, Math.round(r.width * r.height / 220));
+      var n = Math.min(360, Math.round(r.width * r.height / 210));
       for (var i = 0; i < n; i++) {
-        var px = r.left + Math.random() * r.width;
-        var py = r.top + Math.random() * r.height;
+        var hx = r.left + Math.random() * r.width;
+        var hy = r.top + Math.random() * r.height;
+        var dirx = (hx - cx) / (r.width / 2);       // -1..1 across the panel
+        var diry = (hy - cy) / (r.height / 2);
+        var reach = 40 + Math.random() * 150;
         var streak = Math.random() < 0.5;
         parts.push({
-          x: px, y: py,
-          vx: (px - cx) / (r.width / 2) * (2 + Math.random() * 5) + (Math.random() - 0.5) * 3,
-          vy: (py - cy) / (r.height / 2) * (1 + Math.random() * 2) - Math.random() * 1.5,
-          w: streak ? 6 + Math.random() * 16 : 1 + Math.random() * 3,
-          h: streak ? 1 + Math.random() * 1.5 : 1 + Math.random() * 3,
+          hx: hx, hy: hy,                            // home: where it rebuilds
+          ox: hx + dirx * reach * 1.5 + (Math.random() - 0.5) * 80,  // throw-out
+          oy: hy + diry * reach * 0.7 - Math.random() * 40,          // slight up
+          w: streak ? 6 + Math.random() * 15 : 1 + Math.random() * 2.6,
+          h: streak ? 1 + Math.random() * 1.4 : 1 + Math.random() * 2.6,
           color: COLORS[(Math.random() * COLORS.length) | 0],
-          drag: 0.9 + Math.random() * 0.06,
-          op: 1, fade: 0.012 + Math.random() * 0.02
+          wob: (Math.random() - 0.5) * 18,          // path wobble amplitude
+          wf: 3 + Math.random() * 4, wp: Math.random() * 6.28
         });
       }
     }
 
-    function tick() {
+    function tick(now) {
       if (!ctx) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       /* lighter, so overlapping particles add up to light the way a hologram
          does rather than painting over each other */
       ctx.globalCompositeOperation = "lighter";
+      var p = (now - pt0) / PLIFE;                   // 0..1 for the whole trip
       var alive = 0;
       for (var i = 0; i < parts.length; i++) {
-        var p = parts[i];
-        if (p.op <= 0) continue;
-        p.vx *= p.drag; p.vy = p.vy * p.drag + 0.04;   // a faint gravity
-        p.x += p.vx; p.y += p.vy; p.op -= p.fade;
-        if (p.op <= 0) continue;
+        var q = parts[i];
+        if (p >= 1) continue;                        // landed and handed off
         alive++;
-        ctx.globalAlpha = p.op < 0 ? 0 : p.op;
-        ctx.fillStyle = p.color;
-        ctx.fillRect(p.x, p.y, p.w, p.h);
+        var x, y;
+        if (p < OUT) {                               // flying outward, easing out
+          var e = easeOut(p / OUT);
+          x = q.hx + (q.ox - q.hx) * e;
+          y = q.hy + (q.oy - q.hy) * e;
+        } else {                                     // pulled home, ease in-out
+          var e2 = easeInOut((p - OUT) / (1 - OUT));
+          x = q.ox + (q.hx - q.ox) * e2;
+          y = q.oy + (q.hy - q.oy) * e2;
+        }
+        // wobble decays to zero as p approaches 1, so it lands exactly on home
+        var decay = 1 - p;
+        x += Math.sin(p * q.wf + q.wp) * q.wob * decay;
+        y += Math.cos(p * q.wf * 0.9 + q.wp) * q.wob * 0.6 * decay;
+        // fade in fast, hold through the flight, cross-fade out over the last
+        // stretch as the panel keyframes bring the real surface back up
+        var op = p < 0.06 ? p / 0.06
+               : p > 0.88 ? Math.max(0, (1 - p) / 0.12) : 1;
+        // gather: shrink a touch as they converge, so they land as fine points
+        var s = p > OUT ? 0.6 + 0.4 * (1 - (p - OUT) / (1 - OUT)) : 1;
+        ctx.globalAlpha = op;
+        ctx.fillStyle = q.color;
+        ctx.fillRect(x, y, q.w * s, q.h * s);
       }
       ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
       if (alive) frame = requestAnimationFrame(tick);
@@ -1608,6 +1826,7 @@
       window.setTimeout(function () {
         if (!canvas) return;             // torn down already, do nothing
         spawn(box.getBoundingClientRect());
+        pt0 = performance.now();         // the particle clock starts at the throw
         if (!frame) frame = requestAnimationFrame(tick);
       }, THROW);
       window.setTimeout(function () {
@@ -1652,6 +1871,32 @@
     bar.addEventListener("holobar:change", function (e) { show(e.detail.step); });
     show(bar.holobar.step);
   });
+
+  /* the inner-cosmos rail. The rail's step, one to four, lights the matching
+     stage and writes the scale label; the stages themselves cross-fade in CSS.
+     The rail builds synchronously when hologram.js runs above, so its step is
+     readable now, but init also runs on DOMContentLoaded in case that order
+     ever changes. The scale strings live here rather than in the markup so the
+     label and the stage can never fall out of step. */
+  (function () {
+    var rail = document.getElementById("cosmosrail");
+    var view = document.querySelector(".cosmos-view");
+    if (!rail || !view) return;
+    var stages = view.querySelectorAll(".cosmos-stage");
+    var scale = document.getElementById("cosmosscale");
+    var SCALES = ["≈ 15 cm", "≈ 100 µm", "≈ 20 nm", "≈ 1 ms"];
+    function show(step) {
+      var idx = Math.max(1, Math.min(stages.length, step | 0)) - 1;
+      for (var i = 0; i < stages.length; i++) {
+        stages[i].classList.toggle("on", i === idx);
+      }
+      if (scale) scale.textContent = SCALES[idx] || "";
+    }
+    rail.addEventListener("holobar:change", function (e) { show(e.detail.step); });
+    function init() { show(rail.holobar ? rail.holobar.step : 1); }
+    init();
+    addEventListener("DOMContentLoaded", init);
+  })();
 
   /* the attract loop reports both numbers, because the point of the section is
      that the step and the panel index are not the same once the sequence skips
