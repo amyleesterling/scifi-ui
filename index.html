@@ -268,10 +268,50 @@
   @media (prefers-reduced-motion: reduce) {
     .swept:hover, .swept:focus-within, .swept.holo-on { animation: none; }
   }
-  /* the attract loop deck, given an edge so the crossfade has a box to happen
-     in. Scaffolding for this page only, like everything else in this block. */
-  #attractdeck { margin-bottom: 18px; border: 1px solid #1B2130; border-radius: 3px;
-                 background: #090C12; }
+  /* The attract deck, restyled as a hologram projected up off the step rail
+     below it. No frame: a cone of light pools at the foot where the rail sits
+     and thins toward the top, faint scanlines drift over the projected copy,
+     and the type glows the cool blue of a projection rather than sitting on a
+     card. Compact, so the panel is the size of its line, not a box round it.
+     Scaffolding for this page only, like everything else in this block. */
+  /* the whole attract section floats: no card frame, so the projection reads
+     as light in the air rather than a boxed panel */
+  #attractdemo { border: none; background: none; padding: 6px 2px 0; }
+  #attractdeck {
+    position: relative; isolation: isolate;
+    margin: 6px 0 2px; border: none; background: none; overflow: visible;
+  }
+  /* the projection cone, widest and brightest at the foot centre, thinning up */
+  #attractdeck::before {
+    content: ""; position: absolute; z-index: -1; pointer-events: none;
+    left: 4%; right: 4%; top: -2px; bottom: -18px;
+    background: radial-gradient(130% 140% at 50% 122%,
+      rgba(96,176,255,.26) 0%, rgba(96,176,255,.10) 28%,
+      rgba(96,176,255,.02) 52%, transparent 70%);
+  }
+  /* scanlines over the projected copy, masked so they fade to nothing at the
+     edges instead of filling a hard rectangle, and drifting slowly like a
+     refresh */
+  #attractdeck::after {
+    content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+    opacity: .5; mix-blend-mode: screen;
+    background: repeating-linear-gradient(0deg,
+      rgba(150,210,255,.06) 0 1px, transparent 1px 3px);
+    -webkit-mask: radial-gradient(115% 100% at 50% 62%, #000 38%, transparent 82%);
+            mask: radial-gradient(115% 100% at 50% 62%, #000 38%, transparent 82%);
+    animation: attract-scan 7s linear infinite;
+  }
+  @keyframes attract-scan { to { background-position: 0 -30px; } }
+  /* the panel itself: compact, centred in its cell, and lit like a hologram */
+  #attractdeck .holoattract-panel { filter: drop-shadow(0 0 8px rgba(96,170,255,.35)); }
+  #attractdeck .panelrow { align-items: center; padding: 12px 14px; }
+  #attractdeck .panelrow b {
+    color: #96d0fb; text-shadow: 0 0 9px rgba(120,200,255,.7);
+  }
+  #attractdeck .panelrow span {
+    color: rgba(160,208,248,.92); text-shadow: 0 0 7px rgba(120,200,255,.4);
+  }
+  @media (prefers-reduced-motion: reduce) { #attractdeck::after { animation: none; } }
 
   /* the loader sat in a tall demo box with a small glyph marooned in the
      middle of it, which read as empty rather than as loading. A phone gets a
@@ -890,7 +930,7 @@
          autocomplete="off" spellcheck="false" data-holofocus>
 
   <button class="holobtn" type="button" data-holoclose>
-    <span class="holobtn-text">Close</span>
+    <span class="holobtn-text">OK</span>
     <span class="holobtn-glow"></span>
   </button>
 
