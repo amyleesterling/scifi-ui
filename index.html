@@ -7,13 +7,13 @@
 <link rel="stylesheet" href="hologram.css">
 <!-- the components/ parts each bring their own stylesheet, self contained and
      working alone -->
-<link rel="stylesheet" href="components/attract-loop.css">
 <link rel="stylesheet" href="components/confetti-burst.css">
 <link rel="stylesheet" href="components/page-finale.css">
 <link rel="stylesheet" href="components/panel-surface.css">
 <link rel="stylesheet" href="components/profile-panel.css">
 <link rel="stylesheet" href="components/researcher-profile.css">
 <link rel="stylesheet" href="components/achievement-toast.css">
+<link rel="stylesheet" href="components/badge-award.css">
 <link rel="stylesheet" href="components/tinted-card.css">
 <link rel="stylesheet" href="components/icon-rail.css">
 <link rel="stylesheet" href="components/tutorial-callout.css">
@@ -450,61 +450,14 @@
   @media (prefers-reduced-motion: reduce) {
     .swept:hover, .swept:focus-within, .swept.holo-on { animation: none; }
   }
-  /* The attract deck, restyled as a hologram projected up off the step rail
-     below it. No frame: a cone of light pools at the foot where the rail sits
-     and thins toward the top, faint scanlines drift over the projected copy,
-     and the type glows the cool blue of a projection rather than sitting on a
-     card. Compact, so the panel is the size of its line, not a box round it.
-     Scaffolding for this page only, like everything else in this block. */
-  /* the whole attract section floats: no card frame, so the projection reads
-     as light in the air rather than a boxed panel */
-  #attractdemo { border: none; background: none; padding: 6px 2px 0; }
-  #attractdeck {
-    position: relative; isolation: isolate;
-    margin: 6px 0 2px; border: none; background: none; overflow: visible;
-  }
-  /* the projection cone, widest and brightest at the foot centre, thinning up */
-  #attractdeck::before {
-    content: ""; position: absolute; z-index: -1; pointer-events: none;
-    left: 4%; right: 4%; top: -2px; bottom: -18px;
-    background: radial-gradient(130% 140% at 50% 122%,
-      rgba(96,176,255,.26) 0%, rgba(96,176,255,.10) 28%,
-      rgba(96,176,255,.02) 52%, transparent 70%);
-  }
-  /* scanlines over the projected copy, masked so they fade to nothing at the
-     edges instead of filling a hard rectangle, and drifting slowly like a
-     refresh */
-  #attractdeck::after {
-    content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
-    opacity: .5; mix-blend-mode: screen;
-    background: repeating-linear-gradient(0deg,
-      rgba(150,210,255,.06) 0 1px, transparent 1px 3px);
-    -webkit-mask: radial-gradient(115% 100% at 50% 62%, #000 38%, transparent 82%);
-            mask: radial-gradient(115% 100% at 50% 62%, #000 38%, transparent 82%);
-    animation: attract-scan 7s linear infinite;
-  }
-  @keyframes attract-scan { to { background-position: 0 -30px; } }
-  /* the panel itself: compact, centred in its cell, and lit like a hologram */
-  #attractdeck .holoattract-panel { filter: drop-shadow(0 0 8px rgba(96,170,255,.35)); }
-  #attractdeck .panelrow { align-items: center; padding: 12px 14px; }
-  #attractdeck .panelrow b {
-    color: #96d0fb; text-shadow: 0 0 9px rgba(120,200,255,.7);
-  }
-  #attractdeck .panelrow span {
-    color: rgba(160,208,248,.92); text-shadow: 0 0 7px rgba(120,200,255,.4);
-  }
-  @media (prefers-reduced-motion: reduce) { #attractdeck::after { animation: none; } }
 
-  /* the loader sat in a tall demo box with a small glyph marooned in the
-     middle of it, which read as empty rather than as loading. A phone gets a
-     smaller cell, a tighter box, and the two examples side by side instead of
-     stacked, so the section is a compact pair of loaders rather than two
-     caverns. */
+  /* one loader now, the cell from the sign-in dialog drawing itself in. A phone
+     gets a smaller cell and a tighter box so the glyph is not marooned in a
+     cavern of padding. */
   @media (max-width: 699px) {
-    .loadgrid { grid-template-columns: 1fr; gap: 12px; }
-    .loadgrid .demo { padding: 20px 16px 18px; }
-    .loadgrid .holoload { gap: 12px; }
-    .loadgrid .holoload-figure { --holoload-size: 92px; }
+    .loaddemo { padding: 20px 16px 18px; }
+    .loaddemo .holoload { gap: 12px; }
+    .loaddemo .holoload-figure { --holoload-size: 100px; }
   }
 
   /* triggers for the ported component demos reuse the page's own .cta, and the
@@ -697,175 +650,92 @@
   </div>
 
   <h2>Loading state</h2>
-  <p>A cell draws itself in while you wait, the basal arbor half a cycle behind
-  the apical one. The bar reports a real count when you have one, and goes
-  indeterminate when you do not, rather than inventing a number.</p>
-  <div class="grid loadgrid">
-    <div class="demo">
-      <div class="holoload" data-loaded="4" data-total="9" role="status">
-        <div class="holoload-figure">
-          <svg class="holoload-glyph" viewBox="0 0 200 260" aria-hidden="true">
-            <!-- every path starts at the soma (100,140) and runs outward, so the
-                 draw grows the arbor out from the cell body -->
-            <g class="arbor apical" fill="none" stroke="currentColor" stroke-width="2.4"
-               stroke-linecap="round" stroke-linejoin="round">
-              <path d="M100 140 L100 54"></path>
-              <path d="M100 66 L80 40"></path>
-              <path d="M100 66 L120 40"></path>
-              <path d="M100 54 L88 34"></path>
-              <path d="M100 54 L112 34"></path>
-              <path d="M100 96 L76 74"></path>
-              <path d="M100 104 L124 82"></path>
-              <path d="M100 140 L58 112"></path>
-              <path d="M78 126 L54 100"></path>
-              <path d="M100 140 L142 112"></path>
-              <path d="M122 126 L146 100"></path>
-            </g>
-            <g class="arbor basal" fill="none" stroke="currentColor" stroke-width="2.2"
-               stroke-linecap="round" stroke-linejoin="round" opacity=".92">
-              <path d="M100 140 L66 172"></path>
-              <path d="M82 152 L58 186"></path>
-              <path d="M100 140 L134 172"></path>
-              <path d="M118 152 L142 186"></path>
-              <path class="axon" d="M100 140 L100 244"></path>
-              <path d="M100 244 L90 253"></path>
-              <path d="M100 244 L110 253"></path>
-            </g>
-            <ellipse class="soma-halo" cx="100" cy="140" rx="13" ry="12" fill="currentColor"></ellipse>
-            <ellipse class="soma" cx="100" cy="140" rx="6.6" ry="6" fill="currentColor"></ellipse>
-            <!-- the signal: a dot rides in along a dendrite, through the soma,
-                 and out the axon. Three routes, staggered, so the cell keeps
-                 firing while it draws. -->
-            <g class="signals">
-              <circle class="signal-dot" r="2.8">
-                <animateMotion dur="2.6s" repeatCount="indefinite"
-                  path="M100 54 L100 140 L100 244"></animateMotion>
-              </circle>
-              <circle class="signal-dot" r="2.8">
-                <animateMotion dur="2.6s" begin="-0.87s" repeatCount="indefinite"
-                  path="M58 112 L100 140 L100 244"></animateMotion>
-              </circle>
-              <circle class="signal-dot" r="2.8">
-                <animateMotion dur="2.6s" begin="-1.73s" repeatCount="indefinite"
-                  path="M142 112 L100 140 L100 244"></animateMotion>
-              </circle>
-            </g>
-          </svg>
-        </div>
-        <p class="holoload-label">loading meshes</p>
-        <div class="holoload-bar"><i></i></div>
-        <p class="holoload-count"></p>
+  <p>The cell from the sign-in dialog, drawn again as a loading state. Every
+  branch grows outward from the soma while you wait, the basal arbor half a
+  cycle behind the apical one. The bar reports a real count when you have one,
+  rather than inventing a number.</p>
+  <div class="demo loaddemo">
+    <div class="holoload" data-loaded="4" data-total="9" role="status">
+      <div class="holoload-figure" style="--holoload-size:156px">
+        <!-- the neuron is the sign-in dialog's own, every path authored from the
+             soma (60,58) outward so the stroke draw grows the arbor out from the
+             cell body. Split into apical (upward dendrites) and basal (lateral
+             dendrites and the axon) so the two trees draw half a cycle apart. -->
+        <svg class="holoload-glyph" viewBox="0 0 120 140" aria-hidden="true">
+          <g class="arbor apical" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M60 52 L59 42 L57 32 L55 22 L52 12 L49 4" stroke="#18cfff" stroke-width="2.2" opacity=".9"></path>
+            <path d="M57 32 L62 26 L68 20 L76 16 L84 13" stroke="#15c8f8" stroke-width="1.4" opacity=".75"></path>
+            <path d="M68 20 L72 14 L78 8" stroke="#10b8e8" stroke-width=".9" opacity=".55"></path>
+            <path d="M76 16 L82 20 L88 18" stroke="#10b8e8" stroke-width=".7" opacity=".4"></path>
+            <path d="M55 22 L48 16 L40 12 L32 10" stroke="#15c8f8" stroke-width="1.3" opacity=".7"></path>
+            <path d="M48 16 L44 10 L38 5" stroke="#10b8e8" stroke-width=".8" opacity=".5"></path>
+            <path d="M40 12 L36 16 L30 15" stroke="#10b8e8" stroke-width=".6" opacity=".35"></path>
+            <path d="M52 12 L46 6 L40 2" stroke="#12c0f0" stroke-width="1" opacity=".6"></path>
+            <path d="M49 4 L44 1" stroke="#0ab0e0" stroke-width=".7" opacity=".4"></path>
+            <path d="M49 4 L52 1" stroke="#0ab0e0" stroke-width=".7" opacity=".4"></path>
+            <path d="M59 42 L66 38 L74 36 L80 33" stroke="#15c8f8" stroke-width="1.1" opacity=".6"></path>
+            <path d="M74 36 L78 40 L84 42" stroke="#0ab0e0" stroke-width=".6" opacity=".35"></path>
+            <path d="M59 42 L52 38 L44 36" stroke="#15c8f8" stroke-width="1" opacity=".55"></path>
+            <path d="M44 36 L38 32 L32 30" stroke="#0ab0e0" stroke-width=".6" opacity=".35"></path>
+          </g>
+          <g class="arbor basal" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M54 60 L44 66 L34 74 L26 82 L20 90" stroke="#18cfff" stroke-width="1.8" opacity=".8"></path>
+            <path d="M34 74 L28 70 L20 66 L14 62" stroke="#12c0f0" stroke-width="1.1" opacity=".6"></path>
+            <path d="M20 66 L16 72 L10 74" stroke="#0ab0e0" stroke-width=".7" opacity=".4"></path>
+            <path d="M26 82 L18 80 L12 76" stroke="#0ab0e0" stroke-width=".8" opacity=".45"></path>
+            <path d="M20 90 L14 94 L8 96" stroke="#08a0d0" stroke-width=".6" opacity=".3"></path>
+            <path d="M20 90 L22 96 L20 102" stroke="#08a0d0" stroke-width=".6" opacity=".3"></path>
+            <path d="M52 56 L42 50 L32 48 L22 50" stroke="#15c8f8" stroke-width="1.4" opacity=".7"></path>
+            <path d="M32 48 L26 42 L20 38" stroke="#10b8e8" stroke-width=".9" opacity=".5"></path>
+            <path d="M22 50 L16 54 L10 56" stroke="#0ab0e0" stroke-width=".6" opacity=".35"></path>
+            <path d="M66 60 L76 66 L86 74 L94 82 L100 90" stroke="#18cfff" stroke-width="1.8" opacity=".8"></path>
+            <path d="M86 74 L92 70 L100 66 L106 62" stroke="#12c0f0" stroke-width="1.1" opacity=".6"></path>
+            <path d="M100 66 L104 72 L110 74" stroke="#0ab0e0" stroke-width=".7" opacity=".4"></path>
+            <path d="M94 82 L102 80 L108 76" stroke="#0ab0e0" stroke-width=".8" opacity=".45"></path>
+            <path d="M100 90 L106 94 L112 96" stroke="#08a0d0" stroke-width=".6" opacity=".3"></path>
+            <path d="M100 90 L98 96 L100 102" stroke="#08a0d0" stroke-width=".6" opacity=".3"></path>
+            <path d="M68 56 L78 50 L88 48 L98 50" stroke="#15c8f8" stroke-width="1.4" opacity=".7"></path>
+            <path d="M88 48 L94 42 L100 38" stroke="#10b8e8" stroke-width=".9" opacity=".5"></path>
+            <path d="M98 50 L104 54 L110 56" stroke="#0ab0e0" stroke-width=".6" opacity=".35"></path>
+            <path d="M58 64 L52 76 L48 88 L44 98" stroke="#15c8f8" stroke-width="1.2" opacity=".65"></path>
+            <path d="M48 88 L40 92 L34 90" stroke="#0ab0e0" stroke-width=".7" opacity=".35"></path>
+            <path d="M62 64 L68 76 L72 88 L76 98" stroke="#15c8f8" stroke-width="1.2" opacity=".65"></path>
+            <path d="M72 88 L80 92 L86 90" stroke="#0ab0e0" stroke-width=".7" opacity=".35"></path>
+            <path class="axon" d="M60 64 L60 78 L58 92 L56 106 L54 118 L52 130 L50 138" stroke="#18cfff" stroke-width="1.6" opacity=".7"></path>
+            <path d="M58 92 L50 98 L42 100" stroke="#10b8e8" stroke-width=".8" opacity=".4"></path>
+            <path d="M56 106 L64 112 L72 114" stroke="#10b8e8" stroke-width=".8" opacity=".4"></path>
+            <path d="M54 118 L46 122 L38 120" stroke="#08a0d0" stroke-width=".6" opacity=".3"></path>
+            <path d="M50 138 L44 140" stroke="#08a0d0" stroke-width=".5" opacity=".25"></path>
+            <path d="M50 138 L56 140" stroke="#08a0d0" stroke-width=".5" opacity=".25"></path>
+            <circle cx="57" cy="32" r=".6" fill="#40e0ff" opacity=".6" stroke="none"></circle>
+            <circle cx="44" cy="68" r=".5" fill="#40e0ff" opacity=".5" stroke="none"></circle>
+            <circle cx="76" cy="68" r=".5" fill="#40e0ff" opacity=".5" stroke="none"></circle>
+            <circle cx="28" cy="72" r=".4" fill="#40e0ff" opacity=".4" stroke="none"></circle>
+            <circle cx="92" cy="72" r=".4" fill="#40e0ff" opacity=".4" stroke="none"></circle>
+          </g>
+          <ellipse class="soma-halo" cx="60" cy="58" rx="12" ry="11" fill="#18cfff"></ellipse>
+          <ellipse class="soma" cx="60" cy="58" rx="6.5" ry="6" fill="#b0f8ff"></ellipse>
+          <!-- the signal: a dot rides in along a dendrite, through the soma and
+               out the axon, three staggered routes so the cell keeps firing
+               while it draws -->
+          <g class="signals">
+            <circle class="signal-dot" r="2.4">
+              <animateMotion dur="2.6s" repeatCount="indefinite" path="M52 12 L60 58 L50 138"></animateMotion>
+            </circle>
+            <circle class="signal-dot" r="2.4">
+              <animateMotion dur="2.6s" begin="-0.87s" repeatCount="indefinite" path="M20 90 L60 58 L50 138"></animateMotion>
+            </circle>
+            <circle class="signal-dot" r="2.4">
+              <animateMotion dur="2.6s" begin="-1.73s" repeatCount="indefinite" path="M100 90 L60 58 L50 138"></animateMotion>
+            </circle>
+          </g>
+        </svg>
       </div>
-    </div>
-    <div class="demo">
-      <div class="holoload" role="status">
-        <div class="holoload-figure" style="--holoload-size:104px">
-          <svg class="holoload-glyph" viewBox="0 0 200 260" aria-hidden="true">
-            <!-- every path starts at the soma (100,140) and runs outward, so the
-                 draw grows the arbor out from the cell body -->
-            <g class="arbor apical" fill="none" stroke="currentColor" stroke-width="2.4"
-               stroke-linecap="round" stroke-linejoin="round">
-              <path d="M100 140 L100 54"></path>
-              <path d="M100 66 L80 40"></path>
-              <path d="M100 66 L120 40"></path>
-              <path d="M100 54 L88 34"></path>
-              <path d="M100 54 L112 34"></path>
-              <path d="M100 96 L76 74"></path>
-              <path d="M100 104 L124 82"></path>
-              <path d="M100 140 L58 112"></path>
-              <path d="M78 126 L54 100"></path>
-              <path d="M100 140 L142 112"></path>
-              <path d="M122 126 L146 100"></path>
-            </g>
-            <g class="arbor basal" fill="none" stroke="currentColor" stroke-width="2.2"
-               stroke-linecap="round" stroke-linejoin="round" opacity=".92">
-              <path d="M100 140 L66 172"></path>
-              <path d="M82 152 L58 186"></path>
-              <path d="M100 140 L134 172"></path>
-              <path d="M118 152 L142 186"></path>
-              <path class="axon" d="M100 140 L100 244"></path>
-              <path d="M100 244 L90 253"></path>
-              <path d="M100 244 L110 253"></path>
-            </g>
-            <ellipse class="soma-halo" cx="100" cy="140" rx="13" ry="12" fill="currentColor"></ellipse>
-            <ellipse class="soma" cx="100" cy="140" rx="6.6" ry="6" fill="currentColor"></ellipse>
-            <!-- the signal: a dot rides in along a dendrite, through the soma,
-                 and out the axon. Three routes, staggered, so the cell keeps
-                 firing while it draws. -->
-            <g class="signals">
-              <circle class="signal-dot" r="2.8">
-                <animateMotion dur="2.6s" repeatCount="indefinite"
-                  path="M100 54 L100 140 L100 244"></animateMotion>
-              </circle>
-              <circle class="signal-dot" r="2.8">
-                <animateMotion dur="2.6s" begin="-0.87s" repeatCount="indefinite"
-                  path="M58 112 L100 140 L100 244"></animateMotion>
-              </circle>
-              <circle class="signal-dot" r="2.8">
-                <animateMotion dur="2.6s" begin="-1.73s" repeatCount="indefinite"
-                  path="M142 112 L100 140 L100 244"></animateMotion>
-              </circle>
-            </g>
-          </svg>
-        </div>
-        <p class="holoload-label">no total yet</p>
-        <div class="holoload-bar"><i></i></div>
-        <p class="holoload-count"></p>
-      </div>
+      <p class="holoload-label">loading meshes</p>
+      <div class="holoload-bar"><i></i></div>
+      <p class="holoload-count"></p>
     </div>
   </div>
-
-  <h2>Attract loop</h2>
-  <p>A loop for a screen nobody is standing at. It walks a set of panels by
-  itself, stops the moment somebody touches the page, and starts again once the
-  room has been quiet for a while. Every step carries its own dwell, so a panel
-  with something still happening in it holds longer than one you finish reading
-  in three seconds. From the museum wall edition of whatisabrain.com.</p>
-  <div class="demo" id="attractdemo">
-    <div class="holoattract-deck" id="attractdeck">
-      <div class="holoattract-panel">
-        <div class="panelrow"><b>your brain</b><span>86 billion cells</span></div>
-      </div>
-      <div class="holoattract-panel">
-        <div class="panelrow"><b>next to a mouse brain</b><span>the volume of a peanut</span></div>
-      </div>
-      <div class="holoattract-panel">
-        <div class="panelrow"><b>inside the mouse brain</b><span>70 million neurons</span></div>
-      </div>
-      <div class="holoattract-panel">
-        <div class="panelrow"><b>primary visual cortex</b><span>panel 3, never visited</span></div>
-      </div>
-      <div class="holoattract-panel">
-        <div class="panelrow"><b>a piece of cortex</b><span>523 million synapses</span></div>
-      </div>
-      <div class="holoattract-panel">
-        <div class="panelrow"><b>a neuron</b><span>thousands of connections</span></div>
-      </div>
-      <div class="holoattract-panel">
-        <div class="panelrow"><b>one synapse</b><span>an axon reaching up</span></div>
-      </div>
-      <div class="holoattract-panel">
-        <div class="panelrow"><b>action potential</b><span>re-fired every 3.8s on the wall</span></div>
-      </div>
-      <div class="holoattract-panel">
-        <div class="panelrow"><b>activity</b><span>hundreds of cells at once</span></div>
-      </div>
-    </div>
-    <div class="holoattract"
-         data-holoattract-deck="#attractdeck"
-         data-holoattract-dwell="9000 9000 8500 7500 9000 13000 9000 13000 15000"
-         data-holoattract-sequence="0 1 2 4 5 6 7 8"
-         data-holoattract-rail="#attractrail"
-         data-holoattract-watch="#attractdemo"
-         data-holoattract-idle="8000"
-         aria-label="Attract loop stage">
-      <div class="holobar" id="attractrail" data-steps="8" data-step="1"
-           aria-label="Attract loop stage rail"></div>
-    </div>
-    <output class="readback" id="attractout">waiting</output>
-  </div>
-  <p>Drag the rail and the loop holds where you put it, because touching the box
-  counts as somebody being present. It resumes after a quiet spell.</p>
 
   <h2>Researcher profile</h2>
   <p>The EyeWire II researcher profile, the real component carried across whole:
@@ -1666,11 +1536,11 @@
 
 <script src="hologram.js"></script>
 <script src="hologram-tap.js"></script>
-<script src="components/attract-loop.js"></script>
 <script src="components/confetti-burst.js"></script>
 <script src="components/page-finale.js"></script>
 <script src="components/panel-surface.js"></script>
 <script src="components/achievement-toast.js"></script>
+<script src="components/badge-award.js"></script>
 <script src="components/tutorial-callout.js"></script>
 <script src="components/researcher-profile.js"></script>
 <script>
@@ -1679,9 +1549,13 @@
      Once now, for the first paint, and once more on DOMContentLoaded, which is
      when the attract loop builds its stage. The scripts above ran first, so
      their listener fires before this one and the count includes their work. */
-  /* the ported toast demo. One button fires the Brain Quest success state, a
-     toast and a rainbow burst together; the other fires a plain badge. Both go
-     through the component's own holotoast and holoburst, nothing special. */
+  /* the ported toast demo. "Daily quests complete" fires the Brain Quest
+     success state, a corner toast and a rainbow burst together. "Badge only"
+     fires the other half of the source's celebration model: a badge unlock is
+     not a corner toast there, it takes the screen as the hero "ACHIEVEMENT
+     UNLOCKED" spectacle, so it goes through holoaward, not holotoast. The badge
+     itself is real, the Astrolabe from the exploration track, name and
+     description straight off badge_definitions.ts. */
   (function () {
     var quest = document.getElementById("fire-quest");
     var badge = document.getElementById("fire-badge");
@@ -1692,13 +1566,24 @@
         if (window.holoburst) holoburst("rainbow", 2);
       });
     }
-    if (badge && window.holotoast) {
+    if (badge && window.holoaward) {
       badge.addEventListener("click", function () {
-        holotoast({ tone: "badge", icon: "\u{1F3C5}", title: "Astrolabe",
-          sub: "You explored 25 cells across three datasets.", duration: 5000 });
+        holoaward({
+          name: "Astrolabe",
+          desc: "Astrolabe is a scientific observation milestone on the exploration track.",
+          img: "media/badges/exploration/astrolabe.png"
+        });
       });
     }
   })();
+
+  /* the hero award ends on "Click to view profile", and the source dispatches
+     nge:open-profile when you do. The page has that profile, so honour the
+     intent: open the researcher profile the same way its own button does. */
+  document.addEventListener("nge:open-profile", function () {
+    var open = document.querySelector("[data-holoresearcher]");
+    if (open) open.click();
+  });
 
   /* the masthead glitch. Hover the panel with a mouse, or tap it on a touch
      device, and it comes apart on a chromatic-aberration shatter and reforms.
@@ -1877,10 +1762,16 @@
      The rail builds synchronously when hologram.js runs above, so its step is
      readable now, but init also runs on DOMContentLoaded in case that order
      ever changes. The scale strings live here rather than in the markup so the
-     label and the stage can never fall out of step. */
+     label and the stage can never fall out of step.
+
+     It also carries what the attract loop used to demo on its own: the descent
+     walks itself, one stage every DWELL, and holds the moment you touch it,
+     resuming only after the section has been quiet for IDLE. Reduced motion
+     turns the walk off and leaves the rail entirely hand-driven. */
   (function () {
     var rail = document.getElementById("cosmosrail");
     var view = document.querySelector(".cosmos-view");
+    var cosmos = document.querySelector(".cosmos");
     if (!rail || !view) return;
     var stages = view.querySelectorAll(".cosmos-stage");
     var scale = document.getElementById("cosmosscale");
@@ -1896,28 +1787,32 @@
     function init() { show(rail.holobar ? rail.holobar.step : 1); }
     init();
     addEventListener("DOMContentLoaded", init);
-  })();
 
-  /* the attract loop reports both numbers, because the point of the section is
-     that the step and the panel index are not the same once the sequence skips
-     one. Listeners are attached now and the loop initialises on
-     DOMContentLoaded, so its first paint lands here. */
-  (function () {
-    var loop = document.querySelector(".holoattract");
-    var out = document.getElementById("attractout");
-    if (!loop || !out) return;
-    function show() {
-      var api = loop.holoattract;
-      if (!api) return;
-      out.textContent = "step " + api.step + " of " + api.steps +
-        "  ...  panel " + api.index +
-        "  ...  dwell " + api.dwell + "ms  ...  " +
-        (api.reduced ? "auto advance off, reduced motion"
-                     : api.paused ? "holding" : "running");
+    // ── auto-advance, folded in from the attract loop ──────────────────────
+    var reduce = window.matchMedia
+      ? matchMedia("(prefers-reduced-motion: reduce)").matches : false;
+    var DWELL = 4200, IDLE = 9000, tick = 0, idle = 0;
+
+    function step() {
+      var n = rail.holobar ? rail.holobar.step : 1;
+      n = n >= stages.length ? 1 : n + 1;      // wrap 4 -> 1
+      if (rail.holobar) rail.holobar.step = n; else show(n);
     }
-    loop.addEventListener("holoattract:change", show);
-    loop.addEventListener("holoattract:state", show);
-    show();
+    function play() { if (!reduce && !tick) tick = window.setInterval(step, DWELL); }
+    function stop() { if (tick) { window.clearInterval(tick); tick = 0; } }
+    // touching it holds the walk; it resumes only after a quiet spell, so a
+    // reader who grabbed the rail is not fought for control a beat later
+    function hold() { stop(); if (idle) window.clearTimeout(idle);
+      idle = window.setTimeout(play, IDLE); }
+
+    if (cosmos) {
+      cosmos.addEventListener("pointerenter", stop);
+      cosmos.addEventListener("pointerleave", hold);
+      cosmos.addEventListener("pointerdown", hold);   // touch has no hover
+      cosmos.addEventListener("focusin", hold);
+      cosmos.addEventListener("keydown", hold);
+    }
+    play();
   })();
 </script>
 </body>

@@ -400,3 +400,36 @@ in the media HUD is fixed. Lessons worth keeping:
   brain to neurons to synapse to a plotted action potential, the stages stacked
   and cross-faded so the panel never jumps height, the scale labels held in the
   script so the label and the art cannot drift apart.
+
+**Version 9**, 30 July 2026. The loader becomes the sign-in dialog's own cell,
+the attract loop is retired into the step rail, and the badge button opens the
+real hero award. Lessons worth keeping:
+
+- **Reuse the cell you already drew rather than draw a second one.** The loader
+  had its own simpler neuron; it now uses the sign-in dialog's detailed arbor,
+  the same paths, so the two places that draw a cell draw the *same* cell. The
+  draw still grows from the soma because every path in that arbor is authored
+  from its soma-ward end outward, and splitting it into apical (up) and basal
+  (down plus axon) groups gets the half-cycle offset for free. One box now, not
+  two: a loading state's job is to say "working", and it says it once.
+- **A removed section can leave its behaviour behind.** The attract loop is
+  gone as a section, but its one real idea, walk the steps on a dwell and hold
+  the moment someone touches it, moved onto the inner-cosmos rail. Removing a
+  demo is not the same as removing what it taught; fold the mechanism into
+  something that stays. Its component files remain in `components/`; only the
+  page stopped loading them.
+- **A badge unlock is a hero takeover, not a corner toast.** The source
+  (`AchievementToast.vue`) routes streaks and edit milestones to the toast list
+  but gives a badge the `heroBadge` branch: a full-screen "ACHIEVEMENT
+  UNLOCKED" spectacle, hex grid, shockwave, rings, orbits, a materialising
+  badge, that stays until clicked and then opens the profile. The "Badge only"
+  button now fires that, `holoaward`, reproduced from the real markup and the
+  de-scoped styles, with the real Astrolabe badge and gold confetti. The
+  corner-toast reproduction was only half the component.
+- **When you slice a rule range out of a bundle, the last rule's brace may be
+  on the next line.** The extracted styles put each rule's `{ ...` on one line
+  and its `}` on the next; cutting the range at the property line dropped the
+  final `}`, and that one unclosed block silently swallowed the two `@media`
+  blocks appended after it, so reduced motion and the mobile scale both quietly
+  did nothing. A brace-count (open vs close) is the one-line check that catches
+  it; a screenshot at the affected width or preference is the other.
