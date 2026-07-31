@@ -29,15 +29,22 @@ to the asset.
 
 *Status: queued.* Added at the end of the queue.
 
-**Decision:** one **opaque connectome portrait**, captured straight from
-Neuroglancer's own screenshot function — no transparent masks, no headless alpha
-renderer, no per-action crossfade. That pipeline was more than this needs. The
-fly animation stays interactive as it is today; the neurons become a single
-static poster behind it, and **clicking the poster mounts Neuroglancer** for
-anyone who wants to rotate and inspect the real meshes. Neuroglancer's cold load
-is measured at **4–6 seconds**, which is exactly why it stays opt-in and out of
-first paint. Colours are baked into the screenshot (magenta descending, green
-ascending) — the app does not tint this image.
+**Decision:** one **transparent connectome portrait** — a single 1600 × 1200
+image of the 81 coloured neurons on straight alpha, no black matte, so the page's
+own background and gradients read through it. The fly animation stays interactive
+as it is today; the neurons sit behind it as a static poster, and **clicking the
+poster mounts Neuroglancer** for anyone who wants to rotate and inspect the real
+meshes. Neuroglancer's cold load is measured at **4–6 seconds**, which is exactly
+why it stays opt-in and out of first paint. Colours are baked into the image
+(magenta descending, green ascending) — the app does not tint this image, but its
+transparent alpha lets the page show through.
+
+Note on method: straight-alpha transparency means a plain opaque Neuroglancer
+screenshot on a black panel will **not** do — a black matte cannot be undone
+cleanly. This needs an alpha-capable capture: a Neuroglancer screenshot mode that
+exports a transparent background, or a headless mesh render with the same camera
+and baked colours. Either way the camera, framing, and colours below are the
+contract.
 
 ### Required file
 
@@ -47,23 +54,24 @@ banc-walking-steering-poster.webp
 
 | File | Contents | Unique IDs |
 |---|---|---:|
-| `banc-walking-steering-poster.webp` | The 81-neuron scene, coloured, on black | 81 |
+| `banc-walking-steering-poster.webp` | The 81-neuron scene, coloured, transparent | 81 |
 
 ### Render specification
 
 ```
-1600 × 1200 px
-4:3
-Opaque black background
-WebP quality 85–90
-Target ≤ 600 KB
-No UI, labels, bounding box, slices, or side panels
-Full brain, neck connective, and VNC visible
+1600 × 1200 WebP
+Transparent background
+Straight alpha, no black matte
+sRGB
+Same 81 coloured neurons
+Lossless or near-lossless alpha
+Target ≤ 1 MB
 ```
 
-Capture with **Neuroglancer's screenshot function** — a `layout: "3d"` view with
-slices off, no headless alpha renderer required. Frame the full brain, neck
-connective, and VNC; keep the anatomy roughly centred so it reads on mobile.
+No UI, labels, bounding box, slices, or side panels. Full brain, neck connective,
+and VNC visible; keep the anatomy roughly centred so it reads on mobile. Capture
+with a `layout: "3d"` view, slices off, via whichever path yields a genuine
+transparent alpha channel (see the method note above).
 
 ### Camera
 
@@ -163,7 +171,8 @@ One tier of static, one tier of opt-in — the poster is never blocked on 3D.
 
 1. **Instant, on first paint.** Show `banc-walking-steering-poster.webp`
    immediately — no WebGL, no 3D library, no mesh fetch. The fly animation plays
-   over it as it does now.
+   over it, and the transparent alpha lets the page's background and gradients
+   read through the morphology.
 2. **3D on click only.** Mount Neuroglancer solely when the reader clicks the
    poster (an **Explore in 3D** affordance). Nothing about the 3D viewer happens
    before that click.
