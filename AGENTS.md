@@ -465,3 +465,45 @@ spike crossing one synapse. Lessons worth keeping:
   reveals loads and renders, and stepping away halts the one you left. This is
   also why the attract-loop auto-advance was dropped here: cycling heavy WebGL
   viewers on a timer is the opposite of what they are for.
+
+**Version 11**, 30 July 2026. The particle-trace section moves to the end,
+where the lede already lists it ("…and a particle trace for media"), so the page
+reads in the order the first sentence promises. And it gets the vertical room it
+always needed: the trace beam runs a good 22px outside its frame, plus glow, so
+`.holoframe` carries 34px of vertical margin (30px on phones) rather than
+letting the light wash over the paragraph above and the caption below. A halo
+that overhangs its own box has to be paid for in the margins of the box, not
+just the box; the day the trace started running on touch, the old 10px phone
+margin stopped being enough.
+
+**Version 12**, 30 July 2026. The dialog neuron comes alive, the loader grows
+properly, and the readout moves back and earns its number. Lessons worth
+keeping:
+
+- **The reproduced component was missing its motion; the source still had it.**
+  The sign-in dialog's neuron was carried across as line art, but the original
+  `LoginModal.vue` runs eight synaptic sparks along it, seven riding the
+  dendrites tip → soma (afferent, dendritic integration) and one firing down the
+  axon (efferent), plus two rings radiating from the soma. Those are back, on
+  the same coordinates, so signals move through the neuron the way they always
+  did. When a reproduction feels static next to the original, the missing part
+  is usually animation the first pass dropped, and it is sitting in the source.
+- **A trim path needs `pathLength`, or the short branches wipe on in one
+  frame.** The loader draws its arbor with `stroke-dashoffset`, but a fixed
+  `stroke-dasharray: 200` is longer than most of the neuron's little branches,
+  so they appeared all at once instead of growing. Setting `pathLength="1"` on
+  every path normalises them, and a dash of 1 trimmed 1 → 0 then grows every
+  branch from its soma end to its tip at the same rate, however long it really
+  is. That is the difference between "the branches should grow out of the soma"
+  and what was there.
+- **A forward-only loop is a thing to watch; give it a tap to make it a thing to
+  touch.** The loading cell now replays on a tap or a click: the CSS draw is
+  restarted the reliable way for a real element (animation to none, one reflow,
+  hand it back) and the SMIL dots are rewound with `setCurrentTime(0)` in the
+  same beat, so the whole cell grows again from nothing.
+- **A dull panel is often a still number.** The readout said 165 and sat there.
+  It now counts up to its real figure the first time it is seen and again on a
+  point or a tap, eased out so it lands. The target is parsed from the text
+  already in the markup, so the animation cannot drift from what the panel says.
+  And the section moved from second on the page to near the end, where a small
+  true fact belongs once the louder components have had their turn.
