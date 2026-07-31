@@ -29,11 +29,14 @@ to the asset.
 
 *Status: queued.* Added at the end of the queue.
 
-**Decision:** use **four matched transparent prerenders**, not a live viewer.
-Layered over the app's own black background they crossfade on key/button input,
-so steering feels instantaneous and **Neuroglancer is never loaded until the
-user explicitly asks for 3D**. The four images share one camera, one crop, one
-alpha grid; the app supplies the black background and every colour.
+**Decision:** use **four matched transparent prerenders** as the primary
+visual, with Neuroglancer as an opt-in second tier. Neuroglancer's cold load is
+measured at **4–6 seconds** — too slow to be the thing a reader sees first.
+Layered over the app's own black background the prerenders crossfade on
+key/button input, so steering feels instantaneous and **Neuroglancer is never
+loaded until the user explicitly asks for 3D**. The four images share one
+camera, one crop, one alpha grid; the app supplies the black background and
+every colour.
 
 ### Required files
 
@@ -95,6 +98,27 @@ so the union is **81 unique cells**, not 73 + 8.
 The app supplies the black `#000000` background and all tinting, so the base and
 the three masks are all rendered as **white anatomy on transparent** — no colour
 is baked into the WebPs.
+
+### Loading strategy
+
+Two tiers. The prerenders carry the whole default experience; Neuroglancer is a
+click away and never in the critical path.
+
+1. **Instant, on first paint.** Show `banc-context-base.webp` immediately — no
+   fetch of anything heavy, no WebGL, no 3D library. This is the idle state.
+2. **Instant steering.** Forward, left, and right are the three masks already
+   loaded alongside the base; an action crossfades between them and never
+   reloads an image, so driving is instantaneous and low-CPU.
+3. **3D on request only.** Mount Neuroglancer solely when the reader clicks
+   **Explore in 3D**. Nothing about the 3D viewer — not the library, not the
+   mesh fetch, not a WebGL context — happens before that click.
+4. **Keep it mounted afterward.** Once mounted, leave Neuroglancer alive
+   (hidden, not torn down) so reopening 3D is immediate rather than paying the
+   4–6 s cold load a second time.
+
+Because the masks are rendered on transparent alpha, the page's own colour
+gradients read through the neuron morphology rather than being flattened behind
+an opaque plate — the tinting and the anatomy occupy the same pixels.
 
 ### App colours and behaviour
 
