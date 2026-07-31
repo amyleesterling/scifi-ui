@@ -21,188 +21,105 @@ to the asset.
 
 ## Queue
 
-1. [BANC forward / steering prerenders](#1-banc-forward--steering-prerenders) — *queued*
+1. [BANC walking / steering poster](#1-banc-walking--steering-poster) — *queued*
 
 ---
 
-## 1. BANC forward / steering prerenders
+## 1. BANC walking / steering poster
 
 *Status: queued.* Added at the end of the queue.
 
-**Decision:** use **four matched transparent prerenders** as the primary
-visual, with Neuroglancer as an opt-in second tier. Neuroglancer's cold load is
-measured at **4–6 seconds** — too slow to be the thing a reader sees first.
-Layered over the app's own black background the prerenders crossfade on
-key/button input, so steering feels instantaneous and **Neuroglancer is never
-loaded until the user explicitly asks for 3D**. The four images share one
-camera, one crop, one alpha grid; the app supplies the black background and
-every colour.
+**Decision:** one **opaque connectome portrait**, captured straight from
+Neuroglancer's own screenshot function — no transparent masks, no headless alpha
+renderer, no per-action crossfade. That pipeline was more than this needs. The
+fly animation stays interactive as it is today; the neurons become a single
+static poster behind it, and **clicking the poster mounts Neuroglancer** for
+anyone who wants to rotate and inspect the real meshes. Neuroglancer's cold load
+is measured at **4–6 seconds**, which is exactly why it stays opt-in and out of
+first paint. Colours are baked into the screenshot (magenta descending, green
+ascending) — the app does not tint this image.
 
-### Required files
+### Required file
+
+```
+banc-walking-steering-poster.webp
+```
 
 | File | Contents | Unique IDs |
 |---|---|---:|
-| `banc-context-base.webp` | All neurons, neutral gray | 81 |
-| `banc-forward-mask.webp` | Forward-walking exemplars | 6 |
-| `banc-turn-left-mask.webp` | Left DNa01 + DNa02 | 2 |
-| `banc-turn-right-mask.webp` | Right DNa01 + DNa02 | 2 |
-| `manifest.json` | Camera, IDs, labels, laterality, checksums | — |
-
-The base is the union of the existing 73-cell scene plus the six forward cells
-and the two DNa01 cells. DNa02 (both sides) is already inside the 73-cell scene,
-so the union is **81 unique cells**, not 73 + 8.
+| `banc-walking-steering-poster.webp` | The 81-neuron scene, coloured, on black | 81 |
 
 ### Render specification
 
-```json
-{
-  "source": "precomputed://gs://lee-lab_brain-and-nerve-cord-fly-connectome/neuron_meshes",
-  "dataset_scene": "BANC 2026a",
-  "resolution": [1600, 1200],
-  "aspect_ratio": "4:3",
-  "background": "transparent",
-  "color_space": "sRGB",
-  "format": "lossless WebP with alpha",
-  "camera": {
-    "projection": "orthographic",
-    "position": [125097.5, 122589.5, 2827.5],
-    "projection_orientation_xyzw": [
-      -0.05649980902671814,
-      -0.05089982971549034,
-      0.003899986855685711,
-      0.9970966577529907
-    ],
-    "projection_scale": 302229.5051,
-    "dimension_units_m": {
-      "x": 4e-9,
-      "y": 4e-9,
-      "z": 4.5e-8
-    }
-  }
-}
+```
+1600 × 1200 px
+4:3
+Opaque black background
+WebP quality 85–90
+Target ≤ 600 KB
+No UI, labels, bounding box, slices, or side panels
+Full brain, neck connective, and VNC visible
 ```
 
-**Framing and quality:**
+Capture with **Neuroglancer's screenshot function** — a `layout: "3d"` view with
+slices off, no headless alpha renderer required. Frame the full brain, neck
+connective, and VNC; keep the anatomy roughly centred so it reads on mobile.
 
-- Identical camera, framing, crop, and alpha alignment for every file.
-- Full brain, neck connective, and VNC visible.
-- Keep the anatomy within the central square so it also fits mobile.
-- Approximately 8% vertical and 12% horizontal safe margins.
-- No UI, axes, labels, slices, bounding box, scale bar, or region outlines.
-- Render masks as white anatomy with antialiased straight (non-premultiplied) alpha.
-- Preserve processes at a minimum visible width of about one output pixel.
-- Supersample at least 2× before downsampling.
-- A slight 4–6 px soft alpha halo is welcome, but keep the morphology itself sharp.
-- Target total web payload under 1.5 MB; 3 MB is the hard ceiling.
-
-The app supplies the black `#000000` background and all tinting, so the base and
-the three masks are all rendered as **white anatomy on transparent** — no colour
-is baked into the WebPs.
-
-### Loading strategy
-
-Two tiers. The prerenders carry the whole default experience; Neuroglancer is a
-click away and never in the critical path.
-
-1. **Instant, on first paint.** Show `banc-context-base.webp` immediately — no
-   fetch of anything heavy, no WebGL, no 3D library. This is the idle state.
-2. **Instant steering.** Forward, left, and right are the three masks already
-   loaded alongside the base; an action crossfades between them and never
-   reloads an image, so driving is instantaneous and low-CPU.
-3. **3D on request only.** Mount Neuroglancer solely when the reader clicks
-   **Explore in 3D**. Nothing about the 3D viewer — not the library, not the
-   mesh fetch, not a WebGL context — happens before that click.
-4. **Keep it mounted afterward.** Once mounted, leave Neuroglancer alive
-   (hidden, not torn down) so reopening 3D is immediate rather than paying the
-   4–6 s cold load a second time.
-
-Because the masks are rendered on transparent alpha, the page's own colour
-gradients read through the neuron morphology rather than being flattened behind
-an opaque plate — the tinting and the anatomy occupy the same pixels.
-
-### App colours and behaviour
-
-The four images are layered; the app composites and tints them. It never reloads
-an image — actions crossfade the already-loaded masks.
-
-Base anatomy:
-
-```text
-#52675E at 22–28% opacity
-```
-
-Activation gradient, top to bottom (positional colouring of a mask):
-
-```text
-Brain / descending       #FFC857
-Neck / ascending         #8AC7FF
-VNC / body-state         #68D6C4
-Motor-facing terminals   #FF7F6E
-```
-
-Steering-type-specific colouring, used instead of the positional gradient:
-
-```text
-DNa02, high-gain steering  #FFC857
-DNa01, low-gain steering   #D8EC71
-```
-
-Interaction timing:
-
-```text
-Key/button down: active mask to 100% in 120 ms
-Key/button release: fade to 0% in 260 ms
-Action change: crossfade masks; never reload an image
-Idle: base layer only
-```
-
-### Exact action IDs
-
-Forward walking — representative cells, not an exhaustive walking circuit:
+### Camera
 
 ```json
 {
-  "DNg100": {
-    "left":  "720575941626500746",
-    "right": "720575941500851362"
-  },
-  "AN09B029_b": {
-    "left":  "720575941594293032",
-    "right": "720575941484372221"
-  },
-  "AN02A002": [
-    "720575941474101344",
-    "720575941483106243"
-  ]
+  "position": [125097.5, 122589.5, 2827.5],
+  "projectionOrientation": [
+    -0.05649980902671814,
+    -0.05089982971549034,
+    0.003899986855685711,
+    0.9970966577529907
+  ],
+  "projectionScale": 302229.5051,
+  "showSlices": false,
+  "layout": "3d"
 }
 ```
 
-Steer left:
+### Neuron set
 
-```json
-{
-  "DNa01_left": "720575941535862506",
-  "DNa02_left": "720575941510475536"
-}
+The existing **73** IDs from the walking-steering Neuroglancer state
+(`walking-steering-neuroglancer.json`; the canonical copy is listed below), plus
+these **eight**:
+
+```
+# Descending — magenta #FF1493
+720575941626500746  DNg100 left
+720575941500851362  DNg100 right
+720575941535862506  DNa01 left
+720575941432123640  DNa01 right
+
+# Ascending — green #089C39
+720575941594293032  AN09B029_b left
+720575941484372221  AN09B029_b right
+720575941474101344  AN02A002
+720575941483106243  AN02A002
 ```
 
-Steer right:
+That produces:
 
-```json
-{
-  "DNa01_right": "720575941432123640",
-  "DNa02_right": "720575941456897005"
-}
+```
+81 neurons total
+52 descending — #FF1493
+29 ascending  — #089C39
 ```
 
-### Existing 73-cell context scene
+DNa02 left/right are already among the original 73, so the eight above are all
+new and the union is **81 unique cells** (73 + 8).
 
-The current Neuroglancer state divides these by anatomical class — not by turn
-direction: 48 descending neurons are magenta and 25 ascending neurons are green.
-These IDs feed `banc-context-base.webp` (rendered neutral gray, alongside the six
-forward cells and the two DNa01 cells).
+#### The 73-cell base scene
 
-Descending, current source colour `#FF1493`:
+The walking-steering Neuroglancer state divides these by anatomical class: 48
+descending (magenta `#FF1493`) and 25 ascending (green `#089C39`). The eight
+additions above take the totals to 52 descending and 29 ascending.
+
+Descending, `#FF1493`:
 
 ```text
 720575941521274551, 720575941510475536, 720575941553670791,
@@ -223,7 +140,7 @@ Descending, current source colour `#FF1493`:
 720575941565477174, 720575941652085745, 720575941653831185
 ```
 
-Ascending, current source colour `#089C39`:
+Ascending, `#089C39`:
 
 ```text
 720575941529735883, 720575941440355157, 720575941551640711,
@@ -237,10 +154,28 @@ Ascending, current source colour `#089C39`:
 720575941505687234
 ```
 
+(DNa02 left `720575941510475536` and right `720575941456897005` are the two IDs
+in the descending list above that also carry a steering role.)
+
+### Loading strategy
+
+One tier of static, one tier of opt-in — the poster is never blocked on 3D.
+
+1. **Instant, on first paint.** Show `banc-walking-steering-poster.webp`
+   immediately — no WebGL, no 3D library, no mesh fetch. The fly animation plays
+   over it as it does now.
+2. **3D on click only.** Mount Neuroglancer solely when the reader clicks the
+   poster (an **Explore in 3D** affordance). Nothing about the 3D viewer happens
+   before that click.
+3. **Keep it mounted afterward.** Once mounted, leave Neuroglancer alive (hidden,
+   not torn down) so reopening is immediate rather than paying the 4–6 s cold
+   load again.
+
 ### Provenance
 
 Labels and left/right tags come from the [public BANC mesh segment metadata](https://storage.googleapis.com/lee-lab_brain-and-nerve-cord-fly-connectome/neuron_meshes/segment_properties/info).
-Keep these IDs attached to **this exact mesh source** — root IDs are
+The meshes are the `precomputed://gs://lee-lab_brain-and-nerve-cord-fly-connectome/neuron_meshes`
+source. Keep these IDs attached to **this exact mesh source** — root IDs are
 segmentation/snapshot-specific and must not be silently remapped to another BANC
 release, as the [Codex FAQ](https://codex.flywire.ai/faq) explains.
 
