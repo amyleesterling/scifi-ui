@@ -108,10 +108,55 @@
     return !!document.querySelector("dialog[open], .nge-hero-overlay");
   }
 
+  // read live: a device can gain or lose a fine pointer mid-session (docking,
+  // plugging in a mouse), and touch should get the reticle either way.
+  function isTouch(e) {
+    if (e && e.pointerType) return e.pointerType === "touch" || e.pointerType === "pen";
+    return !!window.matchMedia &&
+      matchMedia("(hover: none) and (pointer: coarse)").matches;
+  }
+
+  // ── mobile tap: HUD reticle lock-on ────────────────────────────────────────
+  // Four corner brackets snap inward onto the tap point, a crosshair draws
+  // through, one fast radar ping expands, and a little lock-code readout
+  // flickers in beside it. All positioned off a single 0-size anchor at the
+  // point; the CSS carries every motion. Removed after the readout settles.
+  var lockN = 0;
+  function buildReticle(x, y) {
+    var r = document.createElement("div");
+    r.className = "tap-reticle";
+    r.style.left = x + "px";
+    r.style.top = y + "px";
+
+    var corners = ["tl", "tr", "bl", "br"];
+    for (var i = 0; i < corners.length; i++) {
+      var b = document.createElement("b");
+      b.className = corners[i];
+      r.appendChild(b);
+    }
+
+    var cx = document.createElement("span"); cx.className = "cx";
+    var cy = document.createElement("span"); cy.className = "cy";
+    var ping = document.createElement("span"); ping.className = "ping";
+    r.appendChild(cx); r.appendChild(cy); r.appendChild(ping);
+
+    var rd = document.createElement("span");
+    rd.className = "rd";
+    // a lock code in the page's readout idiom: SYNC · a rolling 3-digit tick
+    lockN = (lockN + 37) % 1000;
+    rd.textContent = "SYNC · " + ("00" + lockN).slice(-3);
+    r.appendChild(rd);
+
+    document.body.appendChild(r);
+    removeLater(r);
+  }
+
   function onClick(e) {
     if (modalOpen()) return;
     var t = e.target;
     if (t && t.closest && t.closest("canvas")) return;
+
+    if (isTouch(e)) { buildReticle(e.clientX, e.clientY); return; }
 
     var N = 11;
     for (var i = 0; i < N; i++) {

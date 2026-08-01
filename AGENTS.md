@@ -552,3 +552,20 @@ ambient life, carried across rather than reinvented.
   glowing head gliding a gradient fill, the section sub-dots, the count — is
   what `.holorail` already is on this page (same section-snap, same .7s glide).
   Nothing to carry across; the ask was already satisfied.
+
+**Version 15**, 1 August 2026. The tap gets its own animation on touch.
+
+- **A burst designed for a mouse is the wrong burst under a finger.** The click
+  sparkle spray fires outward from the point, and on a phone the finger sits on
+  top of the point, so the sparks come out from under it and all that survives
+  is the ring — "it just looks like a ring." Touch now gets a thing built for
+  it: a HUD reticle lock-on. Four corner brackets snap inward onto the tap
+  point, a crosshair draws through, one fast radar ping expands, and a
+  `SYNC · NNN` lock code flickers in beside it — the page's own targeting
+  vocabulary (the corner ticks, the cyan glow, the SEC 04 / SYNC / 1.00
+  readouts) rather than a generic ripple. The mouse keeps the sparkle burst;
+  the split is by pointer, read live (`pointerType`, falling back to
+  `(hover: none) and (pointer: coarse)`), so a device that gains or loses a
+  fine pointer mid-session lands on the right one. When an effect reads wrong on
+  a surface, ask whether the surface wants a different effect, not a louder
+  version of the same one.
