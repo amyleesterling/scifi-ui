@@ -414,12 +414,19 @@
 /* the signal. Dots ride in along the dendrites, through the soma and out the
    axon, the login box's travelling particle idea run along a real morphology.
    Struck in the cyan accent so the moving light reads against the cooler
-   arbor. The motion is on <animateMotion> in the markup; here is only its
-   colour and glow. */
+   arbor. components/loader-neuron.js builds the dots and drives their position;
+   here is only their colour and glow. */
   .holoload-glyph .signal-dot {
     fill: rgb(var(--holo-cyan, 126 224 255));
     filter: drop-shadow(0 0 5px rgb(var(--holo-cyan, 126 224 255)));
   }
+
+/* when loader-neuron.js is driving the figure it owns every offset and the soma
+   transform frame by frame, so the CSS loops step aside. The CSS draw/pulse
+   above stays as the no-JS fallback (a cell that still draws itself in). */
+  .holoload-live .holoload-glyph .arbor path { animation: none; }
+  .holoload-live .holoload-glyph .soma,
+  .holoload-live .holoload-glyph .soma-halo { animation: none; }
 
 @keyframes holo-load-halo {
     0%, 100% { transform: scale(1);    opacity: .15; }
