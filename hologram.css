@@ -789,23 +789,34 @@
      seconds. The original translates the element, which opens a gap at the
      trailing edge once the box is only 460px wide, so the background position
      moves instead. */
+  /* the drifting particle field. It reproduces the original's six tiled dot
+     grids, but at the source's alphas the dots were all but invisible against
+     this panel, so the field read as empty. Brighter dots, a touch larger, and
+     the whole field carried up to .9, so it actually looks like the field the
+     panel is named for. Nine tiles now instead of six for a little more depth;
+     the drift keyframe lists a position per tile. */
   .holodialog-field {
-    position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: .6;
+    position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: .9;
     background-image:
-      radial-gradient(1px 1px at 20% 30%, rgb(var(--holo-glow, 74 150 224) / .3) 0%, transparent 100%),
-      radial-gradient(1px 1px at 40% 70%, rgb(var(--holo-cyan, 126 224 255) / .2) 0%, transparent 100%),
-      radial-gradient(1px 1px at 80% 40%, rgb(var(--holo-viol, 138 96 230) / .2) 0%, transparent 100%),
-      radial-gradient(1.5px 1.5px at 65% 80%, rgb(var(--holo-glow, 74 150 224) / .25) 0%, transparent 100%),
-      radial-gradient(1px 1px at 90% 15%, rgb(var(--holo-cyan, 126 224 255) / .15) 0%, transparent 100%),
-      radial-gradient(1px 1px at 10% 85%, rgb(var(--holo-glow, 74 150 224) / .2) 0%, transparent 100%);
+      radial-gradient(1.6px 1.6px at 20% 30%, rgb(var(--holo-glow, 74 150 224) / .6) 0%, transparent 100%),
+      radial-gradient(1.2px 1.2px at 40% 70%, rgb(var(--holo-cyan, 126 224 255) / .55) 0%, transparent 100%),
+      radial-gradient(1.4px 1.4px at 80% 40%, rgb(var(--holo-viol, 138 96 230) / .5) 0%, transparent 100%),
+      radial-gradient(2px 2px at 65% 80%, rgb(var(--holo-glow, 74 150 224) / .55) 0%, transparent 100%),
+      radial-gradient(1.2px 1.2px at 90% 15%, rgb(var(--holo-cyan, 126 224 255) / .45) 0%, transparent 100%),
+      radial-gradient(1.4px 1.4px at 10% 85%, rgb(var(--holo-glow, 74 150 224) / .5) 0%, transparent 100%),
+      radial-gradient(1.6px 1.6px at 33% 12%, rgb(var(--holo-cyan, 126 224 255) / .5) 0%, transparent 100%),
+      radial-gradient(1.2px 1.2px at 55% 50%, rgb(var(--holo-glow, 74 150 224) / .48) 0%, transparent 100%),
+      radial-gradient(1.4px 1.4px at 78% 66%, rgb(var(--holo-viol, 138 96 230) / .42) 0%, transparent 100%);
     background-size: 250px 250px, 300px 300px, 200px 200px,
-                     350px 350px, 180px 180px, 280px 280px;
+                     350px 350px, 180px 180px, 280px 280px,
+                     230px 230px, 320px 320px, 210px 210px;
     animation: holodialog-drift 20s linear infinite;
   }
 
 @keyframes holodialog-drift {
-    from { background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
+    from { background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
     to   { background-position: -60px -40px, -60px -40px, -60px -40px,
+                                -60px -40px, -60px -40px, -60px -40px,
                                 -60px -40px, -60px -40px, -60px -40px; }
   }
 

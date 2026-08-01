@@ -507,3 +507,19 @@ keeping:
   already in the markup, so the animation cannot drift from what the panel says.
   And the section moved from second on the page to near the end, where a small
   true fact belongs once the louder components have had their turn.
+
+**Version 13**, 31 July 2026. Two size corrections on the deployed page.
+
+- **The spike is a beam, not a blob, and its size lived in the trail, not the
+  sprite.** The action-potential spike read as a fat orange ball next to a hair-
+  thin cell. The obvious lever, the head sprite's scale, was the wrong one: the
+  bulk was the trail's head point, `makeTrail(..., 130)`, a 130px `gl_PointSize`.
+  Dropping it to 42 (and the head sprite to 0.045) turns each spike into a tight
+  head with a tapering tail: a light beam travelling the axon, in scale with the
+  cell. When a glow is too big, check the point size before the sprite scale.
+- **A particle field at the source's alphas is an empty field.** The dialog's
+  drifting particles were reproduced faithfully, six tiled dot grids at the
+  login box's exact alphas, and against this darker panel they were invisible.
+  Faithful is not the same as visible: the dots go up to ~.5 alpha and 1.5px,
+  the field to .9 opacity, three more tiles for depth. The reproduction was
+  right; it just needed to be turned up to survive the surface it was put on.
