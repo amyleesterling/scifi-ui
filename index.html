@@ -300,6 +300,9 @@
     border-color: rgba(150,212,255,.7); background: rgba(22,40,66,.9); }
   footer { margin-top: 66px; padding-top: 22px; border-top: 1px solid #1B2130;
            color: #666E7C; font-size: 14px; }
+  /* the byline sits above the provenance and reads brighter than it: who made
+     this is a different kind of fact from where the meshes came from */
+  footer .credit { margin: 0 0 10px; color: #C4CCD8; font-size: 15px; }
   footer a, .lede a, p a { color: #3E96F0; text-decoration: none; }
   @media (prefers-reduced-motion: reduce) {
     .cta, h2::before { transition: none; }
@@ -791,6 +794,8 @@
   <a class="cta" href="README.md">Read the README</a>
 
   <footer>
+    <p class="credit">Created by Amy Sterling
+      <a href="https://x.com/amyneurons" rel="me noopener">@amyneurons</a></p>
     The renders are from a connectomic reconstruction of mouse hippocampal CA3,
     where this system was built:
     <a href="https://amyleesterling.github.io/ca3">amyleesterling.github.io/ca3</a>.

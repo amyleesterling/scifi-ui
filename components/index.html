@@ -38,6 +38,14 @@
     overflow-x: hidden;
   }
   .wrap { max-width: 68rem; margin: 0 auto; padding: 0 1.25rem; }
+  footer { margin: 4rem 0 5rem; padding-top: 1.4rem;
+           border-top: 1px solid rgb(var(--holo-line, 196 228 255) / .12);
+           color: #6E7686; font-size: 14px; line-height: 1.7; }
+  /* the byline reads brighter than the provenance under it: who made this is a
+     different kind of fact from where the components came from */
+  footer .credit { margin: 0 0 10px; color: #C4CCD8; font-size: 15px; }
+  footer a { color: #4FA3F0; text-decoration: none; }
+  footer a:hover, footer a:focus-visible { text-decoration: underline; }
   header { padding: 4rem 0 2.5rem; }
   h1 {
     margin: 0 0 .6rem;
@@ -419,6 +427,14 @@
       <code>holoReadout.value()</code> puts them there for you.
     </p>
   </section>
+
+  <footer>
+    <p class="credit">Created by Amy Sterling
+      <a href="https://x.com/amyneurons" rel="me noopener">@amyneurons</a></p>
+    Every component here was lifted from software that actually ships, never
+    approximated. See <a href="../AGENTS.md">AGENTS.md</a> for the rule and the
+    reasoning, and <a href="../index.html">the main set</a> for the rest.
+  </footer>
 
 </div>
 
