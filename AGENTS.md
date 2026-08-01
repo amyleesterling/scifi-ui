@@ -523,3 +523,32 @@ keeping:
   Faithful is not the same as visible: the dots go up to ~.5 alpha and 1.5px,
   the field to .9 opacity, three more tiles for depth. The reproduction was
   right; it just needed to be turned up to survive the surface it was put on.
+
+**Version 14**, 1 August 2026. The whole page gains the flywire gallery's
+ambient life, carried across rather than reinvented.
+
+- **The ambient layer is the flywire page's own, mapped onto this page's
+  tokens.** `components/ambient.css` + `components/ambient.js` bring across the
+  five background layers verbatim from
+  `amyleesterling/flywire-neuron-gallery` — a slow drifting corner gradient, a
+  tech-grid dot lattice, the seventeen hand-drawn circuit traces, seventy
+  drifting neurotransmitter particles, and faint CRT scan lines. The React
+  component became a plain-JS builder; the colours became this repo's tokens
+  where they line up (flywire cyan is `--holo-cyan` exactly), keeping the
+  magenta/warm accents as the source's literals. The whole layer sits on
+  negative z so the page's own content paints straight over it.
+- **The click burst is a reticle confirm, not decoration.** Every click sprays
+  eleven star sparkles outward from the point plus one expanding sonar ring,
+  each removed after 800ms, skipped on canvas clicks (so 3D drags don't spark)
+  and while a `dialog[open]`/`.nge-hero-overlay` modal is up (so a backdrop
+  dismiss stays a plain click). The angles, distances and three-in-five plain /
+  one magenta / one warm palette are the source's.
+- **Reduced motion means never built, not merely stopped.** Under
+  `prefers-reduced-motion: reduce` the particles and the click handler are never
+  created at all, and holo-bg's drift is stopped in CSS; the static
+  gradient/grid/circuit/scanline layers still mount so the page keeps its faint
+  texture without a single thing moving.
+- **The scroll rail was already this.** The flywire scroll-progress rail — the
+  glowing head gliding a gradient fill, the section sub-dots, the count — is
+  what `.holorail` already is on this page (same section-snap, same .7s glide).
+  Nothing to carry across; the ask was already satisfied.
