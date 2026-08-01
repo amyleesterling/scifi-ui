@@ -83,10 +83,10 @@
 }
 
 /* ── click burst ──────────────────────────────────────────────────────────
-   a five-point star that radiates out from the click point, rotating and
-   shrinking, plus a single sonar ring. Together they read as a reticle
-   confirm. The script places each spark at the click point and hands it its
-   own --dx/--dy/--rot; the CSS carries the rest. */
+   five-point stars that radiate out from the click point, each rotating and
+   shrinking as it goes — a small confirm spray. The script places each spark at
+   the click point and hands it its own --dx/--dy/--rot; the CSS carries the
+   rest. */
 @keyframes click-spark {
   0%   { transform: translate(-50%,-50%) rotate(var(--rot)) scale(.4); opacity: 0; }
   12%  { opacity: 1; }
@@ -111,18 +111,6 @@
     rgb(var(--holo-warm, 232 169 58)) 50%, transparent 80%);
   filter: drop-shadow(0 0 6px rgb(var(--holo-warm, 232 169 58)));
 }
-@keyframes click-ring {
-  0%   { transform: translate(-50%,-50%) scale(.05); opacity: .85; border-width: 2px; }
-  60%  { opacity: .45; border-width: 1px; }
-  100% { transform: translate(-50%,-50%) scale(1.4); opacity: 0; border-width: 1px; }
-}
-.click-ring {
-  position: fixed; pointer-events: none; z-index: 9998; width: 90px; height: 90px;
-  border: 2px solid rgb(var(--holo-cyan, 126 224 255) / .9); border-radius: 50%;
-  animation: click-ring 700ms cubic-bezier(.16,1,.3,1) forwards;
-  filter: drop-shadow(0 0 6px rgb(var(--holo-cyan, 126 224 255) / .6));
-}
-
 /* ── mobile tap: HUD reticle lock-on ───────────────────────────────────────
    On a touch device the sparkle spray fires out from under the finger and reads
    as nothing but the ring, so touch taps get their own thing instead: a
