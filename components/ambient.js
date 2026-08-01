@@ -99,9 +99,9 @@
 
   // ── click burst ──────────────────────────────────────────────────────────
   // Every click anywhere on the page sprays ~11 star sparkles outward from the
-  // click point plus a single expanding sonar ring — a reticle confirm. Skipped
-  // on canvas clicks (so 3D drags don't spark) and while a dialog/hero-overlay
-  // modal is open (so a backdrop click to dismiss feels like a normal click).
+  // click point. Skipped on canvas clicks (so 3D drags don't spark) and while a
+  // dialog/hero-overlay modal is open (so a backdrop click to dismiss feels
+  // like a normal click).
   var PALETTE = ["", "", "", "magenta", "warm"];
 
   function modalOpen() {
@@ -173,13 +173,6 @@
       document.body.appendChild(spark);
       removeLater(spark);
     }
-
-    var ring = document.createElement("div");
-    ring.className = "click-ring";
-    ring.style.left = e.clientX + "px";
-    ring.style.top = e.clientY + "px";
-    document.body.appendChild(ring);
-    removeLater(ring);
   }
 
   function removeLater(el) {
