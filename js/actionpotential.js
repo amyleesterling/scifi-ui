@@ -142,10 +142,10 @@ export function mountActionPotential(el) {
   const slots = [];
   for (let i = 0; i < MAX_AP_CONCURRENT; i++) {
     const s = {
-      pre: bloomSprite([255, 194, 74], 0.115),
-      post: bloomSprite([111, 168, 255], 0.115),
-      tPre: makeTrail(PRE, 130),
-      tPost: makeTrail(POST, 130),
+      pre: bloomSprite([255, 194, 74], 0.045),
+      post: bloomSprite([111, 168, 255], 0.045),
+      tPre: makeTrail(PRE, 42),
+      tPost: makeTrail(POST, 42),
       firedAt: -1,
     };
     s.pre.sprite.visible = false; s.post.sprite.visible = false;
