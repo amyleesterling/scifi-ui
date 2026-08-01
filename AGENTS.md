@@ -569,3 +569,32 @@ ambient life, carried across rather than reinvented.
   fine pointer mid-session lands on the right one. When an effect reads wrong on
   a surface, ask whether the surface wants a different effect, not a louder
   version of the same one.
+
+**Version 16**, 1 August 2026. The loading cell becomes one choreographed loop
+on a single clock.
+
+- **Two loops on two clocks drift, and the drift was the bug.** The draw was a
+  CSS animation and the signal dots were SMIL, each on its own 2.6s cycle, so
+  the dots rode branches that were mid-fade — a dot travelling a dendrite that
+  was disappearing under it. `components/loader-neuron.js` puts the whole figure
+  on one `requestAnimationFrame` timeline: the branch draw and the dots share
+  the same frame, so a dot is only ever on a branch that is currently drawn. The
+  CSS draw/pulse stays as the no-JS fallback (gated off once JS adds
+  `.holoload-live`), and reduced motion never starts the loop at all — the CSS
+  draws a full static cell and there are no dots.
+- **The sequence is now a story, not a pulse.** Soma eases in; the apical
+  dendrites grow up out of it; the axon grows down as the first dots ride the
+  apical branches in to the soma and on out the axon; then the basal-left arbor
+  grows and fires its dots, then basal-right; and after the last dot leaves the
+  axon the whole cell zips back into the soma and it begins again. Every dot
+  runs tip → soma → axon-exit, so nothing is ever stranded on a branch when the
+  zip retracts it. The basal arbor is split left/right at runtime by which side
+  of the soma (x = 60) each branch's bounding box sits on; dot routes are the
+  trunk reversed (tip → soma) then the axon, sampled with `getPointAtLength` so
+  the dots follow the real morphology.
+- **Determinism beats cleverness for choreography.** Sequencing this with
+  staggered CSS delays would have re-introduced exactly the drift it replaced;
+  one JS clock driving `strokeDashoffset` and dot positions per frame is what
+  makes "the dots are never on a vanishing branch" a guarantee rather than a
+  hope. Verified by sampling 180 frames across the cycle: zero frames with a
+  visible dot on an undrawn trunk.

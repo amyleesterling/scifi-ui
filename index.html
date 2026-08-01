@@ -533,7 +533,7 @@
              dendrites and the axon) so the two trees draw half a cycle apart. -->
         <svg class="holoload-glyph" viewBox="0 0 120 140" aria-hidden="true">
           <g class="arbor apical" fill="none" stroke-linecap="round" stroke-linejoin="round">
-            <path pathLength="1" d="M60 52 L59 42 L57 32 L55 22 L52 12 L49 4" stroke="#18cfff" stroke-width="2.2" opacity=".9"></path>
+            <path pathLength="1" class="trunk-apical" d="M60 52 L59 42 L57 32 L55 22 L52 12 L49 4" stroke="#18cfff" stroke-width="2.2" opacity=".9"></path>
             <path pathLength="1" d="M57 32 L62 26 L68 20 L76 16 L84 13" stroke="#15c8f8" stroke-width="1.4" opacity=".75"></path>
             <path pathLength="1" d="M68 20 L72 14 L78 8" stroke="#10b8e8" stroke-width=".9" opacity=".55"></path>
             <path pathLength="1" d="M76 16 L82 20 L88 18" stroke="#10b8e8" stroke-width=".7" opacity=".4"></path>
@@ -549,7 +549,7 @@
             <path pathLength="1" d="M44 36 L38 32 L32 30" stroke="#0ab0e0" stroke-width=".6" opacity=".35"></path>
           </g>
           <g class="arbor basal" fill="none" stroke-linecap="round" stroke-linejoin="round">
-            <path pathLength="1" d="M54 60 L44 66 L34 74 L26 82 L20 90" stroke="#18cfff" stroke-width="1.8" opacity=".8"></path>
+            <path pathLength="1" class="trunk-bl" d="M54 60 L44 66 L34 74 L26 82 L20 90" stroke="#18cfff" stroke-width="1.8" opacity=".8"></path>
             <path pathLength="1" d="M34 74 L28 70 L20 66 L14 62" stroke="#12c0f0" stroke-width="1.1" opacity=".6"></path>
             <path pathLength="1" d="M20 66 L16 72 L10 74" stroke="#0ab0e0" stroke-width=".7" opacity=".4"></path>
             <path pathLength="1" d="M26 82 L18 80 L12 76" stroke="#0ab0e0" stroke-width=".8" opacity=".45"></path>
@@ -558,7 +558,7 @@
             <path pathLength="1" d="M52 56 L42 50 L32 48 L22 50" stroke="#15c8f8" stroke-width="1.4" opacity=".7"></path>
             <path pathLength="1" d="M32 48 L26 42 L20 38" stroke="#10b8e8" stroke-width=".9" opacity=".5"></path>
             <path pathLength="1" d="M22 50 L16 54 L10 56" stroke="#0ab0e0" stroke-width=".6" opacity=".35"></path>
-            <path pathLength="1" d="M66 60 L76 66 L86 74 L94 82 L100 90" stroke="#18cfff" stroke-width="1.8" opacity=".8"></path>
+            <path pathLength="1" class="trunk-br" d="M66 60 L76 66 L86 74 L94 82 L100 90" stroke="#18cfff" stroke-width="1.8" opacity=".8"></path>
             <path pathLength="1" d="M86 74 L92 70 L100 66 L106 62" stroke="#12c0f0" stroke-width="1.1" opacity=".6"></path>
             <path pathLength="1" d="M100 66 L104 72 L110 74" stroke="#0ab0e0" stroke-width=".7" opacity=".4"></path>
             <path pathLength="1" d="M94 82 L102 80 L108 76" stroke="#0ab0e0" stroke-width=".8" opacity=".45"></path>
@@ -577,28 +577,13 @@
             <path pathLength="1" d="M54 118 L46 122 L38 120" stroke="#08a0d0" stroke-width=".6" opacity=".3"></path>
             <path pathLength="1" d="M50 138 L44 140" stroke="#08a0d0" stroke-width=".5" opacity=".25"></path>
             <path pathLength="1" d="M50 138 L56 140" stroke="#08a0d0" stroke-width=".5" opacity=".25"></path>
-            <circle cx="57" cy="32" r=".6" fill="#40e0ff" opacity=".6" stroke="none"></circle>
-            <circle cx="44" cy="68" r=".5" fill="#40e0ff" opacity=".5" stroke="none"></circle>
-            <circle cx="76" cy="68" r=".5" fill="#40e0ff" opacity=".5" stroke="none"></circle>
-            <circle cx="28" cy="72" r=".4" fill="#40e0ff" opacity=".4" stroke="none"></circle>
-            <circle cx="92" cy="72" r=".4" fill="#40e0ff" opacity=".4" stroke="none"></circle>
           </g>
           <ellipse class="soma-halo" cx="60" cy="58" rx="12" ry="11" fill="#18cfff"></ellipse>
           <ellipse class="soma" cx="60" cy="58" rx="6.5" ry="6" fill="#b0f8ff"></ellipse>
-          <!-- the signal: a dot rides in along a dendrite, through the soma and
-               out the axon, three staggered routes so the cell keeps firing
-               while it draws -->
-          <g class="signals">
-            <circle class="signal-dot" r="2.4">
-              <animateMotion dur="2.6s" repeatCount="indefinite" path="M52 12 L60 58 L50 138"></animateMotion>
-            </circle>
-            <circle class="signal-dot" r="2.4">
-              <animateMotion dur="2.6s" begin="-0.87s" repeatCount="indefinite" path="M20 90 L60 58 L50 138"></animateMotion>
-            </circle>
-            <circle class="signal-dot" r="2.4">
-              <animateMotion dur="2.6s" begin="-1.73s" repeatCount="indefinite" path="M100 90 L60 58 L50 138"></animateMotion>
-            </circle>
-          </g>
+          <!-- the signal dots are built and driven by components/loader-neuron.js
+               so they stay in lockstep with the branch draw: a dot is only ever
+               on a branch that is currently present. -->
+          <g class="signals"></g>
         </svg>
       </div>
       <p class="holoload-label">loading meshes</p>
@@ -1538,6 +1523,7 @@
 <script src="components/tutorial-callout.js"></script>
 <script src="components/researcher-profile.js"></script>
 <script src="components/ambient.js"></script>
+<script src="components/loader-neuron.js"></script>
 <script>
   /* the eyebrow readout is measured rather than written: the number of
      elements this page is made of, counted after the runtime parts are built.
@@ -1737,36 +1723,8 @@
     addEventListener("DOMContentLoaded", count);
   })();
 
-  /* the loading cell replays on demand. A loop that only ever runs forward is a
-     thing to watch, not to touch; a tap or a click re-strikes it, so the arbor
-     grows out of the soma again from nothing and the signals fire from t=0. The
-     draw is a CSS animation, so it is restarted the reliable way for a real
-     element: drop it to none, force one reflow, hand it back. The travelling
-     dots are SMIL, so setCurrentTime(0) rewinds them in the same beat. Reduced
-     motion has no draw to replay and no dots to fire, so the tap is a no-op
-     there rather than a jump. */
-  (function () {
-    var reduce = window.matchMedia
-      ? matchMedia("(prefers-reduced-motion: reduce)") : { matches: false };
-    document.querySelectorAll(".holoload").forEach(function (load) {
-      var glyph = load.querySelector(".holoload-glyph");
-      if (!glyph) return;
-      function replay() {
-        if (reduce.matches) return;
-        var paths = glyph.querySelectorAll(".arbor path");
-        paths.forEach(function (p) { p.style.animation = "none"; });
-        void glyph.offsetWidth;                       // one reflow, then restore
-        paths.forEach(function (p) { p.style.animation = ""; });
-        if (glyph.setCurrentTime) { try { glyph.setCurrentTime(0); } catch (e) {} }
-      }
-      // touch comes through the library's activation signal; a mouse gets a
-      // plain click, since the loader is a surface rather than a control
-      load.addEventListener("holotap:on", function (e) {
-        if (!e.detail || e.detail.pointerType !== "mouse") replay();
-      });
-      load.addEventListener("click", replay);
-    });
-  })();
+  /* the loading cell's draw + signal choreography, and its tap-to-replay, live
+     in components/loader-neuron.js so the dots stay locked to the branch draw. */
 
   /* the readout earns its number. A figure that snaps in fully formed reads as
      typeset; one that races up to it reads as measured, live off the thing it
