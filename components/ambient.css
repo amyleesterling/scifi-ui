@@ -1,0 +1,128 @@
+/* ---- ambient field + click burst -----------------------------------------
+   Carried across from amyleesterling/flywire-neuron-gallery: the page's whole
+   ambient layer, a drifting corner-lit gradient, a tech-grid dot lattice, a
+   faint hand-drawn circuit board, drifting neurotransmitter particles, and CRT
+   scan lines, plus the click burst it fires on every click, a star sparkle
+   spray and a sonar ring. ambient.js builds the layers, seeds the particles,
+   and wires the click.
+
+   Colours are the flywire page's, mapped onto this repo's tokens where they
+   line up, its cyan is this page's --holo-cyan exactly; the magenta and warm
+   accents stay as the source's literals. The whole ambient layer sits on
+   negative z so the page's own content paints over it. Every moving part is
+   off under reduced motion: the field stops drifting, the particles and the
+   click burst are never built at all (see ambient.js). */
+
+/* slow drifting gradient field, corners only, meant to be sensed not seen */
+.holo-bg {
+  position: fixed; inset: 0; z-index: -3; pointer-events: none;
+  background:
+    radial-gradient(ellipse 35% 25% at 0% 0%,
+      rgb(var(--holo-cyan, 126 224 255) / .045) 0%, transparent 70%),
+    radial-gradient(ellipse 35% 25% at 100% 100%,
+      rgba(255, 126, 224, .028) 0%, transparent 70%);
+  background-size: 200% 200%;
+  animation: holo-bg-drift 32s ease-in-out infinite;
+}
+@keyframes holo-bg-drift {
+  0%, 100% { background-position: 0% 0%, 100% 100%; filter: hue-rotate(0deg); }
+  50%      { background-position: 100% 50%, 0% 50%; filter: hue-rotate(8deg); }
+}
+
+/* tech-grid dot lattice, masked to the middle band so it never strips the very
+   top or the footer */
+.holo-grid {
+  position: fixed; inset: 0; z-index: -3; pointer-events: none;
+  background-image: radial-gradient(circle,
+    rgb(var(--holo-cyan, 126 224 255) / .10) 0.6px, transparent 1px);
+  background-size: 28px 28px;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, transparent 12%,
+    black 28%, black 72%, transparent 92%);
+          mask-image: linear-gradient(to bottom, transparent 0%, transparent 12%,
+    black 28%, black 72%, transparent 92%);
+}
+
+/* the hand-drawn circuit board, a synaptic chip-board undertone, faded top and
+   bottom so it does not compete with the banner or the footer */
+.holo-circuit {
+  position: fixed; inset: 0; z-index: -3; width: 100%; height: 100%;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, transparent 12%,
+    black 32%, black 75%, transparent 95%);
+          mask-image: linear-gradient(to bottom, transparent 0%, transparent 12%,
+    black 32%, black 75%, transparent 95%);
+}
+
+/* drifting particles: rise the height of the viewport, drift sideways, fade in
+   and out */
+@keyframes holo-particle {
+  0%   { transform: translate3d(0, 105vh, 0) scale(.5); opacity: 0; }
+  10%  { opacity: .55; }
+  90%  { opacity: .55; }
+  100% { transform: translate3d(40px, -15vh, 0) scale(.3); opacity: 0; }
+}
+.holo-particles {
+  position: fixed; inset: 0; z-index: -2; pointer-events: none; overflow: hidden;
+}
+.holo-particles i {
+  position: absolute; width: 2px; height: 2px; border-radius: 50%;
+  background: rgb(var(--holo-cyan, 126 224 255));
+  box-shadow: 0 0 6px rgb(var(--holo-cyan, 126 224 255)),
+              0 0 12px rgb(var(--holo-cyan, 126 224 255) / .4);
+  animation: holo-particle linear infinite; will-change: transform, opacity;
+}
+
+/* faint CRT scan lines, almost subliminal */
+.holo-scanlines {
+  position: fixed; inset: 0; z-index: -2; pointer-events: none;
+  background-image: repeating-linear-gradient(0deg,
+    rgb(var(--holo-cyan, 126 224 255) / .012) 0px,
+    rgb(var(--holo-cyan, 126 224 255) / .012) 1px,
+    transparent 1px, transparent 3px);
+  mix-blend-mode: screen;
+}
+
+/* ── click burst ──────────────────────────────────────────────────────────
+   a five-point star that radiates out from the click point, rotating and
+   shrinking, plus a single sonar ring. Together they read as a reticle
+   confirm. The script places each spark at the click point and hands it its
+   own --dx/--dy/--rot; the CSS carries the rest. */
+@keyframes click-spark {
+  0%   { transform: translate(-50%,-50%) rotate(var(--rot)) scale(.4); opacity: 0; }
+  12%  { opacity: 1; }
+  100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy)))
+                   rotate(calc(var(--rot) + 220deg)) scale(.1); opacity: 0; }
+}
+.click-spark {
+  position: fixed; pointer-events: none; z-index: 9999; width: 10px; height: 10px;
+  background: radial-gradient(circle, #fff 0%,
+    rgb(var(--holo-cyan, 126 224 255)) 50%, transparent 80%);
+  clip-path: polygon(50% 0%, 60% 35%, 100% 35%, 68% 57%, 79% 100%,
+    50% 70%, 21% 100%, 32% 57%, 0% 35%, 40% 35%);
+  animation: click-spark 750ms cubic-bezier(.16,1,.3,1) forwards;
+  filter: drop-shadow(0 0 6px rgb(var(--holo-cyan, 126 224 255)));
+}
+.click-spark.magenta {
+  background: radial-gradient(circle, #fff 0%, rgb(255 126 224) 50%, transparent 80%);
+  filter: drop-shadow(0 0 6px rgb(255 126 224));
+}
+.click-spark.warm {
+  background: radial-gradient(circle, #fff 0%,
+    rgb(var(--holo-warm, 232 169 58)) 50%, transparent 80%);
+  filter: drop-shadow(0 0 6px rgb(var(--holo-warm, 232 169 58)));
+}
+@keyframes click-ring {
+  0%   { transform: translate(-50%,-50%) scale(.05); opacity: .85; border-width: 2px; }
+  60%  { opacity: .45; border-width: 1px; }
+  100% { transform: translate(-50%,-50%) scale(1.4); opacity: 0; border-width: 1px; }
+}
+.click-ring {
+  position: fixed; pointer-events: none; z-index: 9998; width: 90px; height: 90px;
+  border: 2px solid rgb(var(--holo-cyan, 126 224 255) / .9); border-radius: 50%;
+  animation: click-ring 700ms cubic-bezier(.16,1,.3,1) forwards;
+  filter: drop-shadow(0 0 6px rgb(var(--holo-cyan, 126 224 255) / .6));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .holo-bg { animation: none; }
+}
