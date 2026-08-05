@@ -2,6 +2,12 @@
    A horizontal row of icon buttons with rest, hover, focus and pressed
    states.
 
+   The prefix is `holoiconrail` and not `holorail` because `holorail` is
+   already the vertical section rail in hologram.css, which hologram.js
+   empties and rebuilds from the page headings. Two components answering to
+   one class means whichever page loads both files loses one of them without
+   an error, so a component owns its whole prefix here.
+
    Reimplemented, not extracted, and it is worth saying why. The hover state
    Amy liked lives in ExtensionBar.vue, but the rules that produce it are
    written against neuroglancer's own DOM and look like this:

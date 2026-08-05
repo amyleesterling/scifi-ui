@@ -239,6 +239,32 @@ precisely how overflow gets reintroduced.
 - **No em or en dashes in any prose.** Commas and periods. This is Amy's rule
   across every project.
 
+## Contributed back, 2026-08-01
+
+**`components/scan-pass.css`** is new rather than ported. Section 4 of
+`hologram.css` describes the holoframe as one where "corner brackets draw in, a
+scan line passes once", but only the brackets and the particle beam were ever
+written. This is the scan line that sentence promised. It passes once, on hover
+or `.holo-on`, and never loops, which is the standing rule applied to the one
+component people set to `infinite` by reflex.
+
+**A caution for anyone verifying a hover state in the Claude browser pane.** It
+never composites, so CSS transitions stick at their start value forever. A
+correct `.holo-on` rule will measure `opacity: 0` a full second after the class
+goes on, with the selector matching, the rule present, higher specificity,
+unlayered, no inline style and no competing rule. Injecting the identical rule
+at runtime changes nothing either, which makes it look like a cascade fault and
+is not one. Disable the transition and read again: the true end state appears
+immediately. This cost most of an hour.
+
+**The rule in section 2 is easy to break while reading section 2.** Porting the
+holo card into whatisabrain.com I wrote corner brackets from scratch, two
+pseudo elements, static, two corners, because I had the card open and not the
+frame. The real `.hud` is four corners that push outward from
+`translate(4px,4px)` to `translate(-7px,-7px)`, and the push is the whole
+character of it. If a component looks like it needs a companion, search the set
+for the companion before writing one.
+
 ---
 
 **Version 2**, 29 July 2026. Adds section 5: every hover state ships its tap

@@ -1,0 +1,74 @@
+/* ---- scan pass (holoscan) ------------------------------------------------
+   New here rather than ported. hologram.css section 4 describes the holoframe
+   as one where "corner brackets draw in, a scan line passes once", but only
+   the brackets and the particle beam were ever implemented. This is the scan
+   line that sentence promised, written to the same rules as the rest of the
+   set.
+
+   THE IDEA WORTH PRESERVING: it passes once, on demand, and never loops.
+
+   A band that sweeps forever is a status light. It tells you a thing is
+   powered, which is a fact nobody needed, and it costs a repaint every frame
+   on a page nobody is looking at. A band that passes once when you arrive at
+   an element is an event: the panel just came online. That is the library's
+   standing rule ("only ambient things loop") applied to the one component most
+   likely to break it, because a scan line is exactly the sort of thing people
+   set to `infinite` by reflex.
+
+   Written on the light rather than on the element. The band is a child span,
+   not a pseudo element on the frame, so it can sit above the media at its own
+   z-index without fighting the frame's own ::before and ::after, which the
+   brackets already use.
+
+   USAGE
+
+     <a class="holoscan" href="...">
+       <span class="holoscan-line" aria-hidden="true"></span>
+       <img src="...">
+     </a>
+
+   The host needs `position: relative` and, if the media has square corners
+   inside a rounded frame, `overflow: hidden`, or the band runs past the
+   corners. Both are left to the host: this file sets no layout on it.
+
+   --holo-cyan is the same token the holo card uses, so a card and its scan
+   agree without being told twice. It is an unwrapped RGB triplet, not a
+   colour, because it is used at several alphas.
+
+   Height is 9 per cent of the host rather than a fixed pixel band, so it reads
+   the same on a 200px thumbnail and a 1400px hero. A fixed 40px band is a
+   stripe on the first and a hairline on the second.
+*/
+
+.holoscan > .holoscan-line {
+  position: absolute; left: 0; right: 0; top: 0; height: 9%; z-index: 2;
+  pointer-events: none; opacity: 0;
+  background: linear-gradient(180deg, transparent,
+    rgb(var(--holo-cyan, 126 224 255) / .13), transparent);
+}
+
+/* The travel is to 1100 per cent rather than 100: the band is 9 per cent tall
+   and starts fully above the frame, so it needs its own height plus the
+   frame's to clear the bottom edge. Stopping at 100 per cent leaves it parked
+   across the last tenth of the picture. */
+@keyframes holoscan-pass {
+  from { transform: translateY(-100%); opacity: 0; }
+  12%  { opacity: 1; }
+  88%  { opacity: 1; }
+  to   { transform: translateY(1100%); opacity: 0; }
+}
+
+.holoscan:hover > .holoscan-line,
+.holoscan:focus-within > .holoscan-line,
+.holoscan.holo-on > .holoscan-line {
+  animation: holoscan-pass 1600ms cubic-bezier(.22, .9, .28, 1);
+}
+
+/* .holo-on is the touch path, as everywhere else in the set: there is no hover
+   on a phone, and without it this is decoration only desktop users ever see. */
+
+@media (prefers-reduced-motion: reduce) {
+  .holoscan:hover > .holoscan-line,
+  .holoscan:focus-within > .holoscan-line,
+  .holoscan.holo-on > .holoscan-line { animation: none; opacity: 0; }
+}
