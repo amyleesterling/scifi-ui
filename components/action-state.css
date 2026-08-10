@@ -1,0 +1,117 @@
+/* ---- the whole button lifecycle (holoaction) ------------------------------
+   Pairs with action-state.js.
+
+   One control, four states, and each one moved by the model that actually
+   suits it rather than by a shared easing curve:
+
+     press      a spring, so a release carries velocity and can overshoot
+     sending    a travelling packet, so waiting has a direction
+     success    the packet settles and a mark arrives on the same spring
+     failure    the same spring underdamped, which rings instead of shaking
+
+   The failure state is the one worth arguing for. A canned shake keyframe is
+   an animation played at somebody. A spring given too little damping rings
+   because that is what an underdamped system does, and it settles honestly
+   instead of stopping dead on the last frame.
+
+   Visual component only. There is no request, no form and no field with a
+   name. Wire .run() to your own call.
+
+   The packet loops only while the control is genuinely busy and stops the
+   moment it is not, per AGENTS.md section 3.
+--------------------------------------------------------------------------- */
+
+.holoaction {
+  --holoaction-tint: var(--holo-beam, 178 216 248);
+  --holoaction-good: 126 224 176;
+  --holoaction-bad: 236 130 130;
+  --press: 0;
+  --shift: 0;
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .55rem;
+  min-height: 44px;
+  padding: .7rem 1.4rem;
+  overflow: hidden;
+  border: 1px solid rgb(var(--holoaction-tint) / .32);
+  border-radius: 999px;
+  background: rgb(var(--holoaction-tint) / .1);
+  color: rgb(var(--holo-ink, 239 244 251) / .95);
+  font: inherit;
+  font-size: .82rem;
+  letter-spacing: .06em;
+  cursor: pointer;
+  /* two properties, so the press scale and the failure ring never fight over
+     one transform, the trick noted in AGENTS.md section 4 */
+  transform: scale(calc(1 - var(--press) * .045));
+  translate: calc(var(--shift) * 1px) 0;
+}
+
+.holoaction:focus-visible { outline: 2px solid rgb(var(--holoaction-tint)); outline-offset: 3px; }
+
+/* Hover ships its tap path in the same commit, per AGENTS.md section 5. */
+.holoaction:hover,
+.holoaction.holo-on { background: rgb(var(--holoaction-tint) / .17); }
+
+.holoaction[aria-disabled="true"] { cursor: progress; }
+
+/* the packet lives under the label and is clipped by the pill */
+.holoaction-wave {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity .18s ease;
+  pointer-events: none;
+}
+.holoaction.is-sending .holoaction-wave { opacity: 1; }
+.holoaction-wave canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+.holoaction-label { position: relative; z-index: 1; }
+
+/* the mark arrives on the spring, so it lands rather than appearing */
+.holoaction-mark {
+  --in: 0;
+  position: relative;
+  z-index: 1;
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+  margin-left: -.55rem;
+  opacity: var(--in);
+  scale: calc(.4 + var(--in) * .6);
+  transform-origin: 50% 50%;
+}
+.holoaction-mark svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.holoaction-mark path {
+  fill: none;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke: rgb(var(--holoaction-good));
+}
+.holoaction.is-done { border-color: rgb(var(--holoaction-good) / .5); background: rgb(var(--holoaction-good) / .14); }
+.holoaction.is-done .holoaction-mark { margin-left: 0; }
+.holoaction.is-failed { border-color: rgb(var(--holoaction-bad) / .55); background: rgb(var(--holoaction-bad) / .14); }
+.holoaction.is-failed .holoaction-mark { margin-left: 0; }
+.holoaction.is-failed .holoaction-mark path { stroke: rgb(var(--holoaction-bad)); }
+
+/* the status line, announced once rather than on every frame */
+.holoaction-status {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* the js stops integrating and jumps to each state, so the control still
+     reports what happened without anything moving */
+  .holoaction { transform: none; translate: none; }
+  .holoaction-mark { scale: 1; }
+}

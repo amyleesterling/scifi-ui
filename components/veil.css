@@ -1,0 +1,46 @@
+/* ---- transition between two states of a region (holoveil) -----------------
+   Pairs with veil.js.
+
+   A packet crosses the region and the content changes underneath it at the
+   moment it passes. The swap is hidden by the brightest part of the wave, so
+   there is never a frame where both states are visible and never a flash of
+   empty container.
+
+   Why a sweep rather than a crossfade: a crossfade has to show both states at
+   once, which for two dense panels reads as a smear. A sweep gives the change
+   a direction and a definite instant, and the instant is the useful part,
+   because it tells somebody exactly when the thing they were reading stopped
+   being current.
+
+   The veil only exists while a transition is running. It is created on demand
+   and removed at the end, so an idle region carries no extra element and no
+   loop, per AGENTS.md section 3.
+--------------------------------------------------------------------------- */
+
+.holoveil-host { position: relative; }
+
+.holoveil {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.holoveil canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+/* the outgoing and incoming content, moved by the same value the wave uses */
+.holoveil-host > .holoveil-content { --swap: 0; }
+.holoveil-host > .holoveil-content > * { }
+
+.holoveil-fade {
+  opacity: calc(1 - var(--swap, 0));
+  translate: calc(var(--swap, 0) * -8px) 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* the swap still happens, it simply happens at once with no sweep drawn */
+  .holoveil { display: none; }
+  .holoveil-fade { opacity: 1; translate: none; }
+}

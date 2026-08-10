@@ -1,4 +1,4 @@
-# AGENTS.md, version 4
+# AGENTS.md, version 5
 
 Durable working knowledge for any agent contributing to **scifi-ui**. Read this
 before writing a line. It exists because the same lessons were being relearned
@@ -690,3 +690,37 @@ adds it: registration off in `section-stack`, the morph to a matrix in
 `projection-matrix`, and the wipe in `channel-wipe`. A demo that can only show
 the good state is a claim. One that can show the degraded state next to it is a
 demonstration, and it costs one toggle.
+
+## Contributed back, interaction set
+
+**An entrance and an unread mark are two different jobs, and merging them
+loses one.** The arrival component runs a spring for the entrance and a
+separate exponential decay for the freshness mark. It is tempting to drive
+both from one timeline, and that quietly breaks the case that matters: the
+entrance is over in half a second and only serves somebody who happened to be
+looking, while the mark is what tells a person returning to the tab which rows
+they have not seen. Keep the mark on its own clock, clear it on attention
+rather than on a timer alone, and leave it working under reduced motion, since
+it is information rather than decoration.
+
+**A transition that can drop its swap is worse than no transition.** `holoveil`
+calls the content change under the brightest part of the sweep, which means the
+callback is tied to an animation that might be cut short by the backstop or
+skipped entirely under reduced motion. Every one of those paths has to still
+run the swap exactly once, or the region is left showing content that is no
+longer true. Guard it with a flag and call it from the finish path as well as
+from the frame, and wrap it so a throwing callback cannot strand the veil on
+screen.
+
+**One spring integrator can serve press, arrival and failure.** The action
+component has no shake keyframes. The failure state is the same integrator
+given an initial velocity and too little damping, so it rings and settles the
+way a real underdamped system does. Three behaviours from one piece of physics
+is less code than three keyframe sets and it stays coherent when somebody
+retunes it.
+
+**Use two properties when two things move one element.** The action button
+takes `transform` for the press scale and `translate` for the failure ring, so
+a control that fails mid press composes instead of one animation clobbering the
+other. Same trick as the masthead, noted in section 4, and it comes up any time
+a state machine can overlap its own states.
