@@ -1,0 +1,132 @@
+/* ---- function to structure, across scales (holobridge) --------------------
+   Pairs with scale-bridge.js.
+
+   Pick a cell by what it does, then travel down six orders of magnitude to
+   what it is made of, with a ladder that keeps saying where you are.
+
+   The ladder is the reusable part. Any interface that jumps between very
+   different magnifications leaves people lost, because the second view gives
+   no clue how far it sits from the first. A rung per decade, with a marker
+   that travels rather than teleports, costs almost nothing and answers the
+   question the jump creates.
+
+   Inspired by work that characterises living neurons electrically and then
+   images those same functional classes at molecular resolution, so structure
+   and function stop being separate datasets. Traces and structures here are
+   generated, and no value is measured.
+
+   The descent runs once per selection. Nothing loops.
+--------------------------------------------------------------------------- */
+
+.holobridge {
+  --holobridge-tint: var(--holo-beam, 178 216 248);
+  --holobridge-warm: var(--holo-warm, 232 169 58);
+  display: grid;
+  gap: .9rem;
+}
+
+.holobridge-classes { display: grid; gap: .5rem; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+
+.holobridge-class {
+  display: grid;
+  gap: .35rem;
+  padding: .6rem .7rem .5rem;
+  border: 1px solid rgb(var(--holo-line, 196 228 255) / .16);
+  border-radius: 9px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.holobridge-class canvas { display: block; width: 100%; height: 34px; }
+.holobridge-class span {
+  font-size: .72rem;
+  letter-spacing: .04em;
+  color: rgb(var(--holo-dim, 154 162 177) / .95);
+}
+
+/* Hover ships its tap path in the same commit, per AGENTS.md section 5. */
+.holobridge-class:hover,
+.holobridge-class.holo-on { background: rgb(var(--holo-line, 196 228 255) / .07); }
+.holobridge-class:focus-visible { outline: 2px solid rgb(var(--holobridge-tint)); outline-offset: 2px; }
+.holobridge-class[aria-pressed="true"] {
+  border-color: rgb(var(--holobridge-tint) / .5);
+  background: rgb(var(--holobridge-tint) / .12);
+}
+.holobridge-class[aria-pressed="true"] span { color: rgb(var(--holo-ink, 239 244 251) / .95); }
+
+/* ---- the ladder and the destination ------------------------------------- */
+
+.holobridge-body {
+  display: grid;
+  gap: .9rem;
+  grid-template-columns: 8.5rem minmax(0, 1fr);
+  align-items: stretch;
+}
+@media (max-width: 30rem) { .holobridge-body { grid-template-columns: 6.5rem minmax(0, 1fr); } }
+
+.holobridge-ladder {
+  position: relative;
+  display: grid;
+  align-content: space-between;
+  padding: .35rem 0;
+  margin: 0;
+  list-style: none;
+}
+
+/* the rail the marker travels down */
+.holobridge-ladder:before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: .5rem;
+  bottom: .5rem;
+  width: 1px;
+  background: rgb(var(--holo-line, 196 228 255) / .18);
+}
+
+.holobridge-rung {
+  position: relative;
+  padding-left: 1rem;
+  font-size: .66rem;
+  letter-spacing: .1em;
+  color: rgb(var(--holo-dim, 154 162 177) / .6);
+  font-variant-numeric: tabular-nums;
+}
+.holobridge-rung:before {
+  content: "";
+  position: absolute;
+  left: 1px;
+  top: .45em;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgb(var(--holo-line, 196 228 255) / .25);
+}
+.holobridge-rung.is-reached { color: rgb(var(--holobridge-tint) / .95); }
+.holobridge-rung.is-reached:before {
+  background: rgb(var(--holobridge-tint) / .95);
+  box-shadow: 0 0 8px rgb(var(--holobridge-tint) / .8);
+}
+
+.holobridge-zoom {
+  position: relative;
+  min-height: 168px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 48%, rgb(10 18 26 / .96), rgb(4 7 12 / .98) 76%);
+  box-shadow: inset 0 0 0 1px rgb(var(--holo-line, 196 228 255) / .1);
+}
+.holobridge-zoom canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+
+.holobridge-caption {
+  position: absolute;
+  left: .75rem;
+  right: .75rem;
+  bottom: .6rem;
+  font-size: .68rem;
+  color: rgb(var(--holo-dim, 154 162 177) / .95);
+  pointer-events: none;
+}
+.holobridge-caption b { color: rgb(var(--holobridge-warm) / .95); font-weight: 600; }

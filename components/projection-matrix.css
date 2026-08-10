@@ -1,0 +1,97 @@
+/* ---- trajectories against their matrix (holoproject) ----------------------
+   Pairs with projection-matrix.js.
+
+   The same connectivity in two representations, with a morph between them.
+   As routed paths it has geometry: where a projection travels, what it passes,
+   which bundles run together. As an adjacency matrix it has none of that, only
+   which region reaches which.
+
+   The morph is the component. Watching the paths collapse into cells shows you
+   exactly what the summary discards, and it is far more convincing than the two
+   pictures side by side, because every point keeps its identity across the
+   change.
+
+   Inspired by single neuron whole brain reconstructions, where the argument is
+   that reducing connectivity to an adjacency matrix loses the trajectories that
+   the questions are actually about. The connectivity here is generated.
+
+   The morph runs once per press and then stops. Nothing loops.
+--------------------------------------------------------------------------- */
+
+.holoproject {
+  --holoproject-tint: var(--holo-beam, 178 216 248);
+  --holoproject-warm: var(--holo-warm, 232 169 58);
+  display: grid;
+  gap: .8rem;
+}
+
+.holoproject-stage {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  border-radius: 12px;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 48%, rgb(10 18 26 / .96), rgb(4 7 12 / .98) 76%);
+  box-shadow: inset 0 0 0 1px rgb(var(--holo-line, 196 228 255) / .1);
+}
+
+.holoproject-stage canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+
+.holoproject-legend {
+  position: absolute;
+  left: .8rem;
+  top: .7rem;
+  font-size: .64rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: rgb(var(--holo-dim, 154 162 177) / .95);
+  pointer-events: none;
+}
+
+.holoproject-lost {
+  position: absolute;
+  right: .8rem;
+  bottom: .7rem;
+  max-width: 58%;
+  text-align: right;
+  font-size: .68rem;
+  color: rgb(var(--holoproject-warm) / .9);
+  opacity: 0;
+  transition: opacity .3s ease;
+  pointer-events: none;
+}
+.holoproject.is-matrix .holoproject-lost { opacity: 1; }
+
+.holoproject-controls {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  flex-wrap: wrap;
+  font-size: .68rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: rgb(var(--holo-dim, 154 162 177) / .9);
+}
+
+.holoproject-controls input[type="range"] {
+  flex: 1 1 140px;
+  min-width: 0;
+  accent-color: rgb(var(--holoproject-tint));
+}
+
+.holoproject-btn {
+  border: 1px solid rgb(var(--holo-line, 196 228 255) / .24);
+  border-radius: 999px;
+  background: transparent;
+  color: rgb(var(--holoproject-tint) / .95);
+  font: inherit;
+  font-size: .68rem;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  padding: .4rem .85rem;
+  cursor: pointer;
+}
+
+/* Hover ships its tap path in the same commit, per AGENTS.md section 5. */
+.holoproject-btn:hover,
+.holoproject-btn.holo-on { background: rgb(var(--holoproject-tint) / .13); }
+.holoproject-btn:focus-visible { outline: 2px solid rgb(var(--holoproject-tint)); outline-offset: 2px; }

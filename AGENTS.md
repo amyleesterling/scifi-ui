@@ -1,4 +1,4 @@
-# AGENTS.md, version 3
+# AGENTS.md, version 4
 
 Durable working knowledge for any agent contributing to **scifi-ui**. Read this
 before writing a line. It exists because the same lessons were being relearned
@@ -664,3 +664,29 @@ the result: the oscillator cluster was measured going from 0.14 coherence to
 was sampled across 160 frames to confirm it passes its target at 1.079 before
 settling to exactly 1. If you have a real browser available, assert on the
 behaviour rather than on the stylesheet, and say which you did.
+
+## Contributed back, spatial set
+
+**Offsetting a centreline needs the normal, not the tangent.** The embryo form
+in `atlas-field` is a centreline with a thickness either side. Written as
+`a + Math.PI / 2` the offset direction becomes the tangent, so both edges slide
+along the curve instead of away from it, and the shape renders as a blade with
+a fat middle and hairline ends. It looks like a thickness bug and it is a
+direction bug. For a point at angle `a` on an arc the outward normal is simply
+`(cos a, sin a)`. Two other passes were spent tuning thickness numbers before
+the direction was checked, so check the direction first.
+
+**Normalised canvas fractions are not a coordinate system.** Multiplying a 0 to
+1 coordinate by width and height separately stretches any shape by the box
+aspect, which on a 3 by 2 stage turned a curled body into a thin arc pinned to
+one edge. Anything that has to keep its proportions needs a square space fitted
+and centred in the canvas, `S = Math.min(W, H)` with the offsets taken from the
+centre. Fractions of width and height are only safe for things that genuinely
+should stretch, like a full bleed gradient.
+
+**Prefer a control that can take the evidence away.** Three of these five
+components make their point with a control that removes something rather than
+adds it: registration off in `section-stack`, the morph to a matrix in
+`projection-matrix`, and the wipe in `channel-wipe`. A demo that can only show
+the good state is a claim. One that can show the degraded state next to it is a
+demonstration, and it costs one toggle.
