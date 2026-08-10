@@ -1,0 +1,177 @@
+/* ---- spring driven motion (holospring) ------------------------------------
+   Pairs with spring-motion.js.
+
+   A drawer and a switch moved by integrating a damped harmonic oscillator,
+   not by a bezier curve. The difference is not decorative. A bezier has a
+   fixed duration, so interrupting it mid flight either snaps or restarts. A
+   spring carries velocity, so a control grabbed halfway through continues
+   from where it actually is and at the speed it actually had.
+
+   That is the reason to reach for physics in an interface: the state is the
+   position and the velocity of a real system, so every interruption has a
+   correct answer already.
+
+   Original component, not a port. The maths is in the js file.
+
+   Nothing here loops. A spring runs while it is settling and stops when it
+   has settled, which is what AGENTS.md section 3 asks for.
+--------------------------------------------------------------------------- */
+
+.holospring {
+  --holospring-tint: var(--holo-beam, 178 216 248);
+  display: grid;
+  gap: .9rem;
+}
+
+/* ---- switch ------------------------------------------------------------- */
+
+.holospring-row {
+  display: flex;
+  align-items: center;
+  gap: .85rem;
+  flex-wrap: wrap;
+}
+
+.holospring-switch {
+  --x: 0;
+  position: relative;
+  width: 56px;
+  height: 30px;
+  flex: 0 0 auto;
+  padding: 0;
+  border: 1px solid rgb(var(--holo-line, 196 228 255) / .22);
+  border-radius: 999px;
+  background: rgb(var(--holo-line, 196 228 255) / .07);
+  cursor: pointer;
+}
+
+.holospring-switch:focus-visible {
+  outline: 2px solid rgb(var(--holospring-tint));
+  outline-offset: 3px;
+}
+
+/* The knob reads one number. The js owns the physics, the stylesheet owns the
+   look, and neither needs to know anything about the other. */
+.holospring-knob {
+  position: absolute;
+  top: 50%;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgb(var(--holospring-tint) / calc(.45 + var(--x) * .55));
+  box-shadow: 0 0 calc(var(--x) * 12px) rgb(var(--holospring-tint) / calc(var(--x) * .8));
+  /* the knob can travel past its end stop and come back, which is the whole
+     point of showing an underdamped spring on a control */
+  transform: translate(calc(var(--x) * 26px), -50%);
+}
+
+.holospring-switch:hover,
+.holospring-switch.holo-on { background: rgb(var(--holo-line, 196 228 255) / .12); }
+
+.holospring-label {
+  font-size: .8rem;
+  color: rgb(var(--holo-dim, 154 162 177) / .95);
+}
+
+.holospring-state {
+  font-variant-numeric: tabular-nums;
+  color: rgb(var(--holospring-tint) / .95);
+}
+
+/* ---- drawer ------------------------------------------------------------- */
+
+/* The height comes from a grid row measured in fr, which interpolates where
+   height: auto cannot. The child is what clips, so no content can add scroll
+   width while the drawer is part way open. */
+.holospring-drawer {
+  display: grid;
+  grid-template-rows: 0fr;
+}
+
+.holospring-body {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.holospring-card {
+  --x: 0;
+  margin-top: .7rem;
+  padding: .95rem 1.05rem;
+  border-radius: 10px;
+  background: rgb(var(--holo-panel, 15 18 24) / .9);
+  box-shadow: inset 0 0 0 1px rgb(var(--holo-line, 196 228 255) / .1);
+  color: rgb(var(--holo-ink, 239 244 251) / .78);
+  font-size: .86rem;
+  line-height: 1.6;
+  opacity: var(--x);
+  /* a small lift that trails the height, so the panel arrives rather than
+     simply being revealed */
+  transform: translateY(calc((1 - var(--x)) * -6px));
+}
+
+/* ---- controls ----------------------------------------------------------- */
+
+.holospring-controls {
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  flex-wrap: wrap;
+}
+
+.holospring-controls label {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  font-size: .68rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: rgb(var(--holo-dim, 154 162 177) / .9);
+}
+
+.holospring-controls input[type="range"] {
+  width: 104px;
+  accent-color: rgb(var(--holospring-tint));
+}
+
+.holospring-preset {
+  border: 1px solid rgb(var(--holo-line, 196 228 255) / .25);
+  border-radius: 999px;
+  background: transparent;
+  color: rgb(var(--holospring-tint) / .95);
+  font: inherit;
+  font-size: .68rem;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  padding: .4rem .8rem;
+  cursor: pointer;
+}
+
+.holospring-preset:hover,
+.holospring-preset.holo-on { background: rgb(var(--holospring-tint) / .12); }
+.holospring-preset:focus-visible { outline: 2px solid rgb(var(--holospring-tint)); outline-offset: 2px; }
+.holospring-preset[aria-pressed="true"] {
+  background: rgb(var(--holospring-tint) / .18);
+  border-color: rgb(var(--holospring-tint) / .5);
+}
+
+/* ---- trace -------------------------------------------------------------- */
+
+/* The trace is the honest part of the demo: it plots the position the spring
+   actually took, so an overshoot you can see in the knob is visible as a
+   curve crossing its target and coming back. */
+.holospring-trace {
+  height: 74px;
+  border-radius: 8px;
+  background: rgb(var(--holo-line, 196 228 255) / .04);
+  box-shadow: inset 0 0 0 1px rgb(var(--holo-line, 196 228 255) / .08);
+}
+
+.holospring-trace canvas { display: block; width: 100%; height: 100%; }
+
+@media (prefers-reduced-motion: reduce) {
+  /* The js jumps straight to the target instead of integrating, so the drawer
+     and the switch still work and simply arrive. */
+  .holospring-knob { box-shadow: none; }
+  .holospring-card { transform: none; }
+}
