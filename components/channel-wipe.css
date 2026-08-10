@@ -1,0 +1,122 @@
+/* ---- co-registered channel wipe (holochannel) -----------------------------
+   Pairs with channel-wipe.js.
+
+   Two channels of the same object, one carrying geometry and one carrying
+   identity, with a wipe between them. The wipe is the argument: because the
+   divider can sit anywhere and the shapes never move, you can see that the two
+   channels are the same tissue rather than two pictures side by side.
+
+   A crossfade would not do that. Fading between two layers looks identical
+   whether or not they are registered, so it hides exactly the property that
+   matters here.
+
+   Inspired by light microscopy connectomics, where the appeal is that a wiring
+   diagram can carry molecular identity along with it instead of trading one
+   for the other. The tissue drawn here is generated, not imaged.
+
+   Nothing loops. It repaints while you drag and then holds.
+--------------------------------------------------------------------------- */
+
+.holochannel {
+  --holochannel-tint: var(--holo-beam, 178 216 248);
+  display: grid;
+  gap: .8rem;
+}
+
+.holochannel-stage {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  border-radius: 12px;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 45%, rgb(10 18 26 / .96), rgb(4 7 12 / .98) 76%);
+  box-shadow: inset 0 0 0 1px rgb(var(--holo-line, 196 228 255) / .1);
+  cursor: ew-resize;
+  touch-action: none;
+}
+
+.holochannel-stage canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+
+/* The divider is drawn in the DOM rather than the canvas so it can carry a
+   focus ring and a real grab affordance. */
+.holochannel-divider {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  margin-left: -1px;
+  background: rgb(var(--holochannel-tint) / .85);
+  box-shadow: 0 0 10px rgb(var(--holochannel-tint) / .6);
+  pointer-events: none;
+}
+
+.holochannel-divider:after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 26px;
+  height: 26px;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgb(var(--holochannel-tint) / .7);
+  border-radius: 50%;
+  background: rgb(6 12 18 / .8);
+}
+
+.holochannel-tag {
+  position: absolute;
+  top: .6rem;
+  font-size: .64rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: rgb(var(--holo-dim, 154 162 177) / .95);
+  pointer-events: none;
+}
+.holochannel-tag.is-left { left: .75rem; color: rgb(var(--holochannel-tint) / .95); }
+.holochannel-tag.is-right { right: .75rem; }
+
+.holochannel-controls { display: grid; gap: .55rem; }
+
+.holochannel-reveal {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  font-size: .68rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: rgb(var(--holo-dim, 154 162 177) / .9);
+}
+.holochannel-reveal input[type="range"] {
+  flex: 1 1 auto;
+  min-width: 0;
+  accent-color: rgb(var(--holochannel-tint));
+}
+
+.holochannel-classes { display: flex; gap: .4rem; flex-wrap: wrap; }
+
+.holochannel-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  border: 1px solid rgb(var(--holo-line, 196 228 255) / .22);
+  border-radius: 999px;
+  background: transparent;
+  color: rgb(var(--holo-ink, 239 244 251) / .72);
+  font: inherit;
+  font-size: .66rem;
+  letter-spacing: .06em;
+  padding: .34rem .7rem;
+  cursor: pointer;
+}
+.holochannel-chip i {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: rgb(var(--chip) / .95);
+  box-shadow: 0 0 7px rgb(var(--chip) / .7);
+}
+
+/* Hover ships its tap path in the same commit, per AGENTS.md section 5. */
+.holochannel-chip:hover,
+.holochannel-chip.holo-on { background: rgb(var(--holo-line, 196 228 255) / .1); }
+.holochannel-chip:focus-visible { outline: 2px solid rgb(var(--holochannel-tint)); outline-offset: 2px; }
+
+.holochannel-chip[aria-pressed="false"] { opacity: .42; }
+.holochannel-chip[aria-pressed="false"] i { box-shadow: none; background: rgb(var(--chip) / .35); }

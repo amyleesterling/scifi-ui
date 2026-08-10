@@ -1,0 +1,98 @@
+/* ---- field over a changing form (holoatlas) -------------------------------
+   Pairs with atlas-field.js.
+
+   A scalar field painted onto a form that itself changes as you scrub. The
+   field is defined in the form's own coordinates, not the screen's, so when
+   the form folds the field folds with it and stays on the same tissue.
+
+   That is the whole reason this exists as a component rather than as a chart.
+   A heatmap on a fixed image can be a texture. A heatmap on a form that moves
+   has to be attached to the thing, and the moment you scrub, the difference
+   between those two is obvious.
+
+   Inspired by the 3D spatial transcriptome atlases of early embryogenesis,
+   where an expression programme is only meaningful in the piece of geometry it
+   sits in and at the stage it sits at. The form here is a schematic, not a
+   reconstruction, and none of the values are measured data.
+
+   Nothing loops. It repaints on scrub and then holds.
+--------------------------------------------------------------------------- */
+
+.holoatlas {
+  --holoatlas-tint: var(--holo-beam, 178 216 248);
+  --holoatlas-warm: var(--holo-warm, 232 169 58);
+  display: grid;
+  gap: .85rem;
+}
+
+.holoatlas-stage {
+  position: relative;
+  aspect-ratio: 3 / 2;
+  border-radius: 12px;
+  overflow: hidden;
+  background:
+    repeating-linear-gradient(0deg, rgb(var(--holo-line, 196 228 255) / .02) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at 50% 46%, rgb(12 22 30 / .96), rgb(4 8 13 / .98) 74%);
+  box-shadow: inset 0 0 0 1px rgb(var(--holo-line, 196 228 255) / .1);
+}
+
+.holoatlas-stage canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+
+.holoatlas-caption {
+  position: absolute;
+  left: .8rem;
+  bottom: .7rem;
+  right: .8rem;
+  font-size: .72rem;
+  letter-spacing: .04em;
+  color: rgb(var(--holo-dim, 154 162 177) / .95);
+  pointer-events: none;
+}
+
+.holoatlas-caption b {
+  color: rgb(var(--holoatlas-tint) / .95);
+  font-weight: 600;
+}
+
+.holoatlas-controls { display: grid; gap: .6rem; }
+
+.holoatlas-scrub {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  font-size: .68rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: rgb(var(--holo-dim, 154 162 177) / .9);
+}
+
+.holoatlas-scrub input[type="range"] {
+  flex: 1 1 auto;
+  min-width: 0;
+  accent-color: rgb(var(--holoatlas-tint));
+}
+
+.holoatlas-programs { display: flex; gap: .45rem; flex-wrap: wrap; }
+
+.holoatlas-btn {
+  border: 1px solid rgb(var(--holo-line, 196 228 255) / .22);
+  border-radius: 999px;
+  background: transparent;
+  color: rgb(var(--holo-ink, 239 244 251) / .8);
+  font: inherit;
+  font-size: .68rem;
+  letter-spacing: .08em;
+  padding: .38rem .8rem;
+  cursor: pointer;
+}
+
+/* Hover ships its tap path in the same commit, per AGENTS.md section 5. */
+.holoatlas-btn:hover,
+.holoatlas-btn.holo-on { background: rgb(var(--holo-line, 196 228 255) / .1); }
+.holoatlas-btn:focus-visible { outline: 2px solid rgb(var(--holoatlas-tint)); outline-offset: 2px; }
+
+.holoatlas-btn[aria-pressed="true"] {
+  border-color: rgb(var(--holoatlas-tint) / .5);
+  background: rgb(var(--holoatlas-tint) / .16);
+  color: rgb(var(--holo-ink, 239 244 251) / .98);
+}

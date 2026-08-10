@@ -1,0 +1,119 @@
+/* ---- serial sections into a volume (holostack) ----------------------------
+   Pairs with section-stack.js.
+
+   Serial slices that fan apart to be read one at a time and close up into a
+   single object. The registration toggle is the point: with the sections
+   nudged out of alignment the stack reads as unrelated blobs, and with them
+   aligned a continuous structure appears through the depth that no individual
+   slice contains.
+
+   That is a UI job, not an illustration. Any time a set of layers is really
+   one object, showing the assembly is more honest than showing a list, and
+   the control that proves it is the one that can take the alignment away.
+
+   Inspired by 3D reconstruction from serial spatial transcriptomic sections,
+   where the third dimension changes the conclusion rather than the picture.
+   The sections here are generated.
+
+   Nothing loops. Transforms settle and hold.
+--------------------------------------------------------------------------- */
+
+.holostack {
+  --holostack-tint: var(--holo-beam, 178 216 248);
+  display: grid;
+  gap: .8rem;
+}
+
+.holostack-stage {
+  position: relative;
+  aspect-ratio: 16 / 11;
+  border-radius: 12px;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 46%, rgb(10 18 26 / .96), rgb(4 7 12 / .98) 76%);
+  box-shadow: inset 0 0 0 1px rgb(var(--holo-line, 196 228 255) / .1);
+  perspective: 900px;
+  perspective-origin: 50% 44%;
+}
+
+.holostack-scene {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  display: grid;
+  place-items: center;
+}
+
+/* Each section carries its own transform from two custom properties, so the
+   js writes numbers and the stylesheet owns the look. */
+.holostack-section {
+  --z: 0;
+  --dx: 0;
+  --dy: 0;
+  position: absolute;
+  width: 44%;
+  aspect-ratio: 1;
+  border-radius: 6px;
+  transform: rotateX(58deg) rotateZ(-32deg)
+             translate3d(calc(var(--dx) * 1px), calc(var(--dy) * 1px), calc(var(--z) * 1px));
+  background: rgb(10 20 28 / .5);
+  box-shadow: inset 0 0 0 1px rgb(var(--holostack-tint) / .18);
+  transform-style: preserve-3d;
+}
+
+.holostack-section canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 6px;
+}
+
+.holostack-readout {
+  position: absolute;
+  left: .8rem;
+  bottom: .7rem;
+  right: .8rem;
+  font-size: .7rem;
+  color: rgb(var(--holo-dim, 154 162 177) / .95);
+  pointer-events: none;
+}
+.holostack-readout b { color: rgb(var(--holostack-tint) / .95); font-weight: 600; }
+
+.holostack-controls {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  flex-wrap: wrap;
+  font-size: .68rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: rgb(var(--holo-dim, 154 162 177) / .9);
+}
+.holostack-controls input[type="range"] {
+  flex: 1 1 130px;
+  min-width: 0;
+  accent-color: rgb(var(--holostack-tint));
+}
+
+.holostack-btn {
+  border: 1px solid rgb(var(--holo-line, 196 228 255) / .24);
+  border-radius: 999px;
+  background: transparent;
+  color: rgb(var(--holostack-tint) / .95);
+  font: inherit;
+  font-size: .68rem;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  padding: .4rem .85rem;
+  cursor: pointer;
+}
+
+/* Hover ships its tap path in the same commit, per AGENTS.md section 5. */
+.holostack-btn:hover,
+.holostack-btn.holo-on { background: rgb(var(--holostack-tint) / .13); }
+.holostack-btn:focus-visible { outline: 2px solid rgb(var(--holostack-tint)); outline-offset: 2px; }
+.holostack-btn[aria-pressed="true"] {
+  background: rgb(var(--holostack-tint) / .18);
+  border-color: rgb(var(--holostack-tint) / .5);
+}
