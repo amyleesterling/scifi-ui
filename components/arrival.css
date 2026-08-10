@@ -1,0 +1,87 @@
+/* ---- things that just arrived (holoarrive) --------------------------------
+   Pairs with arrival.js.
+
+   New items land on a spring and carry a mark that decays on its own. Two
+   separate jobs that usually get conflated:
+
+   The entrance says something arrived. The mark says you have not seen it yet,
+   and it has to outlive the entrance, because a person who looked away for two
+   seconds missed the entrance entirely and the interface still owes them the
+   answer. A list that only animates is a list that lies to anybody who blinked.
+
+   The stagger carries a small deterministic offset per item rather than a flat
+   multiple of the index, so a batch reads as several things arriving instead of
+   one mechanical sweep across the list.
+
+   Nothing loops. Each arrival settles and the mark decays once.
+--------------------------------------------------------------------------- */
+
+.holoarrive { display: grid; gap: .5rem; }
+
+.holoarrive-item {
+  --in: 1;
+  --fresh: 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  padding: .7rem .85rem;
+  border-radius: 9px;
+  background: rgb(var(--holo-line, 196 228 255) / .04);
+  box-shadow: inset 0 0 0 1px rgb(var(--holo-line, 196 228 255) / .08);
+  color: rgb(var(--holo-ink, 239 244 251) / .88);
+  font-size: .86rem;
+  /* the entrance rides two properties so the settle and the lift never fight */
+  opacity: var(--in);
+  translate: 0 calc((1 - var(--in)) * -10px);
+}
+
+/* the unseen mark, driven by its own value so it can outlast the entrance */
+.holoarrive-item:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 10%;
+  bottom: 10%;
+  width: 2px;
+  border-radius: 2px;
+  background: rgb(var(--holo-warm, 232 169 58) / calc(var(--fresh) * .95));
+  box-shadow: 0 0 calc(var(--fresh) * 9px) rgb(var(--holo-warm, 232 169 58) / calc(var(--fresh) * .7));
+}
+
+.holoarrive-dot {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: rgb(var(--holo-beam, 178 216 248) / .5);
+}
+
+.holoarrive-body { flex: 1 1 auto; min-width: 0; }
+.holoarrive-time {
+  flex: 0 0 auto;
+  font-size: .68rem;
+  font-variant-numeric: tabular-nums;
+  color: rgb(var(--holo-dim, 154 162 177) / .8);
+}
+
+.holoarrive-new {
+  flex: 0 0 auto;
+  font-size: .6rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgb(var(--holo-warm, 232 169 58) / calc(.25 + var(--fresh) * .75));
+  opacity: var(--fresh);
+}
+
+/* Hover ships its tap path in the same commit, per AGENTS.md section 5.
+   Attention is also what marks an item seen, handled in the js. */
+.holoarrive-item:hover,
+.holoarrive-item:focus-within,
+.holoarrive-item.holo-on { background: rgb(var(--holo-line, 196 228 255) / .08); }
+
+@media (prefers-reduced-motion: reduce) {
+  /* items are placed rather than flown in, and the mark still decays, because
+     the mark is information and not decoration */
+  .holoarrive-item { translate: none; opacity: 1; }
+}
