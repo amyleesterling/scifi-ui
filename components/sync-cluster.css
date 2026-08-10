@@ -1,0 +1,200 @@
+/* ---- coupled oscillator cluster (holosync) --------------------------------
+   Pairs with sync-cluster.js.
+
+   A set of status lights that are genuinely independent oscillators. Left
+   uncoupled they drift apart, because each one runs at its own natural rate.
+   Raise the coupling and they pull each other into step and lock, all on
+   their own. Nothing sequences them and there is no shared timeline.
+
+   Why it earns its place in a UI: coherence is a real state worth showing.
+   A row of lights blinking in lockstep from the first frame is a decoration.
+   A row that starts scattered and visibly comes into step when a system
+   connects tells you the subsystems agree, and the coherence readout under it
+   is the actual order parameter, not a number chosen to look busy.
+
+   Original component, not a port. The model is Kuramoto, 1975, and the maths
+   is in the js file.
+
+   Ambient while it is live and in view, per AGENTS.md section 3. It stops on
+   scroll out and it stops when the panel is put to sleep.
+--------------------------------------------------------------------------- */
+
+.holosync {
+  --holosync-tint: var(--holo-beam, 178 216 248);
+  --holosync-warm: var(--holo-warm, 232 169 58);
+  display: grid;
+  gap: 1rem;
+  padding: 1.1rem 1.15rem 1.2rem;
+  border-radius: 12px;
+  background: linear-gradient(160deg, rgb(var(--holo-panel, 15 18 24) / .95), rgb(8 11 16 / .95));
+  box-shadow: inset 0 1px 0 rgb(var(--holo-line, 196 228 255) / .1),
+              inset 0 0 0 1px rgb(var(--holo-line, 196 228 255) / .09);
+}
+
+.holosync-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.holosync-title {
+  font-size: .95rem;
+  font-weight: 500;
+  color: rgb(var(--holo-ink, 239 244 251) / .92);
+}
+
+.holosync-state {
+  font-size: .72rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgb(var(--holo-dim, 154 162 177) / .9);
+}
+
+.holosync.is-locked .holosync-state { color: rgb(var(--holosync-tint) / .95); }
+
+/* ---- the oscillators --------------------------------------------------- */
+
+.holosync-nodes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(64px, 1fr));
+  gap: .55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.holosync-node {
+  --lit: 0;
+  display: grid;
+  justify-items: center;
+  gap: .4rem;
+  padding: .6rem .3rem .5rem;
+  border-radius: 8px;
+  background: rgb(var(--holo-line, 196 228 255) / .035);
+  box-shadow: inset 0 0 0 1px rgb(var(--holo-line, 196 228 255) / .07);
+}
+
+/* The dot reads the oscillator's phase directly. One custom property carries
+   it, so the js writes a number and the stylesheet owns every colour. */
+.holosync-dot {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: rgb(var(--holosync-tint) / calc(.12 + var(--lit) * .88));
+  box-shadow: 0 0 calc(var(--lit) * 14px) rgb(var(--holosync-tint) / calc(var(--lit) * .9));
+}
+
+.holosync-name {
+  font-size: .66rem;
+  letter-spacing: .06em;
+  text-align: center;
+  color: rgb(var(--holo-dim, 154 162 177) / .85);
+}
+
+/* Hover and its tap path ship together, per AGENTS.md section 5. Attention on
+   a node surfaces its natural frequency, which is the fact that explains why
+   it drifts when the coupling is down. */
+.holosync-node:hover,
+.holosync-node:focus-within,
+.holosync-node.holo-on {
+  background: rgb(var(--holo-line, 196 228 255) / .08);
+}
+
+.holosync-freq {
+  font-size: .6rem;
+  font-variant-numeric: tabular-nums;
+  color: rgb(var(--holosync-warm) / .8);
+  opacity: 0;
+  transition: opacity .18s ease;
+}
+
+.holosync-node:hover .holosync-freq,
+.holosync-node:focus-within .holosync-freq,
+.holosync-node.holo-on .holosync-freq {
+  opacity: 1;
+}
+
+/* ---- coherence readout -------------------------------------------------- */
+
+.holosync-order { display: grid; gap: .4rem; }
+
+.holosync-order-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  font-size: .72rem;
+  letter-spacing: .04em;
+  color: rgb(var(--holo-dim, 154 162 177) / .95);
+}
+
+.holosync-order-value {
+  font-variant-numeric: tabular-nums;
+  color: rgb(var(--holosync-tint) / .95);
+}
+
+.holosync-meter {
+  --r: 0;
+  position: relative;
+  height: 6px;
+  overflow: hidden;
+  border-radius: 4px;
+  background: rgb(var(--holo-line, 196 228 255) / .08);
+}
+
+.holosync-meter i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: calc(var(--r) * 100%);
+  border-radius: 4px;
+  background: linear-gradient(90deg,
+              rgb(var(--holosync-tint) / .35), rgb(var(--holosync-tint) / .95));
+}
+
+/* ---- controls ----------------------------------------------------------- */
+
+.holosync-controls {
+  display: flex;
+  align-items: center;
+  gap: .85rem;
+  flex-wrap: wrap;
+}
+
+.holosync-controls label {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: .7rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: rgb(var(--holo-dim, 154 162 177) / .9);
+}
+
+.holosync-controls input[type="range"] {
+  width: 122px;
+  accent-color: rgb(var(--holosync-tint));
+}
+
+.holosync-btn {
+  border: 1px solid rgb(var(--holo-line, 196 228 255) / .25);
+  border-radius: 999px;
+  background: transparent;
+  color: rgb(var(--holosync-tint) / .95);
+  font: inherit;
+  font-size: .7rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding: .45rem .9rem;
+  cursor: pointer;
+}
+
+.holosync-btn:hover,
+.holosync-btn.holo-on { background: rgb(var(--holosync-tint) / .12); }
+.holosync-btn:focus-visible { outline: 2px solid rgb(var(--holosync-tint)); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  /* The js holds the oscillators at their locked phase instead of integrating,
+     so the cluster still reads as coherent without anything moving. The glow
+     is dropped here too, or a tap would restore what the preference removed. */
+  .holosync-dot { box-shadow: none; }
+}

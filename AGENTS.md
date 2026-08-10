@@ -1,4 +1,4 @@
-# AGENTS.md, version 2
+# AGENTS.md, version 3
 
 Durable working knowledge for any agent contributing to **scifi-ui**. Read this
 before writing a line. It exists because the same lessons were being relearned
@@ -624,3 +624,43 @@ on a single clock.
   makes "the dots are never on a vanishing branch" a guarantee rather than a
   hope. Verified by sampling 180 frames across the cycle: zero frames with a
   visible dot on an undrawn trunk.
+
+## Contributed back, 2026-08-06
+
+**Original components are allowed, but they carry a label.** Section 2 says
+never approximate a component that ships somewhere else and call it extracted.
+It does not say every component must be a port. `components/motion.html` holds
+three that are original: `wave-progress`, `sync-cluster` and `spring-motion`.
+Each file says so in its header, and so does the page. The rule the label
+protects is that a reader can always tell which claim is being made, so if you
+add an original, say so in the same commit rather than leaving it ambiguous.
+
+**Auditing section 5 with the CSSOM needs one guard, or it silently passes.**
+Checking that every `:hover` rule also names `.holo-on` is the obvious job for
+`document.styleSheets`, and the obvious walker is wrong. In current Chrome a
+plain `CSSStyleRule` exposes an empty `cssRules` list, because of nested CSS.
+A walker that does `if (rule.cssRules) { recurse; return; }` therefore returns
+early on *every* style rule and reports zero hover rules and zero problems.
+Test `rule.selectorText` first, and only recurse when `rule.cssRules.length`
+is non zero. The audit found seven hover rules once fixed, and the first run
+reporting "0 found, none missing" is exactly what a passing audit looks like,
+which is why this one is worth writing down. Note also that `cssRules` throws
+on a `file://` page, so serve the directory before auditing.
+
+**A throttled readout needs its first report to be outside the window.**
+`sync-cluster` throttles its coherence number to about 8 Hz so the digits stay
+readable. Initialising `lastReport = 0` and calling the painter once at setup
+means the first call computes `0 - 0`, which is not greater than the interval,
+so the element ships without an `aria-valuenow` until the animation loop
+happens to start. That is invisible on screen and obvious to a screen reader.
+Initialise the marker far in the past instead, and reset it before any code
+path that repaints outside the loop, or the second such repaint is throttled
+against a timestamp the loop will never exceed.
+
+**Playwright in this environment does composite frames**, unlike the browser
+pane section 7 describes. Motion here was verified by driving it and reading
+the result: the oscillator cluster was measured going from 0.14 coherence to
+0.95 after Connect and back to 0.15 after Scatter, and the underdamped spring
+was sampled across 160 frames to confirm it passes its target at 1.079 before
+settling to exactly 1. If you have a real browser available, assert on the
+behaviour rather than on the stylesheet, and say which you did.

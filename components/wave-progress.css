@@ -1,0 +1,124 @@
+/* ---- travelling wave activity (holowave) ---------------------------------
+   Pairs with wave-progress.js.
+
+   An activity bar whose light travels along the track instead of pulsing in
+   place. A pulsing bar says "something is happening". A travelling one says
+   which way the work is moving, and a determinate one can carry a real value
+   at the same time, because the packet runs inside the filled part only.
+
+   Original component, not a port. The idea comes from travelling wave
+   recordings in cortex, where a wave of activity crosses the surface rather
+   than every site lighting at once. The maths is in the js file, and it is
+   ordinary wave maths, not a claim about anybody's data.
+
+   Two parts, usable separately:
+     .holowave       the bar
+     .holowave-edge  the same packet running around a panel border
+
+   The bar is ambient while it is busy, so it loops. It stops when the work
+   stops, and it stops when it scrolls out of view.
+--------------------------------------------------------------------------- */
+
+.holowave {
+  --holowave-tint: var(--holo-beam, 178 216 248);
+  display: grid;
+  gap: .5rem;
+  max-width: 100%;
+}
+
+.holowave-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: .8rem;
+  letter-spacing: .02em;
+  color: rgb(var(--holo-dim, 154 162 177) / .95);
+}
+
+.holowave-value {
+  font-variant-numeric: tabular-nums;
+  color: rgb(var(--holowave-tint) / .95);
+}
+
+/* The track clips the canvas, so no packet can ever contribute scroll width
+   at the moment it reaches the end of its travel. */
+.holowave-track {
+  position: relative;
+  height: 10px;
+  overflow: hidden;
+  border-radius: 6px;
+  background: rgb(var(--holo-line, 196 228 255) / .07);
+  box-shadow: inset 0 0 0 1px rgb(var(--holo-line, 196 228 255) / .12);
+}
+
+.holowave-track canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* The rest position matters as much as the motion. A bar that is done should
+   read as done with no animation running behind it. */
+.holowave.is-idle .holowave-track { box-shadow: inset 0 0 0 1px rgb(var(--holo-line, 196 228 255) / .1); }
+
+/* ---- the same packet, running a panel border ---------------------------- */
+
+.holowave-edge {
+  position: relative;
+}
+
+.holowave-edge > svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.holowave-edge-track {
+  fill: none;
+  stroke: rgb(var(--holo-line, 196 228 255) / .14);
+  stroke-width: 1;
+}
+
+.holowave-edge-packet {
+  fill: none;
+  stroke: rgb(var(--holo-beam, 178 216 248) / .95);
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 5px rgb(var(--holo-glow, 74 150 224) / .8));
+}
+
+/* The trailing head runs a beat behind the leading one, so the boundary reads
+   as carrying a signal with a direction rather than glowing on and off. */
+.holowave-edge-packet.is-trail {
+  stroke: rgb(var(--holo-glow, 74 150 224) / .55);
+  stroke-width: 1.25;
+  filter: none;
+}
+
+/* Hover and its tap path ship together, per the rule in AGENTS.md section 5.
+   .holo-on comes from hologram-tap.js, so a finger reaches the same state a
+   pointer does. Brightening the border on attention is the whole affordance,
+   and hiding it on touch would withhold the component from a phone. */
+.holowave-edge:hover .holowave-edge-packet,
+.holowave-edge:focus-within .holowave-edge-packet,
+.holowave-edge.holo-on .holowave-edge-packet {
+  stroke-width: 2.25;
+  filter: drop-shadow(0 0 8px rgb(var(--holo-glow, 74 150 224) / .95));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The js stops integrating, so the packet holds still. The class selector is
+     named here too, or a tap would resurrect what the preference suppressed. */
+  .holowave-edge:hover .holowave-edge-packet,
+  .holowave-edge:focus-within .holowave-edge-packet,
+  .holowave-edge.holo-on .holowave-edge-packet {
+    filter: none;
+  }
+}
