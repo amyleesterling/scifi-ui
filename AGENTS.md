@@ -1,4 +1,4 @@
-# AGENTS.md, version 5
+# AGENTS.md, version 6
 
 Durable working knowledge for any agent contributing to **scifi-ui**. Read this
 before writing a line. It exists because the same lessons were being relearned
@@ -625,102 +625,34 @@ on a single clock.
   hope. Verified by sampling 180 frames across the cycle: zero frames with a
   visible dot on an undrawn trunk.
 
-## Contributed back, 2026-08-06
+## Contributed back, 2026-08-11
 
-**Original components are allowed, but they carry a label.** Section 2 says
-never approximate a component that ships somewhere else and call it extracted.
-It does not say every component must be a port. `components/motion.html` holds
-three that are original: `wave-progress`, `sync-cluster` and `spring-motion`.
-Each file says so in its header, and so does the page. The rule the label
-protects is that a reader can always tell which claim is being made, so if you
-add an original, say so in the same commit rather than leaving it ambiguous.
+**The original components moved out.** `wave-progress`, `sync-cluster`,
+`spring-motion`, `atlas-field`, `channel-wipe`, `scale-bridge`,
+`projection-matrix`, `section-stack`, `action-state`, `arrival` and `veil` were
+original rather than ports, which made them a standing exception to section 2
+inside a repo whose whole value is that the rule is absolute. They now live in
+[experimental-ui](https://github.com/amyleesterling/experimental-ui) along with
+their pages, and the lessons that were specific to them went with them. Nothing
+here referenced them, so the removal was clean. `hologram-tap.js` is used there
+unchanged, so the `.holo-on` contract in section 5 is now shared across both
+repos and should not be changed on one side alone.
+
+Two lessons stay here because they are about this repo's own rules rather than
+about those components.
 
 **Auditing section 5 with the CSSOM needs one guard, or it silently passes.**
 Checking that every `:hover` rule also names `.holo-on` is the obvious job for
 `document.styleSheets`, and the obvious walker is wrong. In current Chrome a
-plain `CSSStyleRule` exposes an empty `cssRules` list, because of nested CSS.
-A walker that does `if (rule.cssRules) { recurse; return; }` therefore returns
-early on *every* style rule and reports zero hover rules and zero problems.
-Test `rule.selectorText` first, and only recurse when `rule.cssRules.length`
-is non zero. The audit found seven hover rules once fixed, and the first run
-reporting "0 found, none missing" is exactly what a passing audit looks like,
-which is why this one is worth writing down. Note also that `cssRules` throws
-on a `file://` page, so serve the directory before auditing.
+plain `CSSStyleRule` exposes an empty `cssRules` list, because of nested CSS, so
+a walker that does `if (rule.cssRules) { recurse; return; }` returns early on
+every style rule and reports zero hover rules and zero problems. Test
+`rule.selectorText` first, and only recurse when `rule.cssRules.length` is non
+zero. A first run reporting "0 found, none missing" is exactly what a passing
+audit looks like, which is why this is worth writing down. `cssRules` also
+throws on a `file://` page, so serve the directory before auditing.
 
-**A throttled readout needs its first report to be outside the window.**
-`sync-cluster` throttles its coherence number to about 8 Hz so the digits stay
-readable. Initialising `lastReport = 0` and calling the painter once at setup
-means the first call computes `0 - 0`, which is not greater than the interval,
-so the element ships without an `aria-valuenow` until the animation loop
-happens to start. That is invisible on screen and obvious to a screen reader.
-Initialise the marker far in the past instead, and reset it before any code
-path that repaints outside the loop, or the second such repaint is throttled
-against a timestamp the loop will never exceed.
+**Playwright may composite frames, unlike the browser pane section 7
+describes.** Where a real browser is available, assert on behaviour rather than
+on the stylesheet, and say which you did.
 
-**Playwright in this environment does composite frames**, unlike the browser
-pane section 7 describes. Motion here was verified by driving it and reading
-the result: the oscillator cluster was measured going from 0.14 coherence to
-0.95 after Connect and back to 0.15 after Scatter, and the underdamped spring
-was sampled across 160 frames to confirm it passes its target at 1.079 before
-settling to exactly 1. If you have a real browser available, assert on the
-behaviour rather than on the stylesheet, and say which you did.
-
-## Contributed back, spatial set
-
-**Offsetting a centreline needs the normal, not the tangent.** The embryo form
-in `atlas-field` is a centreline with a thickness either side. Written as
-`a + Math.PI / 2` the offset direction becomes the tangent, so both edges slide
-along the curve instead of away from it, and the shape renders as a blade with
-a fat middle and hairline ends. It looks like a thickness bug and it is a
-direction bug. For a point at angle `a` on an arc the outward normal is simply
-`(cos a, sin a)`. Two other passes were spent tuning thickness numbers before
-the direction was checked, so check the direction first.
-
-**Normalised canvas fractions are not a coordinate system.** Multiplying a 0 to
-1 coordinate by width and height separately stretches any shape by the box
-aspect, which on a 3 by 2 stage turned a curled body into a thin arc pinned to
-one edge. Anything that has to keep its proportions needs a square space fitted
-and centred in the canvas, `S = Math.min(W, H)` with the offsets taken from the
-centre. Fractions of width and height are only safe for things that genuinely
-should stretch, like a full bleed gradient.
-
-**Prefer a control that can take the evidence away.** Three of these five
-components make their point with a control that removes something rather than
-adds it: registration off in `section-stack`, the morph to a matrix in
-`projection-matrix`, and the wipe in `channel-wipe`. A demo that can only show
-the good state is a claim. One that can show the degraded state next to it is a
-demonstration, and it costs one toggle.
-
-## Contributed back, interaction set
-
-**An entrance and an unread mark are two different jobs, and merging them
-loses one.** The arrival component runs a spring for the entrance and a
-separate exponential decay for the freshness mark. It is tempting to drive
-both from one timeline, and that quietly breaks the case that matters: the
-entrance is over in half a second and only serves somebody who happened to be
-looking, while the mark is what tells a person returning to the tab which rows
-they have not seen. Keep the mark on its own clock, clear it on attention
-rather than on a timer alone, and leave it working under reduced motion, since
-it is information rather than decoration.
-
-**A transition that can drop its swap is worse than no transition.** `holoveil`
-calls the content change under the brightest part of the sweep, which means the
-callback is tied to an animation that might be cut short by the backstop or
-skipped entirely under reduced motion. Every one of those paths has to still
-run the swap exactly once, or the region is left showing content that is no
-longer true. Guard it with a flag and call it from the finish path as well as
-from the frame, and wrap it so a throwing callback cannot strand the veil on
-screen.
-
-**One spring integrator can serve press, arrival and failure.** The action
-component has no shake keyframes. The failure state is the same integrator
-given an initial velocity and too little damping, so it rings and settles the
-way a real underdamped system does. Three behaviours from one piece of physics
-is less code than three keyframe sets and it stays coherent when somebody
-retunes it.
-
-**Use two properties when two things move one element.** The action button
-takes `transform` for the press scale and `translate` for the failure ring, so
-a control that fails mid press composes instead of one animation clobbering the
-other. Same trick as the masthead, noted in section 4, and it comes up any time
-a state machine can overlap its own states.
