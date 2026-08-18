@@ -1,4 +1,4 @@
-# AGENTS.md, version 6
+# AGENTS.md, version 7
 
 Durable working knowledge for any agent contributing to **scifi-ui**. Read this
 before writing a line. It exists because the same lessons were being relearned
@@ -656,3 +656,35 @@ throws on a `file://` page, so serve the directory before auditing.
 describes.** Where a real browser is available, assert on behaviour rather than
 on the stylesheet, and say which you did.
 
+## Contributed back, 2026-08-18
+
+From porting the converging swarm out of the ca3 renderings.
+
+**A converging effect must sit below the thing it converges on.** The canvas
+lands at `z-index: 5` and the chip it points at at `6`, so particles pass behind
+the text and never cross it. The failure mode is not subtle: an effect that
+paints over its own target obscures the one thing the reader raised it to read,
+which is worse than having no effect at all. If you add a component that points
+at something, say in its stylesheet what the target's z-index has to be.
+
+**Read a component's palette from the tokens, do not carry the source's
+literals across.** The rule in section 2 is to carry the real numbers across,
+and it means the numbers that make the thing behave the way it does: the flock's
+pull, curl, damping, neighbour radii and absorb distance are all exact here.
+Colour is the exception, because a hardcoded triplet is correct for the one site
+it came from and wrong for every page this library lands on. Read
+`--holo-line`, `--holo-beam` and `--holo-cyan` at start instead.
+
+**A press and hold demo needs its guards, and one of them will look like a
+bug in testing.** The scroll bail that stops a press becoming an accidental
+activation also fires during a programmatic `scrollIntoView`, so a test that
+scrolls to the component and immediately presses gets nothing and looks like a
+dead handler. Let the scroll settle before pressing. The guard is right and the
+test was wrong, which is worth knowing before anyone deletes the guard.
+
+**State what a statistic would look like if the component were broken.**
+Particles that respawn at the edges hold a constant mean distance to their
+target, so watching that mean fail to fall proves nothing at all. Compare
+against a uniform scatter over the same canvas instead. Measured here: 160 pixels
+mean against 322 for uniform, and 59 percent inside the inner disc against 9.
+That is a test that can fail.

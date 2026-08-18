@@ -1,0 +1,31 @@
+/* ---- converging swarm (holoconverge) -------------------------------------
+   Extracted from the long press save affordance on
+   amyleesterling.github.io/ca3, where a press on a clip raises a chip and the
+   particles gather into it.
+
+   The canvas is the whole component. It sits over its host, takes no pointer
+   events, and paints nothing until the swarm is started. Give the chip or
+   button it converges on a higher z-index than this and the particles pass
+   behind it, which is the point: they should never cross the text they are
+   pointing at. */
+
+.holoconverge-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+.holoconverge-canvas.is-on { opacity: 1; }
+
+/* A host that is still static cannot position the canvas, so the script sets
+   position: relative on it as a fallback. Prefer setting this yourself, so the
+   component never has to touch your layout. */
+.holoconverge-host { position: relative; }
+
+@media (prefers-reduced-motion: reduce) {
+  /* belt and braces: the script never starts under this preference, and if a
+     canvas is somehow present it stays invisible rather than fading in */
+  .holoconverge-canvas, .holoconverge-canvas.is-on { opacity: 0; transition: none; }
+}
