@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>scifi-ui components: callout, toast, tinted card, icon rail</title>
+<title>scifi-ui components: callout, toast, tinted card, icon rail, converging swarm</title>
 
 <link rel="stylesheet" href="tutorial-callout.css">
 <link rel="stylesheet" href="achievement-toast.css">
@@ -13,6 +13,7 @@
 <link rel="stylesheet" href="page-finale.css">
 <link rel="stylesheet" href="data-readout.css">
 <link rel="stylesheet" href="scan-pass.css">
+<link rel="stylesheet" href="converge-swarm.css">
 
 <style>
   /* Page chrome only. Nothing here is part of any component: the five
@@ -124,6 +125,45 @@
   }
   @media (prefers-reduced-motion: reduce) {
     .demo-btn { transition: none; }
+  }
+
+  /* Chrome for the converging swarm demo. The swarm component is the canvas
+     only: this frame, this chip and this hint belong to the demo page, the
+     same way a host app would own whatever the particles converge on. */
+  .holoconverge-demo {
+    position: relative;
+    margin: 1.2rem 0 0;
+    border: 1px solid rgb(var(--holo-line) / .18);
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: pointer;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    touch-action: manipulation;
+  }
+  .holoconverge-demo img { display: block; width: 100%; height: auto; }
+  .holoconverge-chip {
+    position: absolute; left: 50%; top: 50%; z-index: 6;
+    transform: translate(-50%, -50%);
+    font: inherit; font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+    color: rgb(var(--holo-ink) / .92);
+    background: rgb(8 14 24 / .88);
+    border: 1px solid rgb(var(--holo-line) / .34);
+    border-radius: 3px; padding: 8px 14px;
+    opacity: 0; pointer-events: none; transition: opacity .2s ease;
+  }
+  .holoconverge-chip.is-on { opacity: 1; }
+  .holoconverge-hint {
+    position: absolute; left: 50%; bottom: 10px; z-index: 6; margin: 0;
+    transform: translateX(-50%);
+    font-size: 10px; letter-spacing: .18em; text-transform: uppercase;
+    color: rgb(var(--holo-line) / .6);
+    pointer-events: none; transition: opacity .3s ease;
+  }
+  .holoconverge-demo.is-live .holoconverge-hint { opacity: 0; }
+  @media (prefers-reduced-motion: reduce) {
+    .holoconverge-chip, .holoconverge-hint { transition: none; }
   }
 </style>
 </head>
@@ -429,6 +469,45 @@
     </p>
   </section>
 
+  <!-- ============================================================ 7 -->
+  <section>
+    <p class="eyebrow">Seven</p>
+    <h2>Converging swarm</h2>
+    <p class="note">
+      Press and hold the frame below. A chip rises in the middle of it and the
+      particles gather into the chip from the edges, so the thing you are
+      waiting on is also the thing everything points at. Let go, or press
+      again, to put it out. It works with a mouse, a finger or a pen, because
+      it is bound to pointer events rather than to touch.
+    </p>
+    <div class="holoconverge-demo" id="demo-swarm" data-holo-tap>
+      <img src="../media/cell.jpg" alt="A reconstructed pyramidal neuron">
+      <button type="button" class="holoconverge-chip" id="demo-swarm-chip">saving…</button>
+      <p class="holoconverge-hint">press and hold</p>
+    </div>
+    <p class="note">
+      They flock rather than fly straight. Each particle steers a little toward
+      the average heading of its neighbours, pushes off any that crowd it, and
+      is pulled toward the chip with its own strength. The arc comes from a
+      small per particle curl added across that pull, not along it. Particles
+      are absorbed near the chip and reborn at a random edge, so the flow is
+      continuous instead of a single burst.
+    </p>
+    <p class="note">
+      <b>The canvas sits below the chip, deliberately.</b> At
+      <code>z-index: 5</code> against the chip's <code>6</code>, particles pass
+      behind the text they are pointing at and never cross it. A converging
+      effect that paints over its own target is worse than no effect, because
+      it obscures the one thing the reader is waiting to read.
+    </p>
+    <p class="note">
+      The three tints come from <code>--holo-line</code>,
+      <code>--holo-beam</code> and <code>--holo-cyan</code> at start, so a
+      swarm takes the palette of the page it is on. The source hardcodes its
+      own three, which is right for one site and wrong for a library.
+    </p>
+  </section>
+
   <footer>
     <p class="credit">Created by Amy Sterling
       <a href="https://x.com/amyneurons" rel="me noopener">@amyneurons</a></p>
@@ -599,6 +678,59 @@
       provenance: "CAVE · minnie65_phase3_v1 · nucleus_detection_v0 · " +
                   "mat 1853 · 4×4×40 nm",
     });
+  })();
+</script>
+
+<script src="converge-swarm.js"></script>
+<script>
+  /* Press and hold to raise the chip and start the swarm. Pointer events, not
+     touch events, so one path covers mouse, finger and pen. The guards are the
+     same ones the tap helper uses: a movement slop so a press that turns into
+     a scroll or a drag lights nothing, and a pointercancel bail. */
+  (function () {
+    var host = document.getElementById("demo-swarm");
+    var chip = document.getElementById("demo-swarm-chip");
+    if (!host || !chip || !window.holoconverge) return;
+
+    var HOLD = 450, SLOP = 12;
+    var swarm = holoconverge(host, chip);
+    var timer = 0, sx = 0, sy = 0, held = false;
+
+    function show(text) {
+      chip.textContent = text;
+      chip.classList.add("is-on");
+      host.classList.add("is-live");
+      swarm.retarget();
+      swarm.start();
+    }
+    function hide() {
+      chip.classList.remove("is-on");
+      host.classList.remove("is-live");
+      swarm.stop();
+    }
+    function cancel() {
+      if (timer) { clearTimeout(timer); timer = 0; }
+      held = false;
+    }
+
+    host.addEventListener("pointerdown", function (e) {
+      if (held) { hide(); cancel(); return; }
+      sx = e.clientX; sy = e.clientY;
+      timer = setTimeout(function () {
+        held = true;
+        show("saving…");
+        /* a real host would swap this when its own work finished. Here it is
+           a beat, because the component being demonstrated is the motion. */
+        setTimeout(function () { if (held) chip.textContent = "saved"; }, 2200);
+      }, HOLD);
+    });
+    host.addEventListener("pointermove", function (e) {
+      if (!timer) return;
+      if (Math.abs(e.clientX - sx) > SLOP || Math.abs(e.clientY - sy) > SLOP) cancel();
+    });
+    host.addEventListener("pointercancel", function () { cancel(); hide(); });
+    host.addEventListener("pointerup", function () { if (!held) cancel(); });
+    addEventListener("scroll", function () { if (timer) cancel(); }, { passive: true });
   })();
 </script>
 

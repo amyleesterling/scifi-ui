@@ -26,8 +26,9 @@ tutorial callout, an achievement toast, a confetti burst, a tinted lift card, an
 icon rail (`.holoiconrail`, kept clear of the section rail's `.holorail`), a page
 finale that fires the confetti once when the reader reaches the bottom and floats
 a mascot up on balloons, a shared panel surface (`.holopanel`), a profile card
-built on it, the full EyeWire II researcher profile it opens into, and a measured
-data readout. They are split one per file so you can take one without taking
+built on it, the full EyeWire II researcher profile it opens into, a measured
+data readout, and a converging swarm (`.holoconverge`) that flocks particles
+into whatever element you point it at. They are split one per file so you can take one without taking
 the set, and the whole set also runs inline on the main
 [demo page](https://amyleesterling.github.io/scifi-ui/).
 
@@ -592,6 +593,20 @@ bound to that project's class names.
 The dialog is the EyeWire II sign in modal, reproduced layer for layer, with the
 authentication removed, the third party marks removed, and every loop that was
 not ambient cut down to a single pass.
+
+The converging swarm is the long press save affordance from
+[the ca3 renderings](https://amyleesterling.github.io/ca3), where holding a clip
+raises a chip while the file is fetched and the particles gather into it. The
+flocking numbers are carried across exactly. Three things changed, all because a
+library has no host to lean on. Its three tints are read from `--holo-line`,
+`--holo-beam` and `--holo-cyan` at start rather than hardcoded, so a swarm takes
+the palette of the page it lands on. It binds no input at all: the source listens
+for touch only, because on a desktop a right click on a video already offers Save
+video as, and a component cannot assume its host has an equivalent, so you start
+and stop it and the demo drives it from pointer events. And it has a teardown
+backstop, which the source does not, for the reason written on the confetti: a
+loop that only tears down from inside itself never tears down in a pane where the
+first frame never arrives.
 
 Two notes on what changed in the port, so nobody has to diff it. The gallery's
 card carries a **single** headed trace that rotates a full turn every 3.4s while
