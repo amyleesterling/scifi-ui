@@ -406,6 +406,24 @@ The section rail above uses the same token, for the same reason.
 
 ---
 
+
+### 12. Scout tag mode (`components/scout-tag.*`, `components/scout-trace.js`)
+
+The whole interaction from EyeWire II's Scout tag mode, ported from
+`TagModePanel.vue` and `holo_trace.ts` in the eyewire-ii-community branch of
+ng-extend. A round trip: the panel began by borrowing this library's
+materialize and swarm, grew a light choreography of its own in production,
+and that choreography now comes home. `scout-trace.js` is the kit
+(`window.holoScout`): the zip, the draw with its clip-reveal callback, the
+lap, the particle burst, the burst-build, the burst-coalesce, the scythe
+crescent and the flying plus one. `scout-tag.js` is the panel itself: place a
+point and a spark answers, submit sends streams that charge the box's
+midpoints and light the border from both, collapse races the zip upward
+masking the box away to a slim strip, expand draws it back with the beam as
+the reveal mask. Three documented deviations: Orbitron named but not bundled,
+the product's raster icons not carried, and the demo wrap absolute in its
+stage rather than fixed to the viewport.
+
 ## Tokens
 
 Set these on `:root` in `hologram.css`. Space separated RGB so they compose with
