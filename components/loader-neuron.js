@@ -8,12 +8,12 @@
 
      1. soma eases in
      2. the apical dendrites grow up out of it
-     3. the axon grows down, and the first dots ride the apical branches in to
-        the soma and on out the axon
-     4. the basal-left arbor grows, then its dots; then basal-right, then its
-        dots  — each set in, to the soma, out the axon
-     5. after the last dot leaves the axon the whole cell zips back into the
-        soma, and the sequence begins again
+     3. the axon grows down, then the basal-left arbor, then basal-right,
+        until the whole cell stands complete with nothing yet travelling it
+     4. only then do the action potentials start: three staggered volleys,
+        apical first, each set riding tip to soma and on out the axon
+     5. after the last pulse leaves the axon the whole cell zips back into
+        the soma, and the sequence begins again
 
    Everything is one requestAnimationFrame timeline off a single start stamp, so
    the draw and the dots share the same frame. A tap or click restarts it from
@@ -108,17 +108,18 @@
     }
     var dots = { apical: pool(), bl: pool(), br: pool() };
 
-    // timeline, in ms
-    var SOMA = 480, AP_DRAW = 820, AX_DRAW = 400, AP_DOT = 1150,
-        BL_DRAW = 620, BL_DOT = 1000, BR_DRAW = 620, BR_DOT = 1000,
+    // timeline, in ms: the whole cell draws first, then the pulses travel it
+    var SOMA = 480, AP_DRAW = 820, AX_DRAW = 400,
+        BL_DRAW = 620, BR_DRAW = 620,
+        PULSE = 1150, VOLLEY = 380,
         HOLD = 160, ZIP = 640;
     var apDrawS = SOMA, apDrawE = apDrawS + AP_DRAW;
-    var apDotS = apDrawE, apDotE = apDotS + AP_DOT;
-    var axDrawS = apDotS, axDrawE = axDrawS + AX_DRAW;
-    var blDrawS = apDotE, blDrawE = blDrawS + BL_DRAW;
-    var blDotS = blDrawE, blDotE = blDotS + BL_DOT;
-    var brDrawS = blDotE, brDrawE = brDrawS + BR_DRAW;
-    var brDotS = brDrawE, brDotE = brDotS + BR_DOT;
+    var axDrawS = apDrawE, axDrawE = axDrawS + AX_DRAW;
+    var blDrawS = axDrawE, blDrawE = blDrawS + BL_DRAW;
+    var brDrawS = blDrawE, brDrawE = brDrawS + BR_DRAW;
+    var apDotS = brDrawE, apDotE = apDotS + PULSE;
+    var blDotS = apDotS + VOLLEY, blDotE = blDotS + PULSE;
+    var brDotS = apDotS + VOLLEY * 2, brDotE = brDotS + PULSE;
     var zipS = brDotE + HOLD, zipE = zipS + ZIP;
     var T = zipE + HOLD;
 
