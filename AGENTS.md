@@ -1,4 +1,4 @@
-# AGENTS.md, version 7
+# AGENTS.md, version 8
 
 Durable working knowledge for any agent contributing to **scifi-ui**. Read this
 before writing a line. It exists because the same lessons were being relearned
@@ -688,3 +688,13 @@ target, so watching that mean fail to fall proves nothing at all. Compare
 against a uniform scatter over the same canvas instead. Measured here: 160 pixels
 mean against 322 for uniform, and 59 percent inside the inner disc against 9.
 That is a test that can fail.
+
+**Version 8**, 21 August 2026. The Scout tag mode port closed a loop worth
+naming: ng-extend's tag panel originally ported this library's materialize
+and swarm, evolved its own light choreography in production, and that
+choreography has now been extracted back as `scout-trace.js` and
+`scout-tag.*`. When a downstream product grows animation on top of a port
+from here, that growth is extractable shipping code, and porting it back is
+exactly what section 2 asks for. Carry the upstream file's own annotations
+across too: the tuning notes in `holo_trace.ts` record why each timing is
+what it is, and they are the difference between a port and a copy.

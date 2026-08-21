@@ -25,6 +25,7 @@
 <link rel="stylesheet" href="components/icon-rail.css">
 <link rel="stylesheet" href="components/tutorial-callout.css">
 <link rel="stylesheet" href="components/ambient.css">
+<link rel="stylesheet" href="components/scout-tag.css">
 <style>
   /* demo page chrome only, none of this is part of the system */
   body {
@@ -750,6 +751,30 @@
     <figcaption>An action potential travelling real reconstructed cable. Tap or
     hover the frame, then press play.</figcaption>
   </figure>
+
+  <h2>Scout tag mode</h2>
+  <p>The whole interaction from EyeWire II's Scout tag mode, ported from
+  <code>TagModePanel.vue</code> and <code>holo_trace.ts</code> in the
+  eyewire-ii-community branch of ng-extend. This one is a round trip: the
+  panel began by borrowing this library's materialize and swarm, then grew a
+  light choreography of its own in production, and that choreography now
+  comes home. Pick a type and <b>click the data</b> after arming (or hold
+  <b>T</b>): a spark answers at the click and the point waits as a pin.
+  <b>Submit</b> sends particle streams flowing to the box's midpoints, where
+  they charge and light the border from both points as the success box
+  arrives. Click the success box and one bright lap sends it off while the
+  beam draws the form back. The collapse is the oddly satisfying one:
+  <b>&#9662;</b> races the zip light upward, masking the box away beneath it,
+  and <b>&#9652;</b> draws it back with the beam as the reveal mask. Closing
+  zips the panel away entirely; reopening flings a burst that coalesces onto
+  the arriving border. Inputs are inert, nothing is submitted.</p>
+  <div class="demo">
+    <div class="scouttag-stage" data-scouttag>
+      <img class="scouttag-bg" src="media/somas.jpg" alt="">
+      <span class="scouttag-profile">scout <b>0</b></span>
+      <button class="cta scouttag-open" type="button">Enter tag mode</button>
+    </div>
+  </div>
 
   <h2>Usage</h2>
 <pre>&lt;link rel="stylesheet" href="hologram.css"&gt;
@@ -1515,6 +1540,8 @@
 
 <script src="hologram.js"></script>
 <script src="hologram-tap.js"></script>
+<script src="components/scout-trace.js"></script>
+<script src="components/scout-tag.js"></script>
 <script src="components/confetti-burst.js"></script>
 <script src="components/page-finale.js"></script>
 <script src="components/panel-surface.js"></script>
