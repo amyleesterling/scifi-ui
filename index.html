@@ -382,11 +382,34 @@
      tinted cards and icon rail bring their own layout, so this block stays
      scaffolding only */
   .btnrow { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+  /* the section index. Page chrome: numbered anchors to every section, and
+     the narrow screen path to the same places the atlas rail serves wide. */
+  h2[id] { scroll-margin-top: 30px; }
+  @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+  .secdex { margin: 30px 0 8px; }
+  .secdex-label {
+    margin: 0 0 4px; color: #61777e; letter-spacing: 0.13em;
+    font: 11px ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  }
+  .secdex ol {
+    list-style: none; margin: 8px 0 0; padding: 0;
+    columns: 2; column-gap: 30px; counter-reset: dex;
+  }
+  @media (min-width: 700px) { .secdex ol { columns: 3; } }
+  .secdex li { counter-increment: dex; break-inside: avoid; }
+  .secdex a { display: inline-block; padding: 3px 0; color: #BACDE4; text-decoration: none; font-size: 0.85rem; }
+  .secdex a::before {
+    content: counter(dex, decimal-leading-zero); margin-right: 0.6em; color: #61777e;
+    font: 11px ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  }
+  .secdex a:hover { color: #fff; }
+  .secdex a:hover::before { color: rgb(var(--holo-beam, 178 216 248)); }
 </style>
 </head>
 <body>
 
-<div class="top">
+<div class="top" id="top">
   <img src="media/somas.jpg" alt="Reconstructed CA3 pyramidal cell bodies, each in a different colour">
   <div class="topveil"></div>
   <div class="holoswarm"></div>
@@ -403,7 +426,44 @@
   rails, panels that boot up, a loading state that draws a cell, a modal
   surface, and a particle trace for media.</p>
 
-  <h2>Step rail</h2>
+  <nav class="secdex" aria-label="Sections">
+    <p class="secdex-label">INDEX</p>
+    <ol>
+      <li><a href="#step-rail">Step rail</a></li>
+      <li><a href="#underline">Underline that draws itself</a></li>
+      <li><a href="#panel">Panel that boots up</a></li>
+      <li><a href="#scan-sweep">Scan sweep</a></li>
+      <li><a href="#image-card">Image card</a></li>
+      <li><a href="#dialog">Dialog</a></li>
+      <li><a href="#loading">Loading state</a></li>
+      <li><a href="#researcher-profile">Researcher profile</a></li>
+      <li><a href="#achievement-toast">Achievement toast</a></li>
+      <li><a href="#tinted-card">Tinted lift card</a></li>
+      <li><a href="#icon-rail">Icon rail</a></li>
+      <li><a href="#readout">Readout panel</a></li>
+      <li><a href="#tutorial-callout">Tutorial callout</a></li>
+      <li><a href="#trace-image">Particle trace, on an image</a></li>
+      <li><a href="#trace-video">Particle trace, on a video</a></li>
+      <li><a href="#scout-tag">Scout tag mode</a></li>
+      <li><a href="#shimmer-reveal">Shimmer reveal</a></li>
+      <li><a href="#letter-reveal">Letter reveal</a></li>
+      <li><a href="#notif-scan">Notification scan-in</a></li>
+      <li><a href="#recap-roll">Recap roll-in</a></li>
+      <li><a href="#trophy-orbit">Trophy orbit</a></li>
+      <li><a href="#streak-flame">Streak flame and toast countdown</a></li>
+      <li><a href="#registration-arrow">Registration arrow</a></li>
+      <li><a href="#block-ping">Block ping</a></li>
+      <li><a href="#timeline">Timeline</a></li>
+      <li><a href="#neural-hud">Neural HUD frame</a></li>
+      <li><a href="#neuron-ignite">Neuron ignite</a></li>
+      <li><a href="#epg-compass">EPG compass</a></li>
+      <li><a href="#brain-quest">Brain Quest success state</a></li>
+      <li><a href="#usage">Usage</a></li>
+    </ol>
+  </nav>
+
+
+  <h2 id="step-rail">Step rail</h2>
   <p>One rail, three stops, each reported on a <code>holobar:change</code>
   event. Here it steps through three measured MICrONS viewers, carried across
   whole from the Cortex page: the brain at true scale, the nine cell types, and
@@ -485,7 +545,7 @@
     </div>
   </div>
 
-  <h2>Underline that draws itself</h2>
+  <h2 id="underline">Underline that draws itself</h2>
   <p>A hairline draws out from under a heading when it first comes into view,
   and draws again when you point at it or tap it.</p>
   <div class="demo">
@@ -493,7 +553,7 @@
       Reconstruction, stage two</h3>
   </div>
 
-  <h2>Panel that boots up</h2>
+  <h2 id="panel">Panel that boots up</h2>
   <p>Two bright heads run the border in opposite directions and meet, an inner
   backlight swells, and the panel resolves out of a blur. Once when it first
   comes on screen, and again every time you point at it or tap it. The masthead
@@ -503,7 +563,7 @@
     <div class="panelrow"><b>cell bodies</b><span>one colour each</span></div>
   </figure>
 
-  <h2>Scan sweep</h2>
+  <h2 id="scan-sweep">Scan sweep</h2>
   <p>A thin line passes across a panel once when you point at it, tab into it
   or tap it, whatever the panel's height.</p>
   <figure class="swept holosweep" style="max-width:420px">
@@ -511,7 +571,7 @@
     <figcaption>The imaged block, 1 by 1 by 0.1 mm.</figcaption>
   </figure>
 
-  <h2>Image card</h2>
+  <h2 id="image-card">Image card</h2>
   <p>Near black ink instead of tinted glass, so the render pops. The rim and
   backlight live entirely in the box shadow, so nothing moves and the image is
   never repainted. Point at a card, or tap it, and a bright head runs the
@@ -521,7 +581,7 @@
     <div class="panelrow"><b>one bouton</b><span>1 thorn, dozens of contacts</span></div>
   </figure>
 
-  <h2>Dialog</h2>
+  <h2 id="dialog">Dialog</h2>
   <p>The EyeWire II sign in modal, reproduced. A drifting particle field, a
   cycling gradient border, two counter rotating rings, and a materialise that
   settles through a soft overshoot. A real <code>&lt;dialog&gt;</code> opened
@@ -532,7 +592,7 @@
     <button class="cta" type="button" data-holodialog="demodialog">Open the dialog</button>
   </div>
 
-  <h2>Loading state</h2>
+  <h2 id="loading">Loading state</h2>
   <p>The cell from the sign-in dialog, drawn again as a loading state. Every
   branch grows outward from the soma while you wait, and only once the cell
   stands complete do the action potentials begin to travel it. The bar reports
@@ -605,7 +665,7 @@
     </div>
   </div>
 
-  <h2>Researcher profile</h2>
+  <h2 id="researcher-profile">Researcher profile</h2>
   <p>The EyeWire II researcher profile, the real component carried across whole:
   the tabs, the achievement badges, the streak and the trophy case. Open it, then
   click any badge for its detail, or tap a badge in the strip below to replay
@@ -634,7 +694,7 @@
     </div>
   </div>
 
-  <h2>Achievement toast</h2>
+  <h2 id="achievement-toast">Achievement toast</h2>
   <p>The success state from EyeWire II Brain Quest: a toast and a confetti burst
   fired together. The card announces through a live region, dismisses on a timer
   that pauses while you point at it or tap it, and the burst respects reduced
@@ -646,7 +706,7 @@
     </p>
   </div>
 
-  <h2>Tinted lift card</h2>
+  <h2 id="tinted-card">Tinted lift card</h2>
   <p>Each card sets one property, <code>--holotint</code>, and that single value
   colours both the corner glow and the shadow it pools as it lifts. Point at one,
   or tap it, and it comes up.</p>
@@ -671,7 +731,7 @@
     </article>
   </div>
 
-  <h2>Icon rail</h2>
+  <h2 id="icon-rail">Icon rail</h2>
   <p>A toolbar of icon buttons with rest, hover, focus, pressed and selected
   states. Real buttons, inline SVG, no <code>!important</code>. The third is a
   toggle and reports with <code>aria-pressed</code>.</p>
@@ -722,7 +782,7 @@
     </div>
   </div>
 
-  <h2>Readout panel</h2>
+  <h2 id="readout">Readout panel</h2>
   <p>One label, one number, one line of context. Say something true, and the
   ornament stops being ornament.</p>
   <div class="holo">
@@ -732,7 +792,7 @@
     makes dozens of contacts on one thorn.</p>
   </div>
 
-  <h2>Tutorial callout</h2>
+  <h2 id="tutorial-callout">Tutorial callout</h2>
   <p>A callout that anchors to a target, flips to the side that fits, clamps
   into the viewport, then slides its beak to keep pointing. Escape dismisses,
   the arrows step, and the page scrolls the whole time.</p>
@@ -742,7 +802,7 @@
     </p>
   </div>
 
-  <h2>Particle trace, on an image</h2>
+  <h2 id="trace-image">Particle trace, on an image</h2>
   <p>An arc of light runs the boundary once, struck from wherever your pointer
   crossed or your finger landed, then breaks into particles. Every value in the
   HUD is read off the media element at runtime.</p>
@@ -755,7 +815,7 @@
     original.</figcaption>
   </figure>
 
-  <h2>Particle trace, on a video</h2>
+  <h2 id="trace-video">Particle trace, on a video</h2>
   <p>The same treatment over video, plus a play affordance that hides on play
   and returns on pause. The native controls stay for scrubbing.</p>
   <figure data-hud="165 synapses · 6 fibers">
@@ -769,7 +829,7 @@
     hover the frame, then press play.</figcaption>
   </figure>
 
-  <h2>Scout tag mode</h2>
+  <h2 id="scout-tag">Scout tag mode</h2>
   <p>The whole interaction from EyeWire II's Scout tag mode, ported from
   <code>TagModePanel.vue</code> and <code>holo_trace.ts</code> in the
   eyewire-ii-community branch of ng-extend. This one is a round trip: the
@@ -793,7 +853,7 @@
     </div>
   </div>
 
-  <h2>Shimmer reveal</h2>
+  <h2 id="shimmer-reveal">Shimmer reveal</h2>
   <p>EyeWire II's welcome: the app arrives behind a dark veil that melts away
   on a cosine ease while calcium-imaging sparkles bloom and dissolve, so the
   scene is revealed through the particles instead of being covered by them.
@@ -806,7 +866,7 @@
     <p style="margin-top:.7rem"><button class="cta" type="button" id="shimrev-again">Arrive again</button></p>
   </div>
 
-  <h2>Letter reveal</h2>
+  <h2 id="letter-reveal">Letter reveal</h2>
   <p>The tutorial's arriving title from <code>TutorialStep.vue</code>: the
   card blurs in, then the title lands letter by letter, each glyph
   overshooting two pixels before settling. Two shipped rhythms: a modal
@@ -820,7 +880,7 @@
     </p>
   </div>
 
-  <h2>Notification scan-in</h2>
+  <h2 id="notif-scan">Notification scan-in</h2>
   <p>The notification detail from <code>NotificationFeedPanel.vue</code>:
   the panel materializes from blur and overbrightness on the shared
   entrance curve, and a scanline sweeps its top edge on a 3.4 second lap,
@@ -830,7 +890,7 @@
     <p style="margin-top:.7rem"><button class="cta" type="button" id="notifscan-again">Deliver again</button></p>
   </div>
 
-  <h2>Recap roll-in</h2>
+  <h2 id="recap-roll">Recap roll-in</h2>
   <p>The Weekly Recap's arrival: the report materializes through the three
   stage curve, then its sections roll in top to bottom on staggered
   two-hundred millisecond entrances, so the summary reads as assembling
@@ -841,7 +901,7 @@
     <p style="margin-top:.7rem"><button class="cta" type="button" id="recaproll-again">Assemble again</button></p>
   </div>
 
-  <h2>Trophy orbit</h2>
+  <h2 id="trophy-orbit">Trophy orbit</h2>
   <p>The trophy room's featured award from <code>UserProfilePanel.vue</code>:
   five counter rotating rings, twelve orbit dots on two radii already mid
   flight from the first frame, a breathing aura, and the award floating on a
@@ -877,7 +937,7 @@
     </div>
   </div>
 
-  <h2>Streak flame and toast countdown</h2>
+  <h2 id="streak-flame">Streak flame and toast countdown</h2>
   <p>Two small honest pieces. The streak readout flickers its flame on a two
   second cycle while the count's amber glow breathes on three, deliberately
   out of phase. The toast's two pixel countdown bar drains its five seconds
@@ -893,7 +953,7 @@
     <button class="cta" type="button" id="toastcount-again">Toast again</button>
   </div>
 
-  <h2>Registration arrow</h2>
+  <h2 id="registration-arrow">Registration arrow</h2>
   <p>From whatisabrain.com's connectome pipeline: the indicator between the
   raw sheet stack and the registered volume. A gradient hairline with a
   chevron head and a mint dot that rides it end to end, saying one thing:
@@ -908,7 +968,7 @@
     </div>
   </div>
 
-  <h2>Block ping</h2>
+  <h2 id="block-ping">Block ping</h2>
   <p>Also from the connectome pipeline: ten sections of real EM texture
   stacked in 3D CSS into one registered volume, a Z depth bracket, and a
   mint ping expanding at a coordinate inside it. An event has a place in
@@ -931,7 +991,7 @@
     </div>
   </div>
 
-  <h2>Timeline</h2>
+  <h2 id="timeline">Timeline</h2>
   <p>From human-brain: <code>holo-timeline.js</code>, the layer that
   replaced that site's scattered setTimeout chains. Sequences are authored
   in one place, shaped like the seek and tween core of GSAP with no
@@ -953,7 +1013,7 @@
     <p style="margin-top:.7rem"><button class="cta" type="button" id="tl-play">Play the sequence</button></p>
   </div>
 
-  <h2>Neural HUD frame</h2>
+  <h2 id="neural-hud">Neural HUD frame</h2>
   <p>From BE THE FLY, all of it real: the circuit line of light that wraps
   the cockpit so the play field reads as one framed neural interface, and
   inside it the game's own mission HUD, the glassy field panel with its
@@ -973,7 +1033,7 @@
     <p style="margin-top:.7rem"><button class="cta" type="button" id="neuralhud-dock">Next objective</button></p>
   </div>
 
-  <h2>Neuron ignite</h2>
+  <h2 id="neuron-ignite">Neuron ignite</h2>
   <p>Also from BE THE FLY: the hologram tank's layer system. The whole cell
   waits dim and desaturated as context; begin an action and its layer
   ignites over it, saturating up from darkness with a drop shadow mixed
@@ -996,7 +1056,7 @@
     </p>
   </div>
 
-  <h2>EPG compass</h2>
+  <h2 id="epg-compass">EPG compass</h2>
   <p>The fly's own heading dial, drawn with the game's own renders. In BE
   THE FLY the compass is the EPG ring of the ellipsoid body: the base
   render sits dimmed while one of sixteen sector renders relights over it
@@ -1018,7 +1078,7 @@
     </div>
   </div>
 
-  <h2>Brain Quest success state</h2>
+  <h2 id="brain-quest">Brain Quest success state</h2>
   <p>The Brain Quest from EyeWire II's proofreading queue: three neurons a
   day, each pip flipping to a green check as its cell completes. When the
   last one lands the game fires everything at once, and so does this demo:
@@ -1035,7 +1095,7 @@
     <p style="margin-top:.7rem"><button class="cta" type="button" id="questcel-do">Proofread the third neuron</button></p>
   </div>
 
-  <h2>Usage</h2>
+  <h2 id="usage">Usage</h2>
 <pre>&lt;link rel="stylesheet" href="hologram.css"&gt;
 
 &lt;nav class="holorail" data-holorail="h2"&gt;&lt;/nav&gt;
