@@ -997,18 +997,20 @@
   </div>
 
   <h2>EPG compass</h2>
-  <p>The fly's own heading dial. In BE THE FLY the compass is the EPG ring
-  of the ellipsoid body: hold a turn and the reticle rotates at the game's
-  rate while, each time the heading enters a new sector, that wedge of the
-  ring relights with a fourteen millisecond-shy flash, a new compass neuron
-  waking up. Hold the keys, or the arrow keys with the pointer over the
-  stage. The ring here is schematic; the mechanism is the port.</p>
+  <p>The fly's own heading dial, drawn with the game's own renders. In BE
+  THE FLY the compass is the EPG ring of the ellipsoid body: the base
+  render sits dimmed while one of sixteen sector renders relights over it
+  as the heading sweeps, a new compass neuron waking up, and the reticle
+  snaps after the turn on its shipped 80ms transition. The readout carries
+  the game's format, cardinal and degrees over the EPG index. Hold the
+  buttons, or A and D like the game, with the pointer over the stage.</p>
   <div class="demo">
     <div class="epgc-stage" id="epgc">
-      <div class="epgc-wheel"><i class="epgc-wedge" style="--sector:0"></i></div>
+      <img class="epgc-base" src="media/epg/epg-base.webp" alt="">
+      <img class="epgc-active" src="media/epg/epg-heading-04.webp" alt="The active EPG sector of the ellipsoid body">
       <div class="epgc-reticle"><span></span></div>
-      <div class="epgc-readout"><span>HEADING</span><strong>0°</strong></div>
-      <div class="epgc-turn"><span>&#9664; LEFT</span><b>EPG COMPASS</b><span>RIGHT &#9654;</span></div>
+      <div class="epgc-readout"><span>FLY HEADING &middot; EPG 04</span><strong>N &middot; 090&deg;</strong></div>
+      <div class="epgc-turn"><span>&larr; A</span><b>EPG COMPASS</b><span>D &rarr;</span></div>
       <div class="epgc-keys">
         <button type="button" data-turn="left" aria-label="Turn left" data-holo-tap>&#8630;</button>
         <button type="button" data-turn="right" aria-label="Turn right" data-holo-tap>&#8631;</button>

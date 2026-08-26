@@ -1,16 +1,15 @@
 /* ---- epg-compass: the heading dial from the fly ------------------------------
-   Ported from banc-explorer (BE THE FLY, app/globals.css .epg-cockpit): the
-   heading cockpit built on the fly's own compass, the EPG ring of the
-   ellipsoid body. The reticle (a rotating crosshair ring with a north dot,
-   haloed, snapping at 80ms linear), the heading readout card, the turn
-   indicator row whose active side lights, and the sector arrival flash,
-   the 0.14s ease-out relight the game plays as the compass bump moves into
-   a new sector. Prefixed epgc- mechanically; every value as shipped.
-
-   Deviation: the game's ring is a render of the ellipsoid body with an
-   active sector image per wedge; here the ring and the active wedge are
-   drawn schematically so the component stands alone, and the wedge count
-   is the EB's sixteen. */
+   Ported from banc-explorer (BE THE FLY, app/globals.css .epg-cockpit), and
+   drawn with the game's own renders: epg-base.webp under one of sixteen
+   epg-heading-NN.webp sector images of the ellipsoid body, carried whole
+   into media/epg/. The base sits dimmed and desaturated exactly as shipped,
+   the active sector image relights with the 0.14s sector arrive flash, the
+   reticle ring with its north dot rotates on the 80ms linear snap at the
+   game's compass angle, and the readout and turn rows carry the game's own
+   formats: FLY HEADING with the EPG index, the cardinal with three digit
+   degrees, and the A / D turn labels. The demo's on screen turn buttons are
+   the one piece of scaffolding: the game steers from its own touch controls
+   and keys. */
 
 .epgc-stage {
   position: relative;
@@ -23,37 +22,17 @@
   box-shadow: inset 0 0 0 1px rgba(122, 224, 208, 0.2);
 }
 
-/* the schematic EB ring: sixteen ticks around a dim wheel */
-.epgc-wheel {
+.epgc-stage img {
   position: absolute;
-  left: 50%;
-  top: 52%;
-  width: min(58%, 260px);
-  aspect-ratio: 1;
-  translate: -50% -50%;
-  border-radius: 50%;
-  border: 1px solid rgba(237, 211, 237, 0.18);
-  box-shadow: inset 0 0 34px rgba(220, 187, 226, 0.06);
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
 }
-.epgc-wheel i {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 2px;
-  height: 9%;
-  translate: -50% 0;
-  transform: rotate(var(--a)) translateY(-490%);
-  background: rgba(240, 218, 235, 0.24);
-}
-/* the active sector: a wedge that relights each time the heading enters it */
-.epgc-wedge {
-  position: absolute;
-  inset: 6%;
-  border-radius: 50%;
-  background: conic-gradient(from calc(var(--sector) * 22.5deg - 11.25deg),
-    rgba(248, 172, 226, 0.34) 0deg 22.5deg, transparent 22.5deg 360deg);
-  mask: radial-gradient(circle, transparent 52%, #000 53%, #000 96%, transparent 97%);
-  -webkit-mask: radial-gradient(circle, transparent 52%, #000 53%, #000 96%, transparent 97%);
+.epgc-base { opacity: 0.82; filter: saturate(0.72) brightness(0.76); }
+.epgc-active {
+  opacity: 1;
   filter: saturate(1.14) brightness(1.08) drop-shadow(0 0 9px rgba(248, 172, 226, 0.35));
   animation: epgc-sector-arrive 0.14s ease-out both;
 }
@@ -63,8 +42,8 @@
   position: absolute;
   z-index: 3;
   left: 50%;
-  top: 52%;
-  width: min(58%, 260px);
+  top: 64%;
+  width: 31%;
   aspect-ratio: 1;
   border: 1px solid rgba(237, 211, 237, 0.24);
   border-radius: 50%;
@@ -170,6 +149,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .epgc-wedge { animation: none; }
+  .epgc-active { animation: none; }
   .epgc-reticle { transition: none; }
 }
