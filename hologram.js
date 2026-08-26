@@ -837,13 +837,32 @@
 
 // ---- 13. holo card ------------------------------------------------------
 (function () {
-  // The card is pure CSS. All the script does is drop in the one decorative
-  // element the edge trace needs, so the markup stays <div class="holocard">.
+  // The card is pure CSS bar two jobs: drop in the one decorative element the
+  // edge trace needs, and strike the trace from wherever the pointer crossed.
+  // The bright head sits ten degrees shy of the gradient's from angle, so the
+  // entry angle gets that bias back and the head departs from under the
+  // cursor. A tap carries its landing point through holotap:on the same way
+  // the holoframe trace receives it. Focus keeps the last strike, or twelve
+  // o'clock on a card never yet pointed at.
+  function strike(card, x, y) {
+    var r = card.getBoundingClientRect();
+    var a = Math.atan2(y - (r.top + r.height / 2), x - (r.left + r.width / 2))
+      * 180 / Math.PI + 90 + 10;
+    card.style.setProperty("--holocard-from", a.toFixed(1) + "deg");
+  }
   document.querySelectorAll(".holocard").forEach(function (card) {
     if (card.querySelector(":scope > .holocard-trace")) return;
     var t = document.createElement("i");
     t.className = "holocard-trace";
     t.setAttribute("aria-hidden", "true");
     card.insertBefore(t, card.firstChild);
+    card.addEventListener("mouseenter", function (e) {
+      strike(card, e.clientX, e.clientY);
+    });
+    card.addEventListener("holotap:on", function (e) {
+      if (e.target === card && e.detail && e.detail.clientX !== undefined) {
+        strike(card, e.detail.clientX, e.detail.clientY);
+      }
+    });
   });
 })();

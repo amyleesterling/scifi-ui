@@ -1368,9 +1368,12 @@
 /* the edge trace: a conic gradient whose bright head covers about a quarter of
    the turn, masked down to the 1px ring, rotating through a registered angle.
    It is the only loop in the library outside the loading state, and it is only
-   ever running while you are pointing at the card. On a browser with no
-   @property support the angle holds still and the ring simply fades in, which
-   is a fine degradation. */
+   ever running while you are pointing at the card. The turn is struck from
+   wherever the pointer crossed: script sets --holocard-from to the entry
+   angle, same contract as the holoframe trace, so the head departs from
+   under your cursor instead of always from twelve o'clock. On a browser with
+   no @property support the angle holds still and the ring simply fades in,
+   which is a fine degradation. */
 @property --holocard-angle {
   syntax: "<angle>"; inherits: false; initial-value: 0deg;
 }
@@ -1381,7 +1384,7 @@
   position: absolute; inset: 0; z-index: 3; border-radius: inherit;
   pointer-events: none; opacity: 0; padding: 1px;
   transition: opacity 600ms ease;
-  background: conic-gradient(from var(--holocard-angle, 0deg),
+  background: conic-gradient(from calc(var(--holocard-from, 0deg) + var(--holocard-angle, 0deg)),
     transparent 0deg,
     transparent 270deg,
     rgb(var(--holo-cyan, 126 224 255) / 0) 290deg,
