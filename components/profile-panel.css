@@ -183,6 +183,30 @@
   width: 52px; height: 52px; object-fit: contain;
   filter: drop-shadow(0 0 6px rgba(100, 180, 255, .35));
 }
+/* the strip badges are buttons: each replays its award ceremony */
+.holoprofile-badgebtn {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  border-radius: 10px;
+  transition: transform .18s ease, filter .18s ease;
+}
+.holoprofile-badgebtn:hover, .holoprofile-badgebtn.holo-on,
+.holoprofile-badgebtn:focus-visible {
+  transform: translateY(-3px);
+}
+.holoprofile-badgebtn:hover img, .holoprofile-badgebtn.holo-on img,
+.holoprofile-badgebtn:focus-visible img {
+  filter: drop-shadow(0 0 10px rgba(100, 180, 255, .7));
+}
+.holoprofile-badgebtn:focus-visible {
+  outline: 2px solid rgb(var(--holo-beam, 178 216 248));
+  outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .holoprofile-badgebtn { transition: none; }
+}
 
 .holoprofile-hint {
   margin: 12px 0 0;

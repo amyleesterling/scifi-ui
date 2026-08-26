@@ -608,8 +608,8 @@
   <h2>Researcher profile</h2>
   <p>The EyeWire II researcher profile, the real component carried across whole:
   the tabs, the achievement badges, the streak and the trophy case. Open it, then
-  click any badge for its detail. A visual component: no account, nothing to
-  sign into.</p>
+  click any badge for its detail, or tap a badge in the strip below to replay
+  its award ceremony. A visual component: no account, nothing to sign into.</p>
   <div class="holopanel holoprofile" aria-label="Researcher profile summary">
     <p class="holoprofile-eyebrow">visual component only</p>
     <div class="holoprofile-head">
@@ -621,11 +621,16 @@
       <button class="cta" type="button" data-holoresearcher="researcherProfile">Open profile</button>
     </div>
     <div class="holoprofile-badges">
-      <img src="media/badges/special/citizen-scientist.png" alt="Citizen Scientist badge" width="52" height="52" loading="lazy">
-      <img src="media/badges/building/hammer.png" alt="Hammer badge" width="52" height="52" loading="lazy">
-      <img src="media/badges/exploration/astrolabe.png" alt="Astrolabe badge" width="52" height="52" loading="lazy">
-      <img src="media/badges/building/chisel.png" alt="Chisel badge" width="52" height="52" loading="lazy">
-      <img src="media/badges/exploration/compass.png" alt="Compass badge" width="52" height="52" loading="lazy">
+      <button class="holoprofile-badgebtn" type="button" data-award-name="Citizen Scientist" data-award-desc="Citizen Scientist marks joining the community's real scientific work." data-award-img="media/badges/special/citizen-scientist.png" aria-label="Play the Citizen Scientist badge award">
+        <img src="media/badges/special/citizen-scientist.png" alt="" width="52" height="52" loading="lazy"></button>
+      <button class="holoprofile-badgebtn" type="button" data-award-name="Hammer" data-award-desc="Hammer is a core fabrication milestone on the building track." data-award-img="media/badges/building/hammer.png" aria-label="Play the Hammer badge award">
+        <img src="media/badges/building/hammer.png" alt="" width="52" height="52" loading="lazy"></button>
+      <button class="holoprofile-badgebtn" type="button" data-award-name="Astrolabe" data-award-desc="Astrolabe is a scientific observation milestone on the exploration track." data-award-img="media/badges/exploration/astrolabe.png" aria-label="Play the Astrolabe badge award">
+        <img src="media/badges/exploration/astrolabe.png" alt="" width="52" height="52" loading="lazy"></button>
+      <button class="holoprofile-badgebtn" type="button" data-award-name="Chisel" data-award-desc="Chisel is a fine detail milestone on the building track." data-award-img="media/badges/building/chisel.png" aria-label="Play the Chisel badge award">
+        <img src="media/badges/building/chisel.png" alt="" width="52" height="52" loading="lazy"></button>
+      <button class="holoprofile-badgebtn" type="button" data-award-name="Compass" data-award-desc="Compass is a wayfinding milestone on the exploration track." data-award-img="media/badges/exploration/compass.png" aria-label="Play the Compass badge award">
+        <img src="media/badges/exploration/compass.png" alt="" width="52" height="52" loading="lazy"></button>
     </div>
   </div>
 
@@ -1824,6 +1829,17 @@
         if (window.holoburst) holoburst("rainbow", 2);
       });
     }
+    /* the summary strip: every badge plays its own award ceremony */
+    document.querySelectorAll(".holoprofile-badgebtn").forEach(function (b) {
+      b.addEventListener("click", function () {
+        if (!window.holoaward) return;
+        holoaward({
+          name: b.getAttribute("data-award-name"),
+          desc: b.getAttribute("data-award-desc"),
+          img: b.getAttribute("data-award-img")
+        });
+      });
+    });
     if (badge && window.holoaward) {
       badge.addEventListener("click", function () {
         holoaward({
