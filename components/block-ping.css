@@ -46,17 +46,23 @@
   top: 48%;
   transform: translateZ(84px);
   z-index: 20;
+}
+/* iOS Safari drops transform animations on an element that is itself a
+   plane in the stack's preserve-3d scene, so the marker only places the
+   coordinate; the shipped ping, scale 0.3 to 3.2 while it fades, runs as
+   a flat animation on the ring inside that plane */
+.blockping-signal::before {
+  content: "";
+  position: absolute;
+  inset: 0;
   border: 1px solid var(--blockping-mint, rgb(103 245 203));
   border-radius: 50%;
   box-shadow: 0 0 16px var(--blockping-mint, rgb(103 245 203));
   animation: blockping-ping 2.4s ease-out infinite;
 }
-/* the ping animates transform whole, translateZ included: iOS Safari will
-   not composite the standalone scale property against an element that also
-   carries a transform, so the shipped scale 0.3 to 3.2 rides inside it */
 @keyframes blockping-ping {
-  from { transform: translateZ(84px) scale(0.3); opacity: 1; }
-  to   { transform: translateZ(84px) scale(3.2); opacity: 0; }
+  from { transform: scale(0.3); opacity: 1; }
+  to   { transform: scale(3.2); opacity: 0; }
 }
 .blockping-volume::after {
   content: "Z";
@@ -73,7 +79,7 @@
   text-indent: 15px;
   opacity: 0.75;
 }
-.blockping-volume.is-paused .blockping-signal { animation-play-state: paused; }
+.blockping-volume.is-paused .blockping-signal::before { animation-play-state: paused; }
 
 /* the source's own phone rule: the volume scales down so the stack reads
    as one cuboid on a narrow screen instead of a tall fan */
@@ -83,5 +89,5 @@
 
 @media (prefers-reduced-motion: reduce) {
   /* the marker holds at mid ping: the place stays marked, the pulse stops */
-  .blockping-signal { animation: none; transform: translateZ(84px) scale(1); opacity: 0.8; }
+  .blockping-signal::before { animation: none; transform: scale(1); opacity: 0.8; }
 }
