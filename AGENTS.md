@@ -1,4 +1,4 @@
-# AGENTS.md, version 9
+# AGENTS.md, version 10
 
 Durable working knowledge for any agent contributing to **scifi-ui**. Read this
 before writing a line. It exists because the same lessons were being relearned
@@ -712,3 +712,15 @@ elements worth porting back; and a demo row that uses CSS grid with
 min-content panes will overflow a phone where the same row as wrapping flex
 does not, which is what took the page seven pixels over 375 until the
 registration arrow row was reflowed.
+
+**Version 10**, 26 August 2026. The rule in section 2 extends to demo
+chrome, and it took three violations in one sweep to make that explicit.
+The neural HUD frame was carried faithfully and then filled with an
+invented "NEURAL INTERFACE / channel 4" panel; the letter reveal ran on an
+authored card; the recap roll-in staggered sections of made-up layout. All
+three read wrong on sight to the person whose designs these are, which is
+the point of the rule. The panel a ported animation plays inside is part
+of the port: carry the real chip, the real mission HUD, the real report
+structure, and when the source panel cannot come whole, say which part is
+demo scaffolding in the file header. Demo DATA may be invented (names,
+counts, dates); demo CHROME may not.
