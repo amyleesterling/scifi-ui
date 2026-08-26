@@ -1,0 +1,66 @@
+/* ---- letter-reveal: the tutorial's arriving title ---------------------------
+   Ported from ng-extend (branch eyewire-ii-community),
+   src/components/TutorialStep.vue: the letter by letter title reveal and the
+   chip entrances EyeWire II's tutorial cards use. Class names prefixed
+   letrev- mechanically; every value as shipped. The per letter stagger is
+   set by letter-reveal.js: 0.06s per letter on a modal card, min(i*0.015,
+   0.18) on a pointer callout, exactly the two rhythms upstream ships. */
+
+@keyframes letrev-chipFadeIn {
+  0%   { opacity: 0; filter: blur(4px); }
+  100% { opacity: 1; filter: blur(0px); }
+}
+.letrev-chip {
+  animation: letrev-chipFadeIn 0.3s ease-out both;
+}
+
+@keyframes letrev-letterReveal {
+  0%   { opacity: 0; transform: translateY(8px) scale(0.8); }
+  60%  { opacity: 1; transform: translateY(-2px) scale(1.05); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.letrev-letter {
+  display: inline-block;
+  opacity: 0;
+  animation: letrev-letterReveal 0.4s ease-out forwards;
+}
+/* a whole word wraps as one, so the stagger never breaks a word mid-line */
+.letrev-word { display: inline-block; white-space: nowrap; }
+.letrev-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+  opacity: 0;
+  animation: letrev-letterReveal 0.4s ease-out 0s forwards;
+}
+.letrev-icon svg { width: 26px; height: 26px; vertical-align: middle; }
+
+/* the demo card chrome, sized like the tutorial chip */
+.letrev-demo-chip {
+  max-width: 420px;
+  padding: 18px 20px;
+  border-radius: 12px;
+  background: rgba(8, 14, 26, 0.92);
+  border: 1px solid rgba(160, 200, 240, 0.3);
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(160, 200, 240, 0.12);
+}
+.letrev-demo-chip .letrev-title {
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 2px;
+  color: rgb(var(--holo-ink, 239 244 251) / 0.95);
+}
+.letrev-demo-chip p {
+  margin: 10px 0 0;
+  font-size: 0.85rem;
+  color: rgb(var(--holo-dim, 154 162 177) / 0.95);
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .letrev-chip, .letrev-letter, .letrev-icon { animation: none; opacity: 1; }
+}

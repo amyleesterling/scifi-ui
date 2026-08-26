@@ -1,0 +1,80 @@
+/* ---- recap-roll: the report that assembles ----------------------------------
+   Ported from ng-extend (branch eyewire-ii-community): the Weekly Recap's
+   materialize (WeeklyRecapPanel.vue) and the staggered section roll-in the
+   profile panel plays as its report builds (UserProfilePanel.vue). Prefixed
+   recaproll- mechanically. The materialize is the three stage arrival as
+   shipped: blurred, overbright and haloed at 0 percent, mostly settled by
+   30, a whisker of scale left at 60, clean at 100. Sections then roll in on
+   the shipped 0.2s ease-out with delays stepping 0.06s from 0.12s, so the
+   report reads as assembling top to bottom rather than popping whole. */
+
+.recaproll {
+  position: relative;
+  max-width: 460px;
+  border-radius: 14px;
+  padding: 18px 20px;
+  overflow: hidden;
+  background: linear-gradient(165deg, rgba(10, 18, 34, 0.97), rgba(5, 9, 18, 0.97));
+  border: 1px solid rgba(120, 200, 255, 0.22);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(120, 200, 255, 0.12);
+  animation: recaproll-materialize 0.52s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes recaproll-materialize {
+  0% {
+    opacity: 0;
+    transform: translateY(14px) scale(0.96);
+    filter: blur(10px) brightness(2.5);
+    box-shadow: 0 0 80px rgba(0, 180, 255, 0.5), 0 0 160px rgba(0, 180, 255, 0.15);
+  }
+  30% {
+    opacity: 0.8;
+    filter: blur(1px) brightness(1.2);
+    box-shadow: 0 0 30px rgba(0, 180, 255, 0.15);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(0.998);
+    filter: blur(0) brightness(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+    filter: blur(0) brightness(1);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(120, 200, 255, 0.12);
+  }
+}
+
+@keyframes recaproll-section {
+  0%   { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.recaproll section { animation: recaproll-section 0.2s ease-out both; }
+.recaproll section:nth-of-type(1) { animation-delay: 0.12s; }
+.recaproll section:nth-of-type(2) { animation-delay: 0.18s; }
+.recaproll section:nth-of-type(3) { animation-delay: 0.24s; }
+.recaproll section:nth-of-type(4) { animation-delay: 0.30s; }
+.recaproll section:nth-of-type(5) { animation-delay: 0.36s; }
+
+.recaproll h3 {
+  margin: 0 0 4px;
+  font-size: 0.92rem;
+  color: rgb(var(--holo-ink, 239 244 251) / 0.96);
+}
+.recaproll section {
+  padding: 10px 0;
+  border-top: 1px solid rgba(120, 200, 255, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  font-size: 0.78rem;
+  color: rgb(var(--holo-dim, 154 162 177) / 0.95);
+}
+.recaproll section b {
+  color: rgb(var(--holo-beam, 178 216 248) / 0.95);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .recaproll, .recaproll section { animation: none; opacity: 1; }
+}

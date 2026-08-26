@@ -1,0 +1,50 @@
+/* ---- toast-countdown: the honest auto-dismiss -------------------------------
+   Ported from ng-extend (branch eyewire-ii-community),
+   src/components/AchievementToast.vue: the two pixel progress bar along a
+   toast's bottom edge that runs its five seconds down linearly, so the
+   dismiss timer is visible instead of a surprise. Four type tints as
+   shipped: blue default, purple badge, amber streak, green cells, cyan
+   quest. Prefixed toastcount- mechanically. One shot by nature; under
+   reduced motion the bar holds full and the toast simply waits for its
+   timer, because the countdown is information and the drain is the
+   decoration. */
+
+.toastcount {
+  position: relative;
+  overflow: hidden;
+}
+.toastcount-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: rgba(74, 158, 255, 0.4);
+  animation: toastcount-drain 5s linear forwards;
+}
+.toastcount--badge  .toastcount-bar { background: rgba(206, 147, 216, 0.4); }
+.toastcount--streak .toastcount-bar { background: rgba(245, 166, 35, 0.4); }
+.toastcount--cells  .toastcount-bar { background: rgba(76, 175, 80, 0.4); }
+.toastcount--quest  .toastcount-bar { background: rgba(0, 200, 255, 0.4); }
+
+@keyframes toastcount-drain {
+  from { width: 100%; }
+  to   { width: 0%; }
+}
+
+/* demo toast chrome, minimal */
+.toastcount-demo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 250px;
+  padding: 12px 16px 14px;
+  border-radius: 10px;
+  background: rgba(8, 14, 26, 0.95);
+  border: 1px solid rgba(120, 200, 255, 0.25);
+  font-size: 0.8rem;
+  color: rgb(var(--holo-ink, 239 244 251) / 0.95);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toastcount-bar { animation: none; width: 100%; }
+}

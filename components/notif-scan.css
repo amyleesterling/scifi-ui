@@ -1,0 +1,81 @@
+/* ---- notif-scan: the notification that arrives under a scanline -------------
+   Ported from ng-extend (branch eyewire-ii-community),
+   src/components/NotificationFeedPanel.vue: the detail panel's materialize
+   entrance and the sweeping scanline along its top edge, the holographic
+   tell. Prefixed notifscan- mechanically; entrance curve, blur and
+   overbright values, the 220px scan window and the 3.4s sweep all as
+   shipped. The panel chrome carries the shipped box shadow stack. The scan
+   is the one ambient loop here and it only runs while the panel is on
+   screen, enforced by notif-scan pausing animation when off screen via
+   the shared IntersectionObserver in the demo script. */
+
+.notifscan {
+  position: relative;
+  max-width: 430px;
+  border-radius: 14px;
+  padding: 16px 18px;
+  background: linear-gradient(165deg, rgba(10, 18, 34, 0.97), rgba(5, 9, 18, 0.97));
+  border: 1px solid rgba(120, 200, 255, 0.22);
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.7),
+    0 0 46px rgba(0, 150, 255, 0.16),
+    inset 0 1px 0 rgba(120, 200, 255, 0.14),
+    inset 0 0 60px rgba(0, 120, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden;
+  animation: notifscan-materialize 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+/* Sweeping scanline highlight along the top edge, the holographic tell. */
+.notifscan::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(120, 210, 255, 0.9), transparent);
+  background-size: 220px 100%;
+  background-repeat: no-repeat;
+  animation: notifscan-scan 3.4s linear infinite;
+  pointer-events: none;
+}
+.notifscan.is-paused::before { animation-play-state: paused; }
+@keyframes notifscan-materialize {
+  0% {
+    opacity: 0;
+    transform: translateY(16px) scale(0.955);
+    filter: blur(10px) brightness(2.4);
+    box-shadow: 0 0 90px rgba(0, 170, 255, 0.5), 0 0 170px rgba(0, 170, 255, 0.15);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0) brightness(1);
+  }
+}
+@keyframes notifscan-scan {
+  0%   { background-position: -220px 0; }
+  100% { background-position: calc(100% + 220px) 0; }
+}
+
+.notifscan strong {
+  font-size: 0.86rem;
+  color: rgb(var(--holo-ink, 239 244 251) / 0.96);
+}
+.notifscan p {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: rgb(var(--holo-dim, 154 162 177) / 0.95);
+}
+.notifscan time {
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(120, 200, 255, 0.75);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notifscan { animation: none; }
+  .notifscan::before { animation: none; opacity: 0; }
+}

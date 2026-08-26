@@ -1,0 +1,60 @@
+/* ---- registration-arrow: two views, locked ----------------------------------
+   Ported from whatisabrain.com's connectome app (apps/connectome,
+   styles.css .registration-arrow): the small indicator between the raw
+   sheet stack and the registered volume in the pipeline diagram. A one
+   pixel gradient line with a chevron head, and a mint dot that rides it
+   end to end on a 2.1s ease-in-out loop, fading in at 20 percent and out
+   at the tip. It says one thing: data is flowing from this pane to that
+   one, and the two are locked together. Prefixed regarrow- mechanically;
+   the mint is the connectome site's own accent, carried as a local token. */
+
+.regarrow {
+  --regarrow-mint: rgb(103 245 203);
+  position: relative;
+  height: 1px;
+  min-width: 90px;
+  background: linear-gradient(90deg, rgb(103 245 203 / 0.15), var(--regarrow-mint));
+  box-shadow: 0 0 8px rgb(103 245 203 / 0.25);
+}
+.regarrow::after {
+  content: "";
+  position: absolute;
+  right: -1px;
+  top: -4px;
+  width: 8px;
+  height: 8px;
+  border-right: 1px solid var(--regarrow-mint);
+  border-top: 1px solid var(--regarrow-mint);
+  transform: rotate(45deg);
+}
+.regarrow i {
+  position: absolute;
+  left: 0;
+  top: -2px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--regarrow-mint);
+  box-shadow: 0 0 10px var(--regarrow-mint);
+  animation: regarrow-register 2.1s ease-in-out infinite;
+}
+.regarrow b {
+  position: absolute;
+  left: 50%;
+  top: -20px;
+  translate: -50% 0;
+  color: #668087;
+  font: 700 7px ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  letter-spacing: 0.14em;
+}
+@keyframes regarrow-register {
+  from { left: 0; opacity: 0; }
+  20%  { opacity: 1; }
+  to   { left: 100%; opacity: 0; }
+}
+.regarrow.is-paused i { animation-play-state: paused; }
+
+@media (prefers-reduced-motion: reduce) {
+  /* the arrow still says which way the data flows; only the rider stops */
+  .regarrow i { animation: none; left: 50%; opacity: 1; }
+}
