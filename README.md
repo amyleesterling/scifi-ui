@@ -456,6 +456,10 @@ own numbers:
   authored-sequence layer shaped like GSAP's seek and tween core, no
   dependency, reduced motion collapsing to the final state. The export
   becomes `window.holoTimeline`, the one deviation.
+- **Brain Quest success state** (`components/quest-complete.css`), the
+  proofreading queue's daily celebration: pips flip to green checks and
+  the gold card arrives breathing, twelve particles rising in three
+  tints around the pulsing star. From `ProofreadingQueuePanel.vue`.
 - **Neural HUD frame** (`components/neural-hud.css`), **neuron ignite**
   (`components/neuron-ignite.css`) and **EPG compass**
   (`components/epg-compass.*`), from BE THE FLY: the circuit light border

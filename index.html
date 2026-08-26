@@ -37,6 +37,7 @@
 <link rel="stylesheet" href="components/neural-hud.css">
 <link rel="stylesheet" href="components/neuron-ignite.css">
 <link rel="stylesheet" href="components/epg-compass.css">
+<link rel="stylesheet" href="components/quest-complete.css">
 <style>
   /* demo page chrome only, none of this is part of the system */
   body {
@@ -1001,6 +1002,22 @@
         <button type="button" data-turn="right" aria-label="Turn right" data-holo-tap>&#8631;</button>
       </div>
     </div>
+  </div>
+
+  <h2>Brain Quest success state</h2>
+  <p>The Brain Quest from EyeWire II's proofreading queue: three neurons a
+  day, each pip flipping to a green check as its cell completes. When the
+  last one lands, the celebration card arrives, a gold border breathing on
+  a three second cycle, twelve particles rising in three tints on their
+  quarter second staggers, the pulsing star, and the honest choice: take on
+  the next quest or simply continue. Complete the third neuron and watch
+  the state arrive. Visual component only, the share pill goes nowhere.</p>
+  <div class="demo">
+    <div class="questcel-wrap">
+      <div class="questcel-pips" id="questcel-pips"></div>
+      <div id="questcel-mount"></div>
+    </div>
+    <p style="margin-top:.7rem"><button class="cta" type="button" id="questcel-do">Proofread the third neuron</button></p>
   </div>
 
   <h2>Usage</h2>
@@ -2236,6 +2253,60 @@
       layer.style.animation = "";
     });
   });
+
+
+  /* brain quest: complete the third pip and the success state arrives */
+  (function () {
+    var pipsEl = document.getElementById("questcel-pips");
+    var mount = document.getElementById("questcel-mount");
+    var doBtn = document.getElementById("questcel-do");
+    if (!pipsEl || !mount || !doBtn) return;
+    var NAMES = ["comet cell", "the lantern", "cell 41"];
+    var done = [true, true, false];
+    function pips() {
+      pipsEl.innerHTML = done.map(function (d, i) {
+        return '<span class="questcel-pip' + (d ? " questcel-pip--done" : "") + '">' +
+          (d ? '<span class="questcel-pip-check">\u2713</span>'
+             : '<span class="questcel-pip-num">' + (i + 1) + "</span>") +
+          '<span class="questcel-pip-name">' + NAMES[i] + "</span></span>";
+      }).join("");
+    }
+    function celebrate() {
+      var parts = "";
+      for (var i = 1; i <= 12; i++) parts += '<span class="questcel-particle" style="--i:' + i + '"></span>';
+      mount.innerHTML = '<div class="questcel">' +
+        '<div class="questcel-particles">' + parts + "</div>" +
+        '<div class="questcel-badge">\u2726</div>' +
+        '<div class="questcel-title">Quest Complete!</div>' +
+        '<div class="questcel-sub">You finished all 3 neurons for today.<br>The connectome thanks you!</div>' +
+        '<div class="questcel-actions">' +
+        '<button type="button" class="questcel-btn questcel-btn--more" data-q="more">\ud83e\udde0 Take on Next Quest</button>' +
+        '<button type="button" class="questcel-btn questcel-btn--close" data-q="close">Continue</button>' +
+        "</div>" +
+        '<button type="button" class="questcel-share">Share on \ud835\udd4f</button></div>';
+      pauseWhenHidden(mount.querySelector(".questcel"));
+    }
+    function reset() {
+      done = [true, true, false];
+      mount.innerHTML = "";
+      doBtn.disabled = false;
+      pips();
+    }
+    doBtn.addEventListener("click", function () {
+      if (done[2]) { reset(); doBtn.textContent = "Proofread the third neuron"; return; }
+      done[2] = true;
+      pips();
+      celebrate();
+      doBtn.textContent = "Reset the day";
+    });
+    mount.addEventListener("click", function (e) {
+      var b = e.target.closest && e.target.closest("[data-q]");
+      if (!b) return;
+      if (b.getAttribute("data-q") === "close") mount.innerHTML = "";
+      else { reset(); doBtn.textContent = "Proofread the third neuron"; }
+    });
+    pips();
+  })();
 
   pauseWhenHidden(document.getElementById("trophyorb"));
   pauseWhenHidden(document.getElementById("regarrow"));
