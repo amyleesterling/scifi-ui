@@ -60,42 +60,84 @@
 .neuralhud.is-paused::before { animation-play-state: paused; }
 
 /* the shipped hud-online entrance, for panels docking inside the frame */
-.neuralhud-panel {
-  animation: neuralhud-online 0.42s ease-out both;
-}
 @keyframes neuralhud-online {
   from { opacity: 0; transform: translateX(10px); filter: blur(3px); }
 }
 
-/* demo chrome: a stage the frame wraps, dark like the cockpit */
+/* the real docking panel: BE THE FLY's mission HUD, carried whole from
+   app/globals.css .mission-hud. The glassy field panel with its scanline
+   wash, left accent bar, corner ticks mixed from the accent, and the
+   kicker / title / detail typography, Georgia serif title included. The
+   .heading state is the game's own purple flight variant. Field tokens
+   come from .arena-wrap verbatim. Positional deviation only: the game
+   parks it at bottom 105px above its touch controls; the demo stage has
+   no controls, so it parks at 18. */
 .neuralhud-stage {
+  --field-ink: #173d35;
+  --field-muted: #557169;
+  --field-accent: #39ae9d;
+  --field-line: rgba(25, 96, 82, .36);
+  --field-glass-a: rgba(249, 250, 237, .95);
+  --field-glass-b: rgba(215, 241, 226, .9);
   position: relative;
   min-height: 340px;
   border-radius: 16px;
   overflow: hidden;
-  background:
-    repeating-linear-gradient(0deg, rgba(122, 224, 246, 0.028) 0 1px, transparent 1px 3px),
-    radial-gradient(ellipse at 50% 46%, rgba(9, 32, 32, 0.97) 0%, rgba(4, 17, 19, 0.98) 62%, rgba(2, 11, 13, 0.99) 100%);
+  isolation: isolate;
+  background-color: #75bd96;
 }
-.neuralhud-stage .neuralhud { position: absolute; inset: 14px; }
-.neuralhud-demo-panel {
+.neuralhud-stage::after {
+  content: '';
   position: absolute;
-  right: 34px;
-  top: 34px;
+  z-index: 1;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(232, 248, 238, .08), rgba(31, 102, 78, .04));
+  pointer-events: none;
+}
+.neuralhud-stage .neuralhud { position: absolute; inset: 14px; z-index: 4; }
+.neuralhud-mission {
+  position: absolute;
+  z-index: 6;
+  left: 18px;
+  bottom: 18px;
+  width: min(280px, 42%);
   display: grid;
   gap: 3px;
-  padding: 11px 14px;
-  border: 1px solid rgba(122, 224, 208, 0.34);
-  border-left: 3px solid rgba(122, 224, 208, 0.8);
-  border-radius: 4px;
-  background: rgba(6, 22, 21, 0.82);
-  color: #d9fffa;
-  font-size: 0.72rem;
-  backdrop-filter: blur(8px);
+  padding: 13px 17px 13px 18px;
+  overflow: hidden;
+  border: 1px solid var(--field-line);
+  border-left: 3px solid var(--field-accent);
+  border-radius: 3px;
+  background:
+    repeating-linear-gradient(0deg, rgba(24, 91, 78, .035) 0 1px, transparent 1px 4px),
+    linear-gradient(135deg, var(--field-glass-a), var(--field-glass-b));
+  color: var(--field-ink);
+  box-shadow: 0 10px 30px rgba(17, 55, 46, .18), inset 0 1px rgba(255, 255, 245, .82), inset 0 0 28px rgba(67, 171, 147, .05);
+  backdrop-filter: blur(13px) saturate(1.18);
+  pointer-events: none;
+  animation: neuralhud-online .42s ease-out both;
 }
-.neuralhud-demo-panel b { font-size: 0.92rem; letter-spacing: 0.08em; }
+.neuralhud-mission::before, .neuralhud-mission::after {
+  content: '';
+  position: absolute;
+  width: 17px;
+  height: 17px;
+  border-color: color-mix(in srgb, var(--field-accent) 68%, transparent);
+}
+.neuralhud-mission::before { right: 5px; top: 5px; border-right: 1px solid; border-top: 1px solid; }
+.neuralhud-mission::after { left: 5px; bottom: 5px; border-left: 1px solid; border-bottom: 1px solid; }
+.neuralhud-mission > span { color: #247d70; font-size: 9px; font-weight: 900; letter-spacing: .18em; }
+.neuralhud-mission > strong { font-family: Georgia, serif; font-size: 17px; line-height: 1.1; font-weight: 400; letter-spacing: .01em; }
+.neuralhud-mission > small { color: var(--field-muted); font-size: 10px; font-weight: 800; letter-spacing: .09em; }
+.neuralhud-mission.heading {
+  --field-accent: #a572a1;
+  background:
+    repeating-linear-gradient(0deg, rgba(105, 73, 110, .035) 0 1px, transparent 1px 4px),
+    linear-gradient(135deg, rgba(250, 244, 248, .95), rgba(216, 240, 226, .9));
+}
+.neuralhud-mission.heading > span { color: #80577e; }
 
 @media (prefers-reduced-motion: reduce) {
   .neuralhud::before { animation: none; }
-  .neuralhud-panel { animation: none; }
+  .neuralhud-mission { animation: none; }
 }

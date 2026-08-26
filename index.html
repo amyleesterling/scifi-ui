@@ -954,12 +954,13 @@
   </div>
 
   <h2>Neural HUD frame</h2>
-  <p>From BE THE FLY: the circuit line of light that wraps the cockpit so
-  the whole play field reads as one framed neural interface. A masked five
-  stop gradient of teal and lavender carries a bright current around the
-  border on a seven second lap, corner brackets glow over it, and panels
-  dock inside with the shipped hud-online slide. The current pauses off
-  screen.</p>
+  <p>From BE THE FLY, all of it real: the circuit line of light that wraps
+  the cockpit so the play field reads as one framed neural interface, and
+  inside it the game's own mission HUD, the glassy field panel with its
+  scanline wash, accent bar, corner ticks and Georgia serif objective. The
+  border current runs its shipped seven second lap and pauses off screen;
+  the panel docks with the shipped hud-online slide. Cycling the objective
+  walks the game's real states, the purple one is its flight variant.</p>
   <div class="demo">
     <div class="neuralhud-stage" id="neuralhud-stage">
       <div class="neuralhud" id="neuralhud">
@@ -969,7 +970,7 @@
       </div>
       <div id="neuralhud-panel-mount"></div>
     </div>
-    <p style="margin-top:.7rem"><button class="cta" type="button" id="neuralhud-dock">Dock a panel</button></p>
+    <p style="margin-top:.7rem"><button class="cta" type="button" id="neuralhud-dock">Next objective</button></p>
   </div>
 
   <h2>Neuron ignite</h2>
@@ -2247,15 +2248,22 @@
     });
   }
 
-  /* neural HUD: dock a panel with the shipped hud-online entrance */
+  /* neural HUD: the game's real mission states, docking with hud-online.
+     Copy is the game's own missionCopy table, carried verbatim. */
   var dockBtn = document.getElementById("neuralhud-dock");
   if (dockBtn) {
     var mount = document.getElementById("neuralhud-panel-mount");
+    var STATES = [
+      { cls: "", kicker: "FORAGING OBJECTIVE", title: "FIND THE RIPE FRUIT", detail: "FOLLOW THE YEASTY SCENT" },
+      { cls: "heading", kicker: "FLIGHT OBJECTIVE", title: "FLY TO THE FLOWER", detail: "LAND IN THE GLOW" },
+      { cls: "heading", kicker: "FLIGHT OBJECTIVE", title: "NEW FLOWER DETECTED", detail: "LAND IN THE GLOW" }
+    ];
     var n = 0;
-    var names = ["NEURAL INTERFACE", "OPTIC RELAY", "HALTERE FEED"];
     function dock() {
-      mount.innerHTML = '<div class="neuralhud-panel neuralhud-demo-panel">' +
-        '<span>ONLINE</span><b>' + names[n % 3] + '</b><span>channel ' + (n % 3 + 4) + ' · stable</span></div>';
+      var st = STATES[n % STATES.length];
+      mount.innerHTML = '<div class="neuralhud-mission ' + st.cls + '" role="status">' +
+        "<span>" + st.kicker + "</span><strong>" + st.title + "</strong>" +
+        "<small>" + st.detail + "</small></div>";
       n++;
     }
     dock();
