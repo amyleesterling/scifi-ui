@@ -9,18 +9,31 @@
    Everything here is ambient by design upstream (a trophy room is a place
    you linger); the demo pauses it all off screen via animation-play-state. */
 
+/* Unboxed: the orbit floats on the page itself, no panel chrome (Amy).
+   The scale wrapper shrinks the whole assembly, shipped pixel geometry
+   intact, so the outer ring is never cropped by a phone's screen edge. */
 .trophyorb {
   position: relative;
   width: 100%;
   min-height: 460px;
   display: grid;
   place-items: center;
-  overflow: hidden;
-  border-radius: 14px;
-  background: radial-gradient(ellipse at 50% 45%, rgba(10, 20, 34, 0.9), rgba(4, 8, 14, 0.97) 70%);
-  box-shadow: inset 0 0 0 1px rgb(var(--holo-line, 196 228 255) / 0.1);
 }
 .trophyorb.is-paused * { animation-play-state: paused; }
+.trophyorb-scale {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: inherit;
+}
+@media (max-width: 520px) {
+  .trophyorb { min-height: 340px; }
+  .trophyorb-scale {
+    transform: scale(0.68);
+    transform: scale(min(1, calc((100vw - 48px) / 460)));
+  }
+}
 
 .trophyorb-ring {
   position: absolute;
