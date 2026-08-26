@@ -2191,11 +2191,19 @@
   /* recap: remount to re-assemble */
   var rm = document.getElementById("recaproll-mount");
   function recapBuild() {
-    rm.innerHTML = '<div class="recaproll"><h3>Your week in science</h3>' +
-      '<section><span>cubes completed</span><b>412</b></section>' +
-      '<section><span>extensions confirmed</span><b>38</b></section>' +
-      '<section><span>merges flagged</span><b>6</b></section>' +
-      '<section><span>streak</span><b>17 days</b></section></div>';
+    rm.innerHTML = '<div class="recaproll">' +
+      '<div class="recaproll-hero">' +
+        '<div class="recaproll-hero-title">Your Week in Science</div>' +
+        '<div class="recaproll-hero-daterange">Aug 19 &ndash; Aug 26</div></div>' +
+      '<section><div class="recaproll-section-label">Editing Streak</div>' +
+        '<div class="recaproll-streak-row"><span>\ud83d\udd25</span>' +
+        '<span class="recaproll-streak-num">17</span>' +
+        '<span class="recaproll-streak-unit">days in a row</span>' +
+        '<span class="recaproll-streak-unit">Personal best: 21 days</span></div></section>' +
+      '<section><div class="recaproll-section-label">Cell Activity</div>' +
+        '412 cubes completed, 38 extensions confirmed</section>' +
+      '<section><div class="recaproll-section-label">Scout Report</div>' +
+        '6 merge candidates flagged for the Scythes</section></div>';
   }
   if (rm) {
     recapBuild();
