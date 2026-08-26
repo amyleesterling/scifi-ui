@@ -1021,11 +1021,12 @@
   <h2>Brain Quest success state</h2>
   <p>The Brain Quest from EyeWire II's proofreading queue: three neurons a
   day, each pip flipping to a green check as its cell completes. When the
-  last one lands, the celebration card arrives, a gold border breathing on
-  a three second cycle, twelve particles rising in three tints on their
-  quarter second staggers, the pulsing star, and the honest choice: take on
-  the next quest or simply continue. Complete the third neuron and watch
-  the state arrive. Visual component only, the share pill goes nowhere.</p>
+  last one lands the game fires everything at once, and so does this demo:
+  the celebration card with its breathing gold border, rising particles
+  and pulsing star, the quest toast sliding in, and the rainbow confetti
+  burst at intensity two, exactly the trio the watcher in
+  AchievementToast.vue raises. Complete the third neuron and watch the
+  state arrive. Visual component only, the share pill goes nowhere.</p>
   <div class="demo">
     <div class="questcel-wrap">
       <div class="questcel-pips" id="questcel-pips"></div>
@@ -2337,6 +2338,15 @@
       done[2] = true;
       pips();
       celebrate();
+      /* the game fires all three together: the watcher in
+         AchievementToast.vue raises the quest toast and the rainbow
+         confetti at intensity two the moment the third quest lands,
+         while the queue panel shows the celebration card */
+      if (window.holotoast) {
+        holotoast({ tone: "quest", icon: "\ud83e\udde0", title: "Daily quests complete",
+          sub: "All three quests done. You are a neuroscience hero.", duration: 6000 });
+      }
+      if (window.holoburst) holoburst("rainbow", 2);
       doBtn.textContent = "Reset the day";
     });
     mount.addEventListener("click", function (e) {
