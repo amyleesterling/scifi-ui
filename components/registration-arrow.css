@@ -58,3 +58,18 @@
   /* the arrow still says which way the data flows; only the rider stops */
   .regarrow i { animation: none; left: 50%; opacity: 1; }
 }
+
+/* demo chrome: the arrow runs the full width, its endpoints named by
+   plain labels rather than panes that look like buttons and do nothing */
+.regarrow-run { padding: 26px 4px 4px; }
+.regarrow-run .regarrow { width: 100%; }
+.regarrow-ends {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+  font: 700 10px ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  letter-spacing: 0.14em;
+}
+.regarrow-ends span:first-child { color: rgb(var(--holo-dim, 154 162 177) / 0.9); }
+.regarrow-ends span:last-child { color: rgb(103 245 203 / 0.85); }

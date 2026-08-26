@@ -898,10 +898,14 @@
   raw sheet stack and the registered volume. A gradient hairline with a
   chevron head and a mint dot that rides it end to end, saying one thing:
   data flows from this pane to that one, and the two are locked.</p>
-  <div class="demo" style="display:flex;flex-wrap:wrap;align-items:center;gap:18px;max-width:560px">
-    <div style="flex:1 1 120px;min-width:0;padding:14px;border:1px solid rgb(var(--holo-line) / .18);border-radius:8px;text-align:center;font-size:.72rem;color:rgb(var(--holo-dim) / .95)">RAW SHEETS</div>
-    <div class="regarrow" id="regarrow" style="flex:0 1 110px;min-width:60px"><i></i><b>ALIGN</b></div>
-    <div style="flex:1 1 120px;min-width:0;padding:14px;border:1px solid rgb(103 245 203 / .4);border-radius:8px;text-align:center;font-size:.72rem;color:rgb(var(--holo-ink) / .9)">REGISTERED VOLUME</div>
+  <div class="demo">
+    <div class="regarrow-run">
+      <div class="regarrow" id="regarrow"><i></i><b>ALIGN</b></div>
+      <div class="regarrow-ends" aria-hidden="true">
+        <span>RAW SHEETS</span>
+        <span>REGISTERED VOLUME</span>
+      </div>
+    </div>
   </div>
 
   <h2>Block ping</h2>
