@@ -1,0 +1,101 @@
+/* ---- neural-hud: the circuit light frame ------------------------------------
+   Ported from banc-explorer (BE THE FLY, app/globals.css .hud-frame): the
+   circuit line of light that wraps the driving cockpit so the whole play
+   field reads as one framed neural interface. A masked gradient border
+   carrying a bright current on a seven second lap (background-position
+   through a 320 percent wide five stop gradient of teal and lavender),
+   corner brackets glowing over it, and the shipped hud-online entrance,
+   panels sliding in from the right with a blur settle, for anything that
+   docks inside the frame. Prefixed neuralhud- mechanically; every colour
+   stop, period and shadow as shipped. */
+
+.neuralhud {
+  position: relative;
+  border-radius: 13px;
+  pointer-events: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(122, 224, 208, 0.24),
+    inset 0 0 30px rgba(4, 18, 16, 0.26),
+    0 0 20px rgba(96, 214, 196, 0.14);
+}
+.neuralhud::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(115deg,
+    rgba(122, 224, 208, 0.42) 0%,
+    rgba(150, 240, 224, 0.95) 16%,
+    rgba(170, 190, 255, 0.55) 36%,
+    rgba(122, 224, 208, 0.4) 56%,
+    rgba(210, 175, 248, 0.92) 78%,
+    rgba(122, 224, 208, 0.42) 100%);
+  background-size: 320% 100%;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          mask-composite: exclude;
+  filter: drop-shadow(0 0 5px rgba(122, 224, 208, 0.5));
+  animation: neuralhud-current 7s linear infinite;
+}
+.neuralhud-inner {
+  position: absolute;
+  inset: 5px;
+  border-radius: 9px;
+  box-shadow: inset 0 0 22px rgba(122, 224, 208, 0.12);
+}
+.neuralhud-corner {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-color: rgba(172, 246, 232, 0.98);
+  filter: drop-shadow(0 0 6px rgba(122, 224, 208, 0.85));
+}
+.neuralhud-corner.tl { left: -1px; top: -1px; border-left: 2px solid; border-top: 2px solid; border-top-left-radius: 13px; }
+.neuralhud-corner.tr { right: -1px; top: -1px; border-right: 2px solid; border-top: 2px solid; border-top-right-radius: 13px; }
+.neuralhud-corner.bl { left: -1px; bottom: -1px; border-left: 2px solid; border-bottom: 2px solid; border-bottom-left-radius: 13px; }
+.neuralhud-corner.br { right: -1px; bottom: -1px; border-right: 2px solid; border-bottom: 2px solid; border-bottom-right-radius: 13px; }
+@keyframes neuralhud-current { to { background-position: 320% 0; } }
+.neuralhud.is-paused::before { animation-play-state: paused; }
+
+/* the shipped hud-online entrance, for panels docking inside the frame */
+.neuralhud-panel {
+  animation: neuralhud-online 0.42s ease-out both;
+}
+@keyframes neuralhud-online {
+  from { opacity: 0; transform: translateX(10px); filter: blur(3px); }
+}
+
+/* demo chrome: a stage the frame wraps, dark like the cockpit */
+.neuralhud-stage {
+  position: relative;
+  min-height: 340px;
+  border-radius: 16px;
+  overflow: hidden;
+  background:
+    repeating-linear-gradient(0deg, rgba(122, 224, 246, 0.028) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at 50% 46%, rgba(9, 32, 32, 0.97) 0%, rgba(4, 17, 19, 0.98) 62%, rgba(2, 11, 13, 0.99) 100%);
+}
+.neuralhud-stage .neuralhud { position: absolute; inset: 14px; }
+.neuralhud-demo-panel {
+  position: absolute;
+  right: 34px;
+  top: 34px;
+  display: grid;
+  gap: 3px;
+  padding: 11px 14px;
+  border: 1px solid rgba(122, 224, 208, 0.34);
+  border-left: 3px solid rgba(122, 224, 208, 0.8);
+  border-radius: 4px;
+  background: rgba(6, 22, 21, 0.82);
+  color: #d9fffa;
+  font-size: 0.72rem;
+  backdrop-filter: blur(8px);
+}
+.neuralhud-demo-panel b { font-size: 0.92rem; letter-spacing: 0.08em; }
+
+@media (prefers-reduced-motion: reduce) {
+  .neuralhud::before { animation: none; }
+  .neuralhud-panel { animation: none; }
+}

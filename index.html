@@ -26,6 +26,17 @@
 <link rel="stylesheet" href="components/tutorial-callout.css">
 <link rel="stylesheet" href="components/ambient.css">
 <link rel="stylesheet" href="components/scout-tag.css">
+<link rel="stylesheet" href="components/letter-reveal.css">
+<link rel="stylesheet" href="components/notif-scan.css">
+<link rel="stylesheet" href="components/recap-roll.css">
+<link rel="stylesheet" href="components/trophy-orbit.css">
+<link rel="stylesheet" href="components/streak-flame.css">
+<link rel="stylesheet" href="components/toast-countdown.css">
+<link rel="stylesheet" href="components/registration-arrow.css">
+<link rel="stylesheet" href="components/block-ping.css">
+<link rel="stylesheet" href="components/neural-hud.css">
+<link rel="stylesheet" href="components/neuron-ignite.css">
+<link rel="stylesheet" href="components/epg-compass.css">
 <style>
   /* demo page chrome only, none of this is part of the system */
   body {
@@ -773,6 +784,222 @@
       <img class="scouttag-bg" src="media/somas.jpg" alt="">
       <span class="scouttag-profile">scout <b>0</b></span>
       <button class="cta scouttag-open" type="button">Enter tag mode</button>
+    </div>
+  </div>
+
+  <h2>Shimmer reveal</h2>
+  <p>EyeWire II's welcome: the app arrives behind a dark veil that melts away
+  on a cosine ease while calcium-imaging sparkles bloom and dissolve, so the
+  scene is revealed through the particles instead of being covered by them.
+  Ported from the sparkle mode of <code>ConfettiCelebration.vue</code>, on
+  its shipped one-second "moment" timing.</p>
+  <div class="demo">
+    <div class="shimrev-stage" style="position:relative;overflow:hidden;border-radius:12px;min-height:300px">
+      <img src="media/somas.jpg" alt="Segmented neuron somas" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+    </div>
+    <p style="margin-top:.7rem"><button class="cta" type="button" id="shimrev-again">Arrive again</button></p>
+  </div>
+
+  <h2>Letter reveal</h2>
+  <p>The tutorial's arriving title from <code>TutorialStep.vue</code>: the
+  card blurs in, then the title lands letter by letter, each glyph
+  overshooting two pixels before settling. Two shipped rhythms: a modal
+  card paces letters at sixty milliseconds, a pointer callout compresses to
+  fifteen capped at one-eighty so short hints do not dawdle.</p>
+  <div class="demo">
+    <div id="letrev-mount"></div>
+    <p style="margin-top:.7rem">
+      <button class="cta" type="button" id="letrev-callout">Replay, callout rhythm</button>
+      <button class="cta" type="button" id="letrev-modal">Replay, modal rhythm</button>
+    </p>
+  </div>
+
+  <h2>Notification scan-in</h2>
+  <p>The notification detail from <code>NotificationFeedPanel.vue</code>:
+  the panel materializes from blur and overbrightness on the shared
+  entrance curve, and a scanline sweeps its top edge on a 3.4 second lap,
+  the holographic tell. The scan pauses while the card is off screen.</p>
+  <div class="demo">
+    <div id="notifscan-mount"></div>
+    <p style="margin-top:.7rem"><button class="cta" type="button" id="notifscan-again">Deliver again</button></p>
+  </div>
+
+  <h2>Recap roll-in</h2>
+  <p>The Weekly Recap's arrival: the report materializes through the three
+  stage curve, then its sections roll in top to bottom on staggered
+  two-hundred millisecond entrances, so the summary reads as assembling
+  rather than popping whole. From <code>WeeklyRecapPanel.vue</code> and the
+  profile panel's section stagger.</p>
+  <div class="demo">
+    <div id="recaproll-mount"></div>
+    <p style="margin-top:.7rem"><button class="cta" type="button" id="recaproll-again">Assemble again</button></p>
+  </div>
+
+  <h2>Trophy orbit</h2>
+  <p>The trophy room's featured award from <code>UserProfilePanel.vue</code>:
+  five counter rotating rings, twelve orbit dots on two radii already mid
+  flight from the first frame, a breathing aura, and the award floating on a
+  slow alternate. Ambient by design, a trophy room is a place you linger,
+  and it pauses entirely off screen.</p>
+  <div class="demo">
+    <div class="trophyorb" id="trophyorb">
+      <div class="trophyorb-ring trophyorb-ring--1"></div>
+      <div class="trophyorb-ring trophyorb-ring--2"></div>
+      <div class="trophyorb-ring trophyorb-ring--3"></div>
+      <div class="trophyorb-ring trophyorb-ring--4"></div>
+      <div class="trophyorb-ring trophyorb-ring--5"></div>
+        <span class="trophyorb-dot" style="--j:1"></span>
+        <span class="trophyorb-dot" style="--j:2"></span>
+        <span class="trophyorb-dot" style="--j:3"></span>
+        <span class="trophyorb-dot" style="--j:4"></span>
+        <span class="trophyorb-dot" style="--j:5"></span>
+        <span class="trophyorb-dot" style="--j:6"></span>
+        <span class="trophyorb-dot" style="--j:7"></span>
+        <span class="trophyorb-dot" style="--j:8"></span>
+        <span class="trophyorb-dot" style="--j:9"></span>
+        <span class="trophyorb-dot" style="--j:10"></span>
+        <span class="trophyorb-dot" style="--j:11"></span>
+        <span class="trophyorb-dot" style="--j:12"></span>
+      <div class="trophyorb-aura"></div>
+      <div class="trophyorb-award">
+        <img src="media/badges/exploration/astrolabe.png" alt="The astrolabe badge">
+        <strong>THE ASTROLABE</strong>
+        <span>found a cell nobody had opened</span>
+      </div>
+    </div>
+  </div>
+
+  <h2>Streak flame and toast countdown</h2>
+  <p>Two small honest pieces. The streak readout flickers its flame on a two
+  second cycle while the count's amber glow breathes on three, deliberately
+  out of phase. The toast's two pixel countdown bar drains its five seconds
+  linearly, so the auto dismiss is visible instead of a surprise; the four
+  type tints are as shipped.</p>
+  <div class="demo" style="display:flex;gap:2rem;align-items:center;flex-wrap:wrap">
+    <span class="streakflame" title="Editing streak">
+      <span class="streakflame-flame">🔥</span>
+      <span class="streakflame-count">17</span>
+      <span class="streakflame-unit">days</span>
+    </span>
+    <span id="toastcount-mount"></span>
+    <button class="cta" type="button" id="toastcount-again">Toast again</button>
+  </div>
+
+  <h2>Registration arrow</h2>
+  <p>From whatisabrain.com's connectome pipeline: the indicator between the
+  raw sheet stack and the registered volume. A gradient hairline with a
+  chevron head and a mint dot that rides it end to end, saying one thing:
+  data flows from this pane to that one, and the two are locked.</p>
+  <div class="demo" style="display:flex;flex-wrap:wrap;align-items:center;gap:18px;max-width:560px">
+    <div style="flex:1 1 120px;min-width:0;padding:14px;border:1px solid rgb(var(--holo-line) / .18);border-radius:8px;text-align:center;font-size:.72rem;color:rgb(var(--holo-dim) / .95)">RAW SHEETS</div>
+    <div class="regarrow" id="regarrow" style="flex:0 1 110px;min-width:60px"><i></i><b>ALIGN</b></div>
+    <div style="flex:1 1 120px;min-width:0;padding:14px;border:1px solid rgb(103 245 203 / .4);border-radius:8px;text-align:center;font-size:.72rem;color:rgb(var(--holo-ink) / .9)">REGISTERED VOLUME</div>
+  </div>
+
+  <h2>Block ping</h2>
+  <p>Also from the connectome pipeline: ten sections of real EM texture
+  stacked in 3D CSS into one registered volume, a Z depth bracket, and a
+  mint ping expanding at a coordinate inside it. An event has a place in
+  the tissue, not just a row in a table.</p>
+  <div class="demo" style="display:grid;place-items:center;padding:30px 0 10px">
+    <div class="blockping-volume" id="blockping">
+      <div class="blockping-stack">
+        <i style="--i:0"></i>
+        <i style="--i:1"></i>
+        <i style="--i:2"></i>
+        <i style="--i:3"></i>
+        <i style="--i:4"></i>
+        <i style="--i:5"></i>
+        <i style="--i:6"></i>
+        <i style="--i:7"></i>
+        <i style="--i:8"></i>
+        <i style="--i:9"></i>
+        <b class="blockping-signal"></b>
+      </div>
+    </div>
+  </div>
+
+  <h2>Timeline</h2>
+  <p>From human-brain: <code>holo-timeline.js</code>, the layer that
+  replaced that site's scattered setTimeout chains. Sequences are authored
+  in one place, shaped like the seek and tween core of GSAP with no
+  dependency. Its two rules travel with it: reduced motion collapses a
+  sequence to its final state in one step, and nothing renders by itself,
+  the caller owns the tick. The demo below is one authored sequence: the
+  bar fills while the glow crossfades, a marker fires the lock label, a
+  beat passes, and the panel settles.</p>
+  <div class="demo">
+    <div id="tlchip" style="max-width:420px;padding:16px 18px;border-radius:12px;background:rgba(8,14,26,.92);border:1px solid rgb(var(--holo-line) / .2)">
+      <div style="display:flex;justify-content:space-between;font-size:.76rem;color:rgb(var(--holo-dim) / .95)">
+        <span>acquiring volume</span><b id="tl-status" style="color:rgb(var(--holo-warm) / .95)">idle</b>
+      </div>
+      <div style="height:4px;border-radius:2px;background:rgb(var(--holo-line) / .12);margin-top:10px;overflow:hidden">
+        <i id="tl-bar" style="display:block;height:100%;width:0;background:rgb(var(--holo-beam) / .9)"></i>
+      </div>
+      <p id="tl-note" style="margin:10px 0 0;font-size:.72rem;color:rgb(var(--holo-dim) / .8);opacity:0">registration locked, streaming</p>
+    </div>
+    <p style="margin-top:.7rem"><button class="cta" type="button" id="tl-play">Play the sequence</button></p>
+  </div>
+
+  <h2>Neural HUD frame</h2>
+  <p>From BE THE FLY: the circuit line of light that wraps the cockpit so
+  the whole play field reads as one framed neural interface. A masked five
+  stop gradient of teal and lavender carries a bright current around the
+  border on a seven second lap, corner brackets glow over it, and panels
+  dock inside with the shipped hud-online slide. The current pauses off
+  screen.</p>
+  <div class="demo">
+    <div class="neuralhud-stage" id="neuralhud-stage">
+      <div class="neuralhud" id="neuralhud">
+        <div class="neuralhud-inner"></div>
+        <i class="neuralhud-corner tl"></i><i class="neuralhud-corner tr"></i>
+        <i class="neuralhud-corner bl"></i><i class="neuralhud-corner br"></i>
+      </div>
+      <div id="neuralhud-panel-mount"></div>
+    </div>
+    <p style="margin-top:.7rem"><button class="cta" type="button" id="neuralhud-dock">Dock a panel</button></p>
+  </div>
+
+  <h2>Neuron ignite</h2>
+  <p>Also from BE THE FLY: the hologram tank's layer system. The whole cell
+  waits dim and desaturated as context; begin an action and its layer
+  ignites over it, saturating up from darkness with a drop shadow mixed
+  from the action's own accent. Both layers share one transform, so they
+  never drift out of register.</p>
+  <div class="demo">
+    <div class="ignite-stage" id="ignite-stage">
+      <img class="ignite-context" src="media/cell.jpg" alt="">
+      <img class="ignite-action" id="ignite-action" src="media/cell.jpg" alt="A pyramidal cell lit by the active action">
+      <div class="ignite-glow"></div>
+      <div class="ignite-label" id="ignite-label">
+        <span><i></i> ACTION LAYER</span>
+        <strong id="ignite-name">Feeding</strong>
+      </div>
+    </div>
+    <p style="margin-top:.7rem">
+      <button class="cta" type="button" data-ignite="Feeding" data-accent="#ff1493">Feeding</button>
+      <button class="cta" type="button" data-ignite="Flight" data-accent="#38bdf8">Flight</button>
+      <button class="cta" type="button" data-ignite="Grooming" data-accent="#c7a6f3">Grooming</button>
+    </p>
+  </div>
+
+  <h2>EPG compass</h2>
+  <p>The fly's own heading dial. In BE THE FLY the compass is the EPG ring
+  of the ellipsoid body: hold a turn and the reticle rotates at the game's
+  rate while, each time the heading enters a new sector, that wedge of the
+  ring relights with a fourteen millisecond-shy flash, a new compass neuron
+  waking up. Hold the keys, or the arrow keys with the pointer over the
+  stage. The ring here is schematic; the mechanism is the port.</p>
+  <div class="demo">
+    <div class="epgc-stage" id="epgc">
+      <div class="epgc-wheel"><i class="epgc-wedge" style="--sector:0"></i></div>
+      <div class="epgc-reticle"><span></span></div>
+      <div class="epgc-readout"><span>HEADING</span><strong>0°</strong></div>
+      <div class="epgc-turn"><span>&#9664; LEFT</span><b>EPG COMPASS</b><span>RIGHT &#9654;</span></div>
+      <div class="epgc-keys">
+        <button type="button" data-turn="left" aria-label="Turn left" data-holo-tap>&#8630;</button>
+        <button type="button" data-turn="right" aria-label="Turn right" data-holo-tap>&#8631;</button>
+      </div>
     </div>
   </div>
 
@@ -1541,6 +1768,10 @@
 <script src="hologram.js"></script>
 <script src="hologram-tap.js"></script>
 <script src="components/scout-trace.js"></script>
+<script src="components/shimmer-reveal.js"></script>
+<script src="components/letter-reveal.js"></script>
+<script src="components/holo-timeline.js"></script>
+<script src="components/epg-compass.js"></script>
 <script src="components/scout-tag.js"></script>
 <script src="components/confetti-burst.js"></script>
 <script src="components/page-finale.js"></script>
@@ -1855,5 +2086,162 @@
   var a = document.getElementById("actionPotential");
   if (a) window.__actionPotential = mountActionPotential(a);
 </script>
+<script>
+/* demo wiring for the ported ten: mounts, replays, and the pause rule.
+   Ambient loops (the notif scan, the trophy orbit, the registration dot,
+   the block ping, the HUD current) pause when their demo scrolls off
+   screen, per the porting discipline. */
+(function () {
+  "use strict";
+  var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function pauseWhenHidden(el) {
+    if (!el || !window.IntersectionObserver) return;
+    new IntersectionObserver(function (es) {
+      el.classList.toggle("is-paused", !es[es.length - 1].isIntersecting);
+    }, { threshold: 0.01 }).observe(el);
+  }
+
+  /* shimmer: once when first seen, and on demand */
+  var shim = document.querySelector(".shimrev-stage");
+  if (shim && window.holoShimmer) {
+    var fired = false;
+    if (window.IntersectionObserver && !reduced) {
+      new IntersectionObserver(function (es, io) {
+        if (es[es.length - 1].isIntersecting && !fired) {
+          fired = true;
+          holoShimmer(shim);
+          io.disconnect();
+        }
+      }, { threshold: 0.4 }).observe(shim);
+    }
+    document.getElementById("shimrev-again").addEventListener("click", function () {
+      holoShimmer(shim);
+    });
+  }
+
+  /* letter reveal: rebuild the chip so both animations restart */
+  var lm = document.getElementById("letrev-mount");
+  function letrevBuild(modal) {
+    lm.innerHTML = '<div class="letrev-chip letrev-demo-chip">' +
+      '<div class="letrev-title" data-letrev-text="A NEW CELL AWAITS"></div>' +
+      '<p>Trace it to the tips and the Scythes will check your work.</p></div>';
+    holoLetters(lm.querySelector(".letrev-title"), { modal: modal });
+  }
+  if (lm && window.holoLetters) {
+    letrevBuild(false);
+    document.getElementById("letrev-callout").addEventListener("click", function () { letrevBuild(false); });
+    document.getElementById("letrev-modal").addEventListener("click", function () { letrevBuild(true); });
+  }
+
+  /* notification: remount to re-materialize */
+  var nm = document.getElementById("notifscan-mount");
+  function notifBuild() {
+    nm.innerHTML = '<div class="notifscan">' +
+      '<time>just now</time>' +
+      '<strong>Your extension was confirmed</strong>' +
+      '<p>The branch you grew on cell 41 survived expert review and is now part of the reconstruction.</p></div>';
+    pauseWhenHidden(nm.querySelector(".notifscan"));
+  }
+  if (nm) {
+    notifBuild();
+    document.getElementById("notifscan-again").addEventListener("click", notifBuild);
+  }
+
+  /* recap: remount to re-assemble */
+  var rm = document.getElementById("recaproll-mount");
+  function recapBuild() {
+    rm.innerHTML = '<div class="recaproll"><h3>Your week in science</h3>' +
+      '<section><span>cubes completed</span><b>412</b></section>' +
+      '<section><span>extensions confirmed</span><b>38</b></section>' +
+      '<section><span>merges flagged</span><b>6</b></section>' +
+      '<section><span>streak</span><b>17 days</b></section></div>';
+  }
+  if (rm) {
+    recapBuild();
+    document.getElementById("recaproll-again").addEventListener("click", recapBuild);
+  }
+
+  /* toast countdown: remount, cycling the shipped tints */
+  var tm = document.getElementById("toastcount-mount");
+  var tints = ["", "toastcount--badge", "toastcount--streak", "toastcount--cells", "toastcount--quest"];
+  var labels = ["Saved", "Badge earned", "Streak extended", "Cell complete", "Quest updated"];
+  var ti = 0;
+  function toastBuild() {
+    tm.innerHTML = '<span class="toastcount toastcount-demo ' + tints[ti % 5] + '">' +
+      labels[ti % 5] + '<i class="toastcount-bar"></i></span>';
+    ti++;
+  }
+  if (tm) {
+    toastBuild();
+    document.getElementById("toastcount-again").addEventListener("click", toastBuild);
+  }
+
+  /* timeline: one authored sequence against the demo chip */
+  var playBtn = document.getElementById("tl-play");
+  if (playBtn && window.holoTimeline) {
+    var bar = document.getElementById("tl-bar");
+    var status = document.getElementById("tl-status");
+    var note = document.getElementById("tl-note");
+    var chip = document.getElementById("tlchip");
+    var state = { w: 0, glow: 0 };
+    playBtn.addEventListener("click", function () {
+      status.textContent = "running";
+      note.style.opacity = "0";
+      var tl = holoTimeline({
+        onTick: function () {
+          bar.style.width = state.w + "%";
+          chip.style.boxShadow = "0 0 " + (state.glow * 26) + "px rgba(74,150,224," + (state.glow * 0.35).toFixed(3) + ")";
+        },
+        onDone: function () { status.textContent = "settled"; }
+      });
+      tl.to(state, { w: 62 }, { dur: 0.9, ease: "out" })
+        .to(state, { glow: 1 }, { at: 0.5, dur: 0.6 })
+        .call(function () {
+          status.textContent = "locked";
+          note.style.opacity = "1";
+        })
+        .to(state, { w: 100 }, { dur: 0.8, ease: "inOut" })
+        .wait(0.25)
+        .to(state, { glow: 0 }, { dur: 0.5 })
+        .play();
+    });
+  }
+
+  /* neural HUD: dock a panel with the shipped hud-online entrance */
+  var dockBtn = document.getElementById("neuralhud-dock");
+  if (dockBtn) {
+    var mount = document.getElementById("neuralhud-panel-mount");
+    var n = 0;
+    var names = ["NEURAL INTERFACE", "OPTIC RELAY", "HALTERE FEED"];
+    function dock() {
+      mount.innerHTML = '<div class="neuralhud-panel neuralhud-demo-panel">' +
+        '<span>ONLINE</span><b>' + names[n % 3] + '</b><span>channel ' + (n % 3 + 4) + ' · stable</span></div>';
+      n++;
+    }
+    dock();
+    dockBtn.addEventListener("click", dock);
+    pauseWhenHidden(document.getElementById("neuralhud"));
+  }
+
+  /* neuron ignite: switch the action layer and restart the ignition */
+  document.querySelectorAll("[data-ignite]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var stage = document.getElementById("ignite-stage");
+      var layer = document.getElementById("ignite-action");
+      stage.style.setProperty("--ignite-accent", b.getAttribute("data-accent"));
+      document.getElementById("ignite-name").textContent = b.getAttribute("data-ignite");
+      layer.style.animation = "none";
+      void layer.offsetWidth;
+      layer.style.animation = "";
+    });
+  });
+
+  pauseWhenHidden(document.getElementById("trophyorb"));
+  pauseWhenHidden(document.getElementById("regarrow"));
+  pauseWhenHidden(document.getElementById("blockping"));
+})();
+</script>
+
 </body>
 </html>

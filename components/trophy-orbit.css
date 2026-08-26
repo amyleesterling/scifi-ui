@@ -1,0 +1,158 @@
+/* ---- trophy-orbit: the award held by orbiting light -------------------------
+   Ported from ng-extend (branch eyewire-ii-community),
+   src/components/UserProfilePanel.vue, the trophy room's featured award:
+   five counter rotating rings (solid, dashed, hairline, outline dashed, and
+   a two tone arc), twelve orbit dots on two radii with per dot negative
+   delays so the swarm is mid flight from the first frame, a breathing aura,
+   and the award itself floating on a slow alternate. Prefixed trophyorb-
+   mechanically; radii, periods, dash styles, alphas and delays as shipped.
+   Everything here is ambient by design upstream (a trophy room is a place
+   you linger); the demo pauses it all off screen via animation-play-state. */
+
+.trophyorb {
+  position: relative;
+  width: 100%;
+  min-height: 460px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 14px;
+  background: radial-gradient(ellipse at 50% 45%, rgba(10, 20, 34, 0.9), rgba(4, 8, 14, 0.97) 70%);
+  box-shadow: inset 0 0 0 1px rgb(var(--holo-line, 196 228 255) / 0.1);
+}
+.trophyorb.is-paused * { animation-play-state: paused; }
+
+.trophyorb-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  will-change: transform;
+  transform: translateZ(0);
+  top: 50%;
+  left: 50%;
+}
+.trophyorb-ring--1 {
+  width: 380px; height: 380px;
+  margin: -190px 0 0 -190px;
+  border-color: rgba(0, 200, 255, 0.12);
+  animation: trophyorb-spin 50s linear infinite;
+  box-shadow: 0 0 12px rgba(0, 200, 255, 0.06);
+}
+.trophyorb-ring--2 {
+  width: 340px; height: 340px;
+  margin: -170px 0 0 -170px;
+  border-color: rgba(206, 147, 216, 0.08);
+  border-style: dashed;
+  animation: trophyorb-spin 70s linear infinite reverse;
+  box-shadow: 0 0 12px rgba(206, 147, 216, 0.04);
+}
+.trophyorb-ring--3 {
+  width: 410px; height: 410px;
+  margin: -205px 0 0 -205px;
+  border-color: rgba(0, 255, 180, 0.05);
+  border-width: 0.5px;
+  animation: trophyorb-spin 90s linear infinite;
+}
+.trophyorb-ring--4 {
+  width: 440px; height: 440px;
+  margin: -220px 0 0 -220px;
+  border: none;
+  outline: 1.5px dashed rgba(0, 200, 255, 0.07);
+  outline-offset: -1px;
+  animation: trophyorb-spin 120s linear infinite;
+}
+.trophyorb-ring--5 {
+  width: 360px; height: 360px;
+  margin: -180px 0 0 -180px;
+  border: 1.5px solid transparent;
+  border-top-color: rgba(0, 200, 255, 0.1);
+  border-right-color: rgba(206, 147, 216, 0.06);
+  animation: trophyorb-spin 40s linear infinite reverse;
+}
+@keyframes trophyorb-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.trophyorb-dot {
+  position: absolute;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: rgba(0, 220, 255, 0.8);
+  box-shadow: 0 0 6px rgba(0, 220, 255, 0.4), 0 0 12px rgba(0, 220, 255, 0.15);
+  top: 50%; left: 50%;
+  will-change: transform;
+  animation: trophyorb-orbit 40s linear infinite;
+  animation-delay: calc(var(--j) * -3.3s);
+}
+.trophyorb-dot:nth-child(odd) {
+  width: 3px; height: 3px;
+  background: rgba(206, 180, 255, 0.7);
+  box-shadow: 0 0 5px rgba(206, 180, 255, 0.3);
+  animation-duration: 55s;
+  animation-direction: reverse;
+}
+.trophyorb-dot:nth-child(3n) {
+  width: 3.5px; height: 3.5px;
+  background: rgba(0, 255, 180, 0.6);
+  box-shadow: 0 0 5px rgba(0, 255, 180, 0.3);
+  animation-duration: 48s;
+}
+.trophyorb-dot:nth-child(n+7) {
+  animation-name: trophyorb-orbit-outer;
+  animation-duration: 65s;
+  width: 3px; height: 3px;
+  opacity: 0.8;
+}
+@keyframes trophyorb-orbit {
+  from { transform: rotate(calc(var(--j) * 45deg))          translateX(175px) rotate(calc(var(--j) * -45deg)); }
+  to   { transform: rotate(calc(var(--j) * 45deg + 360deg)) translateX(175px) rotate(calc(var(--j) * -45deg - 360deg)); }
+}
+@keyframes trophyorb-orbit-outer {
+  from { transform: rotate(calc(var(--j) * 45deg))          translateX(210px) rotate(calc(var(--j) * -45deg)); }
+  to   { transform: rotate(calc(var(--j) * 45deg + 360deg)) translateX(210px) rotate(calc(var(--j) * -45deg - 360deg)); }
+}
+
+.trophyorb-aura {
+  position: absolute;
+  width: 340px; height: 340px;
+  top: 50%; left: 50%;
+  margin: -170px 0 0 -170px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 180, 255, 0.05) 0%, rgba(206, 147, 216, 0.025) 40%, transparent 70%);
+  animation: trophyorb-aura-pulse 10s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes trophyorb-aura-pulse {
+  0%, 100% { transform: scale(1);    opacity: 0.5; }
+  50%      { transform: scale(1.12); opacity: 0.85; }
+}
+
+.trophyorb-award {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  animation: trophyorb-float 5s ease-in-out infinite alternate;
+}
+@keyframes trophyorb-float {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-8px); }
+}
+.trophyorb-award img { width: 128px; height: 128px; object-fit: contain; }
+.trophyorb-award strong {
+  font-size: 0.92rem;
+  letter-spacing: 0.08em;
+  color: rgb(var(--holo-ink, 239 244 251) / 0.96);
+  text-shadow: 0 0 14px rgba(0, 200, 255, 0.4);
+}
+.trophyorb-award span {
+  font-size: 0.72rem;
+  color: rgb(var(--holo-dim, 154 162 177) / 0.95);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trophyorb-ring, .trophyorb-dot, .trophyorb-aura, .trophyorb-award { animation: none; }
+  .trophyorb-dot { display: none; }
+}

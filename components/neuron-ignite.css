@@ -1,0 +1,128 @@
+/* ---- neuron-ignite: the action layer lighting up ----------------------------
+   Ported from banc-explorer (BE THE FLY, app/globals.css): the hologram
+   tank's layer system. A dim, desaturated context layer holds the whole
+   cell; when an action begins, its layer ignites over it, saturating up
+   from darkness with an accent drop-shadow mixed from the action's own
+   colour via color-mix. Both layers share one transform so they stay
+   registered; the ignition is the shipped 0.55s ease-out. The tank chrome
+   (hard edge, scanlines, grid mask, corner glow) is carried with it,
+   because the ignite reads as an instrument event inside it. Prefixed
+   ignite- mechanically.
+
+   Deviation: the game layers separately rendered anatomy passes; this demo
+   ignites a copy of the same render, so the mechanism shows without the
+   game's render set. */
+
+.ignite-stage {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  min-height: 340px;
+  border: 1px solid rgba(122, 224, 208, 0.34);
+  border-radius: 12px;
+  background:
+    repeating-linear-gradient(0deg, rgba(122, 224, 246, 0.028) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at 50% 46%, rgba(9, 32, 32, 0.97) 0%, rgba(4, 17, 19, 0.98) 62%, rgba(2, 11, 13, 0.99) 100%);
+  box-shadow:
+    0 26px 64px rgba(1, 12, 11, 0.5),
+    inset 0 1px rgba(150, 230, 220, 0.14),
+    0 0 34px rgba(80, 200, 185, 0.16);
+}
+.ignite-stage::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background:
+    linear-gradient(rgba(104, 214, 196, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(104, 214, 196, 0.035) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: radial-gradient(circle, #000 46%, rgba(0, 0, 0, 0.35) 92%);
+}
+.ignite-stage img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  pointer-events: none;
+}
+.ignite-context {
+  z-index: 1;
+  opacity: 0.5;
+  filter: saturate(0.45) brightness(0.9);
+}
+.ignite-action {
+  z-index: 2;
+  opacity: 0.96;
+  filter: saturate(1.16) drop-shadow(0 0 7px color-mix(in srgb, var(--ignite-accent, #ff1493) 38%, transparent));
+  animation: ignite-in 0.55s ease-out both;
+}
+@keyframes ignite-in {
+  from {
+    opacity: 0;
+    filter: saturate(0.35) brightness(0.65) drop-shadow(0 0 0 transparent);
+  }
+  to {
+    opacity: 0.96;
+    filter: saturate(1.16) brightness(1) drop-shadow(0 0 7px color-mix(in srgb, var(--ignite-accent, #ff1493) 38%, transparent));
+  }
+}
+.ignite-glow {
+  position: absolute;
+  z-index: 4;
+  inset: 9px;
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 1px rgba(122, 224, 208, 0.12), inset 0 0 40px rgba(60, 190, 175, 0.06);
+  pointer-events: none;
+}
+.ignite-glow::before, .ignite-glow::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-color: rgba(160, 240, 226, 0.9);
+  filter: drop-shadow(0 0 5px rgba(122, 224, 208, 0.7));
+}
+.ignite-glow::before { left: 0; top: 0; border-left: 2px solid; border-top: 2px solid; border-top-left-radius: 8px; }
+.ignite-glow::after { right: 0; bottom: 0; border-right: 2px solid; border-bottom: 2px solid; border-bottom-right-radius: 8px; }
+.ignite-label {
+  position: absolute;
+  z-index: 5;
+  left: 26px;
+  top: 24px;
+  display: grid;
+  gap: 7px;
+  pointer-events: none;
+}
+.ignite-label span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #aebeb5;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+}
+.ignite-label span i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ignite-accent, #ff1493);
+  box-shadow: 0 0 10px var(--ignite-accent, #ff1493);
+}
+.ignite-label strong {
+  font-family: Georgia, serif;
+  color: #f2f5ed;
+  font-size: 30px;
+  line-height: 1.05;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* the action layer lands lit; only the ignition sweep is skipped */
+  .ignite-action { animation: none; }
+}

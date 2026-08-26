@@ -1,0 +1,78 @@
+/* ---- block-ping: the event is here, in the volume ---------------------------
+   Ported from whatisabrain.com's connectome app (apps/connectome,
+   styles.css .registered-volume / .block-signal): the registered EM volume
+   from the pipeline diagram, ten sections of real EM texture stacked in 3D
+   CSS (rotateX 60, rotateZ -34, 9px of translateZ per slice, borders
+   brightening with depth), a Z depth bracket on the right, and a mint ping
+   that expands at a coordinate inside the volume on a 2.4s ease-out loop,
+   scale 0.3 to 3.2 while it fades. The point it makes: an event has a
+   place in the tissue, not just a row in a table. Prefixed blockping-
+   mechanically; the EM texture is the site's own media/raw-em.png, carried
+   into this repo's media directory. */
+
+.blockping-volume {
+  --blockping-mint: rgb(103 245 203);
+  position: relative;
+  width: 230px;
+  height: 190px;
+}
+.blockping-stack {
+  position: absolute;
+  left: 25px;
+  top: 0;
+  width: 180px;
+  height: 190px;
+  transform: rotateX(60deg) rotateZ(-34deg);
+  transform-style: preserve-3d;
+}
+.blockping-stack i {
+  --i: 0;
+  position: absolute;
+  inset: 20px 9px;
+  display: block;
+  border: 1px solid rgb(103 245 203 / calc(0.34 + var(--i) * 0.035));
+  background-image: linear-gradient(rgba(4, 18, 21, 0.16), rgba(4, 18, 21, 0.16)),
+    url("../media/raw-em.png");
+  background-size: cover;
+  background-position: center;
+  transform: translateZ(calc(var(--i) * 9px));
+  box-shadow: 0 0 11px rgb(103 245 203 / 0.045);
+}
+.blockping-signal {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  left: 58%;
+  top: 48%;
+  transform: translateZ(84px);
+  z-index: 20;
+  border: 1px solid var(--blockping-mint, rgb(103 245 203));
+  border-radius: 50%;
+  box-shadow: 0 0 16px var(--blockping-mint, rgb(103 245 203));
+  animation: blockping-ping 2.4s ease-out infinite;
+}
+@keyframes blockping-ping {
+  from { scale: 0.3; opacity: 1; }
+  to   { scale: 3.2; opacity: 0; }
+}
+.blockping-volume::after {
+  content: "Z";
+  position: absolute;
+  right: 0;
+  top: 38px;
+  height: 116px;
+  width: 9px;
+  border-right: 1px solid var(--blockping-mint, rgb(103 245 203));
+  border-block: 1px solid var(--blockping-mint, rgb(103 245 203));
+  color: var(--blockping-mint, rgb(103 245 203));
+  font: 7px ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  line-height: 116px;
+  text-indent: 15px;
+  opacity: 0.75;
+}
+.blockping-volume.is-paused .blockping-signal { animation-play-state: paused; }
+
+@media (prefers-reduced-motion: reduce) {
+  /* the marker holds at mid ping: the place stays marked, the pulse stops */
+  .blockping-signal { animation: none; scale: 1; opacity: 0.8; }
+}

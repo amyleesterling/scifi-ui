@@ -1,0 +1,175 @@
+/* ---- epg-compass: the heading dial from the fly ------------------------------
+   Ported from banc-explorer (BE THE FLY, app/globals.css .epg-cockpit): the
+   heading cockpit built on the fly's own compass, the EPG ring of the
+   ellipsoid body. The reticle (a rotating crosshair ring with a north dot,
+   haloed, snapping at 80ms linear), the heading readout card, the turn
+   indicator row whose active side lights, and the sector arrival flash,
+   the 0.14s ease-out relight the game plays as the compass bump moves into
+   a new sector. Prefixed epgc- mechanically; every value as shipped.
+
+   Deviation: the game's ring is a render of the ellipsoid body with an
+   active sector image per wedge; here the ring and the active wedge are
+   drawn schematically so the component stands alone, and the wedge count
+   is the EB's sixteen. */
+
+.epgc-stage {
+  position: relative;
+  min-height: 380px;
+  overflow: hidden;
+  border-radius: 12px;
+  background:
+    repeating-linear-gradient(0deg, rgba(174, 226, 246, 0.028) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at 50% 55%, rgba(12, 14, 26, 0.97) 0%, rgba(5, 11, 18, 0.98) 62%, rgba(3, 8, 13, 0.99) 100%);
+  box-shadow: inset 0 0 0 1px rgba(122, 224, 208, 0.2);
+}
+
+/* the schematic EB ring: sixteen ticks around a dim wheel */
+.epgc-wheel {
+  position: absolute;
+  left: 50%;
+  top: 52%;
+  width: min(58%, 260px);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  border: 1px solid rgba(237, 211, 237, 0.18);
+  box-shadow: inset 0 0 34px rgba(220, 187, 226, 0.06);
+}
+.epgc-wheel i {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 2px;
+  height: 9%;
+  translate: -50% 0;
+  transform: rotate(var(--a)) translateY(-490%);
+  background: rgba(240, 218, 235, 0.24);
+}
+/* the active sector: a wedge that relights each time the heading enters it */
+.epgc-wedge {
+  position: absolute;
+  inset: 6%;
+  border-radius: 50%;
+  background: conic-gradient(from calc(var(--sector) * 22.5deg - 11.25deg),
+    rgba(248, 172, 226, 0.34) 0deg 22.5deg, transparent 22.5deg 360deg);
+  mask: radial-gradient(circle, transparent 52%, #000 53%, #000 96%, transparent 97%);
+  -webkit-mask: radial-gradient(circle, transparent 52%, #000 53%, #000 96%, transparent 97%);
+  filter: saturate(1.14) brightness(1.08) drop-shadow(0 0 9px rgba(248, 172, 226, 0.35));
+  animation: epgc-sector-arrive 0.14s ease-out both;
+}
+@keyframes epgc-sector-arrive { from { opacity: 0.25; } }
+
+.epgc-reticle {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  top: 52%;
+  width: min(58%, 260px);
+  aspect-ratio: 1;
+  border: 1px solid rgba(237, 211, 237, 0.24);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) rotate(var(--heading-angle, 0deg));
+  box-shadow: 0 0 0 7px rgba(197, 168, 219, 0.035), inset 0 0 22px rgba(220, 187, 226, 0.055);
+  transition: transform 0.08s linear;
+}
+.epgc-reticle::before, .epgc-reticle::after {
+  content: '';
+  position: absolute;
+  background: rgba(240, 218, 235, 0.2);
+}
+.epgc-reticle::before { left: 50%; top: -12%; width: 1px; height: 124%; }
+.epgc-reticle::after { top: 50%; left: -12%; height: 1px; width: 124%; }
+.epgc-reticle span {
+  position: absolute;
+  left: 50%;
+  top: -6px;
+  width: 12px;
+  height: 12px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: #ffd5e8;
+  box-shadow: 0 0 0 8px rgba(255, 213, 232, 0.13), 0 0 22px #efb7dc;
+}
+
+.epgc-readout {
+  position: absolute;
+  z-index: 4;
+  right: 22px;
+  top: 22px;
+  min-width: 112px;
+  padding: 9px 12px;
+  border: 1px solid rgba(244, 215, 232, 0.34);
+  border-radius: 8px;
+  background: rgba(33, 22, 39, 0.7);
+  color: #f5d7e8;
+  display: grid;
+  gap: 2px;
+  text-align: right;
+  backdrop-filter: blur(8px);
+}
+.epgc-readout span {
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.13em;
+  opacity: 0.72;
+}
+.epgc-readout strong {
+  font-family: Georgia, serif;
+  font-size: 27px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+.epgc-turn {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  width: min(300px, 70%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  color: rgba(240, 217, 233, 0.62);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.11em;
+}
+.epgc-turn b { color: #f2cde1; font-size: 10px; }
+.epgc-stage.turn-left .epgc-turn span:first-child,
+.epgc-stage.turn-right .epgc-turn span:last-child {
+  color: #fff0f8;
+  text-shadow: 0 0 12px #f3b8dc;
+}
+
+.epgc-keys {
+  position: absolute;
+  z-index: 5;
+  left: 22px;
+  top: 22px;
+  display: flex;
+  gap: 8px;
+}
+.epgc-keys button {
+  width: 44px;
+  height: 40px;
+  border: 1px solid rgba(244, 215, 232, 0.34);
+  border-radius: 8px;
+  background: rgba(33, 22, 39, 0.7);
+  color: #f5d7e8;
+  font: inherit;
+  font-size: 15px;
+  cursor: pointer;
+  touch-action: none;
+}
+.epgc-keys button:hover, .epgc-keys button.holo-on,
+.epgc-keys button:focus-visible, .epgc-keys button:active {
+  background: rgba(248, 172, 226, 0.18);
+  border-color: rgba(248, 172, 226, 0.55);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .epgc-wedge { animation: none; }
+  .epgc-reticle { transition: none; }
+}

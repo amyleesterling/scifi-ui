@@ -424,6 +424,45 @@ the reveal mask. Three documented deviations: Orbitron named but not bundled,
 the product's raster icons not carried, and the demo wrap absolute in its
 stage rather than fixed to the viewport.
 
+
+### 13. The ported ten
+
+One sweep across everything currently shipping, each carried on its source's
+own numbers:
+
+- **Shimmer reveal** (`components/shimmer-reveal.js`), the EyeWire II
+  welcome: calcium-imaging sparkles bloom while a dark veil dissolves on a
+  cosine ease, revealing the scene through the particles. From
+  `ConfettiCelebration.vue` sparkle mode.
+- **Letter reveal** (`components/letter-reveal.*`), the tutorial title
+  landing letter by letter with its two shipped rhythms. From
+  `TutorialStep.vue`.
+- **Notification scan-in** (`components/notif-scan.css`), the materialize
+  entrance with the top edge scanline. From `NotificationFeedPanel.vue`.
+- **Recap roll-in** (`components/recap-roll.css`), the report that
+  materializes then assembles section by section. From
+  `WeeklyRecapPanel.vue` and the profile panel's stagger.
+- **Trophy orbit** (`components/trophy-orbit.css`), five counter rotating
+  rings, twelve orbit dots and a breathing aura around a floating award.
+  From `UserProfilePanel.vue`.
+- **Streak flame and toast countdown** (`components/streak-flame.css`,
+  `components/toast-countdown.css`), the out of phase flicker and glow,
+  and the visible five second dismiss bar with its four type tints.
+- **Registration arrow** (`components/registration-arrow.css`) and
+  **block ping** (`components/block-ping.css`), from whatisabrain.com's
+  connectome pipeline: the locked-views indicator, and the 3D EM volume
+  with a ping at a coordinate, its texture carried as `media/raw-em.png`.
+- **Timeline** (`components/holo-timeline.js`), from human-brain: the
+  authored-sequence layer shaped like GSAP's seek and tween core, no
+  dependency, reduced motion collapsing to the final state. The export
+  becomes `window.holoTimeline`, the one deviation.
+- **Neural HUD frame** (`components/neural-hud.css`), **neuron ignite**
+  (`components/neuron-ignite.css`) and **EPG compass**
+  (`components/epg-compass.*`), from BE THE FLY: the circuit light border
+  with its seven second current and docking entrance, the action layer
+  igniting over dim context, and the fly's heading dial whose sectors
+  relight as the heading sweeps them.
+
 ## Tokens
 
 Set these on `:root` in `hologram.css`. Space separated RGB so they compose with

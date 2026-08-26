@@ -1,4 +1,4 @@
-# AGENTS.md, version 8
+# AGENTS.md, version 9
 
 Durable working knowledge for any agent contributing to **scifi-ui**. Read this
 before writing a line. It exists because the same lessons were being relearned
@@ -698,3 +698,17 @@ from here, that growth is extractable shipping code, and porting it back is
 exactly what section 2 asks for. Carry the upstream file's own annotations
 across too: the tuning notes in `holo_trace.ts` record why each timing is
 what it is, and they are the difference between a port and a copy.
+
+**Version 9**, 26 August 2026. Ten ports landed in one sweep, from four
+shipping sources: EyeWire II (shimmer reveal, letter reveal, notification
+scan-in, recap roll-in, trophy orbit, streak flame, toast countdown),
+whatisabrain's connectome app (registration arrow, block ping), human-brain
+(the holo-timeline sequence layer) and BE THE FLY (neural HUD frame, neuron
+ignite, EPG compass). Lessons that survived the sweep: a survey by keyframe
+name is the fastest map of a site's animation surface (grep @keyframes,
+then read only what the names point at); consumers of this library are also
+sources, whatisabrain and human-brain both vendor scifi-ui and both grew
+elements worth porting back; and a demo row that uses CSS grid with
+min-content panes will overflow a phone where the same row as wrapping flex
+does not, which is what took the page seven pixels over 375 until the
+registration arrow row was reflowed.

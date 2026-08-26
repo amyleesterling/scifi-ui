@@ -1,0 +1,39 @@
+/* ---- streak-flame: the streak that stays lit --------------------------------
+   Ported from ng-extend (branch eyewire-ii-community),
+   src/components/UserProfilePanel.vue: the editing streak readout, a flame
+   that flickers on a two second cycle and a count whose amber glow breathes
+   on a three second one, deliberately out of phase so the pair never reads
+   as one blink. Prefixed streakflame- mechanically; every value as shipped.
+   This is information, not decoration: the number stays fully legible under
+   reduced motion, only the flicker and the breathing stop. */
+
+.streakflame {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+}
+.streakflame-flame {
+  font-size: 1.25em; line-height: 1;
+  animation: streakflame-flicker 2s ease-in-out infinite;
+}
+.streakflame-count {
+  font-size: 1.7em; font-weight: 800; color: #f5a623; line-height: 1;
+  text-shadow: 0 0 8px rgba(245, 166, 35, 0.3);
+  animation: streakflame-glow 3s ease-in-out infinite;
+  font-variant-numeric: tabular-nums;
+}
+.streakflame-unit { font-size: 0.8em; color: #777; }
+
+@keyframes streakflame-flicker {
+  0%, 100% { transform: scale(1); }
+  25% { transform: scale(1.1) rotate(-3deg); }
+  75% { transform: scale(1.05) rotate(2deg); }
+}
+@keyframes streakflame-glow {
+  0%, 100% { text-shadow: 0 0 8px rgba(245, 166, 35, 0.3); }
+  50% { text-shadow: 0 0 14px rgba(245, 166, 35, 0.5), 0 0 24px rgba(245, 166, 35, 0.2); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .streakflame-flame, .streakflame-count { animation: none; }
+}
