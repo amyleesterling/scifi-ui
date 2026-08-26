@@ -36,14 +36,29 @@
 }
 .letrev-icon svg { width: 26px; height: 26px; vertical-align: middle; }
 
-/* the demo card chrome, sized like the tutorial chip */
+/* the demo card is the tutorial's real chip chrome, carried from
+   TutorialStep.vue .chip and .chip .title: the 30px padded 8px radius
+   card, its 135deg midnight gradient, the 20px blur saturate backdrop,
+   the double shadow, 18px weight 300 body over a grid with 15px row gap,
+   and the 22px flex-centered title. Positional deviation only: the game
+   absolutely positions chips beside their pointer targets; the demo card
+   sits in flow. */
 .letrev-demo-chip {
-  max-width: 420px;
-  padding: 18px 20px;
-  border-radius: 12px;
-  background: rgba(8, 14, 26, 0.92);
-  border: 1px solid rgba(160, 200, 240, 0.3);
-  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(160, 200, 240, 0.12);
+  width: auto;
+  max-width: min(80vw, calc(100vw - 24px));
+  color: #d0e8ff;
+  padding: 30px;
+  padding-bottom: 20px;
+  border-radius: 8px;
+  display: grid;
+  justify-items: center;
+  font-size: 18px;
+  font-weight: 300;
+  grid-row-gap: 15px;
+  border: 1px solid rgba(160, 200, 240, 0.22);
+  background: linear-gradient(135deg, rgba(8, 12, 26, 0.95), rgba(14, 10, 36, 0.93));
+  backdrop-filter: blur(20px) saturate(1.1);
+  box-shadow: 0 0 20px rgba(80, 140, 255, 0.1), 0 8px 32px rgba(0, 0, 0, 0.45);
 }
 .letrev-demo-chip .letrev-title {
   font-size: 22px;
@@ -52,14 +67,8 @@
   justify-content: center;
   flex-wrap: wrap;
   gap: 2px;
-  color: rgb(var(--holo-ink, 239 244 251) / 0.95);
 }
-.letrev-demo-chip p {
-  margin: 10px 0 0;
-  font-size: 0.85rem;
-  color: rgb(var(--holo-dim, 154 162 177) / 0.95);
-  text-align: center;
-}
+.letrev-demo-chip p { margin: 0; }
 
 @media (prefers-reduced-motion: reduce) {
   .letrev-chip, .letrev-letter, .letrev-icon { animation: none; opacity: 1; }
