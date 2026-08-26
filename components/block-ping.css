@@ -51,9 +51,12 @@
   box-shadow: 0 0 16px var(--blockping-mint, rgb(103 245 203));
   animation: blockping-ping 2.4s ease-out infinite;
 }
+/* the ping animates transform whole, translateZ included: iOS Safari will
+   not composite the standalone scale property against an element that also
+   carries a transform, so the shipped scale 0.3 to 3.2 rides inside it */
 @keyframes blockping-ping {
-  from { scale: 0.3; opacity: 1; }
-  to   { scale: 3.2; opacity: 0; }
+  from { transform: translateZ(84px) scale(0.3); opacity: 1; }
+  to   { transform: translateZ(84px) scale(3.2); opacity: 0; }
 }
 .blockping-volume::after {
   content: "Z";
@@ -72,7 +75,13 @@
 }
 .blockping-volume.is-paused .blockping-signal { animation-play-state: paused; }
 
+/* the source's own phone rule: the volume scales down so the stack reads
+   as one cuboid on a narrow screen instead of a tall fan */
+@media (max-width: 620px) {
+  .blockping-volume { transform: scale(0.78); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   /* the marker holds at mid ping: the place stays marked, the pulse stops */
-  .blockping-signal { animation: none; scale: 1; opacity: 0.8; }
+  .blockping-signal { animation: none; transform: translateZ(84px) scale(1); opacity: 0.8; }
 }
