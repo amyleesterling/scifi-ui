@@ -34,6 +34,7 @@
 <link rel="stylesheet" href="components/toast-countdown.css">
 <link rel="stylesheet" href="components/registration-arrow.css">
 <link rel="stylesheet" href="components/block-ping.css">
+<link rel="stylesheet" href="components/alignment-diagram.css">
 <link rel="stylesheet" href="components/neural-hud.css">
 <link rel="stylesheet" href="components/neuron-ignite.css">
 <link rel="stylesheet" href="components/epg-compass.css">
@@ -451,8 +452,7 @@
       <li><a href="#recap-roll">Recap roll-in</a></li>
       <li><a href="#trophy-orbit">Trophy orbit</a></li>
       <li><a href="#streak-flame">Streak flame and toast countdown</a></li>
-      <li><a href="#registration-arrow">Registration arrow</a></li>
-      <li><a href="#block-ping">Block ping</a></li>
+      <li><a href="#registration">Registration</a></li>
       <li><a href="#timeline">Timeline</a></li>
       <li><a href="#neural-hud">Cockpit HUD</a></li>
       <li><a href="#neuron-ignite">Neuron ignite</a></li>
@@ -953,42 +953,48 @@
     <button class="cta" type="button" id="toastcount-again">Toast again</button>
   </div>
 
-  <h2 id="registration-arrow">Registration arrow</h2>
-  <p>From whatisabrain.com's connectome pipeline: the indicator between the
-  raw sheet stack and the registered volume. A gradient hairline with a
-  chevron head and a mint dot that rides it end to end, saying one thing:
-  data flows from this pane to that one, and the two are locked.</p>
+  <h2 id="registration">Registration</h2>
+  <p>From whatisabrain.com's connectome pipeline, the ALIGN stage carried
+  whole. The registration arrow and the registered volume were cut out of
+  this card, and on their own neither says much; together they say the
+  thing. On the left the raw serial sections, eight sheets of real EM
+  sheared apart by the site's own disorder formula so no two agree. In the
+  middle the arrow. On the right the same tissue as one continuous cuboid,
+  with the mint ping marking a coordinate inside it.</p>
+  <p>Drag the confidence and the sheets converge. They never land
+  perfectly, and that is the claim: raw sections do not stack on their own,
+  which is why registration exists, and the cuboid on the right is the
+  output rather than the input. The floor of 0.42 on the scatter is the
+  site's own value.</p>
   <div class="demo">
-    <div class="regarrow-run">
+    <div class="aligndia" id="aligndia" style="--alignment:82%">
+      <div class="aligndia-step">
+        <div class="aligndia-sheets">
+          <i style="--i:0"></i><i style="--i:1"></i><i style="--i:2"></i><i style="--i:3"></i>
+          <i style="--i:4"></i><i style="--i:5"></i><i style="--i:6"></i><i style="--i:7"></i>
+        </div>
+        <span><b>2D IMAGES</b> serial sections</span>
+      </div>
       <div class="regarrow" id="regarrow"><i></i><b>ALIGN</b></div>
-      <div class="regarrow-ends" aria-hidden="true">
-        <span>RAW SHEETS</span>
-        <span>REGISTERED VOLUME</span>
+      <div class="aligndia-step">
+        <div class="blockping-volume" id="blockping">
+          <div class="blockping-stack">
+            <i style="--i:0"></i><i style="--i:1"></i><i style="--i:2"></i><i style="--i:3"></i>
+            <i style="--i:4"></i><i style="--i:5"></i><i style="--i:6"></i><i style="--i:7"></i>
+            <i style="--i:8"></i><i style="--i:9"></i>
+            <b class="blockping-signal"></b>
+          </div>
+        </div>
+        <span><b>REGISTERED EM VOLUME</b> one continuous cuboid</span>
       </div>
+      <label class="aligndia-control">
+        <span>REGISTRATION CONFIDENCE</span>
+        <input type="range" min="0" max="100" value="82"
+               aria-label="Adjust image alignment">
+        <output>82%</output>
+      </label>
     </div>
-  </div>
-
-  <h2 id="block-ping">Block ping</h2>
-  <p>Also from the connectome pipeline: ten sections of real EM texture
-  stacked in 3D CSS into one registered volume, a Z depth bracket, and a
-  mint ping expanding at a coordinate inside it. An event has a place in
-  the tissue, not just a row in a table.</p>
-  <div class="demo" style="display:grid;place-items:center;padding:30px 0 10px">
-    <div class="blockping-volume" id="blockping">
-      <div class="blockping-stack">
-        <i style="--i:0"></i>
-        <i style="--i:1"></i>
-        <i style="--i:2"></i>
-        <i style="--i:3"></i>
-        <i style="--i:4"></i>
-        <i style="--i:5"></i>
-        <i style="--i:6"></i>
-        <i style="--i:7"></i>
-        <i style="--i:8"></i>
-        <i style="--i:9"></i>
-        <b class="blockping-signal"></b>
-      </div>
-    </div>
+    <p style="margin-top:.9rem"><button class="cta" type="button" data-align-replay>Register again</button></p>
   </div>
 
   <h2 id="timeline">Timeline</h2>
@@ -1947,6 +1953,7 @@
 <script src="components/holo-timeline.js"></script>
 <script src="components/epg-compass.js"></script>
 <script src="components/neural-hud.js"></script>
+<script src="components/alignment-diagram.js"></script>
 <script src="components/scout-tag.js"></script>
 <script src="components/confetti-burst.js"></script>
 <script src="components/page-finale.js"></script>

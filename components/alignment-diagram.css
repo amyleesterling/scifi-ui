@@ -1,0 +1,154 @@
+/* ---- alignment-diagram: what registration actually does ---------------------
+   Ported from whatisabrain.com's connectome app (apps/connectome,
+   src/App.tsx and styles.css .alignment-diagram): the ALIGN stage of the
+   pipeline, carried whole. It is the card the registration arrow and the
+   registered volume were cut out of, and on its own neither of them says
+   much; together they say the whole thing.
+
+   Left, the raw serial sections: eight sheets of real EM texture, each
+   pushed off its neighbour by the site's own disorder formula, so the
+   stack shears and no two sections agree. Middle, the registration arrow.
+   Right, the registered volume: the same tissue as one continuous cuboid,
+   with the mint ping marking a coordinate inside it. Under it the shipped
+   REGISTRATION CONFIDENCE control, and dragging it is the point of the
+   card: the sheets converge as confidence rises.
+
+   The disorder is the source's own, verbatim, including its floor. At one
+   hundred percent the raw sheets still carry 0.42 of their scatter,
+   because raw sections never land perfectly on each other; the perfectly
+   stacked cuboid is the output on the right, not the input on the left.
+   That is the claim the card makes.
+
+   Deviations: the site absolutely positions this inside a pipeline stage
+   (inset 62px 34px 58px) with the control hanging below it; here the grid
+   sits in the page column and the control follows in flow. Prefixed
+   aligndia- mechanically; every colour, offset, curve and period as
+   shipped. */
+
+.aligndia {
+  --aligndia-mint: #67f5cb;
+  --aligndia-cyan: #7ee0ff;
+  display: grid;
+  grid-template-columns: 1fr 78px 1fr;
+  align-items: center;
+  gap: 4px;
+}
+
+.aligndia-step {
+  position: relative;
+  height: 310px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 800px;
+}
+.aligndia-step > span {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  translate: -50% 0;
+  width: max-content;
+  text-align: center;
+  color: #627b82;
+  font: 8px ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.aligndia-step > span b {
+  display: block;
+  margin-bottom: 6px;
+  color: #b9cccf;
+  font-size: 9px;
+  font-weight: 500;
+}
+
+/* ---- the raw sheets, sheared apart ---------------------------------------- */
+.aligndia-sheets {
+  position: relative;
+  width: 180px;
+  height: 190px;
+  transform: rotateX(60deg) rotateZ(-34deg);
+  transform-style: preserve-3d;
+}
+.aligndia-sheets i {
+  --i: 0;
+  --dx: 0px;
+  --dy: 0px;
+  --dr: 0deg;
+  position: absolute;
+  inset: 20px 9px;
+  border: 1px solid rgb(126 224 255 / calc(0.28 + var(--i) * 0.035));
+  background-image:
+    linear-gradient(rgba(5, 18, 22, 0.28), rgba(5, 18, 22, 0.28)),
+    url("../media/raw-em.png");
+  background-size: cover;
+  background-position: center;
+  transform: translate3d(var(--dx), var(--dy), calc(var(--i) * 12px)) rotateZ(var(--dr));
+  box-shadow: 0 0 12px rgb(126 224 255 / 0.035);
+  transition: transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* ---- the confidence control ----------------------------------------------- */
+.aligndia-control {
+  margin: 18px auto 0;
+  width: min(360px, 70%);
+  display: grid;
+  grid-template-columns: auto 1fr 34px;
+  align-items: center;
+  gap: 12px;
+  color: #5e767d;
+  font: 7px ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+}
+.aligndia-control input {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg,
+    var(--aligndia-mint) 0 var(--alignment, 82%),
+    #23363c var(--alignment, 82%) 100%);
+  cursor: ew-resize;
+}
+.aligndia-control input::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 9px;
+  height: 9px;
+  border: 1px solid var(--aligndia-mint);
+  border-radius: 50%;
+  background: #061114;
+  box-shadow: 0 0 8px var(--aligndia-mint);
+}
+.aligndia-control input::-moz-range-thumb {
+  width: 9px;
+  height: 9px;
+  border: 1px solid var(--aligndia-mint);
+  border-radius: 50%;
+  background: #061114;
+  box-shadow: 0 0 8px var(--aligndia-mint);
+}
+.aligndia-control input:focus-visible { outline: 1px solid var(--aligndia-mint); outline-offset: 6px; }
+.aligndia-control output { color: var(--aligndia-mint); text-align: right; }
+
+/* the site's own narrow-screen rule: both stacks scale down so the pair
+   still reads as two cuboids side by side rather than two tall fans. Its
+   scales are transforms, so the boxes keep their full width and would push
+   the page sideways in a column; the grid clips them instead, and because
+   the drawn stacks are smaller than their tracks nothing visible is lost. */
+@media (max-width: 760px) {
+  .aligndia { grid-template-columns: 1fr 40px 1fr; overflow: hidden; }
+  .aligndia-step { height: 250px; min-width: 0; }
+  .aligndia-sheets { scale: 0.64; }
+  .aligndia .blockping-volume { transform: scale(0.6); }
+  .aligndia-step > span { width: 116px; white-space: normal; line-height: 1.45; }
+  .aligndia-control { width: 92%; grid-template-columns: 1fr 34px; }
+  .aligndia-control > span { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* the sheets still move to where the confidence puts them, they just
+     arrive rather than glide */
+  .aligndia-sheets i { transition: none; }
+}
