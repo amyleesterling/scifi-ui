@@ -1,3 +1,5 @@
+<img src="media/readme/banner.webp" alt="scifi-ui, hologram UI components, set over a 3D reconstruction of mouse hippocampal CA3 pyramidal cells" width="100%">
+
 # scifi-ui
 
 **A hologram and scifi inspired UI library for agents.**
@@ -106,6 +108,32 @@ custom property with a concrete fallback, so any single piece works pasted into
 a page that has no token system.
 
 Open `index.html` for a working demo.
+
+---
+
+## A look at it
+
+Every shot below is the library running, captured off the demo page. Nothing is
+a mockup.
+
+<table>
+<tr>
+<td width="50%"><img src="media/readme/cockpit-hud.webp" alt="The BE THE FLY cockpit HUD: a lit flight objective beside the EPG cell identity, over a dark render stage carrying the compass renders, a heading gauge and a colour key"><br><b>Cockpit HUD</b><br>The neural interface panel from BE THE FLY, with the heading gauge and the real EPG renders relighting under the reticle.</td>
+<td width="50%"><img src="media/readme/brain-quest.webp" alt="The Brain Quest board with three completed quest pips and the gold Quest Complete card, confetti falling across it"><br><b>Brain Quest</b><br>Three neurons a day. The third one fires the card, the toast and the confetti together.</td>
+</tr>
+<tr>
+<td><img src="media/readme/registration.webp" alt="Raw serial EM sections sheared apart on the left, an ALIGN arrow, and the registered volume as one cuboid on the right"><br><b>Registration</b><br>The ALIGN stage of the connectome pipeline. Drag the confidence and the sections converge.</td>
+<td><img src="media/readme/trophy-orbit.webp" alt="An award badge floating inside five counter rotating rings with orbit dots and a breathing aura"><br><b>Trophy orbit</b><br>Five counter rotating rings, twelve orbit dots on two radii, a breathing aura.</td>
+</tr>
+<tr>
+<td><img src="media/readme/loading-cell.webp" alt="A neuron drawn as a loading state, dendrites growing outward from a glowing soma"><br><b>Loading state</b><br>Every dendrite grows out of the soma, then the axon, and only then do the action potentials travel it.</td>
+<td><img src="media/readme/particle-trace.webp" alt="A CA3 pyramidal cell inside a bracketed HUD frame, its dimensions and still-frame state read off the media at runtime"><br><b>Particle trace</b><br>An arc struck from wherever your pointer crossed, and a HUD whose every number is measured, not written.</td>
+</tr>
+</table>
+
+The researcher profile, carried across whole from EyeWire II:
+
+<img src="media/readme/researcher-profile.webp" alt="The EyeWire II researcher profile: overview tab with edit and cell counts, proofreading and cell achievement badges, special awards, a favourite badge, and a fourteen day streak chart" width="100%">
 
 ---
 
@@ -267,6 +295,8 @@ you, and none of the styling here helps you do it safely.
 
 ### 7. Loading state (`.holoload`)
 
+<img src="media/readme/loading-cell.webp" alt="The loading cell mid growth, dendrites reaching out from a glowing soma while the progress bar reads four of nine" width="100%">
+
 A cell draws itself in while you wait. The basal arbor runs half a cycle behind
 the apical one so the two trees do not pulse in lockstep, which is what makes it
 read as alive rather than as a spinner.
@@ -284,6 +314,8 @@ only piece in the library that repeats, because a loading state is the one place
 a loop is honest.
 
 ### 8. Particle trace (canvas)
+
+<img src="media/readme/particle-trace.webp" alt="The particle trace frame around a pyramidal cell, corner brackets lit, dimensions and state read off the image" width="100%">
 
 Three phases on hover, 1.5 s total:
 
@@ -448,24 +480,34 @@ own numbers:
 - **Streak flame and toast countdown** (`components/streak-flame.css`,
   `components/toast-countdown.css`), the out of phase flicker and glow,
   and the visible five second dismiss bar with its four type tints.
-- **Registration arrow** (`components/registration-arrow.css`) and
-  **block ping** (`components/block-ping.css`), from whatisabrain.com's
-  connectome pipeline: the locked-views indicator, and the 3D EM volume
-  with a ping at a coordinate, its texture carried as `media/raw-em.png`.
+- **Registration** (`components/alignment-diagram.*`, with
+  `components/registration-arrow.css` and `components/block-ping.css`),
+  the ALIGN stage of whatisabrain.com's connectome pipeline carried whole:
+  raw serial sections sheared apart by the site's own disorder formula, the
+  locked-views arrow, and the registered 3D EM volume with a ping at a
+  coordinate inside it. The confidence control converges the sections. EM
+  texture carried as `media/raw-em.png`.
 - **Timeline** (`components/holo-timeline.js`), from human-brain: the
   authored-sequence layer shaped like GSAP's seek and tween core, no
   dependency, reduced motion collapsing to the final state. The export
   becomes `window.holoTimeline`, the one deviation.
-- **Brain Quest success state** (`components/quest-complete.css`), the
-  proofreading queue's daily celebration: pips flip to green checks and
-  the gold card arrives breathing, twelve particles rising in three
-  tints around the pulsing star. From `ProofreadingQueuePanel.vue`.
-- **Neural HUD frame** (`components/neural-hud.css`), **neuron ignite**
+- **Brain Quest** (`components/quest-complete.css`), the daily quest board
+  from `ProofreadingQueuePanel.vue`, carried with its panel because the
+  panel is where the sequence happens: the board on its four second cyan
+  breath, three pips flipping to green checks, the progress rail, and on
+  the third completion the gold card arriving breathing with twelve
+  particles rising in three tints around a pulsing star, the quest toast
+  and the rainbow confetti all at once. Its toolbar icon sits in
+  `RETIRED_TOOLBAR_ICON_IDS` upstream, so the board is switched off in the
+  live app; this is what it does when it runs.
+- **Cockpit HUD** (`components/neural-hud.*`), **neuron ignite**
   (`components/neuron-ignite.css`) and **EPG compass**
-  (`components/epg-compass.*`), from BE THE FLY: the circuit light border
-  with its seven second current and docking entrance, the action layer
-  igniting over dim context, and the fly's heading dial whose sectors
-  relight as the heading sweeps them.
+  (`components/epg-compass.*`), from BE THE FLY: the neural interface panel
+  that docks on the right of the play field, carried whole with its lit
+  objective, cell identity, drawn-light instruments and colour key; the
+  action layer igniting over dim context; and the fly's heading dial whose
+  sectors relight as the heading sweeps them. A round trip, this one, since
+  that game vendored this library and its HUD already reads these tokens.
 
 ## Tokens
 
