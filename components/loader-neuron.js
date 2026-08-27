@@ -7,12 +7,16 @@
    The sequence, one cycle:
 
      1. soma eases in
-     2. the apical dendrites grow up out of it
-     3. the axon grows down, then the basal-left arbor, then basal-right,
-        until the whole cell stands complete with nothing yet travelling it
-     4. only then do the action potentials start: three staggered volleys,
-        apical first, each set riding tip to soma and on out the axon
-     5. after the last pulse leaves the axon the whole cell zips back into
+     2. every dendrite grows outward from the soma at once, top and both
+        sides together, each branch starting after the branch it hangs off
+        so the arbor spreads away from the cell body rather than appearing
+     3. then the axon grows down out of the soma, its collaterals after it
+     4. the soma blooms twice, calmly, while the cell is growing, and then
+        settles: the growth is over and the branches have the stage
+     5. only once the cell stands complete do the action potentials start:
+        three staggered volleys, apical first, each set riding tip to soma
+        and on out the axon
+     6. after the last pulse leaves the axon the whole cell zips back into
         the soma, and the sequence begins again
 
    Everything is one requestAnimationFrame timeline off a single start stamp, so
@@ -50,22 +54,58 @@
     if (!apicalG || !basalG || !axon || !signals) return;
 
     var slice = Array.prototype.slice;
-    var apicalPaths = slice.call(apicalG.querySelectorAll("path"));
-    // basal splits into a left tree and a right tree by which side of the soma
-    // (x = 60) each branch sits on; the axon is driven on its own.
-    var blPaths = [], brPaths = [];
+
+    // where the cell body actually is, so growth can be measured outward
+    var origin = { x: 60, y: 58 };
+    if (soma) {
+      try {
+        var sb = soma.getBBox();
+        origin = { x: sb.x + sb.width / 2, y: sb.y + sb.height / 2 };
+      } catch (e) {}
+    }
+    function startPoint(p) {
+      try { return p.getPointAtLength(0); } catch (e) { return origin; }
+    }
+    function distFromSoma(p) {
+      var q = startPoint(p);
+      return Math.hypot(q.x - origin.x, q.y - origin.y);
+    }
+
+    // A branch belongs to the axon, not the dendrites, when it hangs off the
+    // axon itself. Measured by sampling the axon and asking how close this path
+    // starts to it, which is exact here because collaterals are authored from
+    // a point on the axon.
+    var axonSamples = [];
+    try {
+      var axLen = axon.getTotalLength();
+      for (var k = 0; k <= 40; k++) axonSamples.push(axon.getPointAtLength(axLen * k / 40));
+    } catch (e) {}
+    function hangsOffAxon(p) {
+      if (!axonSamples.length) return false;
+      var q = startPoint(p), best = Infinity;
+      for (var i = 0; i < axonSamples.length; i++) {
+        var d = Math.hypot(q.x - axonSamples[i].x, q.y - axonSamples[i].y);
+        if (d < best) best = d;
+      }
+      return best < 1.5;
+    }
+
+    // dendrites: the apical arbor and every basal branch that is not the
+    // axon or one of its collaterals. Sorted by how far from the soma each
+    // one starts, so a branch never arrives before the branch it grows from.
+    var dendrites = slice.call(apicalG.querySelectorAll("path"));
+    var axonGroup = [axon];
     slice.call(basalG.querySelectorAll("path")).forEach(function (p) {
       if (p === axon) return;
-      var cx = 60;
-      try { var b = p.getBBox(); cx = b.x + b.width / 2; } catch (e) {}
-      (cx < 60 ? blPaths : brPaths).push(p);
+      (hangsOffAxon(p) ? axonGroup : dendrites).push(p);
     });
 
-    var allPaths = apicalPaths.concat(blPaths, brPaths, [axon]);
+    var allPaths = dendrites.concat(axonGroup);
     allPaths.forEach(function (p) {
       p.style.strokeDasharray = "1";
       p.style.strokeDashoffset = "1";       // start hidden
     });
+
     [soma, halo].forEach(function (e) {
       if (!e) return;
       e.style.transformBox = "fill-box";
@@ -108,33 +148,55 @@
     }
     var dots = { apical: pool(), bl: pool(), br: pool() };
 
-    // timeline, in ms: the whole cell draws first, then the pulses travel it
-    var SOMA = 480, AP_DRAW = 820, AX_DRAW = 400,
-        BL_DRAW = 620, BR_DRAW = 620,
+    // timeline, in ms. The cell grows outward before anything travels it:
+    // every dendrite together, then the axon, then a beat of stillness, then
+    // the pulses. Each branch inside a group gets its own start, spread across
+    // the group's window by how far from the soma it begins, so the arbor
+    // opens away from the cell body instead of switching on.
+    var SOMA = 500,
+        DEND_SPREAD = 640, DEND_DUR = 460,
+        AX_SPREAD = 240, AX_DUR = 460,
+        SETTLE = 240,
         PULSE = 1150, VOLLEY = 380,
         HOLD = 160, ZIP = 640;
-    var apDrawS = SOMA, apDrawE = apDrawS + AP_DRAW;
-    var axDrawS = apDrawE, axDrawE = axDrawS + AX_DRAW;
-    var blDrawS = axDrawE, blDrawE = blDrawS + BL_DRAW;
-    var brDrawS = blDrawE, brDrawE = brDrawS + BR_DRAW;
-    var apDotS = brDrawE, apDotE = apDotS + PULSE;
+    var dendS = SOMA, dendE = dendS + DEND_SPREAD + DEND_DUR;
+    var axS = dendE, axE = axS + AX_SPREAD + AX_DUR;
+    var grownAt = axE + SETTLE;             // the cell stands complete
+    var apDotS = grownAt, apDotE = apDotS + PULSE;
     var blDotS = apDotS + VOLLEY, blDotE = blDotS + PULSE;
     var brDotS = apDotS + VOLLEY * 2, brDotE = brDotS + PULSE;
     var zipS = brDotE + HOLD, zipE = zipS + ZIP;
     var T = zipE + HOLD;
 
-    // one branch group: hidden until its draw window, grows to full, holds, then
-    // zips back to hidden with everything else at the end.
-    function groupOffset(t, drawS, drawE) {
+    // give every path its own window inside its group's span, ordered by how
+    // far from the soma it starts, so a branch never precedes its parent
+    function schedule(paths, groupS, spread, dur) {
+      var d = paths.map(distFromSoma);
+      var lo = Math.min.apply(null, d), hi = Math.max.apply(null, d);
+      var range = hi - lo || 1;
+      return paths.map(function (path, i) {
+        var frac = (d[i] - lo) / range;
+        var st = groupS + frac * spread;
+        return { path: path, drawS: st, drawE: st + dur };
+      });
+    }
+    var timed = schedule(dendrites, dendS, DEND_SPREAD, DEND_DUR)
+      .concat(schedule(axonGroup, axS, AX_SPREAD, AX_DUR));
+
+    // one branch: hidden until its own window, grows to full, holds, then zips
+    // back to hidden with everything else at the end.
+    function branchOffset(t, drawS, drawE) {
       if (t < drawS) return 1;
       if (t < drawE) return 1 - easeOut(span(t, drawS, drawE));
       if (t < zipS) return 0;
       if (t < zipE) return easeIn(span(t, zipS, zipE));
       return 1;
     }
-    function paintGroup(paths, off) {
-      var s = String(off);
-      for (var i = 0; i < paths.length; i++) paths[i].style.strokeDashoffset = s;
+    function paintBranches(t) {
+      for (var i = 0; i < timed.length; i++) {
+        var it = timed[i];
+        it.path.style.strokeDashoffset = String(branchOffset(t, it.drawS, it.drawE));
+      }
     }
 
     // one set of dots: three staggered across its window, each riding tip -> soma
@@ -163,27 +225,30 @@
       var t = since % T;
       var first = since < T;               // soma only blooms on the first pass
 
-      // soma: bloom in on the first cycle, then hold and breathe; a small swell
-      // as the arbor zips its energy back home.
+      // soma: bloom in on the first cycle, then two calm blooms while the cell
+      // is growing, and after that it settles and holds, so the branches and
+      // the dots have the stage. A small swell as the arbor zips home.
       var base = (first && t < SOMA) ? 0.25 + 0.75 * easeOut(span(t, 0, SOMA)) : 1;
       var vis = (first && t < SOMA) ? easeOut(span(t, 0, SOMA)) : 1;
-      var breathe = 1 + 0.05 * Math.sin(now / 380);
+      var glow = 0;
+      if (t >= SOMA && t < grownAt) {
+        // two unhurried blooms across the growth, never dipping below rest
+        var g = Math.sin(Math.PI * 2 * 2 * span(t, SOMA, grownAt));
+        glow = g > 0 ? g : 0;
+      }
       var swell = (t >= zipS && t < zipE)
         ? 1 + 0.16 * Math.sin(Math.PI * span(t, zipS, zipE)) : 1;
-      var sc = base * breathe * swell;
+      var sc = base * (1 + 0.07 * glow) * swell;
       if (soma) {
         soma.style.transform = "scale(" + sc + ")";
         soma.style.opacity = String(vis);
       }
       if (halo) {
         halo.style.transform = "scale(" + (sc * 1.06) + ")";
-        halo.style.opacity = String(vis * (0.2 + 0.12 * (swell - 1) / 0.16));
+        halo.style.opacity = String(vis * (0.2 + 0.16 * glow + 0.12 * (swell - 1) / 0.16));
       }
 
-      paintGroup(apicalPaths, groupOffset(t, apDrawS, apDrawE));
-      paintGroup(blPaths, groupOffset(t, blDrawS, blDrawE));
-      paintGroup(brPaths, groupOffset(t, brDrawS, brDrawE));
-      axon.style.strokeDashoffset = String(groupOffset(t, axDrawS, axDrawE));
+      paintBranches(t);
 
       paintDots("apical", t, apDotS, apDotE, routes.apical);
       paintDots("bl", t, blDotS, blDotE, routes.bl);
