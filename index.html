@@ -457,7 +457,7 @@
       <li><a href="#neural-hud">Cockpit HUD</a></li>
       <li><a href="#neuron-ignite">Neuron ignite</a></li>
       <li><a href="#epg-compass">EPG compass</a></li>
-      <li><a href="#brain-quest">Brain Quest success state</a></li>
+      <li><a href="#brain-quest">Brain Quest</a></li>
       <li><a href="#usage">Usage</a></li>
     </ol>
   </nav>
@@ -1132,21 +1132,49 @@
     </div>
   </div>
 
-  <h2 id="brain-quest">Brain Quest success state</h2>
-  <p>The Brain Quest from EyeWire II's proofreading queue: three neurons a
-  day, each pip flipping to a green check as its cell completes. When the
-  last one lands the game fires everything at once, and so does this demo:
-  the celebration card with its breathing gold border, rising particles
-  and pulsing star, the quest toast sliding in, and the rainbow confetti
-  burst at intensity two, exactly the trio the watcher in
-  AchievementToast.vue raises. Complete the third neuron and watch the
-  state arrive. Visual component only, the share pill goes nowhere.</p>
-  <div class="demo">
-    <div class="questcel-wrap">
-      <div class="questcel-pips" id="questcel-pips"></div>
-      <div id="questcel-mount"></div>
+  <h2 id="brain-quest">Brain Quest</h2>
+  <p>The Brain Quest from EyeWire II, carried with its panel, because the
+  panel is where the sequence happens. Its toolbar icon is defined in
+  <code>toolbar-icons.ts</code> as <code>{ id: 'quest', label: 'Brain
+  Quest' }</code> and currently sits in <code>RETIRED_TOOLBAR_ICON_IDS</code>,
+  so the board is switched off in the live app. This is what it does when it
+  runs: three neurons a day, each pip flipping from its number to a green
+  check as its cell completes, the progress rail advancing behind them. Work
+  through all three and the whole sequence fires at once, the way the game
+  fires it: the celebration card arriving with its breathing gold border,
+  twelve particles rising in three tints on quarter second staggers and a
+  pulsing gold star, while the watcher in <code>AchievementToast.vue</code>
+  raises the quest toast and the rainbow confetti at intensity two. The
+  board breathes cyan on its own four second cycle throughout.</p>
+  <div class="demo" style="display:grid;justify-items:center">
+    <div class="questcel-board" id="questcel-board">
+      <div class="questcel-topbar">
+        <div class="questcel-title"><span class="questcel-icon">&#129504;</span> Brain Quest</div>
+        <div class="questcel-topbar-actions">
+          <button class="questcel-close" type="button" id="questcel-close"
+                  aria-label="Replay the board's arrival">&times;</button>
+        </div>
+      </div>
+      <div class="questcel-content">
+        <div class="questcel-daily-header">
+          <div class="questcel-daily-title">Today's Quests</div>
+          <div class="questcel-daily-date" id="questcel-date"></div>
+        </div>
+        <div class="questcel-pips" id="questcel-pips"></div>
+        <div id="questcel-mount"></div>
+        <div class="questcel-progress">
+          <div class="questcel-progress-track">
+            <div class="questcel-progress-fill" id="questcel-fill" style="width:0%"></div>
+          </div>
+          <div class="questcel-progress-text" id="questcel-count"></div>
+        </div>
+        <button class="questcel-complete" type="button" id="questcel-do" data-holo-tap>
+          &#10003; Complete Quest</button>
+        <div class="questcel-footer">
+          <button class="questcel-footer-btn" type="button" id="questcel-reset">Reset</button>
+        </div>
+      </div>
     </div>
-    <p style="margin-top:.7rem"><button class="cta" type="button" id="questcel-do">Proofread the third neuron</button></p>
   </div>
 
   <h2 id="usage">Usage</h2>
@@ -2388,22 +2416,46 @@
   });
 
 
-  /* brain quest: complete the third pip and the success state arrives */
+  /* brain quest: work the board. Each completion flips a pip and advances the
+     rail; when the third lands the game fires the trio at once, so the demo
+     does too, on the AchievementToast.vue watcher's own copy. */
   (function () {
+    var board = document.getElementById("questcel-board");
     var pipsEl = document.getElementById("questcel-pips");
     var mount = document.getElementById("questcel-mount");
     var doBtn = document.getElementById("questcel-do");
-    if (!pipsEl || !mount || !doBtn) return;
+    var fill = document.getElementById("questcel-fill");
+    var countEl = document.getElementById("questcel-count");
+    var dateEl = document.getElementById("questcel-date");
+    var resetBtn = document.getElementById("questcel-reset");
+    if (!board || !pipsEl || !mount || !doBtn) return;
+
     var NAMES = ["comet cell", "the lantern", "cell 41"];
-    var done = [true, true, false];
-    function pips() {
+    var done, active;
+
+    if (dateEl) {
+      dateEl.textContent = new Date().toLocaleDateString(undefined,
+        { month: "short", day: "numeric" });
+    }
+
+    function paint() {
       pipsEl.innerHTML = done.map(function (d, i) {
-        return '<span class="questcel-pip' + (d ? " questcel-pip--done" : "") + '">' +
+        var cls = "questcel-pip" + (d ? " questcel-pip--done"
+          : (i === active ? " questcel-pip--active" : ""));
+        return '<button type="button" class="' + cls + '" data-pip="' + i + '">' +
           (d ? '<span class="questcel-pip-check">\u2713</span>'
              : '<span class="questcel-pip-num">' + (i + 1) + "</span>") +
-          '<span class="questcel-pip-name">' + NAMES[i] + "</span></span>";
+          '<span class="questcel-pip-name">' + NAMES[i] + "</span></button>";
       }).join("");
+      var n = done.filter(Boolean).length;
+      if (fill) fill.style.width = (n / done.length) * 100 + "%";
+      if (countEl) countEl.textContent = n + "/" + done.length + " today";
+      var left = active >= 0;
+      doBtn.classList.toggle("questcel-complete--ready", left);
+      doBtn.disabled = !left;
+      doBtn.textContent = left ? "\u2713 Complete Quest" : "\u2713 All quests complete";
     }
+    function nextActive() { active = done.indexOf(false); }
     function celebrate() {
       var parts = "";
       for (var i = 1; i <= 12; i++) parts += '<span class="questcel-particle" style="--i:' + i + '"></span>';
@@ -2418,36 +2470,54 @@
         "</div>" +
         '<button type="button" class="questcel-share">Share on \ud835\udd4f</button></div>';
       pauseWhenHidden(mount.querySelector(".questcel"));
-    }
-    function reset() {
-      done = [true, true, false];
-      mount.innerHTML = "";
-      doBtn.disabled = false;
-      pips();
-    }
-    doBtn.addEventListener("click", function () {
-      if (done[2]) { reset(); doBtn.textContent = "Proofread the third neuron"; return; }
-      done[2] = true;
-      pips();
-      celebrate();
-      /* the game fires all three together: the watcher in
-         AchievementToast.vue raises the quest toast and the rainbow
-         confetti at intensity two the moment the third quest lands,
-         while the queue panel shows the celebration card */
+      /* the trio, as the watcher raises it the moment the third lands */
       if (window.holotoast) {
         holotoast({ tone: "quest", icon: "\ud83e\udde0", title: "Daily quests complete",
           sub: "All three quests done. You are a neuroscience hero.", duration: 6000 });
       }
       if (window.holoburst) holoburst("rainbow", 2);
-      doBtn.textContent = "Reset the day";
+    }
+    function reset() {
+      done = [false, false, false];
+      mount.innerHTML = "";
+      nextActive();
+      paint();
+    }
+    function complete(i) {
+      if (i < 0 || done[i]) return;
+      done[i] = true;
+      nextActive();
+      paint();
+      if (done.every(Boolean)) celebrate();
+    }
+
+    doBtn.addEventListener("click", function () { complete(active); });
+    pipsEl.addEventListener("click", function (e) {
+      var b = e.target.closest && e.target.closest("[data-pip]");
+      if (!b) return;
+      var i = +b.getAttribute("data-pip");
+      if (done[i]) return;
+      active = i;
+      paint();
     });
     mount.addEventListener("click", function (e) {
       var b = e.target.closest && e.target.closest("[data-q]");
       if (!b) return;
       if (b.getAttribute("data-q") === "close") mount.innerHTML = "";
-      else { reset(); doBtn.textContent = "Proofread the third neuron"; }
+      else reset();
     });
-    pips();
+    if (resetBtn) resetBtn.addEventListener("click", reset);
+    var closeBtn = document.getElementById("questcel-close");
+    if (closeBtn) closeBtn.addEventListener("click", function () {
+      /* the demo board does not close; it replays its shipped arrival */
+      board.classList.remove("is-arriving");
+      void board.offsetWidth;
+      board.classList.add("is-arriving");
+      reset();
+    });
+
+    reset();
+    pauseWhenHidden(board);
   })();
 
   pauseWhenHidden(document.getElementById("trophyorb"));

@@ -1,16 +1,121 @@
-/* ---- quest-complete: the Brain Quest success state --------------------------
+/* ---- quest-complete: the Brain Quest panel ----------------------------------
    Ported from ng-extend (branch eyewire-ii-community),
-   src/components/ProofreadingQueuePanel.vue, the Brain Quest: when the last
-   of the day's three neurons is proofread, the celebration card appears in
-   the queue. A gold card whose border and inner glow breathe on a three
-   second cycle, twelve particles rising from its base in three tints (gold,
-   violet, cyan) each on its own quarter second stagger, a pulsing gold
-   four-point star, the title, and the action row: the purple gradient
-   "Take on Next Quest", the quiet Continue, and the share pill. The daily
-   quest pips travel with it so the state has its context: numbered cards
-   that flip to a green check as each neuron completes. Prefixed questcel-
-   mechanically; every colour, shadow, delay and curve as shipped. */
+   src/components/ProofreadingQueuePanel.vue: the Brain Quest, the daily quest
+   board that docks in a corner of EyeWire II. Its toolbar icon is defined in
+   src/data/toolbar-icons.ts as { id: 'quest', emoji: 'brain', label: 'Brain
+   Quest' } and currently sits in RETIRED_TOOLBAR_ICON_IDS, so the panel is
+   switched off in the live app; this is what it does when it runs.
 
+   Three neurons a day. Each pip card flips from its number to a green check as
+   its cell completes, the progress rail advances, and when the third lands the
+   whole sequence fires at once: the celebration card arrives with its
+   breathing gold border, twelve particles rising in three tints on quarter
+   second staggers and a pulsing gold star, while the watcher in
+   AchievementToast.vue raises the quest toast and the rainbow confetti at
+   intensity two.
+
+   The panel is carried with it, because the panel is where the sequence
+   happens: the 330px board on its four second cyan breath, the drag topbar,
+   Today's Quests, the pip row, the progress rail, the complete button that
+   only turns green when the quest is ready, and the footer. Every colour,
+   shadow, delay and curve as shipped, prefixed questcel- mechanically.
+
+   Deviations: the game fixes the board in a corner at z-index 9000 and lets
+   you drag it by the topbar; the demo lets it sit in the page column, so the
+   topbar does not drag and the close button does not close. The quest names
+   are invented, as demo data may be. */
+
+/* ---- the board ------------------------------------------------------------ */
+.questcel-board {
+  /* the game fixes the board at 330px in a corner; in a page column that
+     width has to yield on a phone, and max-width alone will not do it
+     inside an auto sized grid track */
+  width: min(330px, 100%);
+  background: linear-gradient(170deg, rgba(10, 16, 30, 0.96) 0%, rgba(8, 10, 20, 0.98) 100%);
+  border: 1px solid rgba(0, 180, 255, 0.18);
+  border-radius: 4px;
+  box-shadow:
+    0 8px 40px rgba(0, 0, 0, 0.5),
+    0 0 60px rgba(0, 150, 255, 0.06),
+    0 0 120px rgba(0, 150, 255, 0.02),
+    inset 0 0 40px rgba(0, 100, 200, 0.015);
+  font-size: 14px;
+  color: #ccd;
+  overflow: hidden;
+  animation: questcel-board-glow 4s ease-in-out infinite;
+}
+@keyframes questcel-board-glow {
+  0%, 100% {
+    border-color: rgba(0, 180, 255, 0.18);
+    box-shadow:
+      0 8px 40px rgba(0, 0, 0, 0.5),
+      0 0 60px rgba(0, 150, 255, 0.06),
+      0 0 120px rgba(0, 150, 255, 0.02),
+      inset 0 0 40px rgba(0, 100, 200, 0.015);
+  }
+  50% {
+    border-color: rgba(0, 200, 255, 0.28);
+    box-shadow:
+      0 8px 40px rgba(0, 0, 0, 0.5),
+      0 0 80px rgba(0, 150, 255, 0.10),
+      0 0 160px rgba(0, 150, 255, 0.03),
+      inset 0 0 60px rgba(0, 100, 200, 0.025);
+  }
+}
+/* the shipped entrance: it lifts in out of blur, overbright, and settles */
+.questcel-board.is-arriving { animation: questcel-arrive 0.35s cubic-bezier(0.16, 1, 0.3, 1) both, questcel-board-glow 4s ease-in-out infinite 0.35s; }
+@keyframes questcel-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+    filter: blur(6px) brightness(2);
+  }
+}
+
+.questcel-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px 8px;
+  border-bottom: 1px solid rgba(74, 158, 255, 0.08);
+  background: rgba(74, 158, 255, 0.03);
+  user-select: none;
+}
+.questcel-title {
+  font-size: 0.95em;
+  font-weight: 700;
+  color: #e0e4ee;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.questcel-icon { font-size: 1.15em; }
+.questcel-topbar-actions { display: flex; align-items: center; gap: 8px; }
+.questcel-close {
+  background: none; border: none;
+  color: #556; font-size: 1.3em; cursor: pointer; padding: 0; line-height: 1;
+  transition: color 0.12s;
+}
+.questcel-close:hover, .questcel-close.holo-on, .questcel-close:focus-visible { color: #aab; }
+
+.questcel-content { padding: 10px 14px 14px; }
+
+.questcel-daily-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.questcel-daily-title {
+  font-size: 0.82em;
+  font-weight: 700;
+  color: rgba(0, 200, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.questcel-daily-date { font-size: 0.68em; color: #556; }
+
+/* ---- the three pips ------------------------------------------------------- */
 .questcel-pips { display: flex; gap: 6px; margin-bottom: 10px; }
 .questcel-pip {
   flex: 1;
@@ -26,6 +131,14 @@
   overflow: hidden;
   font-size: 14px;
 }
+.questcel-pip:hover {
+  border-color: rgba(74, 158, 255, 0.25);
+  background: rgba(74, 158, 255, 0.05);
+}
+.questcel-pip--active {
+  border-color: rgba(206, 147, 216, 0.35);
+  background: rgba(206, 147, 216, 0.06);
+}
 .questcel-pip--done {
   border-color: rgba(127, 255, 136, 0.2);
   background: rgba(127, 255, 136, 0.03);
@@ -37,6 +150,10 @@
   border: 1.5px solid rgba(74, 158, 255, 0.3);
   display: flex; align-items: center; justify-content: center;
   font-size: 0.65em; font-weight: 700; color: #78a;
+}
+.questcel-pip--active .questcel-pip-num {
+  border-color: rgba(206, 147, 216, 0.5);
+  color: #CE93D8;
 }
 .questcel-pip-check {
   flex-shrink: 0;
@@ -57,6 +174,7 @@
 }
 .questcel-pip--done .questcel-pip-name { color: #7a8; }
 
+/* ---- the celebration ------------------------------------------------------ */
 .questcel {
   text-align: center;
   padding: 20px 10px 16px;
@@ -65,6 +183,7 @@
   border: 1px solid rgba(255, 215, 0, 0.2);
   border-radius: 10px;
   background: radial-gradient(ellipse at center, rgba(255, 215, 0, 0.06) 0%, transparent 70%);
+  margin-bottom: 10px;
   animation: questcel-glow 3s ease-in-out infinite;
   font-size: 14px;
   color: #ccd;
@@ -193,12 +312,72 @@
   color: rgba(100, 180, 255, 1);
   background: rgba(100, 180, 255, 0.06);
 }
-.questcel-wrap { max-width: 430px; }
+
+/* ---- progress, the complete button, the footer ---------------------------- */
+.questcel-progress { margin-bottom: 10px; }
+.questcel-progress-track {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+.questcel-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4285f4, #CE93D8);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+.questcel-progress-text {
+  font-size: 0.7em;
+  color: #556;
+  text-align: center;
+}
+
+.questcel-complete {
+  width: 100%;
+  padding: 9px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(80, 80, 80, 0.2);
+  color: #556;
+  font-size: 0.88em;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: default;
+  margin-bottom: 10px;
+  transition: all 0.2s;
+}
+.questcel-complete--ready {
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.75), rgba(56, 142, 60, 0.85));
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 2px 12px rgba(76, 175, 80, 0.2);
+}
+.questcel-complete--ready:hover, .questcel-complete--ready.holo-on, .questcel-complete--ready:focus-visible {
+  filter: brightness(1.08);
+  box-shadow: 0 4px 16px rgba(76, 175, 80, 0.3);
+}
+
+.questcel-footer { display: flex; gap: 8px; justify-content: center; }
+.questcel-footer-btn {
+  padding: 3px 8px;
+  border: none;
+  background: none;
+  color: #445;
+  font-size: 0.68em;
+  font-family: inherit;
+  cursor: pointer;
+  transition: color 0.12s;
+}
+.questcel-footer-btn:hover, .questcel-footer-btn.holo-on, .questcel-footer-btn:focus-visible { color: #778; }
+
 .questcel.is-paused, .questcel.is-paused * { animation-play-state: paused; }
 
 @media (prefers-reduced-motion: reduce) {
   /* the completed state lands whole; the breathing, the pulse and the
      particles are the decoration and they stop */
-  .questcel, .questcel-badge { animation: none; }
+  .questcel, .questcel-badge, .questcel-board { animation: none; }
+  .questcel-board.is-arriving { animation: none; }
   .questcel-particle { display: none; }
 }
