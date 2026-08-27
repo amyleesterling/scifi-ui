@@ -454,7 +454,7 @@
       <li><a href="#registration-arrow">Registration arrow</a></li>
       <li><a href="#block-ping">Block ping</a></li>
       <li><a href="#timeline">Timeline</a></li>
-      <li><a href="#neural-hud">Neural HUD frame</a></li>
+      <li><a href="#neural-hud">Cockpit HUD</a></li>
       <li><a href="#neuron-ignite">Neuron ignite</a></li>
       <li><a href="#epg-compass">EPG compass</a></li>
       <li><a href="#brain-quest">Brain Quest success state</a></li>
@@ -1013,24 +1013,78 @@
     <p style="margin-top:.7rem"><button class="cta" type="button" id="tl-play">Play the sequence</button></p>
   </div>
 
-  <h2 id="neural-hud">Neural HUD frame</h2>
-  <p>From BE THE FLY, all of it real: the circuit line of light that wraps
-  the cockpit so the play field reads as one framed neural interface, and
-  inside it the game's own mission HUD, the glassy field panel with its
-  scanline wash, accent bar, corner ticks and Georgia serif objective. The
-  border current runs its shipped seven second lap and pauses off screen;
-  the panel docks with the shipped hud-online slide. Cycling the objective
-  walks the game's real states, the purple one is its flight variant.</p>
+  <h2 id="neural-hud">Cockpit HUD</h2>
+  <p>From BE THE FLY, carried whole: the neural interface panel that docks on
+  the right of the play field. This one is a round trip, because that game
+  vendored this library, so its HUD is already written against these tokens
+  and the port reads them natively; the game's own note on its objective
+  bracket calls it "the scifi-ui idiom used elsewhere on the page". The lit
+  objective runs its shipped sweep, the cell identity carries its type chip,
+  its measured count and the gold pip that marks cells from a dataset other
+  than BANC, and inside the stage the real EPG renders relight under the
+  reticle while the drawn-light compass reads the same heading the renders
+  do. Hold A or D, or the arrow keys, or the on screen labels, to turn.</p>
   <div class="demo">
-    <div class="neuralhud-stage" id="neuralhud-stage">
-      <div class="neuralhud" id="neuralhud">
-        <div class="neuralhud-inner"></div>
-        <i class="neuralhud-corner tl"></i><i class="neuralhud-corner tr"></i>
-        <i class="neuralhud-corner bl"></i><i class="neuralhud-corner br"></i>
+    <div class="neuralhud-panel" id="neuralhud" role="img"
+         aria-label="EPG cockpit, fly heading east, 90 degrees, sector 12">
+      <div class="neuralhud-head">
+        <div class="neuralhud-objective">
+          <span>FLIGHT OBJECTIVE</span>
+          <strong>FLY TO THE FLOWER</strong>
+          <em>LAND IN THE GLOW</em>
+        </div>
+        <div class="neuralhud-neurons">
+          <span class="neuralhud-kicker"><i aria-hidden="true"></i>NEURONS INVOLVED</span>
+          <strong>EPG COCKPIT</strong>
+          <div class="neuralhud-chips">
+            <span class="neuralhud-chip" style="--chip:#bd9bd1" title="Central brain">
+              <i aria-hidden="true"></i><b>EPG</b><em>&times;53</em></span>
+          </div>
+          <p>EPG compass neurons tile the ellipsoid body, and a bump of
+          activity moves around that ring as the fly turns, holding its
+          heading.</p>
+          <div class="neuralhud-stats">
+            <span class="neuralhud-stat"><b>53</b> cells</span>
+            <span class="neuralhud-pip alt"><i aria-hidden="true"></i>FAFB / FlyWire</span>
+          </div>
+        </div>
       </div>
-      <div id="neuralhud-panel-mount"></div>
+      <div class="neuralhud-stage">
+        <div class="neuralhud-cockpit">
+          <img class="neuralhud-cockpit-base" src="media/epg/epg-base.webp" alt="">
+          <img class="neuralhud-cockpit-active" src="media/epg/epg-heading-12.webp" alt="">
+          <div class="neuralhud-reticle"><span></span></div>
+          <div class="neuralhud-turn">
+            <span data-turn="left" role="button" tabindex="0">&larr; A</span>
+            <b>EPG COMPASS</b>
+            <span data-turn="right" role="button" tabindex="0">D &rarr;</span>
+          </div>
+        </div>
+        <div class="neuralhud-instruments">
+          <div class="neuralhud-gauge compass">
+            <span class="neuralhud-bracket tl" aria-hidden="true"></span>
+            <span class="neuralhud-bracket br" aria-hidden="true"></span>
+            <b class="gauge-value">E 090&deg;</b>
+            <span class="gauge-label">HEADING<em>EPG 12</em></span>
+          </div>
+          <div class="neuralhud-gauge dial idle">
+            <span class="neuralhud-bracket tl" aria-hidden="true"></span>
+            <span class="neuralhud-bracket br" aria-hidden="true"></span>
+            <b class="gauge-value">0.00<u>mm/s</u></b>
+            <span class="gauge-label">VELOCITY<em>HOVER</em></span>
+          </div>
+        </div>
+        <div class="neuralhud-glow" aria-hidden="true"></div>
+        <div class="neuralhud-key">
+          <b>COLOR KEY</b>
+          <span style="--key-color:#e8afd8"><i aria-hidden="true"></i><em>Active EPG heading</em><small>compass readout</small></span>
+          <span style="--key-color:#706878"><i aria-hidden="true"></i><em>Other EPG cells</em><small>compass population</small></span>
+        </div>
+      </div>
+      <a class="neuralhud-link" data-holo-tap
+         href="https://codex.flywire.ai/app/search?filter_string=cell_type+%3D%3D+EPG&amp;dataset=banc"
+         target="_blank" rel="noreferrer">EXPLORE THE CIRCUIT &#8599;</a>
     </div>
-    <p style="margin-top:.7rem"><button class="cta" type="button" id="neuralhud-dock">Next objective</button></p>
   </div>
 
   <h2 id="neuron-ignite">Neuron ignite</h2>
@@ -1864,6 +1918,7 @@
 <script src="components/letter-reveal.js"></script>
 <script src="components/holo-timeline.js"></script>
 <script src="components/epg-compass.js"></script>
+<script src="components/neural-hud.js"></script>
 <script src="components/scout-tag.js"></script>
 <script src="components/confetti-burst.js"></script>
 <script src="components/page-finale.js"></script>
@@ -2317,29 +2372,6 @@
         .to(state, { glow: 0 }, { dur: 0.5 })
         .play();
     });
-  }
-
-  /* neural HUD: the game's real mission states, docking with hud-online.
-     Copy is the game's own missionCopy table, carried verbatim. */
-  var dockBtn = document.getElementById("neuralhud-dock");
-  if (dockBtn) {
-    var mount = document.getElementById("neuralhud-panel-mount");
-    var STATES = [
-      { cls: "", kicker: "FORAGING OBJECTIVE", title: "FIND THE RIPE FRUIT", detail: "FOLLOW THE YEASTY SCENT" },
-      { cls: "heading", kicker: "FLIGHT OBJECTIVE", title: "FLY TO THE FLOWER", detail: "LAND IN THE GLOW" },
-      { cls: "heading", kicker: "FLIGHT OBJECTIVE", title: "NEW FLOWER DETECTED", detail: "LAND IN THE GLOW" }
-    ];
-    var n = 0;
-    function dock() {
-      var st = STATES[n % STATES.length];
-      mount.innerHTML = '<div class="neuralhud-mission ' + st.cls + '" role="status">' +
-        "<span>" + st.kicker + "</span><strong>" + st.title + "</strong>" +
-        "<small>" + st.detail + "</small></div>";
-      n++;
-    }
-    dock();
-    dockBtn.addEventListener("click", dock);
-    pauseWhenHidden(document.getElementById("neuralhud"));
   }
 
   /* neuron ignite: switch the action layer and restart the ignition */
