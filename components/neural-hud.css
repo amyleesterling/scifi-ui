@@ -1,143 +1,530 @@
-/* ---- neural-hud: the circuit light frame ------------------------------------
-   Ported from banc-explorer (BE THE FLY, app/globals.css .hud-frame): the
-   circuit line of light that wraps the driving cockpit so the whole play
-   field reads as one framed neural interface. A masked gradient border
-   carrying a bright current on a seven second lap (background-position
-   through a 320 percent wide five stop gradient of teal and lavender),
-   corner brackets glowing over it, and the shipped hud-online entrance,
-   panels sliding in from the right with a blur settle, for anything that
-   docks inside the frame. Prefixed neuralhud- mechanically; every colour
-   stop, period and shadow as shipped. */
+/* ---- neural-hud: BE THE FLY's cockpit HUD -----------------------------------
+   Ported from banc-explorer (BE THE FLY, app/globals.css + app/page.tsx): the
+   neural interface panel that docks on the right of the play field, carried
+   whole. It is a round trip: that game vendored this library, so its HUD is
+   already written against these tokens, and the CSS below reads --holo-line,
+   --holo-ink, --holo-beam, --holo-glow, --holo-panel and --holo-dim natively.
+   The game's own note on its objective bracket says as much: "the scifi-ui
+   idiom used elsewhere on the page".
 
-.neuralhud {
+   Carried: the panel shell with its beam hairline at the top edge, the head
+   with the lit objective (accent rail, corner bracket, and the 5.2s sweep that
+   restarts when the objective changes) beside the cell identity, the type
+   chips whose pip colour is the anatomical class, the measured stats and the
+   dataset pip that turns gold when the cells are not BANC, the dark render
+   stage with its scanline wash and grid mask, the EPG cockpit renders under a
+   reticle, the two drawn-light instruments, and the colour key. Every value,
+   colour, curve and period as shipped.
+
+   Deviations: the game parks this panel at right 20px over the moss field at
+   min(46vw, 760px); the demo gives it the column so it reads at the size the
+   game's own screenshots do. The velocity dial holds at hover because this
+   demo turns and does not fly, which is what the game shows while hovering.
+   Prefixed neuralhud- mechanically. */
+
+.neuralhud-panel {
+  --layer-accent: #bd9bd1;
   position: relative;
-  border-radius: 13px;
-  pointer-events: none;
-  box-shadow:
-    inset 0 0 0 1px rgba(122, 224, 208, 0.24),
-    inset 0 0 30px rgba(4, 18, 16, 0.26),
-    0 0 20px rgba(96, 214, 196, 0.14);
-}
-.neuralhud::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 2px;
-  background: linear-gradient(115deg,
-    rgba(122, 224, 208, 0.42) 0%,
-    rgba(150, 240, 224, 0.95) 16%,
-    rgba(170, 190, 255, 0.55) 36%,
-    rgba(122, 224, 208, 0.4) 56%,
-    rgba(210, 175, 248, 0.92) 78%,
-    rgba(122, 224, 208, 0.42) 100%);
-  background-size: 320% 100%;
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-          mask-composite: exclude;
-  filter: drop-shadow(0 0 5px rgba(122, 224, 208, 0.5));
-  animation: neuralhud-current 7s linear infinite;
-}
-.neuralhud-inner {
-  position: absolute;
-  inset: 5px;
-  border-radius: 9px;
-  box-shadow: inset 0 0 22px rgba(122, 224, 208, 0.12);
-}
-.neuralhud-corner {
-  position: absolute;
-  width: 18px;
-  height: 18px;
-  border-color: rgba(172, 246, 232, 0.98);
-  filter: drop-shadow(0 0 6px rgba(122, 224, 208, 0.85));
-}
-.neuralhud-corner.tl { left: -1px; top: -1px; border-left: 2px solid; border-top: 2px solid; border-top-left-radius: 13px; }
-.neuralhud-corner.tr { right: -1px; top: -1px; border-right: 2px solid; border-top: 2px solid; border-top-right-radius: 13px; }
-.neuralhud-corner.bl { left: -1px; bottom: -1px; border-left: 2px solid; border-bottom: 2px solid; border-bottom-left-radius: 13px; }
-.neuralhud-corner.br { right: -1px; bottom: -1px; border-right: 2px solid; border-bottom: 2px solid; border-bottom-right-radius: 13px; }
-@keyframes neuralhud-current { to { background-position: 320% 0; } }
-.neuralhud.is-paused::before { animation-play-state: paused; }
-
-/* the shipped hud-online entrance, for panels docking inside the frame */
-@keyframes neuralhud-online {
-  from { opacity: 0; transform: translateX(10px); filter: blur(3px); }
-}
-
-/* the real docking panel: BE THE FLY's mission HUD, carried whole from
-   app/globals.css .mission-hud. The glassy field panel with its scanline
-   wash, left accent bar, corner ticks mixed from the accent, and the
-   kicker / title / detail typography, Georgia serif title included. The
-   .heading state is the game's own purple flight variant. Field tokens
-   come from .arena-wrap verbatim. Positional deviation only: the game
-   parks it at bottom 105px above its touch controls; the demo stage has
-   no controls, so it parks at 18. */
-.neuralhud-stage {
-  --field-ink: #173d35;
-  --field-muted: #557169;
-  --field-accent: #39ae9d;
-  --field-line: rgba(25, 96, 82, .36);
-  --field-glass-a: rgba(249, 250, 237, .95);
-  --field-glass-b: rgba(215, 241, 226, .9);
-  position: relative;
-  min-height: 340px;
-  border-radius: 16px;
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgb(var(--holo-glow, 74 150 224) / .34);
+  border-radius: 14px;
+  background: linear-gradient(158deg,
+    rgb(var(--holo-panel, 15 18 24) / .94) 0%, rgb(4 8 14 / .97) 100%);
+  box-shadow: 0 24px 64px rgb(0 0 0 / .52), inset 0 1px 0 rgb(var(--holo-line, 196 228 255) / .12);
   isolation: isolate;
-  background-color: #75bd96;
 }
-.neuralhud-stage::after {
-  content: '';
-  position: absolute;
-  z-index: 1;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(232, 248, 238, .08), rgba(31, 102, 78, .04));
-  pointer-events: none;
-}
-.neuralhud-stage .neuralhud { position: absolute; inset: 14px; z-index: 4; }
-.neuralhud-mission {
+.neuralhud-panel::before {
+  content: "";
   position: absolute;
   z-index: 6;
-  left: 18px;
-  bottom: 18px;
-  width: min(280px, 42%);
-  display: grid;
-  gap: 3px;
-  padding: 13px 17px 13px 18px;
-  overflow: hidden;
-  border: 1px solid var(--field-line);
-  border-left: 3px solid var(--field-accent);
-  border-radius: 3px;
-  background:
-    repeating-linear-gradient(0deg, rgba(24, 91, 78, .035) 0 1px, transparent 1px 4px),
-    linear-gradient(135deg, var(--field-glass-a), var(--field-glass-b));
-  color: var(--field-ink);
-  box-shadow: 0 10px 30px rgba(17, 55, 46, .18), inset 0 1px rgba(255, 255, 245, .82), inset 0 0 28px rgba(67, 171, 147, .05);
-  backdrop-filter: blur(13px) saturate(1.18);
-  pointer-events: none;
-  animation: neuralhud-online .42s ease-out both;
+  left: 12%;
+  right: 12%;
+  top: -1px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(var(--holo-beam, 178 216 248) / .6), transparent);
 }
-.neuralhud-mission::before, .neuralhud-mission::after {
+
+/* ---- the head: the objective leads, the cell identity follows -------------- */
+.neuralhud-head {
+  position: relative;
+  z-index: 5;
+  flex: 0 0 auto;
+  display: grid;
+  gap: 5px;
+  padding: 18px 22px 14px;
+  border-bottom: 1px solid rgb(var(--holo-line, 196 228 255) / .10);
+}
+@media (min-width: 860px) {
+  .neuralhud-head {
+    grid-template-columns: minmax(170px, .72fr) minmax(0, 1.28fr);
+    align-items: start;
+    gap: 17px;
+  }
+  .neuralhud-head .neuralhud-objective { margin: 0; }
+}
+
+.neuralhud-objective {
+  position: relative;
+  display: grid;
+  gap: 2px;
+  padding: 20px 24px 21px 26px;
+  margin-bottom: 12px;
+  border: 1px solid color-mix(in srgb, var(--layer-accent, #68d6c4) 26%, transparent);
+  border-left: 2px solid var(--layer-accent, #68d6c4);
+  border-radius: 4px;
+  background:
+    repeating-linear-gradient(0deg, color-mix(in srgb, var(--layer-accent, #68d6c4) 5%, transparent) 0 1px, transparent 1px 4px),
+    linear-gradient(120deg, color-mix(in srgb, var(--layer-accent, #68d6c4) 13%, transparent), rgba(4, 14, 17, .2) 62%);
+  box-shadow:
+    inset 0 0 22px color-mix(in srgb, var(--layer-accent, #68d6c4) 9%, transparent),
+    0 0 18px color-mix(in srgb, var(--layer-accent, #68d6c4) 12%, transparent);
+  overflow: hidden;
+}
+/* corner bracket, top right, the scifi-ui idiom the game named in its own note */
+.neuralhud-objective::after {
   content: '';
   position: absolute;
-  width: 17px;
-  height: 17px;
-  border-color: color-mix(in srgb, var(--field-accent) 68%, transparent);
+  right: 8px;
+  top: 8px;
+  width: 13px;
+  height: 13px;
+  border-top: 1px solid var(--layer-accent, #68d6c4);
+  border-right: 1px solid var(--layer-accent, #68d6c4);
+  opacity: .6;
+  pointer-events: none;
 }
-.neuralhud-mission::before { right: 5px; top: 5px; border-right: 1px solid; border-top: 1px solid; }
-.neuralhud-mission::after { left: 5px; bottom: 5px; border-left: 1px solid; border-bottom: 1px solid; }
-.neuralhud-mission > span { color: #247d70; font-size: 9px; font-weight: 900; letter-spacing: .18em; }
-.neuralhud-mission > strong { font-family: Georgia, serif; font-size: 17px; line-height: 1.1; font-weight: 400; letter-spacing: .01em; }
-.neuralhud-mission > small { color: var(--field-muted); font-size: 10px; font-weight: 800; letter-spacing: .09em; }
-.neuralhud-mission.heading {
-  --field-accent: #a572a1;
+.neuralhud-objective::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(100deg, transparent 38%, color-mix(in srgb, var(--layer-accent, #68d6c4) 26%, transparent) 50%, transparent 62%);
+  transform: translateX(-120%);
+  animation: neuralhud-sweep 5.2s cubic-bezier(.4, 0, .2, 1) infinite;
+}
+@keyframes neuralhud-sweep {
+  0%        { transform: translateX(-120%); }
+  34%, 100% { transform: translateX(120%); }
+}
+.neuralhud-objective > span {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--layer-accent, #68d6c4);
+  text-shadow: 0 0 12px color-mix(in srgb, var(--layer-accent, #68d6c4) 55%, transparent);
+}
+.neuralhud-objective > strong {
+  position: relative;
+  font-family: Georgia, serif;
+  font-size: clamp(19px, 1.8vw, 25px);
+  font-weight: 400;
+  line-height: 1.05;
+  color: #f2fbf8;
+  text-shadow: 0 0 20px color-mix(in srgb, var(--layer-accent, #68d6c4) 34%, transparent);
+}
+.neuralhud-objective > em {
+  position: relative;
+  font-style: normal;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--layer-accent, #68d6c4) 62%, #cfe4df);
+  opacity: .95;
+}
+
+.neuralhud-neurons { display: grid; gap: 5px; }
+.neuralhud-kicker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: rgb(var(--holo-dim, 154 162 177) / .95);
+}
+.neuralhud-kicker i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--layer-accent, #68d6c4);
+  box-shadow: 0 0 10px var(--layer-accent, #68d6c4);
+}
+.neuralhud-neurons > strong {
+  font-family: Georgia, serif;
+  font-size: clamp(18px, 1.7vw, 24px);
+  font-weight: 400;
+  line-height: 1.05;
+  color: rgb(var(--holo-ink, 239 244 251));
+}
+.neuralhud-neurons > p {
+  display: -webkit-box;
+  margin: 1px 0 0;
+  overflow: hidden;
+  color: rgb(var(--holo-ink, 239 244 251) / .7);
+  font-size: 11.5px;
+  line-height: 1.38;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+/* one chip per named cell type; the pip colour is the anatomical class */
+.neuralhud-chips { display: flex; flex-wrap: wrap; gap: 5px; margin: 7px 0 9px; min-height: 22px; }
+.neuralhud-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px 3px 6px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--chip, #7ae0d0) 34%, rgba(120, 180, 172, .2));
+  background: color-mix(in srgb, var(--chip, #7ae0d0) 9%, rgba(6, 20, 22, .72));
+  font-size: 10.5px;
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
+.neuralhud-chip > i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--chip);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--chip) 76%, transparent);
+}
+.neuralhud-chip > b { font-weight: 600; color: #dcf3ee; font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; }
+.neuralhud-chip > em { font-style: normal; color: rgba(160, 206, 200, .72); }
+
+.neuralhud-stats { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin-top: 9px; }
+.neuralhud-stat {
+  padding: 4px 9px;
+  border: 1px solid rgb(var(--holo-line, 196 228 255) / .16);
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgb(var(--holo-ink, 239 244 251) / .55);
+  font-variant-numeric: tabular-nums;
+}
+.neuralhud-stat b {
+  margin-right: 5px;
+  font-family: Georgia, serif;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: rgb(var(--holo-ink, 239 244 251));
+}
+.neuralhud-pip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  padding: 4px 10px;
+  border: 1px solid rgb(var(--holo-beam, 178 216 248) / .3);
+  border-radius: 999px;
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: .14em;
+  color: rgb(var(--holo-beam, 178 216 248) / .9);
+}
+.neuralhud-pip i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgb(var(--holo-beam, 178 216 248));
+  box-shadow: 0 0 8px rgb(var(--holo-beam, 178 216 248) / .8);
+}
+/* a different dataset must not borrow BANC's badge */
+.neuralhud-pip.alt { border-color: rgb(232 169 58 / .45); color: rgb(232 169 58 / .95); }
+.neuralhud-pip.alt i { background: rgb(232 169 58); box-shadow: 0 0 8px rgb(232 169 58 / .8); }
+
+/* ---- the render stage, in its flight colouring ---------------------------- */
+.neuralhud-stage {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 330px;
+  margin: 14px;
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid rgba(122, 224, 208, .34);
+  border-radius: 12px;
   background:
-    repeating-linear-gradient(0deg, rgba(105, 73, 110, .035) 0 1px, transparent 1px 4px),
-    linear-gradient(135deg, rgba(250, 244, 248, .95), rgba(216, 240, 226, .9));
+    repeating-linear-gradient(0deg, rgba(174, 226, 246, .028) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at 50% 55%, rgba(12, 14, 26, .97) 0%, rgba(5, 11, 18, .98) 62%, rgba(3, 8, 13, .99) 100%);
+  box-shadow: 0 26px 64px rgba(1, 12, 11, .5), inset 0 1px rgba(150, 230, 220, .14), 0 0 34px rgba(80, 200, 185, .16);
 }
-.neuralhud-mission.heading > span { color: #80577e; }
+.neuralhud-stage::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background:
+    linear-gradient(rgba(104, 214, 196, .035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(104, 214, 196, .035) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: radial-gradient(circle, #000 46%, rgba(0, 0, 0, .35) 92%);
+}
+
+.neuralhud-glow {
+  position: absolute;
+  z-index: 4;
+  inset: 9px;
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 1px rgba(122, 224, 208, .12), inset 0 0 40px rgba(60, 190, 175, .06);
+  pointer-events: none;
+}
+.neuralhud-glow::before, .neuralhud-glow::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-color: rgba(160, 240, 226, .9);
+  filter: drop-shadow(0 0 5px rgba(122, 224, 208, .7));
+}
+.neuralhud-glow::before { left: 0; top: 0; border-left: 2px solid; border-top: 2px solid; border-top-left-radius: 8px; }
+.neuralhud-glow::after { right: 0; bottom: 0; border-right: 2px solid; border-bottom: 2px solid; border-bottom-right-radius: 8px; }
+
+.neuralhud-cockpit { position: absolute; z-index: 2; inset: 0; overflow: hidden; background: transparent; }
+.neuralhud-cockpit img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+}
+.neuralhud-cockpit-base { opacity: .82; filter: saturate(.72) brightness(.76); }
+.neuralhud-cockpit-active {
+  opacity: 1;
+  filter: saturate(1.14) brightness(1.08) drop-shadow(0 0 9px rgba(248, 172, 226, .35));
+  animation: neuralhud-arrive .14s ease-out both;
+}
+@keyframes neuralhud-arrive { from { opacity: .25; } }
+.neuralhud-reticle {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  top: 64%;
+  width: 31%;
+  aspect-ratio: 1;
+  border: 1px solid rgba(237, 211, 237, .24);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) rotate(var(--heading-angle, 0deg));
+  box-shadow: 0 0 0 7px rgba(197, 168, 219, .035), inset 0 0 22px rgba(220, 187, 226, .055);
+  transition: transform .08s linear;
+}
+.neuralhud-reticle::before, .neuralhud-reticle::after { content: ''; position: absolute; background: rgba(240, 218, 235, .2); }
+.neuralhud-reticle::before { left: 50%; top: -12%; width: 1px; height: 124%; }
+.neuralhud-reticle::after { top: 50%; left: -12%; height: 1px; width: 124%; }
+.neuralhud-reticle span {
+  position: absolute;
+  left: 50%;
+  top: -6px;
+  width: 12px;
+  height: 12px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: #ffd5e8;
+  box-shadow: 0 0 0 8px rgba(255, 213, 232, .13), 0 0 22px #efb7dc;
+}
+.neuralhud-turn {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  bottom: 48px;
+  transform: translateX(-50%);
+  width: min(300px, 58%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  color: rgba(240, 217, 233, .62);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .11em;
+}
+.neuralhud-turn b { color: #f2cde1; font-size: 10px; }
+.neuralhud-cockpit.turn-left .neuralhud-turn span:first-child,
+.neuralhud-cockpit.turn-right .neuralhud-turn span:last-child { color: #fff0f8; text-shadow: 0 0 12px #f3b8dc; }
+
+/* ---- flight instruments, drawn light rather than dials --------------------- */
+.neuralhud-instruments {
+  position: absolute;
+  inset: 14px 16px auto 16px;
+  z-index: 7;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  pointer-events: none;
+}
+.neuralhud-gauge {
+  position: relative;
+  display: grid;
+  justify-items: start;
+  gap: 6px;
+  width: clamp(72px, 6.4vw, 92px);
+  padding: 8px 10px;
+}
+.neuralhud-gauge.dial { justify-items: end; }
+.neuralhud-gauge .neuralhud-bracket {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border-color: color-mix(in srgb, var(--gauge-accent, #7ae0d0) 55%, transparent);
+}
+.neuralhud-gauge .neuralhud-bracket.tl { left: 0; top: 0; border-left: 1px solid; border-top: 1px solid; }
+.neuralhud-gauge .neuralhud-bracket.br { right: 0; bottom: 0; border-right: 1px solid; border-bottom: 1px solid; }
+.neuralhud-gauge svg { width: 100%; aspect-ratio: 1; display: block; overflow: visible; }
+.neuralhud-gauge .gauge-ring { fill: none; stroke: rgba(150, 215, 205, .16); stroke-width: .9; }
+.neuralhud-gauge .gauge-track { fill: none; stroke: rgba(150, 215, 205, .14); stroke-width: 1.4; stroke-linecap: round; }
+.neuralhud-gauge .gauge-arc {
+  fill: none;
+  stroke: var(--gauge-accent, #7ae0d0);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--gauge-accent) 80%, transparent));
+}
+.neuralhud-gauge .gauge-tick { stroke: rgba(150, 215, 205, .3); stroke-width: .9; }
+.neuralhud-gauge .gauge-tick.major { stroke: color-mix(in srgb, var(--gauge-accent, #7ae0d0) 78%, transparent); stroke-width: 1.2; }
+.neuralhud-gauge .gauge-north {
+  fill: rgba(190, 232, 225, .5);
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+.neuralhud-gauge .gauge-hub { fill: color-mix(in srgb, var(--gauge-accent, #7ae0d0) 70%, transparent); }
+.neuralhud-gauge .gauge-pointer { transition: transform .16s linear; }
+.neuralhud-gauge .gauge-pointer line { stroke: color-mix(in srgb, var(--gauge-accent, #7ae0d0) 42%, transparent); stroke-width: .9; }
+.neuralhud-gauge .gauge-pointer circle {
+  fill: var(--gauge-accent, #7ae0d0);
+  filter: drop-shadow(0 0 7px var(--gauge-accent, #7ae0d0));
+}
+.neuralhud-gauge .gauge-value {
+  font: 400 clamp(12px, 1.06vw, 15px)/1 ui-monospace, "SFMono-Regular", Menlo, monospace;
+  letter-spacing: .01em;
+  color: #e6f8f3;
+  white-space: nowrap;
+  text-shadow: 0 0 14px color-mix(in srgb, var(--gauge-accent, #7ae0d0) 55%, transparent);
+}
+.neuralhud-gauge .gauge-value u { text-decoration: none; text-transform: none; letter-spacing: 0; opacity: .5; font-size: .68em; margin-left: 3px; }
+.neuralhud-gauge .gauge-label {
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+  font-size: 7px;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: rgba(145, 190, 185, .46);
+  white-space: nowrap;
+}
+.neuralhud-gauge .gauge-label em { font-style: normal; color: color-mix(in srgb, var(--gauge-accent, #7ae0d0) 80%, transparent); letter-spacing: .16em; }
+.neuralhud-gauge.compass { --gauge-accent: #e8afd8; }
+.neuralhud-gauge.dial.idle { --gauge-accent: rgba(150, 200, 194, .72); }
+
+/* ---- the colour key yields the top corners to the instruments -------------- */
+.neuralhud-key {
+  position: absolute;
+  z-index: 5;
+  left: 14px;
+  bottom: 10px;
+  max-width: calc(100% - 28px);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 9px;
+  border: 1px solid rgb(var(--holo-line, 196 228 255) / .16);
+  border-radius: 5px;
+  background: linear-gradient(145deg, rgb(var(--holo-panel, 15 18 24) / .82), rgb(4 8 14 / .72));
+  box-shadow: 0 8px 22px rgb(0 0 0 / .22), inset 0 1px rgb(var(--holo-ink, 239 244 251) / .05);
+  backdrop-filter: blur(9px);
+  pointer-events: none;
+}
+.neuralhud-key > b {
+  margin-right: 2px;
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: .17em;
+  color: rgb(var(--holo-dim, 154 162 177) / .88);
+}
+.neuralhud-key > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  padding: 3px 6px;
+  border-radius: 999px;
+  background: rgb(var(--holo-ink, 239 244 251) / .045);
+}
+.neuralhud-key > span > i {
+  flex: 0 0 auto;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--key-color);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--key-color) 74%, transparent);
+}
+.neuralhud-key em {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-style: normal;
+  font-size: 8.5px;
+  font-weight: 850;
+  letter-spacing: .055em;
+  color: rgb(var(--holo-ink, 239 244 251) / .92);
+}
+.neuralhud-key small { font-size: 7.5px; letter-spacing: .035em; color: rgb(var(--holo-dim, 154 162 177) / .76); }
+
+.neuralhud-link {
+  width: fit-content;
+  margin: 0 22px 18px;
+  padding: 7px 12px;
+  border: 1px solid rgb(var(--holo-beam, 178 216 248) / .4);
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .13em;
+  text-decoration: none;
+  color: rgb(var(--holo-beam, 178 216 248));
+  transition: background .18s ease, border-color .18s ease, color .18s ease;
+}
+.neuralhud-link:hover, .neuralhud-link:focus-visible, .neuralhud-link.holo-on {
+  color: rgb(var(--holo-ink, 239 244 251));
+  border-color: rgb(var(--holo-beam, 178 216 248) / .85);
+  background: rgb(var(--holo-glow, 74 150 224) / .22);
+}
+
+@media (max-width: 900px) {
+  .neuralhud-panel { border-radius: 10px; }
+  .neuralhud-head { padding: 13px 15px 11px; }
+  .neuralhud-instruments { inset: 8px 10px auto 10px; }
+  .neuralhud-gauge { width: 62px; }
+  .neuralhud-key small { display: none; }
+  .neuralhud-link { margin: 0 15px 14px; }
+}
+
+/* Narrow-screen deviations. The game gives this panel a stage far wider than
+   a phone column, so three of its own values stop fitting: a gauge readout
+   overflows its 62px box and the stage clips it, and the colour key wraps to
+   two rows and lands on the turn labels. The gauge boxes take their content
+   width, the turn row clears the wrapped key, and the stage gains the height
+   that costs. Nothing is dropped; the game hides none of this either. */
+@media (max-width: 620px) {
+  .neuralhud-stage { min-height: 380px; margin: 10px; }
+  .neuralhud-gauge { width: auto; min-width: 62px; max-width: 46%; padding: 6px 8px; }
+  .neuralhud-gauge svg { width: 62px; }
+  .neuralhud-turn { bottom: 84px; width: 78%; }
+  .neuralhud-key { gap: 4px; padding: 6px 7px; }
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .neuralhud::before { animation: none; }
-  .neuralhud-mission { animation: none; }
+  /* the panel lands lit; the sweep, the relight flash and the needle glide stop */
+  .neuralhud-objective::before { animation: none; opacity: 0; }
+  .neuralhud-cockpit-active { animation: none; }
+  .neuralhud-gauge .gauge-pointer, .neuralhud-reticle { transition: none; }
 }
