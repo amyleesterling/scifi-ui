@@ -41,7 +41,12 @@
       var ccw = (360 - compass) % 360;
       var idx = Math.floor(ccw / (360 / COUNT)) % COUNT;
       var cardinal = CARDINALS[Math.round(compass / 45) % 8];
-      reticle.style.setProperty("--heading-angle", compass.toFixed(1) + "deg");
+      /* the reticle takes the unwrapped angle, as the game does:
+         --heading-angle is headingDegrees + 90, not the wrapped
+         compass. Feeding it the wrapped value makes the 80ms
+         transition unwind a whole turn backwards each time the
+         heading crosses north. */
+      reticle.style.setProperty("--heading-angle", (heading + 90).toFixed(1) + "deg");
       label.textContent = "FLY HEADING · EPG " + String(idx).padStart(2, "0");
       readout.textContent = cardinal + " · " + String(Math.round(compass) % 360).padStart(3, "0") + "°";
       if (idx !== sector) {
