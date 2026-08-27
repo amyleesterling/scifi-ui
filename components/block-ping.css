@@ -46,6 +46,9 @@
   top: 48%;
   transform: translateZ(84px);
   z-index: 20;
+  /* decoration: the expanding ring must not sit in front of the controls
+     it shares a card with */
+  pointer-events: none;
 }
 /* iOS Safari drops transform animations on an element that is itself a
    plane in the stack's preserve-3d scene, so the marker only places the
