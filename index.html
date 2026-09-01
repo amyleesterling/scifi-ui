@@ -318,6 +318,11 @@
      this is a different kind of fact from where the meshes came from */
   footer .credit { margin: 0 0 10px; color: #C4CCD8; font-size: 15px; }
   footer a, .lede a, p a { color: #3E96F0; text-decoration: none; }
+  .sibling {
+    margin: 14px 0 0;
+    padding-top: 13px;
+    border-top: 1px solid rgb(var(--holo-line, 196 228 255) / .12);
+  }
   @media (prefers-reduced-motion: reduce) {
     .cta, h2::before { transition: none; }
   }
@@ -1219,6 +1224,13 @@
     Meshes via <a href="https://caveclient.readthedocs.io/">CAVE</a>, rendered in
     Blender. An interactive WebGL version of the pulse is
     <a href="https://amyleesterling.github.io/ca3/viewer.html">here</a>.
+    <p class="sibling">This library holds parts carried across from software
+    that ships. Its sibling
+    <a href="https://amyleesterling.github.io/experimental-UI/">experimental-UI</a>
+    holds original components whose movement is computed from a real model,
+    and its
+    <a href="https://amyleesterling.github.io/experimental-UI/components/models.html">models
+    page</a> pairs each one with the science behind it.</p>
   </footer>
 
 </div>
