@@ -9,6 +9,16 @@
 Every component running, framed around real 3D renders of reconstructed
 neurons. Hover anything.
 
+Its sibling is
+[experimental-UI](https://amyleesterling.github.io/experimental-UI/), where the
+components are original rather than extracted and their movement is computed
+from a real model: springs that carry velocity, coupled oscillators, a maze
+router that wires a poster's own border. The
+[models page](https://amyleesterling.github.io/experimental-UI/components/models.html)
+pairs each one with an interactive of the science it came from. This repo
+holds the opposite case on purpose: everything here is carried across from
+software that actually ships, and nothing is invented.
+
 A small, dependency free set of hologram and HUD parts for a dark page: a
 draggable step rail, a vertical section rail for the page itself, a readout
 panel, an underline that draws itself, a panel that boots up, a scan sweep, an
@@ -678,6 +688,11 @@ obvious on sight, because a HUD is made of specific values and eyeballing them
 averages the character out. If you cannot find the source, say so rather than
 inventing a plausible version. Where a port had to deviate, the deviation and its
 cause are written down, and there are only three in the whole repo.
+
+The sibling repo, [experimental-UI](https://github.com/amyleesterling/experimental-UI),
+takes the other half of that rule: everything there is original and says so in
+its own file headers, so neither repo has to guess which kind of thing it is
+looking at.
 
 Built for a connectomics rendering site
 ([amyleesterling.github.io/ca3](https://amyleesterling.github.io/ca3)), where the
