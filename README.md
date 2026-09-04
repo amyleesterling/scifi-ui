@@ -451,6 +451,43 @@ whole reason it is a separate component. Do not force them to match.
 
 The section rail above uses the same token, for the same reason.
 
+### 14. Hologram material (three.js)
+
+The one 3D part. A `ShaderMaterial` in `js/holo-material.js` that turns any
+mesh into a projected volume of light, with its own
+[demo page](https://amyleesterling.github.io/scifi-ui/hologram-3d.html) where
+every parameter is a slider and the meshes are the two brain surfaces and the
+nine MICrONS cells the library already carries.
+
+```js
+import { makeHologramMaterial, applyHologram, tickHologram }
+  from "./js/holo-material.js";
+
+const holo = makeHologramMaterial({ color: "#7EE0FF" });
+applyHologram(mesh, holo);        // after the mesh is positioned and scaled
+tickHologram(holo, seconds);      // each frame
+```
+
+Five things, each behind a uniform: additive blending with a near clear
+facing surface (`bodyAlpha`); a fresnel rim (`glowIntensity`, `fresnelPower`)
+whose three channels use slightly different exponents so the edge splits
+(`chroma`); a triplanar lattice of sharp dots in world space for the surface
+(`dotScale`, `dotRadius`, `dotIntensity`); and interference that arrives in
+bursts from a value noise of time (`glitchFreq`), jittering the vertices
+(`glitchAmount`) and widening the colour split while it lasts. No scanlines,
+nothing scrolls. The lattice is in world space on purpose: it belongs to the
+projector, so it holds still while the object turns.
+
+Three things that are not obvious. The fragment ends with three.js's own
+`tonemapping_fragment` and `colorspace_fragment` chunks, because a raw
+`ShaderMaterial` does not get them and ships about half as bright as the colour
+you asked for without them. Back faces are drawn at 0.35, so a shell reads as
+a volume and its near edge does not double to white. And fresnel is a
+silhouette effect, so on a dendrite thinner than a pixel there is no facing
+surface to be clear and no edge to glow: the demo's cell preset softens the
+rim, lifts the body and makes the lattice fine enough to land on a tube. A
+shell wants the defaults.
+
 ---
 
 

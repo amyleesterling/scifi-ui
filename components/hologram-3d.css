@@ -1,0 +1,63 @@
+/* The hologram material demo: the stage beside its knobs.
+ *
+ * The stage is a .mviz card (microns-cards.css), the knobs are a panel on
+ * the library's tokens. Class names carry a holo prefix that nothing else in
+ * the set uses (checked: holo3d, holoknobs, holoknob, holoswatches), because
+ * two components sharing a base class break both the day one page loads both.
+ */
+.holo3d {
+  display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 18px;
+  align-items: start;
+}
+@media (max-width: 760px) { .holo3d { grid-template-columns: 1fr; } }
+.holo3d .mviz { margin: 0; }
+.holo3d .mviz-stage {
+  aspect-ratio: 4 / 3;
+  background: radial-gradient(120% 90% at 50% 45%, rgba(10,22,44,.85), rgba(4,7,14,.95) 70%);
+}
+/* the card's own scanline scrim is exactly what this shader is not */
+.holo3d .mviz-stage::after { display: none; }
+
+.holoknobs {
+  background: rgb(var(--holo-panel, 15 18 24) / .7);
+  border: 1px solid rgb(var(--holo-glow, 74 150 224) / .28);
+  border-radius: 4px; padding: 14px 14px 10px; margin: 0;
+}
+.holoknobs h3 {
+  font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+  color: rgb(var(--holo-line, 196 228 255) / .8); margin: 0 0 10px; font-weight: 600;
+}
+.holoknob {
+  display: grid; grid-template-columns: 1fr auto; gap: 0 8px; margin: 0 0 8px;
+  font-size: 12.5px; line-height: 1.5;
+}
+.holoknob span { color: rgb(var(--holo-dim, 154 162 177)); }
+.holoknob output { font-variant-numeric: tabular-nums; color: rgb(var(--holo-line, 196 228 255)); }
+.holoknob input[type=range] {
+  grid-column: 1 / -1; width: 100%; margin: 2px 0 0;
+  accent-color: rgb(var(--holo-cyan, 126 224 255));
+}
+.holoswatches { display: flex; gap: 6px; margin: 4px 0 12px; flex-wrap: wrap; }
+.holoswatches label { position: relative; width: 26px; height: 26px; border-radius: 50%; cursor: pointer; }
+.holoswatches input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+.holoswatches i {
+  position: absolute; inset: 0; border-radius: 50%; background: var(--c);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / .6) inset, 0 0 10px -2px var(--c);
+  transition: transform .15s;
+}
+.holoswatches input:checked + i {
+  transform: scale(1.12);
+  outline: 2px solid rgb(var(--holo-line, 196 228 255)); outline-offset: 2px;
+}
+.holoswatches input:focus-visible + i {
+  outline: 2px solid rgb(var(--holo-warm, 232 169 58)); outline-offset: 2px;
+}
+.holoknobs select, .holoknobs button {
+  width: 100%; font: inherit; font-size: 12.5px; color: rgb(var(--holo-ink, 239 244 251));
+  background: rgb(var(--holo-panel, 15 18 24));
+  border: 1px solid rgb(var(--holo-glow, 74 150 224) / .4);
+  border-radius: 3px; padding: 6px 8px; margin: 0 0 10px; cursor: pointer;
+}
+.holoknobs button:hover, .holoknobs button:focus-visible,
+.holoknobs select:focus-visible { border-color: rgb(var(--holo-line, 196 228 255)); outline: none; }
+@media (prefers-reduced-motion: reduce) { .holoswatches i { transition: none; } }

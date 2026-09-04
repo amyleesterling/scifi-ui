@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>scifi-ui · hologram shader</title>
+<script type="importmap">
+{"imports":{"three":"./vendor/three/three.module.min.js","three/addons/":"./vendor/three/addons/"}}
+</script>
+<link rel="stylesheet" href="hologram.css">
+<link rel="stylesheet" href="microns-cards.css">
+<link rel="stylesheet" href="components/hologram-3d.css">
+<style>
+  body {
+    margin: 0; background: #07080B; color: #EFF2F7;
+    font: 400 17px/1.7 ui-sans-serif, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-text-size-adjust: 100%;
+  }
+  * { box-sizing: border-box; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 36px 30px 96px; }
+  h1 { font-size: 26px; font-weight: 600; letter-spacing: -.01em; margin: 0 0 6px; }
+  .lede { color: rgb(var(--holo-dim, 154 162 177)); margin: 0 0 18px; max-width: 62ch; }
+  .lede a, .code a { color: rgb(var(--holo-line, 196 228 255)); }
+  .code { margin: 26px 0 0; }
+  .code h2 { font-size: 18px; margin: 0 0 6px; }
+  .code p { color: rgb(var(--holo-dim, 154 162 177)); margin: 0 0 10px; }
+  pre {
+    background: rgb(var(--holo-panel, 15 18 24)); border: 1px solid rgb(var(--holo-glow, 74 150 224) / .22);
+    border-radius: 4px; padding: 14px 16px; overflow-x: auto; font-size: 13px; line-height: 1.55;
+    color: rgb(var(--holo-line, 196 228 255));
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Hologram shader</h1>
+  <p class="lede">A three.js material that turns any mesh into a projected volume of
+  light: a translucent centre, a cyan fresnel rim, a lattice of dots for the
+  surface, and bursts of interference that jitter the vertices and split the
+  colour. The meshes are two real brain surfaces and nine real cells from the
+  MICrONS volume. Drag to turn one, scroll to zoom. Source in
+  <a href="js/holo-material.js">js/holo-material.js</a>; the rest of the
+  library is on the <a href="./">main page</a>.</p>
+
+  <div class="holo3d" id="holo">
+    <div class="mviz">
+      <b class="k tl"></b><b class="k tr"></b><b class="k bl"></b><b class="k br"></b>
+      <p class="mviz-eyebrow"><s></s>one mesh, one material<u></u>drag to turn, scroll to zoom</p>
+      <div class="mviz-stage">
+        <div class="mviz-mount" data-mount></div>
+        <p class="mviz-status" data-status>Loading the surface</p>
+      </div>
+      <div class="mviz-facts" data-facts></div>
+    </div>
+    <form class="holoknobs" data-knobs onsubmit="return false">
+      <h3>Colour</h3>
+      <div class="holoswatches" data-swatches></div>
+      <h3>Mesh</h3>
+      <select data-cell aria-label="Mesh"></select>
+      <h3>Material</h3>
+      <div data-ranges></div>
+      <button type="button" data-reset>Reset to defaults</button>
+    </form>
+  </div>
+
+  <div class="code">
+    <h2>Use it</h2>
+    <p>Three calls. The bounds are read from the object after it is placed, so
+    apply the material last.</p>
+<pre>import { makeHologramMaterial, applyHologram, tickHologram }
+  from "./js/holo-material.js";
+
+const holo = makeHologramMaterial({ color: "#7EE0FF" });
+applyHologram(mesh, holo);          // after mesh is positioned and scaled
+// each frame:
+tickHologram(holo, timeInSeconds);</pre>
+  </div>
+</div>
+
+<script type="module">
+  import { mountHologramDemo } from "./js/hologram-demo.js";
+  window.__holo = mountHologramDemo(document.getElementById("holo"));
+</script>
+</body>
+</html>

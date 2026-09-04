@@ -39,6 +39,7 @@
 <link rel="stylesheet" href="components/neuron-ignite.css">
 <link rel="stylesheet" href="components/epg-compass.css">
 <link rel="stylesheet" href="components/quest-complete.css">
+<link rel="stylesheet" href="components/hologram-3d.css">
 <style>
   /* demo page chrome only, none of this is part of the system */
   body {
@@ -436,6 +437,7 @@
     <p class="secdex-label">INDEX</p>
     <ol>
       <li><a href="#step-rail">Step rail</a></li>
+      <li><a href="#hologram">Hologram material</a></li>
       <li><a href="#underline">Underline that draws itself</a></li>
       <li><a href="#panel">Panel that boots up</a></li>
       <li><a href="#scan-sweep">Scan sweep</a></li>
@@ -549,6 +551,41 @@
   </div>
     </div>
   </div>
+
+  <h2 id="hologram">Hologram material</h2>
+  <p>The one 3D part. A three.js material that turns any mesh into a projected
+  volume of light: near clear where it faces you, an electric cyan rim where
+  you see it edge on, a lattice of sharp dots for the surface, and every so
+  often a burst of interference that shivers the vertices and pulls the colour
+  channels apart. No scanlines and nothing scrolls. The lattice sits in world
+  space, so it holds still while the object turns, the way a projector's
+  raster would. Every parameter is a slider; every mesh is real, two whole
+  brain surfaces and the nine MICrONS cells from the rail above. It also has
+  <a href="hologram-3d.html">a page of its own</a>.</p>
+  <div class="holo3d" id="holo3d">
+    <div class="mviz">
+      <b class="k tl"></b><b class="k tr"></b><b class="k bl"></b><b class="k br"></b>
+      <p class="mviz-eyebrow"><s></s>one mesh, one material<u></u>drag to turn, scroll to zoom</p>
+      <div class="mviz-stage">
+        <div class="mviz-mount" data-mount></div>
+        <p class="mviz-status" data-status>The surface loads when you reach it</p>
+      </div>
+      <div class="mviz-facts" data-facts></div>
+    </div>
+    <form class="holoknobs" data-knobs onsubmit="return false">
+      <h3>Colour</h3>
+      <div class="holoswatches" data-swatches></div>
+      <h3>Mesh</h3>
+      <select data-cell aria-label="Mesh"></select>
+      <h3>Material</h3>
+      <div data-ranges></div>
+      <button type="button" data-reset>Reset to defaults</button>
+    </form>
+  </div>
+  <p class="mviz-cap">Fresnel is a silhouette effect, so a dendrite thinner
+  than a pixel has no facing surface to be clear and no edge to glow. The
+  cells load twice as close as the shells, with a preset that softens the
+  rim and lifts the body, and say so in the code.</p>
 
   <h2 id="underline">Underline that draws itself</h2>
   <p>A hairline draws out from under a heading when it first comes into view,
@@ -2283,7 +2320,10 @@
   import { mountBrainScale } from "./js/brainscale.js";
   import { mountCellTypes } from "./js/celltypes.js";
   import { mountActionPotential } from "./js/actionpotential.js";
+  import { mountHologramDemo } from "./js/hologram-demo.js";
 
+  var h = document.getElementById("holo3d");
+  if (h) window.__holo = mountHologramDemo(h);
   var b = document.getElementById("brainScale");
   if (b) window.__brainScale = mountBrainScale(b);
   var c = document.getElementById("cellTypes");

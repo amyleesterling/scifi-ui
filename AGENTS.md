@@ -724,3 +724,30 @@ of the port: carry the real chip, the real mission HUD, the real report
 structure, and when the source panel cannot come whole, say which part is
 demo scaffolding in the file header. Demo DATA may be invented (names,
 counts, dates); demo CHROME may not.
+
+**Version 11**, 4 September 2026. The first 3D component: a hologram
+`ShaderMaterial` in `js/holo-material.js`, with `hologram-3d.html` as its
+demo. Built to a written brief (additive, translucent centre, cyan fresnel
+rim, a dot lattice for the surface instead of scanlines, noise gated jitter
+and colour split, nothing that scrolls). Lessons worth keeping:
+
+- **Fresnel is a silhouette effect, and a sub pixel tube has no silhouette.**
+  On the mouse brain shell the material reads as a hologram at the defaults.
+  On a MICrONS cell it read as a scatter of dust, because a dendrite one pixel
+  wide is sampled at its axis, where the normal faces the camera and the rim
+  term is zero. There is no shader fix for that; the demo carries a per mesh
+  preset (rim power down, body up, lattice finer) and says why in a comment.
+  Test a surface shader on the thinnest thing it will ever be asked to draw.
+- **Additive with both faces drawn doubles the edge.** Front plus back at
+  full alpha clipped the rim to a white outline. Back faces at 0.35 keep the
+  volume read and lose the outline.
+- **The pane does deliver a screenshot of WebGL, once you render by hand.**
+  §7 says screenshots time out. They do not when the frame is drawn
+  synchronously first: `loop.step(dt)` then `computer.screenshot`. What the
+  pane never does is fire `requestAnimationFrame` or `ResizeObserver`, so a
+  canvas sized by an observer sits at its first size until you call the fit
+  yourself. Measure the drawing buffer before trusting a picture: the first
+  frame here was 132 by 98.
+- **A zero gain control proves the pixels are the shader's.** `uOpacity` 0
+  gave zero lit pixels, `uOpacity` 1 gave the object. Without the control a
+  faint render is indistinguishable from a broken one.
