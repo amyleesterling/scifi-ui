@@ -8,7 +8,30 @@
  * scanlines and nothing scrolls. The reference is the FlyWire Codex brain and
  * nerve cord, a translucent blue-white shell with fibres inside it.
  *
- * FIVE INGREDIENTS, ONE MATERIAL, EVERY ONE A UNIFORM.
+ * THREE ERAS ON ONE MATERIAL. Everything above is the 2026 hologram: light on
+ * the outside of a shape. The later uniforms turn it into a light field, light
+ * computed inside the object rather than projected onto it:
+ *
+ *   thickness     A second pass writes the depth of the nearest back face
+ *                 (makeThicknessPass). The fragment subtracts its own depth,
+ *                 which is how much object the ray passes through, and the
+ *                 interior glows by Beer's law: 1 - exp(-thickness * uDensity),
+ *                 scaled by uInner. A soma is denser light than a dendrite.
+ *   lattice       uLattice 1 replaces the dot grid with four plane waves
+ *                 summed in 3D. Their nodes form a lattice on any surface, and
+ *                 each wave carries a phase from the view direction
+ *                 (uParallax), so the nodes drift as you move, the way the
+ *                 fringes of a real hologram do.
+ *   diffraction   uIridescence runs the rim through a spectrum at grazing
+ *                 angles, like a holographic plate, on top of the base colour.
+ *   touch         uPointer is a world point on the surface (the demo raycasts
+ *                 it). Rings of interference travel out from it through the
+ *                 volume and decay, so the object answers a hand.
+ *   voxel glitch  uVoxel > 0 makes a burst re-quantise the geometry to a grid
+ *                 instead of shivering it: a digital recompute, not analog
+ *                 noise.
+ *
+ * FIVE INGREDIENTS OF THE 2026 LOOK, EVERY ONE A UNIFORM.
  *
  *   Transparency  Additive blending, depthWrite off, so overlapping dendrites
  *                 sum the way light does. The body contribution (uBodyAlpha)
@@ -20,14 +43,11 @@
  *                 a surface at any angle receives an even dot spacing rather
  *                 than a smeared one; world space, so the lattice belongs to
  *                 the projector and holds still while the object turns.
- *                 uDotScale is dots per world unit, uDotRadius their size,
- *                 uDotIntensity their brightness.
  *   Glitch        A 1D value noise of time, sampled at uGlitchFreq, gated
  *                 through a smoothstep so interference arrives in short
  *                 bursts. During a burst the vertex shader jitters positions
  *                 by a 3D noise (uGlitchAmount) and the fragment shader
- *                 widens the chromatic split (uChroma). Between bursts a faint
- *                 constant split remains.
+ *                 widens the chromatic split (uChroma).
  *   Form          One fixed key direction gives the body a little shading so
  *                 a soma still reads as a volume. It is not a scene light.
  *
@@ -44,13 +64,30 @@ export const HOLO_DEFAULTS = {
   glowIntensity: 1.1,      /* rim gain. Above ~1.5 the edge clips to white */
   fresnelPower: 2.6,       /* higher is a thinner rim */
   bodyAlpha: 0.035,        /* haze the facing surface still carries */
-  dotScale: 30,            /* dots per world unit */
+  dotScale: 30,            /* dots (or lattice nodes) per world unit */
   dotRadius: 0.08,         /* dot radius as a fraction of one cell */
   dotIntensity: 1.0,       /* dot gain */
   glitchFreq: 1.8,         /* noise samples per second; bursts arrive faster */
   glitchAmount: 0.012,     /* vertex jitter as a fraction of the object height */
   chroma: 0.5,             /* channel split at the rim, 0 none */
   opacity: 1.0,            /* overall gain, may exceed 1 */
+  /* the light field, all off for the 2026 look */
+  density: 0,              /* optical density per world unit, 0 no volume */
+  inner: 0.3,              /* gain on the volume glow */
+  lattice: 0,              /* 0 dot grid, 1 interference lattice */
+  parallax: 3,             /* how far the lattice nodes drift with the view */
+  iridescence: 0,          /* spectrum at the rim, 0 none */
+  voxel: 0,                /* burst voxel size as a fraction of height, 0 off */
+  touch: 1,                /* gain on the pointer rings */
+};
+
+/* three presets on the same material */
+export const HOLO_ERAS = {
+  2026: {},
+  2076: { density: 0.9, inner: 0.35, iridescence: 0.25, voxel: 0.02, glitchAmount: 0.006 },
+  2226: { density: 1.6, inner: 0.5, lattice: 1, parallax: 4, iridescence: 0.7, dotScale: 40,
+          voxel: 0.035, glitchAmount: 0.003, chroma: 0.8, fresnelPower: 3.2,
+          bodyAlpha: 0.015, dotIntensity: 1.3 },
 };
 
 const NOISE = /* glsl */ `
@@ -83,11 +120,13 @@ const VERT = /* glsl */ `
 uniform float uTime;
 uniform float uGlitchFreq;
 uniform float uGlitchAmount;
+uniform float uVoxel;
 uniform vec2  uBounds;      /* world y of the bottom and top of the object */
 varying vec3  vN;
 varying vec3  vV;
 varying vec3  vW;
 varying float vBurst;
+varying float vDepth;
 ${NOISE}
 void main() {
   vec4 wp = modelMatrix * vec4(position, 1.0);
@@ -99,12 +138,21 @@ void main() {
   vec3 q = wp.xyz * 9.0 + vec3(0.0, uTime * 7.0, 0.0);
   vec3 j = vec3(noise3(q) - 0.5, (noise3(q + 31.0) - 0.5) * 0.3, noise3(q + 67.0) - 0.5);
   wp.xyz += j * (uGlitchAmount * extent * b);
+
+  /* the digital glitch: a burst snaps the geometry to a voxel grid, and the
+     grid is finer or coarser from one tick to the next */
+  if (uVoxel > 0.0) {
+    float cell = uVoxel * extent * (0.6 + 0.8 * hash(floor(uTime * 12.0)));
+    vec3 snapped = (floor(wp.xyz / cell) + 0.5) * cell;
+    wp.xyz = mix(wp.xyz, snapped, step(0.5, b));
+  }
   vBurst = b;
 
   vec4 mv = viewMatrix * wp;
   vN = normalize(normalMatrix * normal);
   vV = -mv.xyz;
   vW = wp.xyz;
+  vDepth = -mv.z;
   gl_Position = projectionMatrix * mv;
 }`;
 
@@ -121,10 +169,22 @@ uniform float uDotRadius;
 uniform float uDotIntensity;
 uniform float uChroma;
 uniform float uOpacity;
+uniform float uDensity;
+uniform float uInner;
+uniform float uLattice;
+uniform float uParallax;
+uniform float uIridescence;
+uniform float uTouch;
+uniform vec3  uPointer;
+uniform float uPointerT;
+uniform float uPointerOn;
+uniform sampler2D uThick;
+uniform vec2  uResolution;
 varying vec3  vN;
 varying vec3  vV;
 varying vec3  vW;
 varying float vBurst;
+varying float vDepth;
 ${NOISE}
 
 /* one plane of the lattice: distance to the nearest cell centre in 2D,
@@ -136,10 +196,18 @@ float dots2(vec2 p) {
   return 1.0 - smoothstep(uDotRadius - aa, uDotRadius + aa, d);
 }
 
+/* a spectrum from 0 to 1, red through violet, for the diffraction rim */
+vec3 spectrum(float x) {
+  return clamp(vec3(abs(x * 6.0 - 3.0) - 1.0, 2.0 - abs(x * 6.0 - 2.0),
+                    2.0 - abs(x * 6.0 - 4.0)), 0.0, 1.0);
+}
+
 void main() {
   vec3 N = normalize(vN);
-  if (!gl_FrontFacing) N = -N;
   vec3 V = normalize(vV);
+  /* face the normal toward the eye by geometry, not by winding: a mirrored
+     export (the mouse brain is one) has every triangle wound backwards */
+  if (dot(N, V) < 0.0) N = -N;
   float f = 1.0 - clamp(dot(N, V), 0.0, 1.0);
 
   /* rim, split by channel. A faint constant split, widened during a burst,
@@ -149,21 +217,71 @@ void main() {
   vec3 rim = vec3(pow(f, p * (1.0 + split)), pow(f, p), pow(f, p * (1.0 - split)));
   rim *= uGlowIntensity;
 
-  /* the dot lattice, triplanar on the world normal */
-  vec3 Nw = abs(normalize(vec3(N)));   /* view space normal, fine for weights */
-  vec3 w = Nw * Nw; w /= (w.x + w.y + w.z);
-  vec3 q = vW * uDotScale;
-  float dots = dots2(q.yz) * w.x + dots2(q.xz) * w.y + dots2(q.xy) * w.z;
-  /* the dots are the topology, so they show on the facing surface too, only
-     a little dimmer there than at the edge */
-  dots *= uDotIntensity * mix(0.45, 1.0, f);
+  /* the surface pattern: either the dot grid, triplanar on the normal, or
+     four plane waves whose nodes make a lattice that drifts with the view */
+  float pat;
+  if (uLattice < 0.5) {
+    vec3 Nw = abs(N);
+    vec3 w = Nw * Nw; w /= (w.x + w.y + w.z);
+    vec3 q = vW * uDotScale;
+    pat = dots2(q.yz) * w.x + dots2(q.xz) * w.y + dots2(q.xy) * w.z;
+  } else {
+    /* the four directions of a tetrahedron, so the nodes are a 3D lattice
+       and no surface orientation gets stripes */
+    const vec3 k0 = vec3( 0.577,  0.577,  0.577);
+    const vec3 k1 = vec3( 0.577, -0.577, -0.577);
+    const vec3 k2 = vec3(-0.577,  0.577, -0.577);
+    const vec3 k3 = vec3(-0.577, -0.577,  0.577);
+    float s = uDotScale * 6.28318 * 0.5;
+    /* world space view direction: the phase each wave takes from the eye */
+    vec3 Vw = normalize(cameraPosition - vW);
+    float wsum = cos(dot(vW, k0) * s + dot(Vw, k0) * uParallax)
+               + cos(dot(vW, k1) * s + dot(Vw, k1) * uParallax)
+               + cos(dot(vW, k2) * s + dot(Vw, k2) * uParallax)
+               + cos(dot(vW, k3) * s + dot(Vw, k3) * uParallax);
+    float aa = fwidth(wsum) * 1.5;
+    /* the nodes are the peaks of the sum, kept small: at the default radius
+       only the top few percent of the wave survives */
+    float thr = 4.0 - 5.0 * uDotRadius;
+    pat = smoothstep(thr - aa, thr + aa, wsum);
+  }
+  /* the pattern is the topology, so it shows on the facing surface too,
+     only a little dimmer there than at the edge */
+  pat *= uDotIntensity * mix(0.45, 1.0, f);
 
   /* a little form for the body */
   float lit = 0.6 + 0.4 * abs(dot(N, normalize(vec3(0.4, 0.7, 0.6))));
 
   vec3 col = uColor * (uBodyAlpha * lit * (0.4 + 0.6 * f));
-  col += mix(uColor, uCoreColor, clamp(rim.g * 0.45, 0.0, 1.0)) * rim;
-  col += uColor * dots;
+  vec3 rimCol = mix(uColor, uCoreColor, clamp(rim.g * 0.45, 0.0, 1.0));
+  /* the diffraction colour: a spectrum keyed to the grazing angle, brightest
+     where the rim is, so it reads as a property of the light and not paint */
+  rimCol = mix(rimCol, spectrum(fract(f * 1.4 + 0.55)), uIridescence * f);
+  col += rimCol * rim;
+  col += uColor * pat;
+
+  /* the volume: how much object this ray passes through, from the thickness
+     pass, glowing by Beer's law. The pass holds the farthest surface on this
+     ray, so the near wall carries the whole thickness and the far wall
+     carries none, whichever way the triangles are wound. */
+  if (uDensity > 0.0) {
+    float back = texture2D(uThick, gl_FragCoord.xy / uResolution).r;
+    float thick = max(back - vDepth, 0.0);
+    float vol = 1.0 - exp(-thick * uDensity);
+    col += mix(uColor, uCoreColor, vol * 0.5) * vol * uInner;
+  }
+
+  /* the touch: interference rings running out from the pointer's point on
+     the surface, through the volume, fading over a couple of seconds */
+  if (uPointerOn > 0.0) {
+    float age = uTime - uPointerT;
+    float d = distance(vW, uPointer);
+    float ring = 0.5 + 0.5 * sin(d * 70.0 - age * 9.0);
+    ring = pow(ring, 6.0);
+    float env = exp(-d * 5.0) * exp(-age * 0.9) * step(d, age * 0.8 + 0.05);
+    col += mix(uColor, uCoreColor, 0.5) * ring * env * 2.0 * uTouch;
+  }
+
   /* interference also lifts the whole thing a touch and grains it */
   col *= 1.0 + vBurst * 0.25;
   col *= 1.0 - vBurst * 0.15 * hash(floor(gl_FragCoord.y * 0.5) + floor(uTime * 30.0));
@@ -193,6 +311,18 @@ export function makeHologramMaterial(opts) {
       uGlitchAmount:  { value: o.glitchAmount },
       uChroma:        { value: o.chroma },
       uOpacity:       { value: o.opacity },
+      uDensity:       { value: o.density },
+      uInner:         { value: o.inner },
+      uLattice:       { value: o.lattice },
+      uParallax:      { value: o.parallax },
+      uIridescence:   { value: o.iridescence },
+      uVoxel:         { value: o.voxel },
+      uTouch:         { value: o.touch },
+      uPointer:       { value: new THREE.Vector3() },
+      uPointerT:      { value: 0 },
+      uPointerOn:     { value: 0 },
+      uThick:         { value: null },
+      uResolution:    { value: new THREE.Vector2(1, 1) },
       uBounds:        { value: new THREE.Vector2(-1, 1) },
     },
     vertexShader: VERT,
@@ -237,4 +367,76 @@ export function setHologramParam(material, key, value) {
   if (u.value && u.value.isColor) u.value.set(value);
   else u.value = value;
   return true;
+}
+
+/* The touch. Give it a world point on the surface and the time; rings run
+   out from there. Call touchHologram(m, null) when the pointer leaves. */
+export function touchHologram(material, point, t) {
+  const u = material.uniforms;
+  if (!point) { u.uPointerOn.value = 0; return; }
+  u.uPointer.value.copy(point);
+  u.uPointerT.value = t;
+  u.uPointerOn.value = 1;
+}
+
+/* The thickness pass. Renders every surface into a float target with the
+   depth test reversed, so what survives is the FARTHEST surface on each ray,
+   as view depth. The hologram subtracts its own depth from it. Farthest
+   rather than "nearest back face" because that needs correct winding, and a
+   mirrored export has none; this way is right for any mesh. Costs one extra
+   draw of the same geometry with a trivial fragment shader.
+   Call pass.render(renderer, scene, camera, material) before the main render. */
+export function makeThicknessPass() {
+  const target = new THREE.WebGLRenderTarget(1, 1, {
+    type: THREE.HalfFloatType, format: THREE.RGBAFormat,
+    minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter,
+    depthBuffer: true,
+  });
+  const depthMat = new THREE.ShaderMaterial({
+    side: THREE.DoubleSide,
+    depthFunc: THREE.GreaterDepth,
+    vertexShader: /* glsl */ `
+      varying float vDepth;
+      void main() {
+        vec4 mv = modelViewMatrix * vec4(position, 1.0);
+        vDepth = -mv.z;
+        gl_Position = projectionMatrix * mv;
+      }`,
+    fragmentShader: /* glsl */ `
+      varying float vDepth;
+      void main() { gl_FragColor = vec4(vDepth, 0.0, 0.0, 1.0); }`,
+  });
+  const size = new THREE.Vector2();
+  return {
+    target: target, material: depthMat,
+    render: function (renderer, scene, camera, holo) {
+      /* nothing to do while the volume is off */
+      if (holo.uniforms.uDensity.value <= 0) return;
+      renderer.getDrawingBufferSize(size);
+      if (target.width !== size.x || target.height !== size.y) {
+        target.setSize(size.x, size.y);
+      }
+      const prevTarget = renderer.getRenderTarget();
+      const prevOverride = scene.overrideMaterial;
+      const prevClear = renderer.getClearAlpha();
+      const gl = renderer.getContext();
+      renderer.setRenderTarget(target);
+      renderer.setClearColor(0x000000, 0);
+      /* a reversed depth test needs the buffer cleared to the near end */
+      gl.clearDepth(0);
+      renderer.clear();
+      scene.overrideMaterial = depthMat;
+      const prevAuto = renderer.autoClear;
+      renderer.autoClear = false;
+      renderer.render(scene, camera);
+      renderer.autoClear = prevAuto;
+      gl.clearDepth(1);
+      scene.overrideMaterial = prevOverride;
+      renderer.setRenderTarget(prevTarget);
+      renderer.setClearColor(0x000000, prevClear);
+      holo.uniforms.uThick.value = target.texture;
+      holo.uniforms.uResolution.value.copy(size);
+    },
+    dispose: function () { target.dispose(); depthMat.dispose(); },
+  };
 }

@@ -488,6 +488,21 @@ surface to be clear and no edge to glow: the demo's cell preset softens the
 rim, lifts the body and makes the lattice fine enough to land on a tube. A
 shell wants the defaults.
 
+**Three eras, all kept.** `HOLO_ERAS` holds three presets on the one
+material and the demo has a button for each. 2026 is the hologram above, light
+projected onto the outside of a shape. 2076 turns on a volume: a second pass
+writes the farthest surface on each ray, the fragment subtracts its own depth,
+and the interior glows by Beer's law, so a soma is denser light than a
+dendrite. It also answers a hand: the demo raycasts the pointer onto the real
+mesh and rings of interference run out from that point through the volume.
+2226 is the full light field: four plane waves summed in 3D whose nodes shift
+with your viewing angle the way a real hologram's fringes do, a diffraction
+spectrum at the rim, and a glitch that re-quantises the geometry to voxels
+instead of shivering it. The thickness pass takes the farthest surface with a
+reversed depth test rather than the nearest back face, because the mouse brain
+is exported mirrored and its winding is backwards; the material faces its
+normals by geometry for the same reason.
+
 ---
 
 

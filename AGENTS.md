@@ -751,3 +751,16 @@ and colour split, nothing that scrolls). Lessons worth keeping:
 - **A zero gain control proves the pixels are the shader's.** `uOpacity` 0
   gave zero lit pixels, `uOpacity` 1 gave the object. Without the control a
   faint render is indistinguishable from a broken one.
+
+**Version 12**, 4 September 2026. The hologram gains two future eras on the
+same material, kept as versions beside the original. Lessons worth keeping:
+
+- **Never take facing from winding.** The mouse brain GLB is a mirrored export
+  and every triangle is wound backwards, so `gl_FrontFacing` and `BackSide`
+  both lie on it. A "nearest back face" thickness pass wrote the near wall and
+  the volume was invisible, measured: the far depth at the centre read 2.07
+  with the camera at 2.9, the front. The pass now keeps the farthest surface
+  (`GreaterDepth`, buffer cleared to 0) and the material flips its normal by
+  `dot(N, V)`. Read the depth target back before believing a volume effect.
+- **Eras are versions, not replacements.** Amy: "remember we want versions".
+  A new look goes in as a preset beside the old one, never over it.

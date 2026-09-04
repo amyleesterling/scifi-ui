@@ -560,7 +560,12 @@
   channels apart. No scanlines and nothing scrolls. The lattice sits in world
   space, so it holds still while the object turns, the way a projector's
   raster would. Every parameter is a slider; every mesh is real, two whole
-  brain surfaces and the nine MICrONS cells from the rail above. It also has
+  brain surfaces and the nine MICrONS cells from the rail above. Three eras
+  sit on the one material: 2026 is that projected surface; 2076 gives it a
+  volume, the interior glowing by how much object each ray passes through,
+  and rings that run out from wherever you touch it; 2226 is a light field,
+  an interference lattice whose nodes shift with your viewing angle and a
+  diffraction spectrum at the rim. It also has
   <a href="hologram-3d.html">a page of its own</a>.</p>
   <div class="holo3d" id="holo3d">
     <div class="mviz">
@@ -573,6 +578,8 @@
       <div class="mviz-facts" data-facts></div>
     </div>
     <form class="holoknobs" data-knobs onsubmit="return false">
+      <h3>Era</h3>
+      <div class="holoeras" data-eras></div>
       <h3>Colour</h3>
       <div class="holoswatches" data-swatches></div>
       <h3>Mesh</h3>

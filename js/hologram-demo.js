@@ -16,8 +16,8 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { REDUCED, makeRenderer, fitRenderer, makeLoop, whenNear, disposeTree, fmt }
   from "./holo3d.js";
-import { HOLO_DEFAULTS, makeHologramMaterial, applyHologram, tickHologram, setHologramParam }
-  from "./holo-material.js";
+import { HOLO_DEFAULTS, HOLO_ERAS, makeHologramMaterial, applyHologram, tickHologram,
+  setHologramParam, touchHologram, makeThicknessPass } from "./holo-material.js";
 
 /* The meshes the library already carries: two whole brain surfaces and the
    nine MICrONS cells. A shell and a cell want different settings. Fresnel is
@@ -59,7 +59,16 @@ const KNOBS = [
   ["Glitch jitter", "glitchAmount", 0, 0.05, 0.001],
   ["Colour split", "chroma", 0, 1, 0.01],
   ["Gain", "opacity", 0, 2, 0.05],
+  /* the light field */
+  ["Volume density", "density", 0, 4, 0.05],
+  ["Volume glow", "inner", 0, 1.5, 0.05],
+  ["Lattice (0 dots, 1 waves)", "lattice", 0, 1, 1],
+  ["Lattice parallax", "parallax", 0, 12, 0.1],
+  ["Diffraction", "iridescence", 0, 1, 0.01],
+  ["Voxel glitch", "voxel", 0, 0.1, 0.001],
+  ["Touch", "touch", 0, 3, 0.05],
 ];
+const ERAS = ["2026", "2076", "2226"];
 
 export function mountHologramDemo(root) {
   const mount = root.querySelector("[data-mount]");
@@ -81,11 +90,43 @@ export function mountHologramDemo(root) {
   renderer.domElement.addEventListener("pointerdown", function () { controls.autoRotate = false; });
 
   const holo = makeHologramMaterial();
+  const thickness = makeThicknessPass();
+  let now = 0;
 
   const loop = makeLoop(stageEl, function (dt, t) {
+    now = t;
     tickHologram(holo, t);
     controls.update();
+    thickness.render(renderer, scene, camera, holo);
     renderer.render(scene, camera);
+  });
+
+  /* the touch: the pointer's point on the surface, raycast against the real
+     mesh, throttled because a cell is 120,000 triangles with no BVH. A tap
+     on a phone lands the same way; a drag that turns the object does not
+     keep re-touching it, the point stays where the finger went down. */
+  const ray = new THREE.Raycaster();
+  const ndc = new THREE.Vector2();
+  let lastCast = 0;
+  function cast(ev) {
+    if (!group) return;
+    const r = renderer.domElement.getBoundingClientRect();
+    ndc.set(((ev.clientX - r.left) / r.width) * 2 - 1, -((ev.clientY - r.top) / r.height) * 2 + 1);
+    ray.setFromCamera(ndc, camera);
+    const hit = ray.intersectObject(group, true)[0];
+    if (hit) { touchHologram(holo, hit.point, now); loop.once(); }
+  }
+  renderer.domElement.addEventListener("pointermove", function (ev) {
+    if (ev.buttons) return;
+    const t = performance.now();
+    if (t - lastCast < 40) return;
+    lastCast = t;
+    cast(ev);
+  });
+  renderer.domElement.addEventListener("pointerdown", cast);
+  renderer.domElement.addEventListener("pointerleave", function () {
+    /* the rings finish their decay on their own; the flag only stops new
+       ones. Nothing is switched off mid ripple. */
   });
   const ro = new ResizeObserver(function () {
     if (fitRenderer(renderer, camera, mount)) loop.once();
@@ -102,6 +143,24 @@ export function mountHologramDemo(root) {
   swatches.addEventListener("change", function (e) {
     setHologramParam(holo, "color", e.target.value); loop.once();
   });
+
+  /* the era: three presets on the one material */
+  let era = "2026";
+  const eras = form.querySelector("[data-eras]");
+  if (eras) {
+    eras.innerHTML = ERAS.map(function (e) {
+      return '<button type="button" data-era="' + e + '" aria-pressed="' + (e === era) + '">' + e + "</button>";
+    }).join("");
+    eras.addEventListener("click", function (ev) {
+      const b = ev.target.closest("[data-era]");
+      if (!b) return;
+      era = b.getAttribute("data-era");
+      eras.querySelectorAll("[data-era]").forEach(function (x) {
+        x.setAttribute("aria-pressed", String(x === b));
+      });
+      applyPreset();
+    });
+  }
 
   const cellSel = form.querySelector("[data-cell]");
   cellSel.innerHTML = MESHES.map(function (c, i) {
@@ -127,7 +186,7 @@ export function mountHologramDemo(root) {
      the sliders, so the panel never shows a number the shader is not using */
   let current = MESHES[0];
   function applyPreset() {
-    const p = Object.assign({}, HOLO_DEFAULTS, current.preset);
+    const p = Object.assign({}, HOLO_DEFAULTS, HOLO_ERAS[era] || {}, current.preset);
     if (REDUCED) { p.glitchAmount = 0; p.glitchFreq = 0; }
     KNOBS.forEach(function (k) {
       setHologramParam(holo, k[1], p[k[1]]);
@@ -202,8 +261,13 @@ export function mountHologramDemo(root) {
   return { el: root, loop: loop, start: start, load: load, material: holo,
     scene: scene, camera: camera, renderer: renderer, meshes: MESHES,
     group: function () { return group; },
+    thickness: thickness,
+    setEra: function (e) {
+      const b = eras && eras.querySelector('[data-era="' + e + '"]');
+      if (b) b.click();
+    },
     dispose: function () {
-      loop.stop(); ro.disconnect(); controls.dispose();
+      loop.stop(); ro.disconnect(); controls.dispose(); thickness.dispose();
       disposeTree(scene); renderer.dispose();
     } };
 }
