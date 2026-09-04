@@ -79,6 +79,16 @@ export const HOLO_DEFAULTS = {
   iridescence: 0,          /* spectrum at the rim, 0 none */
   voxel: 0,                /* burst voxel size as a fraction of height, 0 off */
   touch: 1,                /* gain on the pointer rings */
+  /* two things that are not uniforms of the surface shader */
+  solid: 0,                /* 1: a depth prepass keeps only the nearest surface,
+                              so a folded mesh reads as one lit body instead of
+                              a stack of translucent layers */
+  halo: 0,                 /* gain on the bloom shells outside the silhouette */
+  haloSize: 0.05,          /* how far the outermost shell is pushed, world units */
+  haloColor: "#FFE6B0",    /* the bloom's colour */
+  opaque: 0,               /* 1: normal blending and depth write. A surface you
+                              cannot see through, on any background */
+  shade: 0,                /* 0 hologram body, 1 a lit surface (lambert) */
 };
 
 /* three presets on the same material */
@@ -88,6 +98,74 @@ export const HOLO_ERAS = {
   2226: { density: 1.6, inner: 0.5, lattice: 1, parallax: 4, iridescence: 0.7, dotScale: 40,
           voxel: 0.035, glitchAmount: 0.003, chroma: 0.8, fresnelPower: 3.2,
           bodyAlpha: 0.015, dotIntensity: 1.3 },
+};
+
+/* Named styles: whole looks, each a different idea of what a hologram is,
+   all on a warm white and gold core. A style sets colours as well as
+   numbers and wins over the era it is laid on. Amy's brief: warm white,
+   golden glow, bright, friendly, a supernova. */
+export const HOLO_STYLES = {
+  /* a star seen through glass: the interior is the light source, the rim a
+     white hot line, no pattern at all */
+  supernova: {
+    color: "#FFC964", coreColor: "#FFFBF0", glowIntensity: 1.8, fresnelPower: 2.4,
+    bodyAlpha: 1.3, dotIntensity: 0, density: 2.0, inner: 1.2, iridescence: 0,
+    chroma: 0.1, glitchAmount: 0.003, voxel: 0, lattice: 0,
+    solid: 1, halo: 1.6, haloSize: 0.14, haloColor: "#FFC24A", opacity: 1,
+  },
+  /* the surface is a net of gold nodes over a dark amber body, and the nodes
+     drift as you move: a light field you could count */
+  emberLattice: {
+    color: "#FFB347", coreColor: "#FFF1D6", glowIntensity: 1.2, fresnelPower: 2.4,
+    bodyAlpha: 0.35, lattice: 1, dotScale: 46, dotRadius: 0.16, dotIntensity: 6,
+    parallax: 6, density: 0.8, inner: 0.25, iridescence: 0, chroma: 0.2,
+    voxel: 0.02, glitchAmount: 0.004, solid: 1, halo: 0.5, haloSize: 0.05,
+    haloColor: "#FF9A3C", opacity: 1,
+  },
+  /* a paper lantern: soft, warm, hardly any rim, the body itself lit from
+     within, a fine gentle dot grid like the weave of the paper */
+  lantern: {
+    color: "#FFD9A0", coreColor: "#FFFDF7", glowIntensity: 0.4, fresnelPower: 1.2,
+    bodyAlpha: 0.9, dotScale: 90, dotRadius: 0.12, dotIntensity: 0.4,
+    density: 0.8, inner: 0.3, iridescence: 0, chroma: 0, glitchAmount: 0,
+    voxel: 0, lattice: 0, solid: 1, halo: 0.6, haloSize: 0.18, haloColor: "#FFE0A8",
+    opacity: 1,
+  },
+  /* champagne aurora: the gold rim runs through a spectrum at grazing
+     angles, a voxel glitch keeps re-computing it, the lattice hums */
+  aurora: {
+    color: "#FFCF7A", coreColor: "#FFFFFF", glowIntensity: 1.3, fresnelPower: 2.8,
+    bodyAlpha: 0.03, lattice: 1, dotScale: 34, dotRadius: 0.06, dotIntensity: 1.2,
+    parallax: 9, density: 0.7, inner: 0.3, iridescence: 0.9, chroma: 0.9,
+    voxel: 0.04, glitchAmount: 0.003,
+  },
+  /* gold on blue: a cool blue body with a molten gold rim and gold dots, the
+     one warm accent on a cool field, the library's own rule */
+  goldOnBlue: {
+    color: "#3E96F0", coreColor: "#FFD27A", glowIntensity: 3.2, fresnelPower: 3.0,
+    bodyAlpha: 0.7, dotScale: 30, dotRadius: 0.08, dotIntensity: 0.8,
+    density: 1.0, inner: 0.3, iridescence: 0, chroma: 0.4, voxel: 0,
+    glitchAmount: 0.008, lattice: 0, solid: 1, halo: 0.9, haloSize: 0.08,
+    haloColor: "#FFC24A", opacity: 1,
+  },
+  /* white heat: everything burns toward white, the rim is a searing line,
+     the interior a dense white gold, the dots gone; a hologram that is more
+     a flare than an image */
+  /* solid gold: not a projection at all, a warm white gold object with a lit
+     surface you cannot see through, a gold rim and a soft bloom. The one
+     for a page that is not black. */
+  solidGold: {
+    color: "#FFD27A", coreColor: "#FFFFFF", glowIntensity: 1.3, fresnelPower: 2.8,
+    bodyAlpha: 1.0, shade: 1, dotScale: 30, dotRadius: 0.08, dotIntensity: 0.25,
+    density: 0, inner: 0, iridescence: 0, chroma: 0.15, glitchAmount: 0.002,
+    voxel: 0, lattice: 0, opaque: 1, solid: 1, halo: 1.2, haloSize: 0.1,
+    haloColor: "#FFC24A", opacity: 1,
+  },
+  whiteHeat: {
+    color: "#FFE8B8", coreColor: "#FFFFFF", glowIntensity: 2.6, fresnelPower: 4.5,
+    bodyAlpha: 0.01, dotIntensity: 0, density: 2.2, inner: 0.8, iridescence: 0.15,
+    chroma: 0.3, glitchAmount: 0.002, voxel: 0.015, lattice: 0, opacity: 1.0,
+  },
 };
 
 const NOISE = /* glsl */ `
@@ -175,6 +253,7 @@ uniform float uLattice;
 uniform float uParallax;
 uniform float uIridescence;
 uniform float uTouch;
+uniform float uShade;
 uniform vec3  uPointer;
 uniform float uPointerT;
 uniform float uPointerOn;
@@ -249,10 +328,17 @@ void main() {
      only a little dimmer there than at the edge */
   pat *= uDotIntensity * mix(0.45, 1.0, f);
 
-  /* a little form for the body */
-  float lit = 0.6 + 0.4 * abs(dot(N, normalize(vec3(0.4, 0.7, 0.6))));
+  /* a little form for the body; or, at uShade 1, a lit surface: a lambert
+     term from the same key direction plus a soft wrap, so an opaque style
+     reads as an object under light rather than as a projection */
+  vec3 L = normalize(vec3(0.4, 0.7, 0.6));
+  float lit = 0.6 + 0.4 * abs(dot(N, L));
+  float lam = 0.1 + 0.9 * max(dot(N, L), 0.0) + 0.14 * max(dot(N, normalize(vec3(-0.6, 0.2, 0.5))), 0.0);
+  /* a warm white highlight from the key, so a solid style has a sheen */
+  lam += 0.6 * pow(max(dot(reflect(-L, N), V), 0.0), 24.0);
+  float bodyLight = mix(lit * (0.4 + 0.6 * f), lam, uShade);
 
-  vec3 col = uColor * (uBodyAlpha * lit * (0.4 + 0.6 * f));
+  vec3 col = uColor * (uBodyAlpha * bodyLight);
   vec3 rimCol = mix(uColor, uCoreColor, clamp(rim.g * 0.45, 0.0, 1.0));
   /* the diffraction colour: a spectrum keyed to the grazing angle, brightest
      where the rim is, so it reads as a property of the light and not paint */
@@ -264,11 +350,15 @@ void main() {
      pass, glowing by Beer's law. The pass holds the farthest surface on this
      ray, so the near wall carries the whole thickness and the far wall
      carries none, whichever way the triangles are wound. */
+  /* which wall this is: with the pass on, the near wall is the one with
+     object behind it; without it, all that is left is the winding */
+  float front = gl_FrontFacing ? 1.0 : 0.0;
   if (uDensity > 0.0) {
     float back = texture2D(uThick, gl_FragCoord.xy / uResolution).r;
     float thick = max(back - vDepth, 0.0);
     float vol = 1.0 - exp(-thick * uDensity);
     col += mix(uColor, uCoreColor, vol * 0.5) * vol * uInner;
+    front = step(0.004, thick);
   }
 
   /* the touch: interference rings running out from the pointer's point on
@@ -288,8 +378,11 @@ void main() {
 
   /* the far wall of a shell is drawn too, dimmer, so a volume reads as one
      and the near edge does not double up to white */
-  float a = uOpacity * (gl_FrontFacing ? 1.0 : 0.35);
+  float a = uOpacity * mix(0.35, 1.0, front);
   gl_FragColor = vec4(col, a);
+  #ifdef HOLO_OPAQUE
+  gl_FragColor = vec4(col * uOpacity, 1.0);
+  #endif
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
 }`;
@@ -318,6 +411,7 @@ export function makeHologramMaterial(opts) {
       uIridescence:   { value: o.iridescence },
       uVoxel:         { value: o.voxel },
       uTouch:         { value: o.touch },
+      uShade:         { value: o.shade },
       uPointer:       { value: new THREE.Vector3() },
       uPointerT:      { value: 0 },
       uPointerOn:     { value: 0 },
@@ -333,7 +427,73 @@ export function makeHologramMaterial(opts) {
     side: THREE.DoubleSide,
   });
   m.isHologram = true;
+  m.solid = !!o.solid;
+  m.opaque = false;
+  /* the depth only twin for the solid prepass. It runs the SAME vertex
+     shader on the same uniforms, so a jittered or voxelised burst lands on
+     the same depth and the surface is not rejected against its own prepass. */
+  m.depthOnly = new THREE.ShaderMaterial({
+    uniforms: m.uniforms, vertexShader: VERT,
+    fragmentShader: "void main() { gl_FragColor = vec4(0.0); }",
+    colorWrite: false, side: THREE.DoubleSide,
+  });
+  m.halo = {
+    uHaloColor: { value: new THREE.Color(o.haloColor) },
+    uHaloGain: { value: o.halo },
+    uHaloSize: { value: o.haloSize },
+    uTime: m.uniforms.uTime,
+  };
   return m;
+}
+
+/* The bloom. Three copies of the surface pushed out along their normals by a
+   growing distance, drawn back face only, additive, no depth test, each a
+   little dimmer than the last. Where the copies overlap near the silhouette
+   the light sums, and it thins out to nothing at the outer shell: a soft
+   halo with no post processing and no blur pass. */
+const HALO_VERT = /* glsl */ `
+uniform float uHaloSize;
+uniform float uLayer;
+uniform float uTime;
+varying float vF;
+void main() {
+  float breathe = 1.0 + 0.08 * sin(uTime * 1.3 + uLayer * 2.0);
+  /* pushed mostly away from the object's centre, only a little along the
+     normal: a folded surface pushed along its normals tears into spikes,
+     and the geometry is recentred on the origin, so radial is smooth */
+  vec3 radial = normalize(position);
+  vec3 dir = normalize(mix(normal, radial, 0.9));
+  vec3 p = position + dir * (uHaloSize * (uLayer / 6.0) * breathe);
+  vec4 mv = modelViewMatrix * vec4(p, 1.0);
+  /* the fade reads the smooth push direction, not the folded normal, or
+     every shell carries the gyri as a ghost of the brain */
+  vec3 N = normalize(normalMatrix * dir);
+  vec3 V = normalize(-mv.xyz);
+  vF = 1.0 - abs(dot(N, V));
+  gl_Position = projectionMatrix * mv;
+}`;
+const HALO_FRAG = /* glsl */ `
+precision highp float;
+uniform vec3 uHaloColor;
+uniform float uHaloGain;
+uniform float uLayer;
+varying float vF;
+void main() {
+  float a = uHaloGain * 0.22 * pow(vF, 1.6) / uLayer;
+  gl_FragColor = vec4(uHaloColor * a, a);
+  #include <tonemapping_fragment>
+  #include <colorspace_fragment>
+}`;
+function makeHaloMaterial(halo, layer) {
+  return new THREE.ShaderMaterial({
+    uniforms: {
+      uHaloColor: halo.uHaloColor, uHaloGain: halo.uHaloGain,
+      uHaloSize: halo.uHaloSize, uTime: halo.uTime, uLayer: { value: layer },
+    },
+    vertexShader: HALO_VERT, fragmentShader: HALO_FRAG,
+    transparent: true, depthWrite: false, depthTest: true,
+    blending: THREE.AdditiveBlending, side: THREE.BackSide,
+  });
 }
 
 /* Put one hologram material on every mesh under root and tell it how tall the
@@ -349,10 +509,58 @@ export function applyHologram(root, material) {
     /* a shell's wireframe child is a second mesh on the same geometry and it
        would double the rim, so it goes */
     if (o.material && o.material.wireframe) { drop.push(o); return; }
+    if (o.isHalo) return;
     o.material = material;
   });
   drop.forEach(function (o) { o.parent.remove(o); });
+  /* the bloom shells ride under each mesh, sharing its geometry */
+  const hosts = [];
+  root.traverse(function (o) { if (o.isMesh && o.material === material) hosts.push(o); });
+  hosts.forEach(function (o) {
+    if (o.userData.halo) return;
+    const g = new THREE.Group(); g.isHalo = true;
+    [1, 2, 3, 4, 5, 6].forEach(function (layer) {
+      const h = new THREE.Mesh(o.geometry, makeHaloMaterial(material.halo, layer));
+      h.isHalo = true; h.renderOrder = -20 + layer;
+      g.add(h);
+    });
+    o.add(g); o.userData.halo = g;
+  });
+  setHaloVisible(root, material.halo.uHaloGain.value > 0);
   return box;
+}
+
+function setHaloVisible(root, on) {
+  root.traverse(function (o) { if (o.isHalo && o.isGroup) o.visible = on; });
+}
+
+/* One frame of a hologram: the thickness pass, then, for a solid style, a
+   depth only prepass so only the nearest surface survives, then the additive
+   pass. Pass the thickness pass from makeThicknessPass or null. */
+export function renderHologramFrame(renderer, scene, camera, material, thickness) {
+  if (thickness) thickness.render(renderer, scene, camera, material);
+  renderer.clear();
+  /* the prepass also serves the halo: with depth in the buffer the bloom
+     shells only survive outside the silhouette, where a bloom belongs */
+  if (material.solid || material.halo.uHaloGain.value > 0) {
+    const prevOverride = scene.overrideMaterial;
+    const halos = [];
+    scene.traverse(function (o) { if (o.isHalo && o.isGroup && o.visible) { halos.push(o); o.visible = false; } });
+    scene.overrideMaterial = material.depthOnly;
+    renderer.render(scene, camera);
+    scene.overrideMaterial = prevOverride;
+    halos.forEach(function (o) { o.visible = true; });
+    /* a translucent style with a halo keeps its layers: the prepass depth
+       is then only for the halo, and the surface is tested against nothing */
+    material.depthTest = material.solid;
+  } else {
+    material.depthTest = true;
+  }
+  material.depthFunc = THREE.LessEqualDepth;
+  const prevAuto = renderer.autoClear;
+  renderer.autoClear = false;
+  renderer.render(scene, camera);
+  renderer.autoClear = prevAuto;
 }
 
 export function tickHologram(material, t) {
@@ -360,7 +568,25 @@ export function tickHologram(material, t) {
 }
 
 /* Set any HOLO_DEFAULTS key by name at runtime. Colours take a hex string. */
-export function setHologramParam(material, key, value) {
+export function setHologramParam(material, key, value, root) {
+  if (key === "solid") { material.solid = value > 0; return true; }
+  if (key === "opaque") {
+    const on = value > 0;
+    material.opaque = on;
+    material.blending = on ? THREE.NormalBlending : THREE.AdditiveBlending;
+    material.transparent = !on;
+    material.depthWrite = on;
+    material.defines = on ? { HOLO_OPAQUE: 1 } : {};
+    material.needsUpdate = true;
+    return true;
+  }
+  if (key === "halo") {
+    material.halo.uHaloGain.value = value;
+    if (root) setHaloVisible(root, value > 0);
+    return true;
+  }
+  if (key === "haloSize") { material.halo.uHaloSize.value = value; return true; }
+  if (key === "haloColor") { material.halo.uHaloColor.value.set(value); return true; }
   const name = "u" + key.charAt(0).toUpperCase() + key.slice(1);
   const u = material.uniforms[name];
   if (!u) return false;
@@ -392,20 +618,20 @@ export function makeThicknessPass() {
     minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter,
     depthBuffer: true,
   });
-  const depthMat = new THREE.ShaderMaterial({
-    side: THREE.DoubleSide,
-    depthFunc: THREE.GreaterDepth,
-    vertexShader: /* glsl */ `
-      varying float vDepth;
-      void main() {
-        vec4 mv = modelViewMatrix * vec4(position, 1.0);
-        vDepth = -mv.z;
-        gl_Position = projectionMatrix * mv;
-      }`,
-    fragmentShader: /* glsl */ `
-      varying float vDepth;
-      void main() { gl_FragColor = vec4(vDepth, 0.0, 0.0, 1.0); }`,
-  });
+  let depthMat = null;   /* built on first render, on the hologram's uniforms */
+  function depthMaterial(holo) {
+    if (!depthMat) depthMat = new THREE.ShaderMaterial({
+      side: THREE.DoubleSide,
+      depthFunc: THREE.GreaterDepth,
+      uniforms: holo.uniforms,
+      vertexShader: VERT,
+      fragmentShader: /* glsl */ `
+        precision highp float;
+        varying float vDepth;
+        void main() { gl_FragColor = vec4(vDepth, 0.0, 0.0, 1.0); }`,
+    });
+    return depthMat;
+  }
   const size = new THREE.Vector2();
   return {
     target: target, material: depthMat,
@@ -420,12 +646,14 @@ export function makeThicknessPass() {
       const prevOverride = scene.overrideMaterial;
       const prevClear = renderer.getClearAlpha();
       const gl = renderer.getContext();
+      const halos = [];
+      scene.traverse(function (o) { if (o.isHalo && o.isGroup && o.visible) { halos.push(o); o.visible = false; } });
       renderer.setRenderTarget(target);
       renderer.setClearColor(0x000000, 0);
       /* a reversed depth test needs the buffer cleared to the near end */
       gl.clearDepth(0);
       renderer.clear();
-      scene.overrideMaterial = depthMat;
+      scene.overrideMaterial = depthMaterial(holo);
       const prevAuto = renderer.autoClear;
       renderer.autoClear = false;
       renderer.render(scene, camera);
@@ -434,9 +662,10 @@ export function makeThicknessPass() {
       scene.overrideMaterial = prevOverride;
       renderer.setRenderTarget(prevTarget);
       renderer.setClearColor(0x000000, prevClear);
+      halos.forEach(function (o) { o.visible = true; });
       holo.uniforms.uThick.value = target.texture;
       holo.uniforms.uResolution.value.copy(size);
     },
-    dispose: function () { target.dispose(); depthMat.dispose(); },
+    dispose: function () { target.dispose(); if (depthMat) depthMat.dispose(); },
   };
 }

@@ -55,6 +55,8 @@
     <form class="holoknobs" data-knobs onsubmit="return false">
       <h3>Era</h3>
       <div class="holoeras" data-eras></div>
+      <h3>Style</h3>
+      <div class="holostyles" data-styles></div>
       <h3>Colour</h3>
       <div class="holoswatches" data-swatches></div>
       <h3>Mesh</h3>
@@ -81,6 +83,7 @@ tickHologram(holo, timeInSeconds);</pre>
 
 <script type="module">
   import { mountHologramDemo } from "./js/hologram-demo.js";
+  if (new URLSearchParams(location.search).get("shot") === "1") document.body.classList.add("holoshot");
   window.__holo = mountHologramDemo(document.getElementById("holo"));
 </script>
 </body>

@@ -16,8 +16,8 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { REDUCED, makeRenderer, fitRenderer, makeLoop, whenNear, disposeTree, fmt }
   from "./holo3d.js";
-import { HOLO_DEFAULTS, HOLO_ERAS, makeHologramMaterial, applyHologram, tickHologram,
-  setHologramParam, touchHologram, makeThicknessPass } from "./holo-material.js";
+import { HOLO_DEFAULTS, HOLO_ERAS, HOLO_STYLES, makeHologramMaterial, applyHologram, tickHologram,
+  setHologramParam, touchHologram, makeThicknessPass, renderHologramFrame } from "./holo-material.js";
 
 /* The meshes the library already carries: two whole brain surfaces and the
    nine MICrONS cells. A shell and a cell want different settings. Fresnel is
@@ -31,8 +31,12 @@ const MICRONS = "MICrONS minnie65, decimated for the web";
 export const MESHES = [
   { p: "meshes/mouse-brain.glb", n: "Mouse brain, whole surface",
     note: "Allen Institute reference atlas, root structure, 59,999 faces exported", preset: {} },
+  /* the human cortex is folded: a ray through it crosses gyri and both
+     hemispheres, eight or more surfaces where the mouse shell is two, and
+     additive light stacks per surface. The gain is dropped to match. */
   { p: "meshes/human-brain.glb", n: "Human brain, cortex",
-    note: "FreeSurfer pial surface, both hemispheres, 150,000 faces exported", preset: {} },
+    note: "FreeSurfer pial surface, both hemispheres, 150,000 faces exported",
+    preset: { opacity: 0.22, inner: 0.12 } },
   { p: "meshes/cells/lightning-tree.glb", n: "Lightning Tree, layer 5 pyramidal", note: MICRONS, preset: CELL },
   { p: "meshes/cells/crown.glb", n: "Crown, layer 2/3 pyramidal", note: MICRONS, preset: CELL },
   { p: "meshes/cells/dust-star.glb", n: "Dust Star, layer 4", note: MICRONS, preset: CELL },
@@ -67,8 +71,16 @@ const KNOBS = [
   ["Diffraction", "iridescence", 0, 1, 0.01],
   ["Voxel glitch", "voxel", 0, 0.1, 0.001],
   ["Touch", "touch", 0, 3, 0.05],
+  /* the body and the bloom */
+  ["Solid surface (0/1)", "solid", 0, 1, 1],
+  ["Opaque (0/1)", "opaque", 0, 1, 1],
+  ["Shading", "shade", 0, 1, 0.05],
+  ["Halo", "halo", 0, 2, 0.05],
+  ["Halo size", "haloSize", 0, 0.3, 0.005],
 ];
 const ERAS = ["2026", "2076", "2226"];
+const STYLE_LABEL = { supernova: "Supernova", emberLattice: "Ember lattice", lantern: "Lantern",
+  aurora: "Aurora", goldOnBlue: "Gold on blue", solidGold: "Solid gold", whiteHeat: "White heat" };
 
 export function mountHologramDemo(root) {
   const mount = root.querySelector("[data-mount]");
@@ -97,8 +109,7 @@ export function mountHologramDemo(root) {
     now = t;
     tickHologram(holo, t);
     controls.update();
-    thickness.render(renderer, scene, camera, holo);
-    renderer.render(scene, camera);
+    renderHologramFrame(renderer, scene, camera, holo, thickness);
   });
 
   /* the touch: the pointer's point on the surface, raycast against the real
@@ -141,6 +152,11 @@ export function mountHologramDemo(root) {
       s[0] + '"' + (on ? " checked" : "") + ' aria-label="' + s[1] + '"><i></i></label>';
   }).join("");
   swatches.addEventListener("change", function (e) {
+    style = "";
+    if (styles) styles.querySelectorAll("[data-style]").forEach(function (x) {
+      x.setAttribute("aria-pressed", String(x.getAttribute("data-style") === ""));
+    });
+    setHologramParam(holo, "coreColor", HOLO_DEFAULTS.coreColor);
     setHologramParam(holo, "color", e.target.value); loop.once();
   });
 
@@ -162,6 +178,31 @@ export function mountHologramDemo(root) {
     });
   }
 
+  /* the style: whole looks, laid over the era. "None" is the era alone. */
+  const params = new URLSearchParams(location.search);
+  let style = HOLO_STYLES[params.get("style")] ? params.get("style") : "";
+  if (ERAS.indexOf(params.get("era")) >= 0) era = params.get("era");
+  const styles = form.querySelector("[data-styles]");
+  if (styles) {
+    const names = [""].concat(Object.keys(HOLO_STYLES));
+    styles.innerHTML = names.map(function (n) {
+      return '<button type="button" data-style="' + n + '" aria-pressed="' + (n === style) + '">' +
+        (n ? STYLE_LABEL[n] || n : "None") + "</button>";
+    }).join("");
+    styles.addEventListener("click", function (ev) {
+      const b = ev.target.closest("[data-style]");
+      if (!b) return;
+      style = b.getAttribute("data-style");
+      styles.querySelectorAll("[data-style]").forEach(function (x) {
+        x.setAttribute("aria-pressed", String(x === b));
+      });
+      applyPreset();
+    });
+  }
+  if (eras) eras.querySelectorAll("[data-era]").forEach(function (x) {
+    x.setAttribute("aria-pressed", String(x.getAttribute("data-era") === era));
+  });
+
   const cellSel = form.querySelector("[data-cell]");
   cellSel.innerHTML = MESHES.map(function (c, i) {
     return '<option value="' + i + '">' + c.n + "</option>";
@@ -177,7 +218,7 @@ export function mountHologramDemo(root) {
   }).join("");
   ranges.addEventListener("input", function (e) {
     const v = parseFloat(e.target.value);
-    setHologramParam(holo, e.target.name, v);
+    setHologramParam(holo, e.target.name, v, group);
     e.target.previousElementSibling.value = v;
     loop.once();
   });
@@ -186,22 +227,35 @@ export function mountHologramDemo(root) {
      the sliders, so the panel never shows a number the shader is not using */
   let current = MESHES[0];
   function applyPreset() {
-    const p = Object.assign({}, HOLO_DEFAULTS, HOLO_ERAS[era] || {}, current.preset);
+    /* a solid style draws one layer, so a mesh's layered gain must not apply */
+    const base = Object.assign({}, HOLO_DEFAULTS, HOLO_ERAS[era] || {}, HOLO_STYLES[style] || {});
+    const mp = Object.assign({}, current.preset);
+    if (base.solid) { delete mp.opacity; delete mp.inner; }
+    const p = Object.assign(base, mp);
     if (REDUCED) { p.glitchAmount = 0; p.glitchFreq = 0; }
+    /* a style carries its colours; without one the swatch stands */
+    if (HOLO_STYLES[style]) {
+      setHologramParam(holo, "color", p.color);
+      setHologramParam(holo, "coreColor", p.coreColor);
+      swatches.querySelectorAll("input").forEach(function (i) { i.checked = false; });
+    } else {
+      setHologramParam(holo, "coreColor", HOLO_DEFAULTS.coreColor);
+      const on = swatches.querySelector("input:checked");
+      setHologramParam(holo, "color", on ? on.value : HOLO_DEFAULTS.color);
+    }
+    setHologramParam(holo, "haloColor", p.haloColor);
     KNOBS.forEach(function (k) {
-      setHologramParam(holo, k[1], p[k[1]]);
+      setHologramParam(holo, k[1], p[k[1]], group);
       const r = ranges.querySelector('[name="' + k[1] + '"]');
       r.value = p[k[1]]; r.previousElementSibling.value = p[k[1]];
     });
     loop.once();
   }
   form.querySelector("[data-reset]").addEventListener("click", function () {
-    applyPreset();
-    setHologramParam(holo, "color", HOLO_DEFAULTS.color);
     swatches.querySelectorAll("input").forEach(function (i) {
       i.checked = i.value.toUpperCase() === HOLO_DEFAULTS.color.toUpperCase();
     });
-    loop.once();
+    applyPreset();
   });
 
   /* ---- the mesh -------------------------------------------------------- */
@@ -237,7 +291,7 @@ export function mountHologramDemo(root) {
       group.scale.setScalar(frame / (Math.max(size.x, size.y, size.z) || 1));
       /* a three quarter view to start: every mesh here is exported facing the
          camera square on, and a hologram wants an angle */
-      group.rotation.set(0.18, 0.6, 0);
+      group.rotation.set(isNaN(pitch) ? 0.18 : pitch, isNaN(yaw) ? 0.6 : yaw, 0);
       scene.add(group);
       /* the material is applied last: it reads the world bounds */
       applyHologram(group, holo);
@@ -253,12 +307,20 @@ export function mountHologramDemo(root) {
     });
   }
 
+  /* ?mesh=N picks the mesh, ?shot=1 is the render mode: no auto rotate, a
+     fixed three quarter view, so a headless browser gets the same frame
+     every time; ?yaw= and ?pitch= set it in radians */
+  const meshIdx = Math.min(MESHES.length - 1, Math.max(0, parseInt(params.get("mesh") || "0", 10) || 0));
+  const shot = params.get("shot") === "1";
+  const yaw = parseFloat(params.get("yaw")), pitch = parseFloat(params.get("pitch"));
+  if (shot) controls.autoRotate = false;
   const start = whenNear(stageEl, function () {
     fitRenderer(renderer, camera, mount);
-    load(0);
+    load(meshIdx);
   });
 
-  return { el: root, loop: loop, start: start, load: load, material: holo,
+  return { el: root, loop: loop, start: start, load: load, material: holo, shot: shot,
+    setStyle: function (s) { const b = styles && styles.querySelector('[data-style="' + s + '"]'); if (b) b.click(); },
     scene: scene, camera: camera, renderer: renderer, meshes: MESHES,
     group: function () { return group; },
     thickness: thickness,

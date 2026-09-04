@@ -764,3 +764,28 @@ same material, kept as versions beside the original. Lessons worth keeping:
   `dot(N, V)`. Read the depth target back before believing a volume effect.
 - **Eras are versions, not replacements.** Amy: "remember we want versions".
   A new look goes in as a preset beside the old one, never over it.
+
+**Version 13**, 4 September 2026. Seven named styles on the hologram, built
+to a brief for warm white and gold, "bright, friendly, a supernova", and
+rendered on the human brain by headless Chrome. Lessons worth keeping:
+
+- **Additive light stacks per surface, and a folded surface is many.** The
+  human cortex crosses eight or more surfaces on one ray where the mouse
+  shell crosses two; every style blew out to white on it. A per mesh gain
+  fixed the layered styles, and a depth prepass (`solid`) made the rest into
+  one lit surface. Judge a material on the most folded thing it will draw.
+- **A halo pushed along the normals of a coarse folded mesh tears into
+  spikes, and pushed radially it carries the folds as ghosts.** Six shells
+  pushed radially, with the fade read from the smooth push direction rather
+  than the folded normal, is the one that reads as bloom.
+- **The prepass must move exactly as the surface does.** A depth only
+  `MeshBasicMaterial` rejected the jittered surface against its own depth and
+  a whole style went dark. The prepass and the thickness pass now run the
+  hologram's own vertex shader on the same uniforms.
+- **The human brain is wound backwards too.** Facing now comes from the
+  thickness pass (the near wall has object behind it) and only falls back to
+  `gl_FrontFacing` when the pass is off.
+- **Render styles headless and read a contact sheet.** `chrome
+  --headless=new --use-angle=swiftshader --screenshot` on `?shot=1` gives a
+  real frame in ten seconds; one sheet of all styles is a single image read.
+  Six iterations of that loop is what separated recolourings from styles.

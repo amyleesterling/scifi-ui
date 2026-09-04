@@ -503,6 +503,21 @@ reversed depth test rather than the nearest back face, because the mouse brain
 is exported mirrored and its winding is backwards; the material faces its
 normals by geometry for the same reason.
 
+**Seven styles, on a warm white and gold core.** `HOLO_STYLES` are whole
+looks, colours included, laid over the era; the demo has a pill for each and
+`?style=` picks one by URL. Supernova is a solid body burning white gold with
+a bloom outside the silhouette. Ember lattice is a dark amber surface netted
+with gold nodes. Lantern is paper lit from within. Aurora is a see through
+tangle whose rim runs a spectrum. Gold on blue is a cool blue body with a
+molten gold rim. Solid gold is opaque, normal blending and depth write, a lit
+object rather than a projection, for a page that is not black. White heat is
+the x ray, every layer white hot. Three mechanisms make them differ rather
+than recolour: `solid` runs a depth prepass so only the nearest surface draws,
+`opaque` switches to normal blending, and `halo` draws six copies of the
+surface pushed out radially, each dimmer, for a bloom with no blur pass. The
+render mode `?shot=1&mesh=1&style=supernova` gives a headless browser the
+stage alone, which is how the style sheet in the repo's history was made.
+
 ---
 
 

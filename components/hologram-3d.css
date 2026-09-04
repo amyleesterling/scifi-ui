@@ -67,6 +67,29 @@
 }
 .holoeras button:hover, .holoeras button:focus-visible { border-color: rgb(var(--holo-line, 196 228 255)); outline: none; }
 
+/* the styles: a wrapping row of small pills */
+.holostyles { display: flex; flex-wrap: wrap; gap: 5px; margin: 0 0 12px; }
+.holostyles button {
+  font: inherit; font-size: 11.5px; letter-spacing: .04em;
+  color: rgb(var(--holo-dim, 154 162 177)); background: rgb(var(--holo-panel, 15 18 24));
+  border: 1px solid rgb(var(--holo-glow, 74 150 224) / .3); border-radius: 999px;
+  padding: 3px 9px; cursor: pointer;
+}
+.holostyles button[aria-pressed="true"] {
+  color: #1a1204; background: rgb(var(--holo-warm, 232 169 58));
+  border-color: rgb(var(--holo-warm, 232 169 58));
+  box-shadow: 0 0 12px -3px rgb(var(--holo-warm, 232 169 58));
+}
+.holostyles button:hover, .holostyles button:focus-visible { border-color: rgb(var(--holo-line, 196 228 255)); outline: none; }
+/* render mode: the stage alone, edge to edge */
+body.holoshot { padding: 0 !important; margin: 0; overflow: hidden; }
+body.holoshot .wrap { max-width: none; padding: 0; }
+body.holoshot .wrap > :not(.holo3d), body.holoshot .holoknobs, body.holoshot .mviz-eyebrow,
+body.holoshot .mviz-facts, body.holoshot .mviz > b.k { display: none !important; }
+body.holoshot .holo3d { display: block; }
+body.holoshot .mviz { border: 0; padding: 0; background: none; }
+body.holoshot .mviz-stage { aspect-ratio: auto; height: 100vh; border: 0; border-radius: 0; background: #07080B; }
+
 .holoknobs select, .holoknobs [data-reset] {
   width: 100%; font: inherit; font-size: 12.5px; color: rgb(var(--holo-ink, 239 244 251));
   background: rgb(var(--holo-panel, 15 18 24));
