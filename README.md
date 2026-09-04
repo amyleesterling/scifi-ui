@@ -6,6 +6,11 @@
 
 ### [Live demo](https://amyleesterling.github.io/scifi-ui/)
 
+Asked to make an interface look and feel like this one? Start with
+[SCIFIIFY.md](SCIFIIFY.md), the guide to using this system, evolving it, and
+building new variations without breaking the claim that makes it worth
+anything. `AGENTS.md` holds the rules it assumes.
+
 Every component running, framed around real 3D renders of reconstructed
 neurons. Hover anything.
 
