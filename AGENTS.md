@@ -789,3 +789,20 @@ rendered on the human brain by headless Chrome. Lessons worth keeping:
   --headless=new --use-angle=swiftshader --screenshot` on `?shot=1` gives a
   real frame in ten seconds; one sheet of all styles is a single image read.
   Six iterations of that loop is what separated recolourings from styles.
+
+**Version 14**, 4 September 2026. Four opaque styles with a real surface
+model, after Amy said none of the translucent ones were good enough and asked
+for rainbow scattering and no see through. Lessons worth keeping:
+
+- **A mirror needs something dark to reflect.** The first procedural studio
+  was a bright warm gradient everywhere, and a metal surface in it rendered
+  as flat cream. Dropping the ground to near black and putting the light in
+  four discrete soft boxes plus a tight sun is what turned it into chrome.
+- **An interference colour that averages to white is a haze, not a rainbow.**
+  The thin film had to be pushed hard away from grey (a 2.6x saturation about
+  the mean, then squared) before the bands read as spectral.
+- **A blank white frame from headless Chrome is a page that never painted.**
+  One style in eleven came back 100 percent lit and 99.99 percent saturated,
+  which no shader frame ever is. The render script now retries a frame above
+  95 percent lit rather than believing it. Always have a check that can tell
+  a failure from a result.

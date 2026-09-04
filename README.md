@@ -518,6 +518,18 @@ surface pushed out radially, each dimmer, for a bloom with no blur pass. The
 render mode `?shot=1&mesh=1&style=supernova` gives a headless browser the
 stage alone, which is how the style sheet in the repo's history was made.
 
+**Four of the styles are opaque surfaces, not projections.** `opaque` swaps
+additive blending for normal blending with depth write, and with it comes a
+real surface model: a GGX microfacet specular, a procedural warm studio in
+the reflections (dark ground, four soft boxes, one hot sun, because a mirror
+needs something dark to be a mirror against), thin film interference whose
+bands run through the spectrum with the viewing angle, a diffraction layer
+that scatters spectral glints off random micro normals, and cavity shading
+that darkens the sulci. Chrome sun is a warm mirror, holo foil is a saturated
+holographic sticker, opal is a milky pearl, nova core is warm white with a
+wide golden bloom. `rough`, `metal`, `env`, `film`, `iri`, `sparkle`,
+`sparkleScale` and `cavity` are all sliders.
+
 ---
 
 

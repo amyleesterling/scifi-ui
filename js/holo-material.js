@@ -89,6 +89,15 @@ export const HOLO_DEFAULTS = {
   opaque: 0,               /* 1: normal blending and depth write. A surface you
                               cannot see through, on any background */
   shade: 0,                /* 0 hologram body, 1 a lit surface (lambert) */
+  /* the opaque surface model, used when opaque is 1 */
+  rough: 0.35,             /* microfacet roughness */
+  metal: 0.6,              /* 0 dielectric, 1 metal: what the specular is tinted by */
+  env: 0.8,                /* strength of the procedural studio reflected in it */
+  film: 420,               /* thin film thickness, nanometres: sets the rainbow bands */
+  iri: 0.8,                /* strength of the thin film interference colour */
+  sparkle: 1.0,            /* diffraction glints, spectral, view dependent */
+  sparkleScale: 140,       /* glint cells per world unit */
+  cavity: 0.6,             /* how much the sulci darken */
 };
 
 /* three presets on the same material */
@@ -151,6 +160,48 @@ export const HOLO_STYLES = {
   /* white heat: everything burns toward white, the rim is a searing line,
      the interior a dense white gold, the dots gone; a hologram that is more
      a flare than an image */
+  /* nova core: the supernova as a solid object. Warm white gold, opaque, a
+     wide golden bloom around it, and just enough interference that the
+     white is never flat. */
+  novaCore: {
+    color: "#FFE7BE", coreColor: "#FFFFFF", glowIntensity: 1.4, fresnelPower: 2.2,
+    bodyAlpha: 1.0, shade: 1, dotIntensity: 0, density: 0, inner: 0, iridescence: 0,
+    chroma: 0.1, glitchAmount: 0.002, voxel: 0, lattice: 0, opaque: 1, solid: 1,
+    halo: 2.2, haloSize: 0.2, haloColor: "#FFC24A", opacity: 1,
+    rough: 0.42, metal: 0.35, env: 1.0, film: 520, iri: 0.45, sparkle: 1.1,
+    sparkleScale: 130, cavity: 0.55,
+  },
+  /* holographic foil: a gold surface you cannot see through, with the
+     rainbow of a thin film sliding across it as it turns and spectral
+     glints scattered off a diffraction layer */
+  holoFoil: {
+    color: "#FFD27A", coreColor: "#FFFFFF", glowIntensity: 0.9, fresnelPower: 3.0,
+    bodyAlpha: 1.0, shade: 1, dotIntensity: 0, density: 0, inner: 0, iridescence: 0,
+    chroma: 0.1, glitchAmount: 0.002, voxel: 0, lattice: 0, opaque: 1, solid: 1,
+    halo: 1.0, haloSize: 0.1, haloColor: "#FFC24A", opacity: 1,
+    rough: 0.22, metal: 0.85, env: 1.1, film: 480, iri: 1.3, sparkle: 1.6,
+    sparkleScale: 150, cavity: 0.7,
+  },
+  /* opal: warm white, soft, the rainbow scattered inside a milky surface
+     rather than reflected off it, a pearl */
+  opal: {
+    color: "#FFF3DC", coreColor: "#FFFFFF", glowIntensity: 0.7, fresnelPower: 2.2,
+    bodyAlpha: 1.0, shade: 1, dotIntensity: 0, density: 0, inner: 0, iridescence: 0,
+    chroma: 0.05, glitchAmount: 0, voxel: 0, lattice: 0, opaque: 1, solid: 1,
+    halo: 0.9, haloSize: 0.14, haloColor: "#FFE9C4", opacity: 1,
+    rough: 0.5, metal: 0.08, env: 0.55, film: 380, iri: 1.0, sparkle: 0.7,
+    sparkleScale: 110, cavity: 0.85,
+  },
+  /* chrome sun: a warm mirror. The studio and its sun are in the surface,
+     the rainbow is a thin oil film on chrome */
+  chromeSun: {
+    color: "#FFE2B0", coreColor: "#FFFFFF", glowIntensity: 0.5, fresnelPower: 3.5,
+    bodyAlpha: 1.0, shade: 1, dotIntensity: 0, density: 0, inner: 0, iridescence: 0,
+    chroma: 0, glitchAmount: 0.001, voxel: 0, lattice: 0, opaque: 1, solid: 1,
+    halo: 0.6, haloSize: 0.08, haloColor: "#FFD27A", opacity: 1,
+    rough: 0.1, metal: 1.0, env: 1.5, film: 300, iri: 0.7, sparkle: 0.4,
+    sparkleScale: 90, cavity: 0.5,
+  },
   /* solid gold: not a projection at all, a warm white gold object with a lit
      surface you cannot see through, a gold rim and a soft bloom. The one
      for a page that is not black. */
@@ -160,6 +211,8 @@ export const HOLO_STYLES = {
     density: 0, inner: 0, iridescence: 0, chroma: 0.15, glitchAmount: 0.002,
     voxel: 0, lattice: 0, opaque: 1, solid: 1, halo: 1.2, haloSize: 0.1,
     haloColor: "#FFC24A", opacity: 1,
+    rough: 0.4, metal: 0.5, env: 0.7, film: 450, iri: 0.35, sparkle: 0.5,
+    sparkleScale: 120, cavity: 0.6,
   },
   whiteHeat: {
     color: "#FFE8B8", coreColor: "#FFFFFF", glowIntensity: 2.6, fresnelPower: 4.5,
@@ -254,6 +307,14 @@ uniform float uParallax;
 uniform float uIridescence;
 uniform float uTouch;
 uniform float uShade;
+uniform float uRough;
+uniform float uMetal;
+uniform float uEnv;
+uniform float uFilm;
+uniform float uIri;
+uniform float uSparkle;
+uniform float uSparkleScale;
+uniform float uCavity;
 uniform vec3  uPointer;
 uniform float uPointerT;
 uniform float uPointerOn;
@@ -381,7 +442,86 @@ void main() {
   float a = uOpacity * mix(0.35, 1.0, front);
   gl_FragColor = vec4(col, a);
   #ifdef HOLO_OPAQUE
-  gl_FragColor = vec4(col * uOpacity, 1.0);
+  {
+    /* ---- an opaque surface: microfacet specular, a procedural studio in
+       the reflections, thin film interference, diffraction glints, cavity
+       shading. View space throughout; L is the key. ---- */
+    vec3 H = normalize(L + V);
+    float NdL = max(dot(N, L), 0.0);
+    float NdV = max(dot(N, V), 0.001);
+    float NdH = max(dot(N, H), 0.0);
+    float VdH = max(dot(V, H), 0.0);
+    float r = max(uRough, 0.03);
+    float a2 = r * r * r * r;
+    float dd = NdH * NdH * (a2 - 1.0) + 1.0;
+    float D = a2 / (3.14159 * dd * dd);
+    vec3 F0 = mix(vec3(0.04), uColor, uMetal);
+    vec3 F = F0 + (1.0 - F0) * pow(1.0 - VdH, 5.0);
+    float G = 1.0 / (4.0 * mix(NdL, 1.0, 0.5) * mix(NdV, 1.0, 0.5) + 0.02);
+    vec3 spec = D * F * G * NdL;
+
+    /* the studio: a warm white zenith, a gold horizon, a deep floor, one sun
+       on the key, and six soft boxes around the horizon so a mirror has
+       something to reflect */
+    vec3 R = reflect(-V, N);
+    float up = R.y;
+    /* the ground is nearly black and the sky is a dim warm gradient: the
+       light comes from the boxes and the sun, not from everywhere, or a
+       mirror has nothing dark to be a mirror against */
+    vec3 zen = vec3(0.22, 0.20, 0.19), hor = vec3(0.30, 0.19, 0.10), flo = vec3(0.015, 0.012, 0.010);
+    vec3 env = up > 0.0 ? mix(hor, zen, smoothstep(0.0, 0.8, up)) : mix(hor, flo, smoothstep(0.0, -0.35, up));
+    float ang = atan(R.x, R.z);
+    /* four soft boxes above the horizon and two low warm bounces */
+    float boxes = smoothstep(0.55, 0.95, cos(ang * 4.0)) * smoothstep(0.55, 0.12, abs(up - 0.42));
+    env += vec3(1.0, 0.95, 0.88) * boxes * 2.6;
+    float bounce = smoothstep(0.75, 1.0, cos(ang * 2.0 + 0.9)) * smoothstep(0.4, 0.05, abs(up + 0.18));
+    env += vec3(1.0, 0.66, 0.28) * bounce * 1.5;
+    /* the sun, tight and hot */
+    env += vec3(1.0, 0.93, 0.78) * 9.0 * pow(max(dot(R, L), 0.0), 400.0);
+    env += vec3(1.0, 0.85, 0.6) * 1.2 * pow(max(dot(R, L), 0.0), 22.0);
+    vec3 Fenv = F0 + (1.0 - F0) * pow(1.0 - NdV, 5.0);
+    float envRough = mix(1.0, 0.35, r);
+
+    /* thin film: a film whose thickness wanders slowly over the surface;
+       each wavelength interferes at its own phase, so the colour runs
+       through the spectrum with the angle of view */
+    float thick = uFilm * (1.0 + 0.5 * (noise3(vW * 2.5 + vec3(0.0, uTime * 0.12, 0.0)) - 0.5));
+    vec3 lam = vec3(650.0, 540.0, 470.0);
+    vec3 phase = 4.0 * 3.14159 * 1.4 * thick * NdV / lam;
+    vec3 iri = 0.5 + 0.5 * cos(phase);
+    /* pushed hard away from grey: an interference colour that averages to
+       white is not a rainbow, it is a haze */
+    iri = clamp(mix(vec3(dot(iri, vec3(0.333))), iri, 2.6), 0.0, 1.0);
+    iri *= iri;
+    float iriW = uIri * mix(0.35, 1.0, pow(1.0 - NdV, 1.5)) * (0.4 + 0.6 * NdL);
+
+    /* diffraction glints: a random micro normal per cell, a very tight
+       highlight off it, coloured by where in the spectrum its order falls */
+    vec3 cell = floor(vW * uSparkleScale);
+    float pick = hash3(cell);
+    vec3 micro = normalize(N + (vec3(hash3(cell + 1.0), hash3(cell + 2.0), hash3(cell + 3.0)) - 0.5) * 0.7);
+    float glint = pow(max(dot(reflect(-L, micro), V), 0.0), 220.0) * step(0.55, pick);
+    float hue = fract(hash3(cell + 4.0) + NdV * 1.5 + uTime * 0.05);
+    vec3 glintCol = 0.55 + 0.45 * cos(6.28318 * (hue + vec3(0.0, 0.33, 0.67)));
+    vec3 sparkle = glintCol * glint * uSparkle * 3.0;
+
+    /* cavity: a sulcus faces inward, a gyrus crest faces out */
+    vec3 radialV = normalize(mat3(viewMatrix) * normalize(vW));
+    float cav = clamp(dot(N, radialV) * 0.5 + 0.5, 0.0, 1.0);
+    float ao = mix(1.0, mix(0.35, 1.0, cav), uCavity);
+
+    vec3 albedo = uColor * (1.0 - uMetal * 0.85);
+    vec3 diffuse = albedo * (0.16 + 0.84 * NdL + 0.12 * max(dot(N, normalize(vec3(-0.6, 0.2, 0.5))), 0.0));
+    vec3 surf = diffuse * ao * mix(1.0, 0.45, uIri * 0.5)
+              + spec * mix(vec3(1.0), iri * 2.0, clamp(uIri, 0.0, 1.0))
+              + env * Fenv * uEnv * envRough * ao
+              + iri * iriW * 1.4 * ao
+              + sparkle;
+    /* the hologram's own rim on top, gold at the silhouette */
+    surf += rimCol * rim * 0.5;
+    surf *= uOpacity * uBodyAlpha;
+    gl_FragColor = vec4(surf, 1.0);
+  }
   #endif
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
@@ -412,6 +552,14 @@ export function makeHologramMaterial(opts) {
       uVoxel:         { value: o.voxel },
       uTouch:         { value: o.touch },
       uShade:         { value: o.shade },
+      uRough:         { value: o.rough },
+      uMetal:         { value: o.metal },
+      uEnv:           { value: o.env },
+      uFilm:          { value: o.film },
+      uIri:           { value: o.iri },
+      uSparkle:       { value: o.sparkle },
+      uSparkleScale:  { value: o.sparkleScale },
+      uCavity:        { value: o.cavity },
       uPointer:       { value: new THREE.Vector3() },
       uPointerT:      { value: 0 },
       uPointerOn:     { value: 0 },

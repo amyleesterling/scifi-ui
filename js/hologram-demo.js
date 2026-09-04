@@ -75,12 +75,22 @@ const KNOBS = [
   ["Solid surface (0/1)", "solid", 0, 1, 1],
   ["Opaque (0/1)", "opaque", 0, 1, 1],
   ["Shading", "shade", 0, 1, 0.05],
+  /* the opaque surface */
+  ["Roughness", "rough", 0.03, 1, 0.01],
+  ["Metal", "metal", 0, 1, 0.01],
+  ["Studio reflection", "env", 0, 2, 0.05],
+  ["Film thickness (nm)", "film", 100, 900, 5],
+  ["Rainbow", "iri", 0, 2, 0.05],
+  ["Sparkle", "sparkle", 0, 3, 0.05],
+  ["Sparkle scale", "sparkleScale", 20, 400, 5],
+  ["Cavity", "cavity", 0, 1, 0.05],
   ["Halo", "halo", 0, 2, 0.05],
   ["Halo size", "haloSize", 0, 0.3, 0.005],
 ];
 const ERAS = ["2026", "2076", "2226"];
 const STYLE_LABEL = { supernova: "Supernova", emberLattice: "Ember lattice", lantern: "Lantern",
-  aurora: "Aurora", goldOnBlue: "Gold on blue", solidGold: "Solid gold", whiteHeat: "White heat" };
+  aurora: "Aurora", goldOnBlue: "Gold on blue", solidGold: "Solid gold", whiteHeat: "White heat",
+  holoFoil: "Holo foil", opal: "Opal", chromeSun: "Chrome sun", novaCore: "Nova core" };
 
 export function mountHologramDemo(root) {
   const mount = root.querySelector("[data-mount]");
