@@ -1,14 +1,14 @@
 /* ---- block-ping: the event is here, in the volume ---------------------------
-   Ported from whatisabrain.com's connectome app (apps/connectome,
-   styles.css .registered-volume / .block-signal): the registered EM volume
-   from the pipeline diagram, ten sections of real EM texture stacked in 3D
+   Ported from a connectome pipeline app, source not named here, see
+   AGENTS.md section 2: the registered EM volume from the pipeline diagram,
+   ten sections of real EM texture stacked in 3D
    CSS (rotateX 60, rotateZ -34, 9px of translateZ per slice, borders
    brightening with depth), a Z depth bracket on the right, and a mint ping
    that expands at a coordinate inside the volume on a 2.4s ease-out loop,
    scale 0.3 to 3.2 while it fades. The point it makes: an event has a
    place in the tissue, not just a row in a table. Prefixed blockping-
-   mechanically; the EM texture is the site's own media/raw-em.png, carried
-   into this repo's media directory. */
+   mechanically; the EM texture is that app's own, carried into this repo's
+   media directory as raw-em.png. */
 
 .blockping-volume {
   --blockping-mint: rgb(103 245 203);

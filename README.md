@@ -576,8 +576,8 @@ own numbers:
   and the visible five second dismiss bar with its four type tints.
 - **Registration** (`components/alignment-diagram.*`, with
   `components/registration-arrow.css` and `components/block-ping.css`),
-  the ALIGN stage of whatisabrain.com's connectome pipeline carried whole:
-  raw serial sections sheared apart by the site's own disorder formula, the
+  the ALIGN stage of a connectome pipeline carried whole:
+  raw serial sections sheared apart by that app's own disorder formula, the
   locked-views arrow, and the registered 3D EM volume with a ping at a
   coordinate inside it. The confidence control converges the sections. EM
   texture carried as `media/raw-em.png`.

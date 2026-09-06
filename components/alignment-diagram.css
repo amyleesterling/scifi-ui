@@ -1,9 +1,9 @@
 /* ---- alignment-diagram: what registration actually does ---------------------
-   Ported from whatisabrain.com's connectome app (apps/connectome,
-   src/App.tsx and styles.css .alignment-diagram): the ALIGN stage of the
-   pipeline, carried whole. It is the card the registration arrow and the
-   registered volume were cut out of, and on its own neither of them says
-   much; together they say the whole thing.
+   Ported from a connectome pipeline app, source not named here, see
+   AGENTS.md section 2: the ALIGN stage of the pipeline, carried whole. It is
+   the card the registration arrow and the registered volume were cut out of,
+   and on its own neither of them says much; together they say the whole
+   thing.
 
    Left, the raw serial sections: eight sheets of real EM texture, each
    pushed off its neighbour by the site's own disorder formula, so the

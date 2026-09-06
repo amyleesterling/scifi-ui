@@ -126,8 +126,8 @@ broken by someone in the middle of reading the rule.
 **A downstream product that grew choreography on top of a port is a source.**
 ng-extend's tag panel originally ported this library's materialise and swarm,
 evolved its own light choreography in production, and that choreography came
-back as `scout-trace.js`. Consumers are sources. whatisabrain and human brain
-both vendor this library and both grew elements worth porting back. If the UI
+back as `scout-trace.js`. Consumers are sources. Human brain and another
+consumer site both vendor this library and both grew elements worth porting back. If the UI
 you are scifiifying already uses this set and has grown something on top of
 it, that growth is shipping code and porting it back is exactly what the rule
 asks for.
