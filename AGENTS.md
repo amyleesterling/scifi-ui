@@ -38,7 +38,18 @@ three in the repo, all documented in the README.
 Upstream sources: **ng-extend / EyeWire II** (login modal, tutorial callout,
 achievement toast, confetti, icon rail, the Nurro balloon rise), **Inner Cosmos**
 (step rail), **FlyWire neuron gallery** (loader, panel boot, underline, scan
-sweep, section rail, image card), **whatisabrain.com** (tinted lift card).
+sweep, section rail, image card).
+
+**Some upstream sources are private, and are deliberately not named here or in
+the file headers.** Where a header says a component was ported from a
+connectome pipeline app, an exhibit app or a shipping site rather than naming
+one, the source is real, it was open when the port was made, and the numbers
+were carried across from it. That is section 2 satisfied, not section 2
+broken. So: do not read an unnamed source as licence to approximate, do not
+rewrite one of those components from the rendered page, and do not go hunting
+for the repository. Ask Amy, who can give you access to what you need. The
+components this applies to are the tinted lift card, the registration arrow,
+the block ping, the alignment diagram and the attract loop.
 
 ## 3. Porting discipline
 
@@ -258,7 +269,7 @@ is not one. Disable the transition and read again: the true end state appears
 immediately. This cost most of an hour.
 
 **The rule in section 2 is easy to break while reading section 2.** Porting the
-holo card into whatisabrain.com I wrote corner brackets from scratch, two
+holo card into a consumer site I wrote corner brackets from scratch, two
 pseudo elements, static, two corners, because I had the card open and not the
 frame. The real `.hud` is four corners that push outward from
 `translate(4px,4px)` to `translate(-7px,-7px)`, and the push is the whole
@@ -702,16 +713,28 @@ what it is, and they are the difference between a port and a copy.
 **Version 9**, 26 August 2026. Ten ports landed in one sweep, from four
 shipping sources: EyeWire II (shimmer reveal, letter reveal, notification
 scan-in, recap roll-in, trophy orbit, streak flame, toast countdown),
-whatisabrain's connectome app (registration arrow, block ping), human-brain
+a connectome app (registration arrow, block ping), human-brain
 (the holo-timeline sequence layer) and BE THE FLY (neural HUD frame, neuron
 ignite, EPG compass). Lessons that survived the sweep: a survey by keyframe
 name is the fastest map of a site's animation surface (grep @keyframes,
 then read only what the names point at); consumers of this library are also
-sources, whatisabrain and human-brain both vendor scifi-ui and both grew
-elements worth porting back; and a demo row that uses CSS grid with
+sources, human-brain and another consumer site both vendor scifi-ui and both
+grew elements worth porting back; and a demo row that uses CSS grid with
 min-content panes will overflow a phone where the same row as wrapping flex
 does not, which is what took the page seven pixels over 375 until the
 registration arrow row was reflowed.
+
+**Version 11**, 6 September 2026. Attribution for one upstream source is
+genericised, at the author's request, because that repository is now private
+and its file layout should not be signposted from a public one. The five
+components ported from it keep their real numbers, their behaviour notes and
+their claim to be ports; what came out is the name, the domain, and the source
+paths inside it. Section 2 gains the paragraph that makes this legible: an
+unnamed source is a real one, not a licence to approximate, and the way to
+reach it is to ask rather than to hunt. Worth knowing that this is a working
+tree change only. The original headers remain in this repository's git
+history, which is public, so treat the genericising as tidying the front door
+rather than as a retraction.
 
 **Version 10**, 26 August 2026. The rule in section 2 extends to demo
 chrome, and it took three violations in one sweep to make that explicit.

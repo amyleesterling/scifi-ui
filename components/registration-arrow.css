@@ -1,12 +1,12 @@
 /* ---- registration-arrow: two views, locked ----------------------------------
-   Ported from whatisabrain.com's connectome app (apps/connectome,
-   styles.css .registration-arrow): the small indicator between the raw
-   sheet stack and the registered volume in the pipeline diagram. A one
+   Ported from a connectome pipeline app, source not named here, see
+   AGENTS.md section 2: the small indicator between the raw sheet stack and
+   the registered volume in the pipeline diagram. A one
    pixel gradient line with a chevron head, and a mint dot that rides it
    end to end on a 2.1s ease-in-out loop, fading in at 20 percent and out
    at the tip. It says one thing: data is flowing from this pane to that
    one, and the two are locked together. Prefixed regarrow- mechanically;
-   the mint is the connectome site's own accent, carried as a local token. */
+   the mint is that app's own accent, carried as a local token. */
 
 .regarrow {
   --regarrow-mint: rgb(103 245 203);

@@ -3,9 +3,9 @@
    pauses the moment a human touches anything, and starts itself again after
    the room goes quiet.
 
-   From whatisabrain.com/museum/attract, which is the museum wall edition of
-   the guided zoom (src/pages/Explore.tsx, rendered as <Explore attract />).
-   The dwell times, the step order, the wrap timings, the crossfade and the
+   From the museum wall edition of a guided zoom, the attract mode of an
+   exhibit app, source not named here, see AGENTS.md section 2. The dwell
+   times, the step order, the wrap timings, the crossfade and the
    rotate gate are the values that display runs on.
 
    THE PER STEP DWELL IS THE POINT. Not one interval for the whole loop. The
