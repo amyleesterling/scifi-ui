@@ -872,3 +872,21 @@ brain reads, and orchid, a pink to purple `ombre`. Two lessons:
 - **`/tmp` is not a path on Windows Python.** A `git show > /tmp/x` from git
   bash is invisible to a Python that opens `/tmp/x`. Use the scratchpad, or
   read `git show` through subprocess.
+
+**Version 18**, 7 September 2026. Amy's notes: rainbow did nothing on gold
+on blue, bloom and glow were one thing, the bloom ghosted the brain, dot
+scale was not a count, and nothing explained itself. Lessons:
+
+- **A parameter that only one code path reads is a dead slider on the other
+  path.** The film, glints and sparkle lived inside the opaque block, so on
+  every translucent style the whole Rainbow group was inert. They are
+  functions now, called from both paths.
+- **A wide shell of a folded mesh is a ghost of the mesh.** The bloom's
+  outer shells now relax toward a sphere of the mean radius as they go out,
+  which is what turns a stack of ghost brains into a haze. The tight glow
+  keeps the folds, because at that distance they are the light's shape.
+- **Show a count, store a density.** Dots across the object is what a person
+  can check by eye; dots per world unit is what the shader needs. The slider
+  shows one and sets the other through the object's height.
+- **A tooltip per control is cheap and it is the difference between a panel
+  and a wall of numbers.** Each knob carries its help as a sixth field.

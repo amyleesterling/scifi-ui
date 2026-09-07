@@ -536,7 +536,13 @@ its base, by world height. Orchid is pink into purple that way. And
 `spectral`, a dichroic shift: the hue of the whole hologram walks around the
 wheel with the angle you see it at, like a dichroic film, with
 `spectralDrift` turning it slowly over time. Any slider can be set from the
-URL as `?p.spectral=1`.
+URL as `?p.spectral=1`. The light outside the silhouette is two things:
+`halo` is the glow, three tight shells that read the grazing angle, and
+`bloom` is the haze, eight wide shells that relax toward a sphere of the
+object's mean radius as they go out, so a wide bloom does not carry the
+gyri as ghosts. Both take the spectral shift. The thin film, glints and
+sparkle run on translucent styles as well as opaque ones. Every slider,
+group, style and era carries a tooltip saying what it does.
 
 **Dynamics.** Press the Dynamics button (or set `weather`, or open with
 `?dynamics=1`) and the hologram, whichever style it is in, carries a recording: 108

@@ -86,9 +86,11 @@ export const HOLO_DEFAULTS = {
   solid: 0,                /* 1: a depth prepass keeps only the nearest surface,
                               so a folded mesh reads as one lit body instead of
                               a stack of translucent layers */
-  halo: 0,                 /* gain on the bloom shells outside the silhouette */
-  haloSize: 0.05,          /* how far the outermost shell is pushed, world units */
-  haloColor: "#FFE6B0",    /* the bloom's colour */
+  halo: 0,                 /* glow: a tight light just outside the silhouette */
+  haloSize: 0.05,          /* how far the glow reaches, world units */
+  haloColor: "#FFE6B0",    /* colour of the glow and the bloom */
+  bloom: 0,                /* bloom: a wide soft haze around the whole object */
+  bloomSize: 0.25,         /* how far the bloom reaches, world units */
   opaque: 0,               /* 1: normal blending and depth write. A surface you
                               cannot see through, on any background */
   shade: 0,                /* 0 hologram body, 1 a lit surface (lambert) */
@@ -136,9 +138,9 @@ export const HOLO_STYLES = {
     color: "#FFC964", coreColor: "#FFF6E0", glowIntensity: 1.6, fresnelPower: 2.4,
     bodyAlpha: 1.0, shade: 1, dotIntensity: 0, density: 0, inner: 0, iridescence: 0,
     chroma: 0.1, glitchAmount: 0.003, voxel: 0, lattice: 0, opaque: 1, solid: 1,
-    halo: 2.2, haloSize: 0.2, haloColor: "#FFC24A", opacity: 1, emission: 0.6,
+    halo: 1.2, haloSize: 0.06, haloColor: "#FFC24A", opacity: 1, emission: 0.6,
     rough: 0.5, metal: 0.2, env: 0.5, film: 380, iri: 0.2, sparkle: 0.8,
-    sparkleScale: 120, cavity: 0.45,
+    sparkleScale: 120, cavity: 0.45, bloom: 1.6, bloomSize: 0.28,
   },
   /* a paper lantern: soft, warm, hardly any rim, the body itself lit from
      within, a fine gentle dot grid like the weave of the paper */
@@ -146,8 +148,8 @@ export const HOLO_STYLES = {
     color: "#FFD9A0", coreColor: "#FFFDF7", glowIntensity: 0.4, fresnelPower: 1.2,
     bodyAlpha: 0.9, dotScale: 90, dotRadius: 0.12, dotIntensity: 0.4,
     density: 0.8, inner: 0.3, iridescence: 0, chroma: 0, glitchAmount: 0,
-    voxel: 0, lattice: 0, solid: 1, halo: 0.6, haloSize: 0.18, haloColor: "#FFE0A8",
-    opacity: 1,
+    voxel: 0, lattice: 0, solid: 1, halo: 0.5, haloSize: 0.06, haloColor: "#FFE0A8",
+    opacity: 1, bloom: 1.0, bloomSize: 0.3,
   },
   /* champagne aurora: the gold rim runs through a spectrum at grazing
      angles, a voxel glitch keeps re-computing it, the lattice hums */
@@ -174,9 +176,9 @@ export const HOLO_STYLES = {
     color: "#FFE7BE", coreColor: "#FFFFFF", glowIntensity: 1.4, fresnelPower: 2.2,
     bodyAlpha: 1.0, shade: 1, dotIntensity: 0, density: 0, inner: 0, iridescence: 0,
     chroma: 0.1, glitchAmount: 0.002, voxel: 0, lattice: 0, opaque: 1, solid: 1,
-    halo: 2.2, haloSize: 0.2, haloColor: "#FFC24A", opacity: 1,
+    halo: 1.2, haloSize: 0.07, haloColor: "#FFC24A", opacity: 1,
     rough: 0.42, metal: 0.35, env: 1.0, film: 520, iri: 0.45, sparkle: 1.1,
-    sparkleScale: 130, cavity: 0.55,
+    sparkleScale: 130, cavity: 0.55, bloom: 1.8, bloomSize: 0.32,
   },
   /* holographic foil: a gold surface you cannot see through, with the
      rainbow of a thin film sliding across it as it turns and spectral
@@ -195,9 +197,9 @@ export const HOLO_STYLES = {
     color: "#3E96F0", coreColor: "#FFFFFF", glowIntensity: 0.7, fresnelPower: 2.2,
     bodyAlpha: 1.0, shade: 1, dotIntensity: 0, density: 0, inner: 0, iridescence: 0,
     chroma: 0.05, glitchAmount: 0, voxel: 0, lattice: 0, opaque: 1, solid: 1,
-    halo: 0.9, haloSize: 0.14, haloColor: "#FFE9C4", opacity: 1,
+    halo: 0.7, haloSize: 0.06, haloColor: "#FFE9C4", opacity: 1,
     rough: 0.5, metal: 0.08, env: 0.55, film: 380, iri: 1.0, sparkle: 0.7,
-    sparkleScale: 110, cavity: 0.85,
+    sparkleScale: 110, cavity: 0.85, bloom: 0.6, bloomSize: 0.22,
   },
   /* chrome sun: a warm mirror. The studio and its sun are in the surface,
      the rainbow is a thin oil film on chrome */
@@ -227,9 +229,9 @@ export const HOLO_STYLES = {
     color: "#FF7AD9", color2: "#6B2FD9", ombre: 1, coreColor: "#FFF0FA",
     glowIntensity: 1.5, fresnelPower: 2.6, bodyAlpha: 1.0, shade: 1, dotIntensity: 0,
     density: 0, inner: 0, iridescence: 0, chroma: 0.15, glitchAmount: 0.002, voxel: 0,
-    lattice: 0, opaque: 1, solid: 1, halo: 1.3, haloSize: 0.14, haloColor: "#C86BFF",
+    lattice: 0, opaque: 1, solid: 1, halo: 1.0, haloSize: 0.06, haloColor: "#C86BFF",
     opacity: 1, emission: 0.25, rough: 0.4, metal: 0.25, env: 0.7, film: 400, iri: 0.35,
-    sparkle: 0.7, sparkleScale: 120, cavity: 0.55,
+    sparkle: 0.7, sparkleScale: 120, cavity: 0.55, bloom: 1.0, bloomSize: 0.24,
   },
   /* white heat: an incandescent surface. Opaque, warm white, a hot white
      rim, a wide white gold bloom, and just enough film that the white has
@@ -238,9 +240,9 @@ export const HOLO_STYLES = {
     color: "#FFF1DC", coreColor: "#FFFFFF", glowIntensity: 2.2, fresnelPower: 2.6,
     bodyAlpha: 1.1, shade: 1, dotIntensity: 0, density: 0, inner: 0, iridescence: 0,
     chroma: 0.05, glitchAmount: 0.002, voxel: 0, lattice: 0, opaque: 1, solid: 1,
-    halo: 2.8, haloSize: 0.22, haloColor: "#FFE0A8", opacity: 1,
+    halo: 1.4, haloSize: 0.07, haloColor: "#FFE0A8", opacity: 1,
     rough: 0.3, metal: 0.15, env: 1.2, film: 320, iri: 0.3, sparkle: 0.9,
-    sparkleScale: 120, cavity: 0.5,
+    sparkleScale: 120, cavity: 0.5, bloom: 2.0, bloomSize: 0.34,
   },
 };
 
@@ -418,6 +420,26 @@ float dots2(vec2 p) {
   return 1.0 - smoothstep(uDotRadius - aa, uDotRadius + aa, d);
 }
 
+/* thin film interference: each wavelength at its own phase for a film of
+   the given thickness seen at NdV, pushed hard away from grey */
+vec3 thinFilm(float thick, float NdV) {
+  vec3 lam = vec3(650.0, 540.0, 470.0);
+  vec3 phase = 4.0 * 3.14159 * 1.4 * thick * NdV / lam;
+  vec3 iri = 0.5 + 0.5 * cos(phase);
+  iri = clamp(mix(vec3(dot(iri, vec3(0.333))), iri, 2.6), 0.0, 1.0);
+  return iri * iri;
+}
+/* diffraction glints: a random micro normal per cell, a tight highlight
+   off it, coloured by where in the spectrum its order falls */
+vec3 glints(vec3 P, vec3 N, vec3 V, vec3 L, float NdV, float scale, float t) {
+  vec3 cell = floor(P * scale);
+  float pick = hash3(cell);
+  vec3 micro = normalize(N + (vec3(hash3(cell + 1.0), hash3(cell + 2.0), hash3(cell + 3.0)) - 0.5) * 0.7);
+  float glint = pow(max(dot(reflect(-L, micro), V), 0.0), 220.0) * step(0.55, pick);
+  float hue = fract(hash3(cell + 4.0) + NdV * 1.5 + t * 0.05);
+  vec3 glintCol = 0.55 + 0.45 * cos(6.28318 * (hue + vec3(0.0, 0.33, 0.67)));
+  return glintCol * glint;
+}
 /* a spectrum from 0 to 1, red through violet, for the diffraction rim */
 vec3 spectrum(float x) {
   return clamp(vec3(abs(x * 6.0 - 3.0) - 1.0, 2.0 - abs(x * 6.0 - 2.0),
@@ -494,6 +516,13 @@ void main() {
      toward the spectrum. Opaque styles get the film instead, below. */
   float wx = clamp(vWeather, 0.0, 1.0);
   vec3 wCol = mix(C, spectrum(fract(0.08 + wx * 0.75)), wx * 0.7);
+  /* the film and the glints, for the translucent hologram as well: the
+     film tints the rim and the body by uIri, the glints ride on top */
+  float NdVt = max(dot(N, V), 0.001);
+  float filmThick = uFilm * (1.0 + 0.5 * (noise3(vW * 2.5 + vec3(0.0, uTime * 0.12, 0.0)) - 0.5))
+                  + uWeatherFilm * vWeather;
+  vec3 filmT = thinFilm(filmThick, NdVt);
+  wCol = mix(wCol, wCol * (0.35 + 1.3 * filmT), clamp(uIri, 0.0, 1.0) * 0.8);
   rim *= 1.0 + wx * 1.2;
   pat *= 1.0 + wx * 2.0;
 
@@ -504,6 +533,7 @@ void main() {
   rimCol = mix(rimCol, spectrum(fract(f * 1.4 + 0.55)), uIridescence * f);
   col += rimCol * rim;
   col += wCol * pat;
+  col += glints(vW, N, V, L, NdVt, uSparkleScale, uTime) * uSparkle * 2.0 * (0.3 + 0.7 * f);
 
   /* the volume: how much object this ray passes through, from the thickness
      pass, glowing by Beer's law. The pass holds the farthest surface on this
@@ -587,27 +617,11 @@ void main() {
     /* thin film: a film whose thickness wanders slowly over the surface;
        each wavelength interferes at its own phase, so the colour runs
        through the spectrum with the angle of view */
-    float thick = uFilm * (1.0 + 0.5 * (noise3(vW * 2.5 + vec3(0.0, uTime * 0.12, 0.0)) - 0.5))
-                + uWeatherFilm * vWeather;
-    vec3 lam = vec3(650.0, 540.0, 470.0);
-    vec3 phase = 4.0 * 3.14159 * 1.4 * thick * NdV / lam;
-    vec3 iri = 0.5 + 0.5 * cos(phase);
-    /* pushed hard away from grey: an interference colour that averages to
-       white is not a rainbow, it is a haze */
-    iri = clamp(mix(vec3(dot(iri, vec3(0.333))), iri, 2.6), 0.0, 1.0);
-    iri *= iri;
+    vec3 iri = thinFilm(filmThick, NdV);
     float iriW = uIri * mix(0.35, 1.0, pow(1.0 - NdV, 1.5)) * (0.4 + 0.6 * NdL);
     iriW += clamp(vWeather, 0.0, 1.5) * 0.9;
 
-    /* diffraction glints: a random micro normal per cell, a very tight
-       highlight off it, coloured by where in the spectrum its order falls */
-    vec3 cell = floor(vW * uSparkleScale);
-    float pick = hash3(cell);
-    vec3 micro = normalize(N + (vec3(hash3(cell + 1.0), hash3(cell + 2.0), hash3(cell + 3.0)) - 0.5) * 0.7);
-    float glint = pow(max(dot(reflect(-L, micro), V), 0.0), 220.0) * step(0.55, pick);
-    float hue = fract(hash3(cell + 4.0) + NdV * 1.5 + uTime * 0.05);
-    vec3 glintCol = 0.55 + 0.45 * cos(6.28318 * (hue + vec3(0.0, 0.33, 0.67)));
-    vec3 sparkle = glintCol * glint * uSparkle * 3.0;
+    vec3 sparkle = glints(vW, N, V, L, NdV, uSparkleScale, uTime) * uSparkle * 3.0;
 
     /* cavity: a sulcus faces inward, a gyrus crest faces out */
     vec3 radialV = normalize(mat3(viewMatrix) * normalize(vW));
@@ -711,6 +725,11 @@ export function makeHologramMaterial(opts) {
     uHaloColor: { value: new THREE.Color(o.haloColor) },
     uHaloGain: { value: o.halo },
     uHaloSize: { value: o.haloSize },
+    uBloomGain: { value: o.bloom },
+    uBloomSize: { value: o.bloomSize },
+    uMeanR: { value: 1 },
+    uSpectral: m.uniforms.uSpectral,
+    uSpectralDrift: m.uniforms.uSpectralDrift,
     uTime: m.uniforms.uTime,
   };
   return m;
@@ -724,16 +743,25 @@ export function makeHologramMaterial(opts) {
 const HALO_VERT = /* glsl */ `
 uniform float uHaloSize;
 uniform float uLayer;
+uniform float uLayers;
+uniform float uSpherize;   /* 1: the outer shells relax toward a sphere */
+uniform float uMeanR;      /* the object's mean radius, for that sphere */
 uniform float uTime;
 varying float vF;
+varying float vT;
 void main() {
+  float t = uLayer / uLayers;
+  vT = t;
   float breathe = 1.0 + 0.08 * sin(uTime * 1.3 + uLayer * 2.0);
-  /* pushed mostly away from the object's centre, only a little along the
-     normal: a folded surface pushed along its normals tears into spikes,
-     and the geometry is recentred on the origin, so radial is smooth */
+  /* pushed away from the object's centre, a little along the normal for the
+     tight glow: a folded surface pushed along its normals tears, and the
+     geometry is recentred on the origin, so radial is smooth. The bloom's
+     outer shells also relax toward a sphere of the mean radius, so a wide
+     bloom is a haze and not a stack of ghost brains. */
   vec3 radial = normalize(position);
-  vec3 dir = normalize(mix(normal, radial, 0.9));
-  vec3 p = position + dir * (uHaloSize * (uLayer / 6.0) * breathe);
+  vec3 dir = normalize(mix(normal, radial, mix(0.9, 1.0, uSpherize)));
+  vec3 base = mix(position, radial * uMeanR, uSpherize * t * 0.85);
+  vec3 p = base + dir * (uHaloSize * t * breathe);
   vec4 mv = modelViewMatrix * vec4(p, 1.0);
   /* the fade reads the smooth push direction, not the folded normal, or
      every shell carries the gyri as a ghost of the brain */
@@ -747,18 +775,39 @@ precision highp float;
 uniform vec3 uHaloColor;
 uniform float uHaloGain;
 uniform float uLayer;
+uniform float uLayers;
+uniform float uSpherize;
+uniform float uSpectral;
+uniform float uSpectralDrift;
+uniform float uTime;
 varying float vF;
+varying float vT;
+vec3 hueShift(vec3 c, float turns) {
+  const vec3 k = vec3(0.57735);
+  float a = turns * 6.28318;
+  float ca = cos(a), sa = sin(a);
+  return c * ca + cross(k, c) * sa + k * dot(k, c) * (1.0 - ca);
+}
 void main() {
-  float a = uHaloGain * 0.22 * pow(vF, 1.6) / uLayer;
-  gl_FragColor = vec4(uHaloColor * a, a);
+  /* the glow is tight and reads the grazing angle; the bloom is a haze
+     that fades with distance from the surface, shell by shell */
+  float glow = pow(vF, 1.6) / uLayer;
+  float haze = pow(1.0 - vT, 1.4) * (0.5 + 0.5 * vF) / uLayers;
+  float a = uHaloGain * mix(0.22 * glow, 0.5 * haze, uSpherize);
+  /* the spectral shift walks the light too, further out in the bloom */
+  vec3 c = hueShift(uHaloColor, uSpectral * 0.66 * mix(vF, vT, uSpherize) + uSpectralDrift * uTime / 60.0);
+  gl_FragColor = vec4(c * a, a);
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
 }`;
-function makeHaloMaterial(halo, layer) {
+function makeHaloMaterial(halo, layer, layers, spherize) {
   return new THREE.ShaderMaterial({
     uniforms: {
-      uHaloColor: halo.uHaloColor, uHaloGain: halo.uHaloGain,
-      uHaloSize: halo.uHaloSize, uTime: halo.uTime, uLayer: { value: layer },
+      uHaloColor: halo.uHaloColor, uTime: halo.uTime, uLayer: { value: layer },
+      uLayers: { value: layers }, uSpherize: { value: spherize },
+      uHaloGain: spherize ? halo.uBloomGain : halo.uHaloGain,
+      uHaloSize: spherize ? halo.uBloomSize : halo.uHaloSize,
+      uMeanR: halo.uMeanR, uSpectral: halo.uSpectral, uSpectralDrift: halo.uSpectralDrift,
     },
     vertexShader: HALO_VERT, fragmentShader: HALO_FRAG,
     transparent: true, depthWrite: false, depthTest: true,
@@ -789,19 +838,35 @@ export function applyHologram(root, material) {
   hosts.forEach(function (o) {
     if (o.userData.halo) return;
     const g = new THREE.Group(); g.isHalo = true;
-    [1, 2, 3, 4, 5, 6].forEach(function (layer) {
-      const h = new THREE.Mesh(o.geometry, makeHaloMaterial(material.halo, layer));
-      h.isHalo = true; h.renderOrder = -20 + layer;
+    /* the glow: three tight shells; the bloom: eight wide ones */
+    [1, 2, 3].forEach(function (layer) {
+      const h = new THREE.Mesh(o.geometry, makeHaloMaterial(material.halo, layer, 3, 0));
+      h.isHalo = true; h.isGlow = true; h.renderOrder = -30 + layer;
+      g.add(h);
+    });
+    [1, 2, 3, 4, 5, 6, 7, 8].forEach(function (layer) {
+      const h = new THREE.Mesh(o.geometry, makeHaloMaterial(material.halo, layer, 8, 1));
+      h.isHalo = true; h.isBloom = true; h.renderOrder = -20 + layer;
       g.add(h);
     });
     o.add(g); o.userData.halo = g;
+    /* the mean radius, for the bloom's sphere */
+    const pos = o.geometry.attributes.position;
+    let sum = 0;
+    for (let i = 0; i < pos.count; i += 7) sum += Math.hypot(pos.getX(i), pos.getY(i), pos.getZ(i));
+    material.halo.uMeanR.value = sum / Math.ceil(pos.count / 7);
   });
-  setHaloVisible(root, material.halo.uHaloGain.value > 0);
+  setHaloVisible(root, material);
   return box;
 }
 
-function setHaloVisible(root, on) {
-  root.traverse(function (o) { if (o.isHalo && o.isGroup) o.visible = on; });
+function setHaloVisible(root, material) {
+  const glow = material.halo.uHaloGain.value > 0, bloom = material.halo.uBloomGain.value > 0;
+  root.traverse(function (o) {
+    if (o.isGlow) o.visible = glow;
+    else if (o.isBloom) o.visible = bloom;
+    else if (o.isHalo && o.isGroup) o.visible = glow || bloom;
+  });
 }
 
 /* One frame of a hologram: the thickness pass, then, for a solid style, a
@@ -812,7 +877,7 @@ export function renderHologramFrame(renderer, scene, camera, material, thickness
   renderer.clear();
   /* the prepass also serves the halo: with depth in the buffer the bloom
      shells only survive outside the silhouette, where a bloom belongs */
-  if (material.solid || material.halo.uHaloGain.value > 0) {
+  if (material.solid || material.halo.uHaloGain.value > 0 || material.halo.uBloomGain.value > 0) {
     const prevOverride = scene.overrideMaterial;
     const halos = [];
     scene.traverse(function (o) { if (o.isHalo && o.isGroup && o.visible) { halos.push(o); o.visible = false; } });
@@ -852,10 +917,16 @@ export function setHologramParam(material, key, value, root) {
   }
   if (key === "halo") {
     material.halo.uHaloGain.value = value;
-    if (root) setHaloVisible(root, value > 0);
+    if (root) setHaloVisible(root, material);
+    return true;
+  }
+  if (key === "bloom") {
+    material.halo.uBloomGain.value = value;
+    if (root) setHaloVisible(root, material);
     return true;
   }
   if (key === "haloSize") { material.halo.uHaloSize.value = value; return true; }
+  if (key === "bloomSize") { material.halo.uBloomSize.value = value; return true; }
   if (key === "haloColor") { material.halo.uHaloColor.value.set(value); return true; }
   const name = "u" + key.charAt(0).toUpperCase() + key.slice(1);
   const u = material.uniforms[name];
