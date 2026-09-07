@@ -117,7 +117,17 @@
   grid-template-columns: minmax(0, 1fr) 270px; grid-template-rows: auto minmax(0, 1fr);
   grid-template-areas: "tools knobs" "stage knobs"; height: calc(100vh - 92px); min-height: 420px;
 }
-@media (max-width: 760px) { .holo3d-wide { grid-template-columns: 1fr; grid-template-rows: auto auto auto; grid-template-areas: "tools" "stage" "knobs"; height: auto; } }
+@media (max-width: 760px) {
+  .holo3d-wide { grid-template-columns: 1fr; grid-template-rows: auto auto auto; grid-template-areas: "tools" "stage" "knobs"; height: auto; }
+  /* a phone: the grid has no height to hand down, so the stage takes one
+     of its own, most of the screen, never wider than it is tall */
+  .holo3d-wide .mviz { height: auto; }
+  .holo3d-wide .mviz-stage { flex: none; height: min(68vh, 100vw); }
+  .holo3d-wide .holoknobs { max-height: none; overflow: visible; }
+  .holo3d .mviz > .mviz-eyebrow { font-size: 9px; letter-spacing: .12em; }
+  .holotools { gap: 6px 10px; }
+  .holotools select { max-width: 60vw; }
+}
 .holo3d-wide .holotools { grid-area: tools; }
 /* stretch, not start: the card must fill its row or the stage has no height */
 .holo3d-wide { align-items: stretch; }

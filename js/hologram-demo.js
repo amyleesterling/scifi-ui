@@ -290,8 +290,19 @@ export function mountHologramDemo(root) {
     /* the rings finish their decay on their own; the flag only stops new
        ones. Nothing is switched off mid ripple. */
   });
+  /* a tall stage (a phone) needs the camera further back, or a mesh
+     framed for four by three is cropped at the sides */
+  function fitCamera() {
+    const aspect = camera.aspect || 1;
+    const need = 2.9 * Math.max(1, 1.25 / aspect);
+    const d = camera.position.distanceTo(controls.target);
+    if (d < need - 0.01 && aspect < 1.25) {
+      camera.position.sub(controls.target).setLength(need).add(controls.target);
+      controls.update();
+    }
+  }
   const ro = new ResizeObserver(function () {
-    if (fitRenderer(renderer, camera, mount)) loop.once();
+    if (fitRenderer(renderer, camera, mount)) { fitCamera(); loop.once(); }
   });
   ro.observe(mount);
 
@@ -648,6 +659,7 @@ export function mountHologramDemo(root) {
         '<div class="mviz-row"><span>Mesh</span><b>' + fmt(Math.round(tris)) + ' faces</b>' +
         '<em class="mviz-note">' + current.note + '</em></div>';
       fitRenderer(renderer, camera, mount);
+      fitCamera();
       loop.run(); loop.once();
     }, null, function () {
       if (mine === token && status) status.textContent = "That mesh did not load.";
