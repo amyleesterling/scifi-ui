@@ -81,6 +81,9 @@
   box-shadow: 0 0 12px -3px rgb(var(--holo-warm, 232 169 58));
 }
 .holostyles button:hover, .holostyles button:focus-visible { border-color: rgb(var(--holo-line, 196 228 255)); outline: none; }
+.holoweather { font-size: 12px; color: rgb(var(--holo-dim, 154 162 177)); margin: 0 0 12px; line-height: 1.5; }
+.holoweather select { margin: 6px 0 4px; }
+.holoweather output { display: block; font-variant-numeric: tabular-nums; color: rgb(var(--holo-line, 196 228 255)); }
 /* render mode: the stage alone, edge to edge */
 body.holoshot { padding: 0 !important; margin: 0; overflow: hidden; }
 body.holoshot .wrap { max-width: none; padding: 0; }
@@ -90,7 +93,7 @@ body.holoshot .holo3d { display: block; }
 body.holoshot .mviz { border: 0; padding: 0; background: none; }
 body.holoshot .mviz-stage { aspect-ratio: auto; height: 100vh; border: 0; border-radius: 0; background: #07080B; }
 
-.holoknobs select, .holoknobs [data-reset] {
+.holoknobs select, .holoknobs [data-reset], .holoknobs [data-send] {
   width: 100%; font: inherit; font-size: 12.5px; color: rgb(var(--holo-ink, 239 244 251));
   background: rgb(var(--holo-panel, 15 18 24));
   border: 1px solid rgb(var(--holo-glow, 74 150 224) / .4);
@@ -99,3 +102,9 @@ body.holoshot .mviz-stage { aspect-ratio: auto; height: 100vh; border: 0; border
 .holoknobs button:hover, .holoknobs button:focus-visible,
 .holoknobs select:focus-visible { border-color: rgb(var(--holo-line, 196 228 255)); outline: none; }
 @media (prefers-reduced-motion: reduce) { .holoswatches i { transition: none; } }
+
+/* the send button: the same control as reset, lit, because it is the way out */
+.holoknobs [data-send] {
+  margin-top: 8px; color: rgb(var(--holo-ink, 239 244 251));
+  border-color: rgb(var(--holo-glow, 74 150 224) / .6); background: rgb(var(--holo-glow, 74 150 224) / .12);
+}

@@ -17,7 +17,8 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { REDUCED, makeRenderer, fitRenderer, makeLoop, whenNear, disposeTree, fmt }
   from "./holo3d.js";
 import { HOLO_DEFAULTS, HOLO_ERAS, HOLO_STYLES, makeHologramMaterial, applyHologram, tickHologram,
-  setHologramParam, touchHologram, makeThicknessPass, renderHologramFrame } from "./holo-material.js";
+  setHologramParam, touchHologram, makeThicknessPass, renderHologramFrame, setWeather, tickWeather }
+  from "./holo-material.js";
 
 /* The meshes the library already carries: two whole brain surfaces and the
    nine MICrONS cells. A shell and a cell want different settings. Fresnel is
@@ -84,6 +85,12 @@ const KNOBS = [
   ["Sparkle", "sparkle", 0, 3, 0.05],
   ["Sparkle scale", "sparkleScale", 20, 400, 5],
   ["Cavity", "cavity", 0, 1, 0.05],
+  /* the weather */
+  ["Weather (0/1)", "weather", 0, 1, 1],
+  ["Weather film (nm)", "weatherFilm", 0, 800, 10],
+  ["Weather glow", "weatherGlow", 0, 2, 0.05],
+  ["Weather spread", "weatherSpread", 0.05, 1, 0.01],
+  ["Weather speed", "weatherSpeed", 0.1, 4, 0.05],
   ["Halo", "halo", 0, 2, 0.05],
   ["Halo size", "haloSize", 0, 0.3, 0.005],
 ];
@@ -115,12 +122,93 @@ export function mountHologramDemo(root) {
   const thickness = makeThicknessPass();
   let now = 0;
 
+  /* the weather's clock: a frame of the recording, advanced at uRate times
+     real time and wrapped at the end of the 30 seconds */
+  const weather = { traces: null, manifest: null, frame: 0, rate: 1, ready: false, loading: false };
+  const clock = root.querySelector("[data-weather-clock]");
+  function tickWeatherClock(dt) {
+    if (!weather.ready || holo.uniforms.uWeather.value < 0.5) return;
+    if (weather.hold) { tickWeather(holo, weather.frame); return; }
+    weather.frame = (weather.frame + dt * weather.traces.fps * weather.rate) % weather.traces.frames;
+    tickWeather(holo, weather.frame);
+    if (clock) clock.textContent = (weather.frame / weather.traces.fps).toFixed(1) + " s of " +
+      (weather.traces.frames / weather.traces.fps).toFixed(0) + " s, at " + weather.rate + "x";
+  }
+
   const loop = makeLoop(stageEl, function (dt, t) {
     now = t;
     tickHologram(holo, t);
+    tickWeatherClock(dt);
     controls.update();
     renderHologramFrame(renderer, scene, camera, holo, thickness);
   });
+
+  /* Load the recording and put every cell on the surface. The cells are 108
+     MICrONS neurons in a mouse's visual cortex; the surface is whatever mesh
+     is loaded, a human cortex by default. So the placement is a metaphor and
+     the copy says so: the swarm is scaled to sit inside the mesh, and each
+     cell's epicentre is where a ray from the centre through its soma meets
+     the surface. The activity, its timing, and which cell is which are real. */
+  function loadWeather() {
+    if (weather.ready || weather.loading) return Promise.resolve();
+    weather.loading = true;
+    return Promise.all([
+      fetch("data/activity-manifest.json").then(function (r) { return r.json(); }),
+      fetch("data/activity-traces.bin").then(function (r) { return r.arrayBuffer(); }),
+    ]).then(function (res) {
+      const manifest = res[0], buf = res[1];
+      const dv = new DataView(buf);
+      const cells = dv.getUint32(0, true), frames = dv.getUint32(4, true), fps = dv.getFloat32(8, true);
+      weather.manifest = manifest;
+      weather.traces = { cells: cells, frames: frames, fps: fps, data: new Float32Array(buf, 12, cells * frames) };
+      weather.loading = false; weather.ready = true;
+      placeWeather();
+    });
+  }
+  function placeWeather() {
+    if (!weather.ready || !group) return;
+    const cells = weather.manifest.cells;
+    /* the swarm's own centre and extent, then scaled to 55% of the mesh */
+    const box = new THREE.Box3();
+    cells.forEach(function (c) { box.expandByPoint(new THREE.Vector3().fromArray(c.world)); });
+    const centre = new THREE.Vector3(); box.getCenter(centre);
+    const size = new THREE.Vector3(); box.getSize(size);
+    const meshes = [];
+    group.traverse(function (o) { if (o.isMesh && o.material === holo) meshes.push(o); });
+    const mbox = new THREE.Box3();
+    meshes.forEach(function (m) { m.geometry.computeBoundingBox(); mbox.union(m.geometry.boundingBox); });
+    const msize = new THREE.Vector3(); mbox.getSize(msize);
+    const mcentre = new THREE.Vector3(); mbox.getCenter(mcentre);
+    const s = 0.55 * Math.max(msize.x, msize.y, msize.z) / (Math.max(size.x, size.y, size.z) || 1);
+    const ray = new THREE.Raycaster();
+    const epi = new Float32Array(cells.length * 4);
+    /* raycast in mesh space: the meshes sit at the group origin unrotated,
+       so their local frame is the frame the vertex shader reads position in */
+    const saved = group.matrixWorld.clone();
+    group.matrixWorld.identity();
+    meshes.forEach(function (m) { m.matrixWorld.identity(); });
+    let hits = 0;
+    cells.forEach(function (c, i) {
+      const p = new THREE.Vector3().fromArray(c.world).sub(centre).multiplyScalar(s).add(mcentre);
+      const dir = p.clone().sub(mcentre).normalize();
+      ray.set(mcentre, dir); ray.far = 100;
+      const hs = ray.intersectObjects(meshes, false);
+      /* the outermost hit is the pial surface; a fold's inner wall is not */
+      const h = hs.length ? hs[hs.length - 1].point : p;
+      if (hs.length) hits++;
+      epi[i * 4] = h.x; epi[i * 4 + 1] = h.y; epi[i * 4 + 2] = h.z; epi[i * 4 + 3] = 1;
+    });
+    group.matrixWorld.copy(saved);
+    group.updateMatrixWorld(true);
+    weather.hits = hits;
+    setWeather(holo, weather.traces, epi);
+    if (facts) facts.insertAdjacentHTML("beforeend",
+      '<div class="mviz-row"><span>Weather</span><b>' + cells.length + ' cells, ' +
+      (weather.traces.frames / weather.traces.fps).toFixed(0) + ' s</b>' +
+      '<em class="mviz-note">MICrONS two photon calcium, 30 frames a second, real timing. ' +
+      'The cells are from a mouse visual cortex and the surface is not; each one is placed where a ray ' +
+      'from the centre through its soma meets the pia (' + hits + ' of ' + cells.length + ' landed).</em></div>');
+  }
 
   /* the touch: the pointer's point on the surface, raycast against the real
      mesh, throttled because a cell is 120,000 triangles with no BVH. A tap
@@ -228,10 +316,13 @@ export function mountHologramDemo(root) {
   }).join("");
   ranges.addEventListener("input", function (e) {
     const v = parseFloat(e.target.value);
+    if (e.target.name === "weather" && v > 0) loadWeather();
     setHologramParam(holo, e.target.name, v, group);
     e.target.previousElementSibling.value = v;
     loop.once();
   });
+  const rateSel = root.querySelector("[data-weather-rate]");
+  if (rateSel) rateSel.addEventListener("change", function () { weather.rate = parseFloat(rateSel.value) || 1; });
 
   /* the current mesh's preset over the defaults, into the material and onto
      the sliders, so the panel never shows a number the shader is not using */
@@ -267,6 +358,59 @@ export function mountHologramDemo(root) {
     });
     applyPreset();
   });
+
+  /* ---- the look, as a thing that travels ---------------------------------
+     Another page can open this maker with ?to=<its url>. A button appears
+     that sends the current look back as ?holo=<base64 json> on that url,
+     and a maker opened with ?holo= restores the look onto its knobs, so the
+     round trip can go on. The look is the era, the style, the three
+     colours and every knob. */
+  function currentLook() {
+    const look = { era: era, style: style };
+    look.color = "#" + holo.uniforms.uColor.value.getHexString();
+    look.coreColor = "#" + holo.uniforms.uCoreColor.value.getHexString();
+    look.haloColor = "#" + holo.halo.uHaloColor.value.getHexString();
+    KNOBS.forEach(function (k) {
+      const r = ranges.querySelector('[name="' + k[1] + '"]');
+      look[k[1]] = parseFloat(r.value);
+    });
+    return look;
+  }
+  function applyLook(look) {
+    if (ERAS.indexOf(String(look.era)) >= 0) { era = String(look.era); }
+    if (eras) eras.querySelectorAll("[data-era]").forEach(function (x) { x.setAttribute("aria-pressed", String(x.getAttribute("data-era") === era)); });
+    style = HOLO_STYLES[look.style] ? look.style : "";
+    if (styles) styles.querySelectorAll("[data-style]").forEach(function (x) { x.setAttribute("aria-pressed", String(x.getAttribute("data-style") === style)); });
+    applyPreset();
+    if (look.color) setHologramParam(holo, "color", look.color);
+    if (look.coreColor) setHologramParam(holo, "coreColor", look.coreColor);
+    if (look.haloColor) setHologramParam(holo, "haloColor", look.haloColor);
+    swatches.querySelectorAll("input").forEach(function (i) { i.checked = look.color && i.value.toUpperCase() === String(look.color).toUpperCase(); });
+    KNOBS.forEach(function (k) {
+      if (typeof look[k[1]] !== "number") return;
+      setHologramParam(holo, k[1], look[k[1]], group);
+      const r = ranges.querySelector('[name="' + k[1] + '"]');
+      r.value = look[k[1]]; r.previousElementSibling.value = look[k[1]];
+    });
+    loop.once();
+  }
+  const encodeLook = function (look) { return btoa(unescape(encodeURIComponent(JSON.stringify(look)))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
+  const decodeLook = function (str) { try { return JSON.parse(decodeURIComponent(escape(atob(str.replace(/-/g, "+").replace(/_/g, "/"))))); } catch (e) { return null; } };
+  const sendTo = params.get("to");
+  let pendingLook = params.get("holo") ? decodeLook(params.get("holo")) : null;
+  if (sendTo) {
+    let host = "the page that sent you";
+    try { host = new URL(sendTo).hostname; } catch (e) {}
+    const btn = document.createElement("button");
+    btn.type = "button"; btn.setAttribute("data-send", "");
+    btn.textContent = "Apply this look on " + host;
+    btn.addEventListener("click", function () {
+      let u; try { u = new URL(sendTo); } catch (e) { return; }
+      u.searchParams.set("holo", encodeLook(currentLook()));
+      location.href = u.toString();
+    });
+    form.appendChild(btn);
+  }
 
   /* ---- the mesh -------------------------------------------------------- */
   let group = null, token = 0;
@@ -306,6 +450,15 @@ export function mountHologramDemo(root) {
       /* the material is applied last: it reads the world bounds */
       applyHologram(group, holo);
       applyPreset();
+      if (weather.ready) placeWeather();
+      else if (params.get("weather") === "1") {
+        loadWeather().then(function () {
+          setHologramParam(holo, "weather", 1);
+          const r = ranges.querySelector('[name="weather"]');
+          if (r) { r.value = 1; r.previousElementSibling.value = 1; }
+          loop.once();
+        });
+      }
       if (status) status.hidden = true;
       if (facts) facts.innerHTML =
         '<div class="mviz-row"><span>Mesh</span><b>' + fmt(Math.round(tris)) + ' faces</b>' +
@@ -323,13 +476,17 @@ export function mountHologramDemo(root) {
   const meshIdx = Math.min(MESHES.length - 1, Math.max(0, parseInt(params.get("mesh") || "0", 10) || 0));
   const shot = params.get("shot") === "1";
   const yaw = parseFloat(params.get("yaw")), pitch = parseFloat(params.get("pitch"));
+  if (params.get("frame")) { weather.frame = parseFloat(params.get("frame")) || 0; weather.hold = true; }
+  if (params.get("rate")) weather.rate = parseFloat(params.get("rate")) || 1;
   if (shot) controls.autoRotate = false;
   const start = whenNear(stageEl, function () {
     fitRenderer(renderer, camera, mount);
     load(meshIdx);
+    if (pendingLook) { const lk = pendingLook; pendingLook = null; setTimeout(function () { applyLook(lk); }, 400); }
   });
 
-  return { el: root, loop: loop, start: start, load: load, material: holo, shot: shot,
+  return { el: root, loop: loop, start: start, load: load, material: holo, shot: shot, weather: weather,
+    loadWeather: loadWeather,
     setStyle: function (s) { const b = styles && styles.querySelector('[data-style="' + s + '"]'); if (b) b.click(); },
     scene: scene, camera: camera, renderer: renderer, meshes: MESHES,
     group: function () { return group; },
