@@ -86,11 +86,12 @@ const KNOBS = [
   ["Sparkle scale", "sparkleScale", 20, 400, 5],
   ["Cavity", "cavity", 0, 1, 0.05],
   /* the weather */
-  ["Weather (0/1)", "weather", 0, 1, 1],
-  ["Weather film (nm)", "weatherFilm", 0, 800, 10],
-  ["Weather glow", "weatherGlow", 0, 2, 0.05],
-  ["Weather spread", "weatherSpread", 0.05, 1, 0.01],
-  ["Weather speed", "weatherSpeed", 0.1, 4, 0.05],
+  ["Dynamics (0/1)", "weather", 0, 1, 1],
+  ["Dynamics film (nm)", "weatherFilm", 0, 800, 10],
+  ["Dynamics glow", "weatherGlow", 0, 2, 0.05],
+  ["Dynamics spread", "weatherSpread", 0.05, 1, 0.01],
+  ["Dynamics speed", "weatherSpeed", 0.1, 4, 0.05],
+  ["Dynamics lift", "weatherLift", 0, 0.05, 0.001],
   ["Halo", "halo", 0, 2, 0.05],
   ["Halo size", "haloSize", 0, 0.3, 0.005],
 ];
@@ -316,10 +317,28 @@ export function mountHologramDemo(root) {
   }).join("");
   ranges.addEventListener("input", function (e) {
     const v = parseFloat(e.target.value);
-    if (e.target.name === "weather" && v > 0) loadWeather();
+    if (e.target.name === "weather") { setDynamics(v > 0); return; }
     setHologramParam(holo, e.target.name, v, group);
     e.target.previousElementSibling.value = v;
     loop.once();
+  });
+  /* the Dynamics toggle: the same param as the slider, as a button, and it
+     loads the recording the first time it is pressed */
+  const dynBtn = root.querySelector("[data-dynamics]");
+  function setDynamics(on) {
+    if (on) loadWeather();
+    setHologramParam(holo, "weather", on ? 1 : 0, group);
+    const r = ranges.querySelector('[name="weather"]');
+    if (r) { r.value = on ? 1 : 0; r.previousElementSibling.value = on ? 1 : 0; }
+    if (dynBtn) {
+      dynBtn.setAttribute("aria-pressed", String(on));
+      dynBtn.textContent = on ? "Dynamics on" : "Dynamics off";
+    }
+    if (clock && !on) clock.textContent = "";
+    loop.once();
+  }
+  if (dynBtn) dynBtn.addEventListener("click", function () {
+    setDynamics(holo.uniforms.uWeather.value < 0.5);
   });
   const rateSel = root.querySelector("[data-weather-rate]");
   if (rateSel) rateSel.addEventListener("change", function () { weather.rate = parseFloat(rateSel.value) || 1; });
@@ -345,6 +364,7 @@ export function mountHologramDemo(root) {
       setHologramParam(holo, "color", on ? on.value : HOLO_DEFAULTS.color);
     }
     setHologramParam(holo, "haloColor", p.haloColor);
+    p.weather = holo.uniforms.uWeather.value;   /* the toggle survives a style change */
     KNOBS.forEach(function (k) {
       setHologramParam(holo, k[1], p[k[1]], group);
       const r = ranges.querySelector('[name="' + k[1] + '"]');
@@ -451,13 +471,8 @@ export function mountHologramDemo(root) {
       applyHologram(group, holo);
       applyPreset();
       if (weather.ready) placeWeather();
-      else if (params.get("weather") === "1") {
-        loadWeather().then(function () {
-          setHologramParam(holo, "weather", 1);
-          const r = ranges.querySelector('[name="weather"]');
-          if (r) { r.value = 1; r.previousElementSibling.value = 1; }
-          loop.once();
-        });
+      else if (params.get("weather") === "1" || params.get("dynamics") === "1") {
+        loadWeather().then(function () { setDynamics(true); });
       }
       if (status) status.hidden = true;
       if (facts) facts.innerHTML =
@@ -486,7 +501,7 @@ export function mountHologramDemo(root) {
   });
 
   return { el: root, loop: loop, start: start, load: load, material: holo, shot: shot, weather: weather,
-    loadWeather: loadWeather,
+    loadWeather: loadWeather, setDynamics: setDynamics,
     setStyle: function (s) { const b = styles && styles.querySelector('[data-style="' + s + '"]'); if (b) b.click(); },
     scene: scene, camera: camera, renderer: renderer, meshes: MESHES,
     group: function () { return group; },

@@ -104,6 +104,7 @@ export const HOLO_DEFAULTS = {
   weatherGlow: 0.35,       /* warm light added per unit of activity */
   weatherSpread: 0.13,     /* how far a cell's activity reaches, mesh units */
   weatherSpeed: 0.9,       /* how fast it travels outward, mesh units per second of recording */
+  weatherLift: 0.012,      /* how far the surface rises where there is activity, mesh units */
 };
 
 /* three presets on the same material */
@@ -262,6 +263,7 @@ uniform vec2  uBounds;      /* world y of the bottom and top of the object */
 uniform float uWeather;
 uniform float uWeatherSpread;
 uniform float uWeatherSpeed;
+uniform float uWeatherLift;
 uniform float uFrame;          /* the recording frame being shown, fractional */
 uniform vec2  uTraceSize;      /* cells, frames */
 uniform sampler2D uTraces;     /* activity, cells across, frames down */
@@ -322,6 +324,8 @@ void main() {
   }
   vBurst = b;
   vWeather = weatherAt(position);
+  /* the surface breathes where the cells fire */
+  wp.xyz += normalize(mat3(modelMatrix) * normal) * (vWeather * uWeatherLift);
 
   vec4 mv = viewMatrix * wp;
   vN = normalize(normalMatrix * normal);
@@ -446,13 +450,21 @@ void main() {
   lam += 0.6 * pow(max(dot(reflect(-L, N), V), 0.0), 24.0);
   float bodyLight = mix(lit * (0.4 + 0.6 * f), lam, uShade);
 
-  vec3 col = uColor * (uBodyAlpha * bodyLight);
-  vec3 rimCol = mix(uColor, uCoreColor, clamp(rim.g * 0.45, 0.0, 1.0));
+  /* the dynamics on a translucent hologram: where the recording is active
+     the rim and the pattern brighten, the body lifts, and the colour runs
+     toward the spectrum. Opaque styles get the film instead, below. */
+  float wx = clamp(vWeather, 0.0, 1.0);
+  vec3 wCol = mix(uColor, spectrum(fract(0.08 + wx * 0.75)), wx * 0.7);
+  rim *= 1.0 + wx * 1.2;
+  pat *= 1.0 + wx * 2.0;
+
+  vec3 col = wCol * (uBodyAlpha * bodyLight * (1.0 + wx * 2.5));
+  vec3 rimCol = mix(wCol, uCoreColor, clamp(rim.g * 0.45, 0.0, 1.0));
   /* the diffraction colour: a spectrum keyed to the grazing angle, brightest
      where the rim is, so it reads as a property of the light and not paint */
   rimCol = mix(rimCol, spectrum(fract(f * 1.4 + 0.55)), uIridescence * f);
   col += rimCol * rim;
-  col += uColor * pat;
+  col += wCol * pat;
 
   /* the volume: how much object this ray passes through, from the thickness
      pass, glowing by Beer's law. The pass holds the farthest surface on this
@@ -619,6 +631,7 @@ export function makeHologramMaterial(opts) {
       uWeatherGlow:   { value: o.weatherGlow },
       uWeatherSpread: { value: o.weatherSpread },
       uWeatherSpeed:  { value: o.weatherSpeed },
+      uWeatherLift:   { value: o.weatherLift },
       uFrame:         { value: 0 },
       uTraceSize:     { value: new THREE.Vector2(1, 1) },
       uTraces:        { value: null },

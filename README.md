@@ -530,7 +530,8 @@ holographic sticker, opal is a milky pearl, nova core is warm white with a
 wide golden bloom. `rough`, `metal`, `env`, `film`, `iri`, `sparkle`,
 `sparkleScale` and `cavity` are all sliders.
 
-**The weather.** Turn on `weather` and the surface carries a recording: 108
+**Dynamics.** Press the Dynamics button (or set `weather`, or open with
+`?dynamics=1`) and the hologram, whichever style it is in, carries a recording: 108
 MICrONS neurons, thirty seconds of two photon calcium at 30 frames a second,
 the same traces the Cortex page's activity panel plays, copied whole into
 `data/`. The traces are a texture the vertex shader reads, one column per
@@ -541,7 +542,11 @@ level, runs outward from that point at `weatherSpeed`, decaying over
 ring. The sum over all cells becomes extra thin film thickness
 (`weatherFilm`), which on an opaque style runs the interference colour
 through the spectrum where the activity is, plus a warm lift
-(`weatherGlow`). Playback runs at real time, quarter, tenth or hundredth
+(`weatherGlow`). On a translucent style the rim and the lattice brighten
+where the cells fire, the body lifts, and the colour runs toward the
+spectrum; on every style the surface rises a little there (`weatherLift`).
+The toggle survives a style change, so you can walk the eleven looks with
+the recording playing. Playback runs at real time, quarter, tenth or hundredth
 speed, and the panel reports the second of the recording you are looking at.
 The cells are from a mouse visual cortex and the surface is a human one, so
 their placement is a metaphor and the caption says so; the activity, its

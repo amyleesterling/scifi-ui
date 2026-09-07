@@ -848,3 +848,11 @@ gave me to imagine anything. Lessons worth keeping:
 - **Placing a mouse's cells on a human cortex is a metaphor; say so in the
   caption and keep the timing real.** The caption names the mismatch and
   reports how many of the 108 rays landed (all of them).
+
+**Version 16**, 7 September 2026. The weather becomes Dynamics, a toggle
+that plays the recording on whichever hologram is showing. A translucent
+style answers it with rim, lattice, body and hue rather than film, and every
+style breathes along the normal where the cells fire. One lesson: a toggle
+that lives in a preset dies on the next preset. `applyPreset` now carries
+the current Dynamics state across a style change instead of resetting it to
+the style's zero, or the button would go dark every time a style was tried.
