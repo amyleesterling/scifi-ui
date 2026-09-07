@@ -127,6 +127,8 @@ const STYLE_HELP = {
   solidGold: "Opaque gold with a lit surface, a highlight and a gold rim. For a page that is not black.",
   orchid: "Pink at the crown running to purple at the base, opaque, with a violet bloom.",
   whiteHeat: "Incandescent: an opaque warm white surface with a hot rim and a wide white gold bloom.",
+  glass: "The BANC and FlyWire shell: a cool translucent skin with a bright cyan edge and a deep blue haze inside. Made to hold coloured things.",
+  neonGlass: "The BANC palette: magenta at the crown into violet at the base, saturated, inside the cyan edged glass.",
 };
 const ERA_HELP = {
   "2026": "Light projected onto the outside of a shape: a translucent centre, a fresnel rim, a dot lattice.",
@@ -135,7 +137,8 @@ const ERA_HELP = {
 };
 const STYLE_LABEL = { supernova: "Supernova", lantern: "Lantern",
   aurora: "Aurora", goldOnBlue: "Gold on blue", solidGold: "Solid gold", whiteHeat: "White heat",
-  holoFoil: "Holo foil", opal: "Opal", chromeSun: "Chrome sun", novaCore: "Nova core", orchid: "Orchid" };
+  holoFoil: "Holo foil", opal: "Opal", chromeSun: "Chrome sun", novaCore: "Nova core", orchid: "Orchid",
+  glass: "Glass", neonGlass: "Neon glass" };
 
 export function mountHologramDemo(root) {
   const mount = root.querySelector("[data-mount]");

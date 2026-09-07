@@ -223,6 +223,26 @@ export const HOLO_STYLES = {
     rough: 0.4, metal: 0.5, env: 0.7, film: 450, iri: 0.35, sparkle: 0.5,
     sparkleScale: 120, cavity: 0.6,
   },
+  /* glass: the BANC and FlyWire shell. A cool translucent skin with a
+     bright cyan edge, a deep blue haze inside, almost no pattern. Made to
+     hold coloured things; alone it is the vessel. */
+  glass: {
+    color: "#2E6FBF", coreColor: "#9FF0FF", glowIntensity: 2.4, fresnelPower: 3.6,
+    bodyAlpha: 0.12, dotScale: 30, dotRadius: 0.06, dotIntensity: 0.15, lattice: 0,
+    density: 1.2, inner: 0.22, iridescence: 0.1, chroma: 0.25, glitchAmount: 0.002,
+    voxel: 0, solid: 1, opaque: 0, opacity: 1, halo: 0.9, haloSize: 0.04,
+    haloColor: "#7EE0FF", bloom: 0.3, bloomSize: 0.2, iri: 0, sparkle: 0,
+  },
+  /* neon glass: the BANC palette. Magenta at the crown running to violet
+     at the base, saturated, inside the same cyan edged glass */
+  neonGlass: {
+    color: "#FF3FD8", color2: "#5B2BFF", ombre: 1, coreColor: "#9FF0FF",
+    glowIntensity: 2.2, fresnelPower: 3.2, bodyAlpha: 0.55, dotIntensity: 0.1,
+    dotScale: 30, lattice: 0, density: 1.6, inner: 0.4, iridescence: 0.15, chroma: 0.3,
+    glitchAmount: 0.002, voxel: 0, solid: 1, opaque: 0, opacity: 1, halo: 1.0,
+    haloSize: 0.045, haloColor: "#7EE0FF", bloom: 0.5, bloomSize: 0.22, iri: 0.2,
+    sparkle: 0.3, film: 420,
+  },
   /* orchid: a pink hologram that runs to purple toward the base, opaque,
      with a soft violet bloom and a little film so the pink has depth */
   orchid: {
