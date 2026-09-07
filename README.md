@@ -530,6 +530,24 @@ holographic sticker, opal is a milky pearl, nova core is warm white with a
 wide golden bloom. `rough`, `metal`, `env`, `film`, `iri`, `sparkle`,
 `sparkleScale` and `cavity` are all sliders.
 
+**The weather.** Turn on `weather` and the surface carries a recording: 108
+MICrONS neurons, thirty seconds of two photon calcium at 30 frames a second,
+the same traces the Cortex page's activity panel plays, copied whole into
+`data/`. The traces are a texture the vertex shader reads, one column per
+cell, one row per frame. Each cell is raycast from the centre of the mesh
+through its soma onto the surface, and its activity, above the resting
+level, runs outward from that point at `weatherSpeed`, decaying over
+`weatherSpread`, read at a delay that grows with distance, so a burst is a
+ring. The sum over all cells becomes extra thin film thickness
+(`weatherFilm`), which on an opaque style runs the interference colour
+through the spectrum where the activity is, plus a warm lift
+(`weatherGlow`). Playback runs at real time, quarter, tenth or hundredth
+speed, and the panel reports the second of the recording you are looking at.
+The cells are from a mouse visual cortex and the surface is a human one, so
+their placement is a metaphor and the caption says so; the activity, its
+timing, and which cell is which are real. `?weather=1&frame=300` holds a
+frame for a render.
+
 ---
 
 

@@ -98,6 +98,12 @@ export const HOLO_DEFAULTS = {
   sparkle: 1.0,            /* diffraction glints, spectral, view dependent */
   sparkleScale: 140,       /* glint cells per world unit */
   cavity: 0.6,             /* how much the sulci darken */
+  /* the weather: recorded activity running across the surface */
+  weather: 0,              /* 1 on. Needs setWeather() to have been given data */
+  weatherFilm: 380,        /* nanometres of film thickness per unit of activity */
+  weatherGlow: 0.35,       /* warm light added per unit of activity */
+  weatherSpread: 0.13,     /* how far a cell's activity reaches, mesh units */
+  weatherSpeed: 0.9,       /* how fast it travels outward, mesh units per second of recording */
 };
 
 /* three presets on the same material */
@@ -253,12 +259,49 @@ uniform float uGlitchFreq;
 uniform float uGlitchAmount;
 uniform float uVoxel;
 uniform vec2  uBounds;      /* world y of the bottom and top of the object */
+uniform float uWeather;
+uniform float uWeatherSpread;
+uniform float uWeatherSpeed;
+uniform float uFrame;          /* the recording frame being shown, fractional */
+uniform vec2  uTraceSize;      /* cells, frames */
+uniform sampler2D uTraces;     /* activity, cells across, frames down */
+uniform sampler2D uEpicentres; /* one texel per cell: its point on the surface, mesh space */
 varying vec3  vN;
 varying vec3  vV;
 varying vec3  vW;
 varying float vBurst;
 varying float vDepth;
+varying float vWeather;
 ${NOISE}
+
+/* The weather. Every cell's recorded activity, read at a delay that grows
+   with distance from the cell's point on the surface, so a burst runs
+   outward as a ring at uWeatherSpeed and dies away over uWeatherSpread. The
+   sum over all cells is one number per vertex. Nothing here is generated:
+   the texture is the calcium recording, frame for frame. */
+float weatherAt(vec3 p) {
+  if (uWeather < 0.5) return 0.0;
+  float total = 0.0;
+  float cells = uTraceSize.x, frames = uTraceSize.y;
+  for (int i = 0; i < 128; i++) {
+    if (float(i) >= cells) break;
+    float u = (float(i) + 0.5) / cells;
+    vec3 e = texture2D(uEpicentres, vec2(u, 0.5)).xyz;
+    float d = distance(p, e);
+    float fall = exp(-d / uWeatherSpread);
+    if (fall < 0.02) continue;
+    /* the delay: the ring has to travel d at uWeatherSpeed, in recording
+       seconds, which is frames at 30 a second */
+    float f = uFrame - d / uWeatherSpeed * 30.0;
+    if (f < 0.0) continue;
+    /* above baseline only: a calcium trace sits at a resting level and the
+       weather is the rise, not the rest */
+    float a = max(texture2D(uTraces, vec2(u, (f + 0.5) / frames)).r - 0.22, 0.0) * 1.3;
+    total += a * fall;
+  }
+  /* a soft knee, so a hundred cells cannot sum to a white sheet */
+  return 1.0 - exp(-total);
+}
 void main() {
   vec4 wp = modelMatrix * vec4(position, 1.0);
   float extent = max(uBounds.y - uBounds.x, 1e-3);
@@ -278,6 +321,7 @@ void main() {
     wp.xyz = mix(wp.xyz, snapped, step(0.5, b));
   }
   vBurst = b;
+  vWeather = weatherAt(position);
 
   vec4 mv = viewMatrix * wp;
   vN = normalize(normalMatrix * normal);
@@ -315,6 +359,8 @@ uniform float uIri;
 uniform float uSparkle;
 uniform float uSparkleScale;
 uniform float uCavity;
+uniform float uWeatherFilm;
+uniform float uWeatherGlow;
 uniform vec3  uPointer;
 uniform float uPointerT;
 uniform float uPointerOn;
@@ -325,6 +371,7 @@ varying vec3  vV;
 varying vec3  vW;
 varying float vBurst;
 varying float vDepth;
+varying float vWeather;
 ${NOISE}
 
 /* one plane of the lattice: distance to the nearest cell centre in 2D,
@@ -433,6 +480,10 @@ void main() {
     col += mix(uColor, uCoreColor, 0.5) * ring * env * 2.0 * uTouch;
   }
 
+  /* the weather lifts the translucent body too, so it is not an opaque only
+     thing */
+  col += uCoreColor * clamp(vWeather, 0.0, 2.0) * uWeatherGlow;
+
   /* interference also lifts the whole thing a touch and grains it */
   col *= 1.0 + vBurst * 0.25;
   col *= 1.0 - vBurst * 0.15 * hash(floor(gl_FragCoord.y * 0.5) + floor(uTime * 30.0));
@@ -485,7 +536,8 @@ void main() {
     /* thin film: a film whose thickness wanders slowly over the surface;
        each wavelength interferes at its own phase, so the colour runs
        through the spectrum with the angle of view */
-    float thick = uFilm * (1.0 + 0.5 * (noise3(vW * 2.5 + vec3(0.0, uTime * 0.12, 0.0)) - 0.5));
+    float thick = uFilm * (1.0 + 0.5 * (noise3(vW * 2.5 + vec3(0.0, uTime * 0.12, 0.0)) - 0.5))
+                + uWeatherFilm * vWeather;
     vec3 lam = vec3(650.0, 540.0, 470.0);
     vec3 phase = 4.0 * 3.14159 * 1.4 * thick * NdV / lam;
     vec3 iri = 0.5 + 0.5 * cos(phase);
@@ -494,6 +546,7 @@ void main() {
     iri = clamp(mix(vec3(dot(iri, vec3(0.333))), iri, 2.6), 0.0, 1.0);
     iri *= iri;
     float iriW = uIri * mix(0.35, 1.0, pow(1.0 - NdV, 1.5)) * (0.4 + 0.6 * NdL);
+    iriW += clamp(vWeather, 0.0, 1.5) * 0.9;
 
     /* diffraction glints: a random micro normal per cell, a very tight
        highlight off it, coloured by where in the spectrum its order falls */
@@ -519,6 +572,7 @@ void main() {
               + sparkle;
     /* the hologram's own rim on top, gold at the silhouette */
     surf += rimCol * rim * 0.5;
+    surf += uCoreColor * clamp(vWeather, 0.0, 2.0) * uWeatherGlow;
     surf *= uOpacity * uBodyAlpha;
     gl_FragColor = vec4(surf, 1.0);
   }
@@ -560,6 +614,15 @@ export function makeHologramMaterial(opts) {
       uSparkle:       { value: o.sparkle },
       uSparkleScale:  { value: o.sparkleScale },
       uCavity:        { value: o.cavity },
+      uWeather:       { value: 0 },
+      uWeatherFilm:   { value: o.weatherFilm },
+      uWeatherGlow:   { value: o.weatherGlow },
+      uWeatherSpread: { value: o.weatherSpread },
+      uWeatherSpeed:  { value: o.weatherSpeed },
+      uFrame:         { value: 0 },
+      uTraceSize:     { value: new THREE.Vector2(1, 1) },
+      uTraces:        { value: null },
+      uEpicentres:    { value: null },
       uPointer:       { value: new THREE.Vector3() },
       uPointerT:      { value: 0 },
       uPointerOn:     { value: 0 },
@@ -741,6 +804,28 @@ export function setHologramParam(material, key, value, root) {
   if (u.value && u.value.isColor) u.value.set(value);
   else u.value = value;
   return true;
+}
+
+/* The weather. Give the material a recording (cells across, frames down,
+   0 to 1) and each cell's point on the surface in mesh space. Both become
+   textures the vertex shader reads. Turn it on with the "weather" param and
+   drive the frame with tickWeather. */
+export function setWeather(material, traces, epicentres) {
+  const u = material.uniforms;
+  if (u.uTraces.value) u.uTraces.value.dispose();
+  if (u.uEpicentres.value) u.uEpicentres.value.dispose();
+  const t = new THREE.DataTexture(traces.data, traces.cells, traces.frames, THREE.RedFormat, THREE.FloatType);
+  t.minFilter = THREE.NearestFilter; t.magFilter = THREE.NearestFilter;
+  t.wrapS = THREE.ClampToEdgeWrapping; t.wrapT = THREE.ClampToEdgeWrapping;
+  t.needsUpdate = true;
+  const e = new THREE.DataTexture(epicentres, traces.cells, 1, THREE.RGBAFormat, THREE.FloatType);
+  e.minFilter = THREE.NearestFilter; e.magFilter = THREE.NearestFilter;
+  e.needsUpdate = true;
+  u.uTraces.value = t; u.uEpicentres.value = e;
+  u.uTraceSize.value.set(traces.cells, traces.frames);
+}
+export function tickWeather(material, frame) {
+  material.uniforms.uFrame.value = frame;
 }
 
 /* The touch. Give it a world point on the surface and the time; rings run

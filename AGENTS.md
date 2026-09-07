@@ -829,3 +829,22 @@ for rainbow scattering and no see through. Lessons worth keeping:
   which no shader frame ever is. The render script now retries a frame above
   95 percent lit rather than believing it. Always have a check that can tell
   a failure from a result.
+
+**Version 15**, 7 September 2026. The weather: real MICrONS calcium activity
+running across the opaque surface as thin film colour, from a prompt Amy
+gave me to imagine anything. Lessons worth keeping:
+
+- **A vertex shader can read a recording.** 108 cells by 900 frames of
+  float32 is a 389 KB texture; the vertex shader samples it at (cell, frame
+  minus distance over speed) and sums over cells, and the surface's own
+  vertex density (150,000 faces) is enough resolution for weather. No per
+  frame uploads, no CPU work: the whole recording is on the GPU once.
+- **A sum over a hundred sources needs a baseline and a knee.** The first
+  frames were a white sheet: calcium traces rest at a level, and 108 of them
+  summed over a wide spread saturates everything. Subtract the rest, tighten
+  the spread, and pass the sum through 1 minus exp. Then a burst is a bloom.
+- **A partly loaded headless frame is nearly black, not white.** The retry
+  guard now rejects both ends: below 8 percent lit and above 95.
+- **Placing a mouse's cells on a human cortex is a metaphor; say so in the
+  caption and keep the timing real.** The caption names the mismatch and
+  reports how many of the 108 rays landed (all of them).
