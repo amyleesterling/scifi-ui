@@ -27,6 +27,16 @@
   font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
   color: rgb(var(--holo-line, 196 228 255) / .8); margin: 0 0 10px; font-weight: 600;
 }
+/* the slider groups: the first open, the rest folded */
+.hologroup { border-top: 1px solid rgb(var(--holo-glow, 74 150 224) / .18); padding: 6px 0 4px; }
+.hologroup summary {
+  cursor: pointer; list-style: none; font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+  color: rgb(var(--holo-line, 196 228 255) / .75); padding: 4px 0 8px; user-select: none;
+}
+.hologroup summary::-webkit-details-marker { display: none; }
+.hologroup summary::before { content: "+"; display: inline-block; width: 14px; color: rgb(var(--holo-cyan, 126 224 255)); }
+.hologroup[open] summary::before { content: "\2212"; }
+.hologroup summary:hover, .hologroup summary:focus-visible { color: rgb(var(--holo-ink, 239 244 251)); outline: none; }
 .holoknob {
   display: grid; grid-template-columns: 1fr auto; gap: 0 8px; margin: 0 0 8px;
   font-size: 12.5px; line-height: 1.5;

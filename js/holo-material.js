@@ -78,7 +78,10 @@ export const HOLO_DEFAULTS = {
   parallax: 3,             /* how far the lattice nodes drift with the view */
   iridescence: 0,          /* spectrum at the rim, 0 none */
   voxel: 0,                /* burst voxel size as a fraction of height, 0 off */
-  touch: 1,                /* gain on the pointer rings */
+  touch: 0,                /* gain on the pointer rings. Off by default: the
+                              rings are a 3D distance from the hit, so on a
+                              folded surface they light the folds behind the
+                              point too and read as rings from nowhere */
   /* two things that are not uniforms of the surface shader */
   solid: 0,                /* 1: a depth prepass keeps only the nearest surface,
                               so a folded mesh reads as one lit body instead of

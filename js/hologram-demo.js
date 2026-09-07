@@ -52,49 +52,61 @@ const SWATCHES = [
   ["#7EE0FF", "Cyan"], ["#3E96F0", "Electric blue"], ["#B2D8F8", "Beam"],
   ["#C4E4FF", "Line"], ["#8A60E6", "Violet"], ["#E8A93A", "Warm"],
 ];
-/* label, key, min, max, step */
-const KNOBS = [
-  ["Rim glow", "glowIntensity", 0, 4, 0.05],
-  ["Rim power", "fresnelPower", 0.5, 6, 0.05],
-  ["Body", "bodyAlpha", 0, 0.6, 0.005],
-  ["Dot scale", "dotScale", 2, 120, 1],
-  ["Dot radius", "dotRadius", 0.02, 0.4, 0.005],
-  ["Dot glow", "dotIntensity", 0, 3, 0.05],
-  ["Glitch rate", "glitchFreq", 0, 6, 0.1],
-  ["Glitch jitter", "glitchAmount", 0, 0.05, 0.001],
-  ["Colour split", "chroma", 0, 1, 0.01],
-  ["Gain", "opacity", 0, 2, 0.05],
-  /* the light field */
-  ["Volume density", "density", 0, 4, 0.05],
-  ["Volume glow", "inner", 0, 1.5, 0.05],
-  ["Lattice (0 dots, 1 waves)", "lattice", 0, 1, 1],
-  ["Lattice parallax", "parallax", 0, 12, 0.1],
-  ["Diffraction", "iridescence", 0, 1, 0.01],
-  ["Voxel glitch", "voxel", 0, 0.1, 0.001],
-  ["Touch", "touch", 0, 3, 0.05],
-  /* the body and the bloom */
-  ["Solid surface (0/1)", "solid", 0, 1, 1],
-  ["Opaque (0/1)", "opaque", 0, 1, 1],
-  ["Shading", "shade", 0, 1, 0.05],
-  /* the opaque surface */
-  ["Roughness", "rough", 0.03, 1, 0.01],
-  ["Metal", "metal", 0, 1, 0.01],
-  ["Studio reflection", "env", 0, 2, 0.05],
-  ["Film thickness (nm)", "film", 100, 900, 5],
-  ["Rainbow", "iri", 0, 2, 0.05],
-  ["Sparkle", "sparkle", 0, 3, 0.05],
-  ["Sparkle scale", "sparkleScale", 20, 400, 5],
-  ["Cavity", "cavity", 0, 1, 0.05],
-  /* the weather */
-  ["Dynamics (0/1)", "weather", 0, 1, 1],
-  ["Dynamics film (nm)", "weatherFilm", 0, 800, 10],
-  ["Dynamics glow", "weatherGlow", 0, 2, 0.05],
-  ["Dynamics spread", "weatherSpread", 0.05, 1, 0.01],
-  ["Dynamics speed", "weatherSpeed", 0.1, 4, 0.05],
-  ["Dynamics lift", "weatherLift", 0, 0.05, 0.001],
-  ["Halo", "halo", 0, 2, 0.05],
-  ["Halo size", "haloSize", 0, 0.3, 0.005],
+/* The sliders, in groups. The first group is always open and carries the
+   three that matter most; the rest fold. label, key, min, max, step. */
+const GROUPS = [
+  { name: "Light", open: true, knobs: [
+    ["Opacity", "opacity", 0, 2, 0.05],
+    ["Rim glow", "glowIntensity", 0, 4, 0.05],
+    ["Rim power", "fresnelPower", 0.5, 6, 0.05],
+    ["Body", "bodyAlpha", 0, 1.6, 0.01],
+  ] },
+  { name: "Surface", knobs: [
+    ["Solid surface (0/1)", "solid", 0, 1, 1],
+    ["Opaque (0/1)", "opaque", 0, 1, 1],
+    ["Shading", "shade", 0, 1, 0.05],
+    ["Roughness", "rough", 0.03, 1, 0.01],
+    ["Metal", "metal", 0, 1, 0.01],
+    ["Studio reflection", "env", 0, 2, 0.05],
+    ["Cavity", "cavity", 0, 1, 0.05],
+  ] },
+  { name: "Rainbow", knobs: [
+    ["Film thickness (nm)", "film", 100, 900, 5],
+    ["Rainbow", "iri", 0, 2, 0.05],
+    ["Sparkle", "sparkle", 0, 3, 0.05],
+    ["Sparkle scale", "sparkleScale", 20, 400, 5],
+    ["Diffraction at the rim", "iridescence", 0, 1, 0.01],
+    ["Colour split", "chroma", 0, 1, 0.01],
+  ] },
+  { name: "Pattern", knobs: [
+    ["Dot scale", "dotScale", 2, 120, 1],
+    ["Dot radius", "dotRadius", 0.02, 0.4, 0.005],
+    ["Dot glow", "dotIntensity", 0, 6, 0.05],
+    ["Lattice (0 dots, 1 waves)", "lattice", 0, 1, 1],
+    ["Lattice parallax", "parallax", 0, 12, 0.1],
+  ] },
+  { name: "Volume and bloom", knobs: [
+    ["Volume density", "density", 0, 4, 0.05],
+    ["Volume glow", "inner", 0, 1.5, 0.05],
+    ["Halo", "halo", 0, 3, 0.05],
+    ["Halo size", "haloSize", 0, 0.3, 0.005],
+  ] },
+  { name: "Glitch and touch", knobs: [
+    ["Glitch rate", "glitchFreq", 0, 6, 0.1],
+    ["Glitch jitter", "glitchAmount", 0, 0.05, 0.001],
+    ["Voxel glitch", "voxel", 0, 0.1, 0.001],
+    ["Touch", "touch", 0, 3, 0.05],
+  ] },
+  { name: "Dynamics", knobs: [
+    ["Dynamics (0/1)", "weather", 0, 1, 1],
+    ["Film (nm)", "weatherFilm", 0, 800, 10],
+    ["Glow", "weatherGlow", 0, 2, 0.05],
+    ["Spread", "weatherSpread", 0.05, 1, 0.01],
+    ["Speed", "weatherSpeed", 0.1, 4, 0.05],
+    ["Lift", "weatherLift", 0, 0.05, 0.001],
+  ] },
 ];
+const KNOBS = GROUPS.reduce(function (a, g) { return a.concat(g.knobs); }, []);
 const ERAS = ["2026", "2076", "2226"];
 const STYLE_LABEL = { supernova: "Supernova", emberLattice: "Ember lattice", lantern: "Lantern",
   aurora: "Aurora", goldOnBlue: "Gold on blue", solidGold: "Solid gold", whiteHeat: "White heat",
@@ -226,14 +238,12 @@ export function mountHologramDemo(root) {
     const hit = ray.intersectObject(group, true)[0];
     if (hit) { touchHologram(holo, hit.point, now); loop.once(); }
   }
-  renderer.domElement.addEventListener("pointermove", function (ev) {
-    if (ev.buttons) return;
-    const t = performance.now();
-    if (t - lastCast < 40) return;
-    lastCast = t;
+  /* only a deliberate press, never a hover, and only when the style asks
+     for touch at all */
+  renderer.domElement.addEventListener("pointerdown", function (ev) {
+    if (holo.uniforms.uTouch.value <= 0) return;
     cast(ev);
   });
-  renderer.domElement.addEventListener("pointerdown", cast);
   renderer.domElement.addEventListener("pointerleave", function () {
     /* the rings finish their decay on their own; the flag only stops new
        ones. Nothing is switched off mid ripple. */
@@ -279,7 +289,9 @@ export function mountHologramDemo(root) {
 
   /* the style: whole looks, laid over the era. "None" is the era alone. */
   const params = new URLSearchParams(location.search);
-  let style = HOLO_STYLES[params.get("style")] ? params.get("style") : "";
+  /* gold on blue is the one the page opens on, Amy's call; ?style=none gives the bare era */
+  let style = params.get("style") === "none" ? "" :
+    HOLO_STYLES[params.get("style")] ? params.get("style") : "goldOnBlue";
   if (ERAS.indexOf(params.get("era")) >= 0) era = params.get("era");
   const styles = form.querySelector("[data-styles]");
   if (styles) {
@@ -309,11 +321,15 @@ export function mountHologramDemo(root) {
   cellSel.addEventListener("change", function () { load(+cellSel.value); });
 
   const ranges = form.querySelector("[data-ranges]");
-  ranges.innerHTML = KNOBS.map(function (k) {
+  function knobHTML(k) {
     const v = HOLO_DEFAULTS[k[1]];
     return '<label class="holoknob"><span>' + k[0] + '</span><output>' + v + '</output>' +
       '<input type="range" name="' + k[1] + '" min="' + k[2] + '" max="' + k[3] +
       '" step="' + k[4] + '" value="' + v + '"></label>';
+  }
+  ranges.innerHTML = GROUPS.map(function (g) {
+    return '<details class="hologroup"' + (g.open ? " open" : "") + '><summary>' + g.name +
+      '</summary>' + g.knobs.map(knobHTML).join("") + "</details>";
   }).join("");
   ranges.addEventListener("input", function (e) {
     const v = parseFloat(e.target.value);
