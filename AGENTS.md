@@ -909,3 +909,12 @@ picker; a Share button that encodes the whole view. Lessons:
 - **A `const` read at module init from later in the function is a TDZ error
   and a black page with no console error in the pane.** Everything went
   black and the only clue was the render script's lit percentage of zero.
+
+**Version 20**, 7 September 2026. Six fun meshes in the menu, in their own
+group. One lesson: **a GLB's bytes are mostly things a custom shader never
+reads.** A 20 MB cat was 0.5 MB of geometry and 19.5 MB of textures; the
+shader samples no texture, so `scripts/strip_glb.py` drops images,
+materials, texcoords, skins and animations and rebuilds the binary chunk
+from the accessors that remain. Decimate the heavy one with
+`npx @gltf-transform/cli simplify`. Never commit the source file; the 34 MB
+turd was deleted before `git add`.

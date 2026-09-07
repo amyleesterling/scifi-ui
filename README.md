@@ -561,6 +561,14 @@ only, and they take whatever colour you pick: six swatches or the colour
 picker beside them. A picked colour now recolours the current style rather
 than dropping it.
 
+**The fun ones.** The mesh menu has a third group: a cat, a leaf dragon, a
+robot, a turkey, a gem and a turd, Meshy AI meshes from Amy's downloads.
+They are not data and their notes say so. Textures, rigs and animations
+were stripped (`scripts/strip_glb.py`), because the shader reads none of
+them and they were 100 MB of the 104; the turd was decimated from 1.9
+million faces to 150 thousand with gltf-transform. All six together are
+4.3 MB.
+
 **Share** writes the whole view into the address and copies it: style, era,
 mesh, the picked colour, every slider that differs from the preset (compared
 on the slider's own step, so rounding is not a change), dynamics and its

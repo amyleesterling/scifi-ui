@@ -47,6 +47,16 @@ export const MESHES = [
   { p: "meshes/cells/spindle.glb", n: "Spindle, bipolar interneuron", note: MICRONS, preset: CELL },
   { p: "meshes/cells/forest-floor.glb", n: "Forest Floor, astrocyte", note: MICRONS, preset: CELL },
   { p: "meshes/cells/watcher.glb", n: "Watcher, microglia", note: MICRONS, preset: CELL },
+  /* the fun ones: Meshy AI generated meshes from Amy's downloads, textures
+     and rigs stripped because the shader reads neither, the turd decimated
+     from 1.9 million triangles to 150 thousand. Not data, and they do not
+     claim to be: the note says so. */
+  { p: "meshes/fun/cat.glb", n: "Cat", group: "Fun", note: "Meshy AI mesh, textures stripped, not a measurement of any cat", preset: {} },
+  { p: "meshes/fun/leaf-dragon.glb", n: "Leaf dragon", group: "Fun", note: "Meshy AI mesh, textures stripped", preset: {} },
+  { p: "meshes/fun/robot.glb", n: "Robot", group: "Fun", note: "Meshy AI mesh, no texture", preset: {} },
+  { p: "meshes/fun/turkey.glb", n: "Turkey", group: "Fun", note: "Meshy AI mesh, no texture", preset: {} },
+  { p: "meshes/fun/gem.glb", n: "Gem", group: "Fun", note: "Meshy AI mesh, 92 faces, the simplest thing here", preset: {} },
+  { p: "meshes/fun/turd.glb", n: "Turd", group: "Fun", note: "Meshy AI mesh, decimated from 1.9 million faces to 150 thousand, no texture", preset: {} },
 ];
 const SWATCHES = [
   ["#7EE0FF", "Cyan"], ["#3E96F0", "Electric blue"], ["#B2D8F8", "Beam"],
@@ -367,9 +377,17 @@ export function mountHologramDemo(root) {
   });
 
   const cellSel = root.querySelector("[data-cell]");
-  cellSel.innerHTML = MESHES.map(function (c, i) {
-    return '<option value="' + i + '">' + c.n + "</option>";
-  }).join("");
+  /* the menu, in groups: the surfaces, the cells, and the fun ones */
+  (function () {
+    const groups = {};
+    MESHES.forEach(function (c, i) {
+      const g = c.group || (c.preset === CELL ? "MICrONS cells" : "Brain surfaces");
+      (groups[g] = groups[g] || []).push('<option value="' + i + '">' + c.n + "</option>");
+    });
+    cellSel.innerHTML = Object.keys(groups).map(function (g) {
+      return '<optgroup label="' + g + '">' + groups[g].join("") + "</optgroup>";
+    }).join("");
+  })();
   cellSel.addEventListener("change", function () { load(+cellSel.value); });
 
   const ranges = form.querySelector("[data-ranges]");
