@@ -856,3 +856,19 @@ style breathes along the normal where the cells fire. One lesson: a toggle
 that lives in a preset dies on the next preset. `applyPreset` now carries
 the current Dynamics state across a style change instead of resetting it to
 the style's zero, or the button would go dark every time a style was tried.
+
+**Version 17**, 7 September 2026. A round of Amy's notes on the live page:
+the page opens on gold on blue and the human brain, the 36 sliders fold
+into seven groups with Opacity first, a tool row over the stage and a
+fullscreen button, hover rings gone (touch fires only on a press, off by
+default), ember lattice removed, opal blue, white heat and supernova made
+opaque with `emission` so they glow without blowing out, aurora solid so the
+brain reads, and orchid, a pink to purple `ombre`. Two lessons:
+
+- **A regex that spans from a comment to its block spans everything you
+  inserted between them since.** Removing one style by matching from its
+  comment to its closing brace swallowed five styles that had been added in
+  between. Match the block alone, and count the styles after.
+- **`/tmp` is not a path on Windows Python.** A `git show > /tmp/x` from git
+  bash is invisible to a Python that opens `/tmp/x`. Use the scratchpad, or
+  read `git show` through subprocess.

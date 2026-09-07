@@ -104,11 +104,46 @@
 .holoweather { font-size: 12px; color: rgb(var(--holo-dim, 154 162 177)); margin: 0 0 12px; line-height: 1.5; }
 .holoweather select { margin: 6px 0 4px; }
 .holoweather output { display: block; font-variant-numeric: tabular-nums; color: rgb(var(--holo-line, 196 228 255)); }
+/* the wide layout: a tool row over the stage on the left, the knobs in a
+   scrolling column on the right, the whole thing sized to the window */
+.holo3d-wide {
+  grid-template-columns: minmax(0, 1fr) 270px; grid-template-rows: auto minmax(0, 1fr);
+  grid-template-areas: "tools knobs" "stage knobs"; height: calc(100vh - 92px); min-height: 420px;
+}
+@media (max-width: 760px) { .holo3d-wide { grid-template-columns: 1fr; grid-template-rows: auto auto auto; grid-template-areas: "tools" "stage" "knobs"; height: auto; } }
+.holo3d-wide .holotools { grid-area: tools; }
+/* stretch, not start: the card must fill its row or the stage has no height */
+.holo3d-wide { align-items: stretch; }
+.holo3d-wide .mviz { grid-area: stage; display: flex; flex-direction: column; min-height: 0; height: 100%; box-sizing: border-box; }
+.holo3d-wide .mviz-stage { aspect-ratio: auto; flex: 1 1 auto; min-height: 0; }
+.holo3d-wide .holoknobs { grid-area: knobs; overflow-y: auto; max-height: 100%; }
+.holotools { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; padding: 0 0 4px; }
+.holotools .holostyles, .holotools .holoeras, .holotools .holoswatches { margin: 0; }
+.holotools .holoeras { display: flex; gap: 4px; }
+.holotools .holoeras button { padding: 3px 9px; font-size: 11.5px; }
+.holotools .holoswatches label { width: 20px; height: 20px; }
+.holotools select {
+  font: inherit; font-size: 12px; color: rgb(var(--holo-ink, 239 244 251));
+  background: rgb(var(--holo-panel, 15 18 24)); border: 1px solid rgb(var(--holo-glow, 74 150 224) / .4);
+  border-radius: 3px; padding: 4px 6px;
+}
+.holofs {
+  font: inherit; font-size: 11.5px; letter-spacing: .06em; cursor: pointer; margin-left: auto;
+  color: rgb(var(--holo-line, 196 228 255)); background: rgb(var(--holo-panel, 15 18 24));
+  border: 1px solid rgb(var(--holo-glow, 74 150 224) / .4); border-radius: 3px; padding: 4px 10px;
+}
+.holofs:hover, .holofs:focus-visible { border-color: rgb(var(--holo-line, 196 228 255)); outline: none; }
+.holofs[aria-pressed="true"] { border-color: rgb(var(--holo-warm, 232 169 58)); color: rgb(var(--holo-warm, 232 169 58)); }
+/* the stage fullscreen: the card fills the screen and its chrome goes */
+.mviz:fullscreen { background: #07080B; padding: 0; border: 0; display: flex; flex-direction: column; }
+.mviz:fullscreen .mviz-stage { flex: 1 1 auto; height: 100%; aspect-ratio: auto; border: 0; border-radius: 0; }
+.mviz:fullscreen .mviz-eyebrow, .mviz:fullscreen .mviz-facts, .mviz:fullscreen > b.k { display: none; }
 /* render mode: the stage alone, edge to edge */
 body.holoshot { padding: 0 !important; margin: 0; overflow: hidden; }
 body.holoshot .wrap { max-width: none; padding: 0; }
 body.holoshot .wrap > :not(.holo3d), body.holoshot .holoknobs, body.holoshot .mviz-eyebrow,
-body.holoshot .mviz-facts, body.holoshot .mviz > b.k { display: none !important; }
+body.holoshot .mviz-facts, body.holoshot .mviz > b.k, body.holoshot .holotools { display: none !important; }
+body.holoshot .holo3d-wide { height: 100vh; }
 body.holoshot .holo3d { display: block; }
 body.holoshot .mviz { border: 0; padding: 0; background: none; }
 body.holoshot .mviz-stage { aspect-ratio: auto; height: 100vh; border: 0; border-radius: 0; background: #07080B; }

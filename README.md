@@ -526,9 +526,13 @@ needs something dark to be a mirror against), thin film interference whose
 bands run through the spectrum with the viewing angle, a diffraction layer
 that scatters spectral glints off random micro normals, and cavity shading
 that darkens the sulci. Chrome sun is a warm mirror, holo foil is a saturated
-holographic sticker, opal is a milky pearl, nova core is warm white with a
-wide golden bloom. `rough`, `metal`, `env`, `film`, `iri`, `sparkle`,
-`sparkleScale` and `cavity` are all sliders.
+holographic sticker, opal is a blue pearl, nova core is warm white with a
+wide golden bloom, white heat is incandescent, orchid is pink into purple. `rough`, `metal`, `env`, `film`, `iri`, `sparkle`,
+`sparkleScale` and `cavity` are all sliders. Two more colours of light on
+top: `emission`, what an opaque surface gives off on its own, shadow or not,
+which is what keeps supernova lit without blowing out; and `ombre`, a second
+colour (`color2`) that the first runs into from the crown of the object to
+its base, by world height. Orchid is pink into purple that way.
 
 **Dynamics.** Press the Dynamics button (or set `weather`, or open with
 `?dynamics=1`) and the hologram, whichever style it is in, carries a recording: 108

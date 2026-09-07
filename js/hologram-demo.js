@@ -57,6 +57,8 @@ const SWATCHES = [
 const GROUPS = [
   { name: "Light", open: true, knobs: [
     ["Opacity", "opacity", 0, 2, 0.05],
+    ["Emission", "emission", 0, 2, 0.05],
+    ["Ombre to second colour", "ombre", 0, 1, 0.05],
     ["Rim glow", "glowIntensity", 0, 4, 0.05],
     ["Rim power", "fresnelPower", 0.5, 6, 0.05],
     ["Body", "bodyAlpha", 0, 1.6, 0.01],
@@ -108,9 +110,9 @@ const GROUPS = [
 ];
 const KNOBS = GROUPS.reduce(function (a, g) { return a.concat(g.knobs); }, []);
 const ERAS = ["2026", "2076", "2226"];
-const STYLE_LABEL = { supernova: "Supernova", emberLattice: "Ember lattice", lantern: "Lantern",
+const STYLE_LABEL = { supernova: "Supernova", lantern: "Lantern",
   aurora: "Aurora", goldOnBlue: "Gold on blue", solidGold: "Solid gold", whiteHeat: "White heat",
-  holoFoil: "Holo foil", opal: "Opal", chromeSun: "Chrome sun", novaCore: "Nova core" };
+  holoFoil: "Holo foil", opal: "Opal", chromeSun: "Chrome sun", novaCore: "Nova core", orchid: "Orchid" };
 
 export function mountHologramDemo(root) {
   const mount = root.querySelector("[data-mount]");
@@ -254,7 +256,7 @@ export function mountHologramDemo(root) {
   ro.observe(mount);
 
   /* ---- the knobs ------------------------------------------------------- */
-  const swatches = form.querySelector("[data-swatches]");
+  const swatches = root.querySelector("[data-swatches]");
   swatches.innerHTML = SWATCHES.map(function (s) {
     const on = s[0].toUpperCase() === HOLO_DEFAULTS.color.toUpperCase();
     return '<label style="--c:' + s[0] + '" title="' + s[1] + '"><input type="radio" name="colour" value="' +
@@ -271,7 +273,7 @@ export function mountHologramDemo(root) {
 
   /* the era: three presets on the one material */
   let era = "2026";
-  const eras = form.querySelector("[data-eras]");
+  const eras = root.querySelector("[data-eras]");
   if (eras) {
     eras.innerHTML = ERAS.map(function (e) {
       return '<button type="button" data-era="' + e + '" aria-pressed="' + (e === era) + '">' + e + "</button>";
@@ -293,7 +295,7 @@ export function mountHologramDemo(root) {
   let style = params.get("style") === "none" ? "" :
     HOLO_STYLES[params.get("style")] ? params.get("style") : "goldOnBlue";
   if (ERAS.indexOf(params.get("era")) >= 0) era = params.get("era");
-  const styles = form.querySelector("[data-styles]");
+  const styles = root.querySelector("[data-styles]");
   if (styles) {
     const names = [""].concat(Object.keys(HOLO_STYLES));
     styles.innerHTML = names.map(function (n) {
@@ -314,7 +316,7 @@ export function mountHologramDemo(root) {
     x.setAttribute("aria-pressed", String(x.getAttribute("data-era") === era));
   });
 
-  const cellSel = form.querySelector("[data-cell]");
+  const cellSel = root.querySelector("[data-cell]");
   cellSel.innerHTML = MESHES.map(function (c, i) {
     return '<option value="' + i + '">' + c.n + "</option>";
   }).join("");
@@ -356,6 +358,22 @@ export function mountHologramDemo(root) {
   if (dynBtn) dynBtn.addEventListener("click", function () {
     setDynamics(holo.uniforms.uWeather.value < 0.5);
   });
+  /* fullscreen: the stage card takes the screen, the canvas follows it
+     through the ResizeObserver, Escape gives it back */
+  const fsBtn = root.querySelector("[data-fullscreen]");
+  if (fsBtn) {
+    if (!stageEl.requestFullscreen) fsBtn.hidden = true;
+    fsBtn.addEventListener("click", function () {
+      if (document.fullscreenElement) document.exitFullscreen();
+      else stageEl.requestFullscreen();
+    });
+    document.addEventListener("fullscreenchange", function () {
+      const on = document.fullscreenElement === stageEl;
+      fsBtn.setAttribute("aria-pressed", String(on));
+      fsBtn.textContent = on ? "Exit fullscreen" : "Fullscreen";
+      fitRenderer(renderer, camera, mount); loop.once();
+    });
+  }
   const rateSel = root.querySelector("[data-weather-rate]");
   if (rateSel) rateSel.addEventListener("change", function () { weather.rate = parseFloat(rateSel.value) || 1; });
 
@@ -373,9 +391,11 @@ export function mountHologramDemo(root) {
     if (HOLO_STYLES[style]) {
       setHologramParam(holo, "color", p.color);
       setHologramParam(holo, "coreColor", p.coreColor);
+      setHologramParam(holo, "color2", p.color2);
       swatches.querySelectorAll("input").forEach(function (i) { i.checked = false; });
     } else {
       setHologramParam(holo, "coreColor", HOLO_DEFAULTS.coreColor);
+      setHologramParam(holo, "color2", HOLO_DEFAULTS.color2);
       const on = swatches.querySelector("input:checked");
       setHologramParam(holo, "color", on ? on.value : HOLO_DEFAULTS.color);
     }
@@ -388,7 +408,7 @@ export function mountHologramDemo(root) {
     });
     loop.once();
   }
-  form.querySelector("[data-reset]").addEventListener("click", function () {
+  root.querySelector("[data-reset]").addEventListener("click", function () {
     swatches.querySelectorAll("input").forEach(function (i) {
       i.checked = i.value.toUpperCase() === HOLO_DEFAULTS.color.toUpperCase();
     });
@@ -504,7 +524,7 @@ export function mountHologramDemo(root) {
   /* ?mesh=N picks the mesh, ?shot=1 is the render mode: no auto rotate, a
      fixed three quarter view, so a headless browser gets the same frame
      every time; ?yaw= and ?pitch= set it in radians */
-  const meshIdx = Math.min(MESHES.length - 1, Math.max(0, parseInt(params.get("mesh") || "0", 10) || 0));
+  const meshIdx = Math.min(MESHES.length - 1, Math.max(0, parseInt(params.get("mesh") || "1", 10) || 0));
   const shot = params.get("shot") === "1";
   const yaw = parseFloat(params.get("yaw")), pitch = parseFloat(params.get("pitch"));
   if (params.get("frame")) { weather.frame = parseFloat(params.get("frame")) || 0; weather.hold = true; }

@@ -108,6 +108,9 @@ export const HOLO_DEFAULTS = {
   weatherSpread: 0.13,     /* how far a cell's activity reaches, mesh units */
   weatherSpeed: 0.9,       /* how fast it travels outward, mesh units per second of recording */
   weatherLift: 0.012,      /* how far the surface rises where there is activity, mesh units */
+  emission: 0,             /* light the surface gives off on its own, opaque styles */
+  color2: "#7B3FE4",       /* the second colour of an ombre */
+  ombre: 0,                /* 0 one colour; 1 color at the top running to color2 at the base */
 };
 
 /* three presets on the same material */
@@ -127,19 +130,12 @@ export const HOLO_STYLES = {
   /* a star seen through glass: the interior is the light source, the rim a
      white hot line, no pattern at all */
   supernova: {
-    color: "#FFC964", coreColor: "#FFFBF0", glowIntensity: 1.8, fresnelPower: 2.4,
-    bodyAlpha: 1.3, dotIntensity: 0, density: 2.0, inner: 1.2, iridescence: 0,
-    chroma: 0.1, glitchAmount: 0.003, voxel: 0, lattice: 0,
-    solid: 1, halo: 1.6, haloSize: 0.14, haloColor: "#FFC24A", opacity: 1,
-  },
-  /* the surface is a net of gold nodes over a dark amber body, and the nodes
-     drift as you move: a light field you could count */
-  emberLattice: {
-    color: "#FFB347", coreColor: "#FFF1D6", glowIntensity: 1.2, fresnelPower: 2.4,
-    bodyAlpha: 0.35, lattice: 1, dotScale: 46, dotRadius: 0.16, dotIntensity: 6,
-    parallax: 6, density: 0.8, inner: 0.25, iridescence: 0, chroma: 0.2,
-    voxel: 0.02, glitchAmount: 0.004, solid: 1, halo: 0.5, haloSize: 0.05,
-    haloColor: "#FF9A3C", opacity: 1,
+    color: "#FFC964", coreColor: "#FFF6E0", glowIntensity: 1.6, fresnelPower: 2.4,
+    bodyAlpha: 1.0, shade: 1, dotIntensity: 0, density: 0, inner: 0, iridescence: 0,
+    chroma: 0.1, glitchAmount: 0.003, voxel: 0, lattice: 0, opaque: 1, solid: 1,
+    halo: 2.2, haloSize: 0.2, haloColor: "#FFC24A", opacity: 1, emission: 0.6,
+    rough: 0.5, metal: 0.2, env: 0.5, film: 380, iri: 0.2, sparkle: 0.8,
+    sparkleScale: 120, cavity: 0.45,
   },
   /* a paper lantern: soft, warm, hardly any rim, the body itself lit from
      within, a fine gentle dot grid like the weave of the paper */
@@ -153,10 +149,11 @@ export const HOLO_STYLES = {
   /* champagne aurora: the gold rim runs through a spectrum at grazing
      angles, a voxel glitch keeps re-computing it, the lattice hums */
   aurora: {
-    color: "#FFCF7A", coreColor: "#FFFFFF", glowIntensity: 1.3, fresnelPower: 2.8,
-    bodyAlpha: 0.03, lattice: 1, dotScale: 34, dotRadius: 0.06, dotIntensity: 1.2,
-    parallax: 9, density: 0.7, inner: 0.3, iridescence: 0.9, chroma: 0.9,
-    voxel: 0.04, glitchAmount: 0.003,
+    color: "#FFCF7A", coreColor: "#FFFFFF", glowIntensity: 1.1, fresnelPower: 2.8,
+    bodyAlpha: 0.3, lattice: 1, dotScale: 34, dotRadius: 0.06, dotIntensity: 1.0,
+    parallax: 9, density: 0.7, inner: 0.3, iridescence: 0.9, chroma: 0.5,
+    voxel: 0.012, glitchAmount: 0.002, solid: 1, opacity: 1, halo: 0.5, haloSize: 0.06,
+    haloColor: "#FFD27A",
   },
   /* gold on blue: a cool blue body with a molten gold rim and gold dots, the
      one warm accent on a cool field, the library's own rule */
@@ -167,9 +164,6 @@ export const HOLO_STYLES = {
     glitchAmount: 0.008, lattice: 0, solid: 1, halo: 0.9, haloSize: 0.08,
     haloColor: "#FFC24A", opacity: 1,
   },
-  /* white heat: everything burns toward white, the rim is a searing line,
-     the interior a dense white gold, the dots gone; a hologram that is more
-     a flare than an image */
   /* nova core: the supernova as a solid object. Warm white gold, opaque, a
      wide golden bloom around it, and just enough interference that the
      white is never flat. */
@@ -195,7 +189,7 @@ export const HOLO_STYLES = {
   /* opal: warm white, soft, the rainbow scattered inside a milky surface
      rather than reflected off it, a pearl */
   opal: {
-    color: "#FFF3DC", coreColor: "#FFFFFF", glowIntensity: 0.7, fresnelPower: 2.2,
+    color: "#3E96F0", coreColor: "#FFFFFF", glowIntensity: 0.7, fresnelPower: 2.2,
     bodyAlpha: 1.0, shade: 1, dotIntensity: 0, density: 0, inner: 0, iridescence: 0,
     chroma: 0.05, glitchAmount: 0, voxel: 0, lattice: 0, opaque: 1, solid: 1,
     halo: 0.9, haloSize: 0.14, haloColor: "#FFE9C4", opacity: 1,
@@ -224,10 +218,26 @@ export const HOLO_STYLES = {
     rough: 0.4, metal: 0.5, env: 0.7, film: 450, iri: 0.35, sparkle: 0.5,
     sparkleScale: 120, cavity: 0.6,
   },
+  /* orchid: a pink hologram that runs to purple toward the base, opaque,
+     with a soft violet bloom and a little film so the pink has depth */
+  orchid: {
+    color: "#FF7AD9", color2: "#6B2FD9", ombre: 1, coreColor: "#FFF0FA",
+    glowIntensity: 1.5, fresnelPower: 2.6, bodyAlpha: 1.0, shade: 1, dotIntensity: 0,
+    density: 0, inner: 0, iridescence: 0, chroma: 0.15, glitchAmount: 0.002, voxel: 0,
+    lattice: 0, opaque: 1, solid: 1, halo: 1.3, haloSize: 0.14, haloColor: "#C86BFF",
+    opacity: 1, emission: 0.25, rough: 0.4, metal: 0.25, env: 0.7, film: 400, iri: 0.35,
+    sparkle: 0.7, sparkleScale: 120, cavity: 0.55,
+  },
+  /* white heat: an incandescent surface. Opaque, warm white, a hot white
+     rim, a wide white gold bloom, and just enough film that the white has
+     depth. Not a projection: a thing that is glowing. */
   whiteHeat: {
-    color: "#FFE8B8", coreColor: "#FFFFFF", glowIntensity: 2.6, fresnelPower: 4.5,
-    bodyAlpha: 0.01, dotIntensity: 0, density: 2.2, inner: 0.8, iridescence: 0.15,
-    chroma: 0.3, glitchAmount: 0.002, voxel: 0.015, lattice: 0, opacity: 1.0,
+    color: "#FFF1DC", coreColor: "#FFFFFF", glowIntensity: 2.2, fresnelPower: 2.6,
+    bodyAlpha: 1.1, shade: 1, dotIntensity: 0, density: 0, inner: 0, iridescence: 0,
+    chroma: 0.05, glitchAmount: 0.002, voxel: 0, lattice: 0, opaque: 1, solid: 1,
+    halo: 2.8, haloSize: 0.22, haloColor: "#FFE0A8", opacity: 1,
+    rough: 0.3, metal: 0.15, env: 1.2, film: 320, iri: 0.3, sparkle: 0.9,
+    sparkleScale: 120, cavity: 0.5,
   },
 };
 
@@ -368,11 +378,15 @@ uniform float uSparkleScale;
 uniform float uCavity;
 uniform float uWeatherFilm;
 uniform float uWeatherGlow;
+uniform float uEmission;
+uniform vec3  uColor2;
+uniform float uOmbre;
 uniform vec3  uPointer;
 uniform float uPointerT;
 uniform float uPointerOn;
 uniform sampler2D uThick;
 uniform vec2  uResolution;
+uniform vec2  uBounds;
 varying vec3  vN;
 varying vec3  vV;
 varying vec3  vW;
@@ -399,6 +413,10 @@ vec3 spectrum(float x) {
 void main() {
   vec3 N = normalize(vN);
   vec3 V = normalize(vV);
+  /* the colour, and the ombre: uColor at the top of the object running to
+     uColor2 at its base, by world height */
+  float ty = clamp((vW.y - uBounds.x) / max(uBounds.y - uBounds.x, 1e-3), 0.0, 1.0);
+  vec3 C = mix(uColor, mix(uColor2, uColor, ty), uOmbre);
   /* face the normal toward the eye by geometry, not by winding: a mirrored
      export (the mouse brain is one) has every triangle wound backwards */
   if (dot(N, V) < 0.0) N = -N;
@@ -457,7 +475,7 @@ void main() {
      the rim and the pattern brighten, the body lifts, and the colour runs
      toward the spectrum. Opaque styles get the film instead, below. */
   float wx = clamp(vWeather, 0.0, 1.0);
-  vec3 wCol = mix(uColor, spectrum(fract(0.08 + wx * 0.75)), wx * 0.7);
+  vec3 wCol = mix(C, spectrum(fract(0.08 + wx * 0.75)), wx * 0.7);
   rim *= 1.0 + wx * 1.2;
   pat *= 1.0 + wx * 2.0;
 
@@ -480,7 +498,7 @@ void main() {
     float back = texture2D(uThick, gl_FragCoord.xy / uResolution).r;
     float thick = max(back - vDepth, 0.0);
     float vol = 1.0 - exp(-thick * uDensity);
-    col += mix(uColor, uCoreColor, vol * 0.5) * vol * uInner;
+    col += mix(C, uCoreColor, vol * 0.5) * vol * uInner;
     front = step(0.004, thick);
   }
 
@@ -492,7 +510,7 @@ void main() {
     float ring = 0.5 + 0.5 * sin(d * 70.0 - age * 9.0);
     ring = pow(ring, 6.0);
     float env = exp(-d * 5.0) * exp(-age * 0.9) * step(d, age * 0.8 + 0.05);
-    col += mix(uColor, uCoreColor, 0.5) * ring * env * 2.0 * uTouch;
+    col += mix(C, uCoreColor, 0.5) * ring * env * 2.0 * uTouch;
   }
 
   /* the weather lifts the translucent body too, so it is not an opaque only
@@ -521,7 +539,7 @@ void main() {
     float a2 = r * r * r * r;
     float dd = NdH * NdH * (a2 - 1.0) + 1.0;
     float D = a2 / (3.14159 * dd * dd);
-    vec3 F0 = mix(vec3(0.04), uColor, uMetal);
+    vec3 F0 = mix(vec3(0.04), C, uMetal);
     vec3 F = F0 + (1.0 - F0) * pow(1.0 - VdH, 5.0);
     float G = 1.0 / (4.0 * mix(NdL, 1.0, 0.5) * mix(NdV, 1.0, 0.5) + 0.02);
     vec3 spec = D * F * G * NdL;
@@ -578,13 +596,15 @@ void main() {
     float cav = clamp(dot(N, radialV) * 0.5 + 0.5, 0.0, 1.0);
     float ao = mix(1.0, mix(0.35, 1.0, cav), uCavity);
 
-    vec3 albedo = uColor * (1.0 - uMetal * 0.85);
+    vec3 albedo = C * (1.0 - uMetal * 0.85);
     vec3 diffuse = albedo * (0.16 + 0.84 * NdL + 0.12 * max(dot(N, normalize(vec3(-0.6, 0.2, 0.5))), 0.0));
     vec3 surf = diffuse * ao * mix(1.0, 0.45, uIri * 0.5)
               + spec * mix(vec3(1.0), iri * 2.0, clamp(uIri, 0.0, 1.0))
               + env * Fenv * uEnv * envRough * ao
               + iri * iriW * 1.4 * ao
               + sparkle;
+    /* what the surface gives off on its own, shadow or not */
+    surf += C * uEmission;
     /* the hologram's own rim on top, gold at the silhouette */
     surf += rimCol * rim * 0.5;
     surf += uCoreColor * clamp(vWeather, 0.0, 2.0) * uWeatherGlow;
@@ -635,6 +655,9 @@ export function makeHologramMaterial(opts) {
       uWeatherSpread: { value: o.weatherSpread },
       uWeatherSpeed:  { value: o.weatherSpeed },
       uWeatherLift:   { value: o.weatherLift },
+      uEmission:      { value: o.emission },
+      uColor2:        { value: new THREE.Color(o.color2) },
+      uOmbre:         { value: o.ombre },
       uFrame:         { value: 0 },
       uTraceSize:     { value: new THREE.Vector2(1, 1) },
       uTraces:        { value: null },
