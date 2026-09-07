@@ -544,6 +544,28 @@ gyri as ghosts. Both take the spectral shift. The thin film, glints and
 sparkle run on translucent styles as well as opaque ones. Every slider,
 group, style and era carries a tooltip saying what it does.
 
+**Glass and neon glass** are the BANC and FlyWire shells: a cool translucent
+skin with a bright cyan edge and a deep blue haze inside, and the same glass
+with the BANC magenta to violet inside it. **Atlas** is a port, not an
+approximation: the somatotopy hologram from amyleesterling/human-brain
+(`js/brain-surface.js`, `js/somatotopy.js` at `?surf=0.4`), a Lambert
+cortex at opacity 0.4 with depth write off, emissive 0x0d1626, and a fresnel
+shell tinted 0x4fb8ff at power 2.4 and strength 0.45. It needed one new
+parameter, `surfaceAlpha`, an opaque surface that is still part transparent,
+and it carries two written deviations: the rim is composed in the same
+fragment (divided by the alpha so it lands at full strength, as the page's
+separate additive pass does), and the page's parcel painted cortex is one
+tone here because this mesh has no labels. **Matte and gloss** are plain
+coloured materials with no hologram in them, roughness, metal and the studio
+only, and they take whatever colour you pick: six swatches or the colour
+picker beside them. A picked colour now recolours the current style rather
+than dropping it.
+
+**Share** writes the whole view into the address and copies it: style, era,
+mesh, the picked colour, every slider that differs from the preset (compared
+on the slider's own step, so rounding is not a change), dynamics and its
+rate, and the camera. A link opened that way rebuilds all of it.
+
 **Dynamics.** Press the Dynamics button (or set `weather`, or open with
 `?dynamics=1`) and the hologram, whichever style it is in, carries a recording: 108
 MICrONS neurons, thirty seconds of two photon calcium at 30 frames a second,

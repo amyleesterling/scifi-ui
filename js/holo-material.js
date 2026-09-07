@@ -113,6 +113,10 @@ export const HOLO_DEFAULTS = {
   emission: 0,             /* light the surface gives off on its own, opaque styles */
   color2: "#7B3FE4",       /* the second colour of an ombre */
   ombre: 0,                /* 0 one colour; 1 color at the top running to color2 at the base */
+  surfaceAlpha: 1,         /* opaque path only: the surface's own alpha, so a lit
+                              surface can still be part transparent (normal
+                              blending, depth write off below 0.5, as the
+                              human-brain page does it) */
   spectral: 0,             /* dichroic shift: how far the hue walks around the wheel from
                               face on to grazing, 1 is two thirds of a turn */
   spectralDrift: 0,        /* hue drift over time, turns per minute */
@@ -242,6 +246,60 @@ export const HOLO_STYLES = {
     glitchAmount: 0.002, voxel: 0, solid: 1, opaque: 0, opacity: 1, halo: 1.0,
     haloSize: 0.045, haloColor: "#7EE0FF", bloom: 0.5, bloomSize: 0.22, iri: 0.2,
     sparkle: 0.3, film: 420,
+  },
+  /* matte and gloss: plain coloured materials, no hologram in them at all.
+     Neither sets a colour, so the swatch or the colour picker is the
+     colour, and roughness, metal and the studio are the whole story.
+     Rasterised, one key and a fill: no ray tracing, no diffuse bounce. */
+  matte: {
+    coreColor: "#FFFFFF", glowIntensity: 0.15, fresnelPower: 3, bodyAlpha: 1.0, shade: 1,
+    dotIntensity: 0, density: 0, inner: 0, iridescence: 0, chroma: 0, glitchAmount: 0,
+    voxel: 0, lattice: 0, opaque: 1, solid: 1, surfaceAlpha: 1, halo: 0, bloom: 0,
+    opacity: 1, emission: 0.05, rough: 0.85, metal: 0, env: 0.25, iri: 0, sparkle: 0,
+    cavity: 0.5, spectral: 0,
+  },
+  gloss: {
+    coreColor: "#FFFFFF", glowIntensity: 0.3, fresnelPower: 3, bodyAlpha: 1.0, shade: 1,
+    dotIntensity: 0, density: 0, inner: 0, iridescence: 0, chroma: 0, glitchAmount: 0,
+    voxel: 0, lattice: 0, opaque: 1, solid: 1, surfaceAlpha: 1, halo: 0, bloom: 0,
+    opacity: 1, emission: 0.03, rough: 0.18, metal: 0.05, env: 0.7, iri: 0, sparkle: 0,
+    cavity: 0.5, spectral: 0,
+  },
+  /* matte and gloss: plain coloured materials, no hologram in them at all.
+     Neither sets a colour, so the swatch or the colour picker is the
+     colour, and roughness, metal and the studio are the whole story.
+     Rasterised, one key and a fill: no ray tracing, no diffuse bounce. */
+  matte: {
+    coreColor: "#FFFFFF", glowIntensity: 0.15, fresnelPower: 3, bodyAlpha: 1.0, shade: 1,
+    dotIntensity: 0, density: 0, inner: 0, iridescence: 0, chroma: 0, glitchAmount: 0,
+    voxel: 0, lattice: 0, opaque: 1, solid: 1, surfaceAlpha: 1, halo: 0, bloom: 0,
+    opacity: 1, emission: 0.05, rough: 0.85, metal: 0, env: 0.25, iri: 0, sparkle: 0,
+    cavity: 0.5, spectral: 0,
+  },
+  gloss: {
+    coreColor: "#FFFFFF", glowIntensity: 0.3, fresnelPower: 3, bodyAlpha: 1.0, shade: 1,
+    dotIntensity: 0, density: 0, inner: 0, iridescence: 0, chroma: 0, glitchAmount: 0,
+    voxel: 0, lattice: 0, opaque: 1, solid: 1, surfaceAlpha: 1, halo: 0, bloom: 0,
+    opacity: 1, emission: 0.03, rough: 0.18, metal: 0.05, env: 0.7, iri: 0, sparkle: 0,
+    cavity: 0.5, spectral: 0,
+  },
+  /* atlas: the human-brain page's somatotopy hologram, carried across from
+     amyleesterling/human-brain js/brain-surface.js and js/somatotopy.js
+     at ?surf=0.4. There: a MeshLambertMaterial cortex at opacity 0.4,
+     DoubleSide, depthWrite off, emissive 0x0d1626 so the inside reads as
+     dark glass; a separate additive fresnel shell, tint 0x4fb8ff, power
+     2.4, strength min(0.75, 0.25 + 0.4 * 0.5) = 0.45; ambient 0.85, a
+     white key 0.95, a fill 0.32, a cool rim light 0x9fd0ff 0.4. Two
+     deviations, written down: the rim is composed in the same fragment
+     rather than as a second additive pass, and the page's cortex is
+     vertex painted by parcel, which this mesh has no labels for, so the
+     body is one tone. */
+  atlas: {
+    color: "#A9B4C6", coreColor: "#4FB8FF", glowIntensity: 1.6, fresnelPower: 2.4,
+    bodyAlpha: 1.0, shade: 1, dotIntensity: 0, density: 0, inner: 0, iridescence: 0,
+    chroma: 0, glitchAmount: 0, voxel: 0, lattice: 0, opaque: 1, solid: 0,
+    surfaceAlpha: 0.4, halo: 0, bloom: 0, opacity: 1, emission: 0.3,
+    rough: 0.9, metal: 0, env: 0.15, film: 400, iri: 0, sparkle: 0, cavity: 0.3,
   },
   /* orchid: a pink hologram that runs to purple toward the base, opaque,
      with a soft violet bloom and a little film so the pink has depth */
@@ -408,6 +466,7 @@ uniform vec3  uColor2;
 uniform float uOmbre;
 uniform float uSpectral;
 uniform float uSpectralDrift;
+uniform float uSurfaceAlpha;
 
 /* rotate a colour's hue by an angle in turns, in YIQ, so the shift keeps
    the colour's own brightness */
@@ -657,11 +716,14 @@ void main() {
               + sparkle;
     /* what the surface gives off on its own, shadow or not */
     surf += C * uEmission;
-    /* the hologram's own rim on top, gold at the silhouette */
-    surf += rimCol * rim * 0.5;
+    /* the hologram's own rim on top, gold at the silhouette. Divided by
+       the surface alpha so that, once blended, it lands at full strength
+       the way a separate additive shell would */
+    vec3 rimO = mix(C, uCoreColor, clamp(rim.g * 0.9, 0.0, 1.0));
+    surf += rimO * rim * 0.5 / max(uSurfaceAlpha, 0.05);
     surf += uCoreColor * clamp(vWeather, 0.0, 2.0) * uWeatherGlow;
     surf *= uOpacity * uBodyAlpha;
-    gl_FragColor = vec4(surf, 1.0);
+    gl_FragColor = vec4(surf, uSurfaceAlpha);
   }
   #endif
   #include <tonemapping_fragment>
@@ -711,6 +773,7 @@ export function makeHologramMaterial(opts) {
       uColor2:        { value: new THREE.Color(o.color2) },
       uOmbre:         { value: o.ombre },
       uSpectral:      { value: o.spectral },
+      uSurfaceAlpha:  { value: o.surfaceAlpha },
       uSpectralDrift: { value: o.spectralDrift },
       uFrame:         { value: 0 },
       uTraceSize:     { value: new THREE.Vector2(1, 1) },
@@ -925,12 +988,22 @@ export function tickHologram(material, t) {
 /* Set any HOLO_DEFAULTS key by name at runtime. Colours take a hex string. */
 export function setHologramParam(material, key, value, root) {
   if (key === "solid") { material.solid = value > 0; return true; }
+  if (key === "surfaceAlpha") {
+    material.uniforms.uSurfaceAlpha.value = value;
+    if (material.opaque) {
+      material.transparent = value < 1;
+      material.depthWrite = value >= 0.5;
+      material.needsUpdate = true;
+    }
+    return true;
+  }
   if (key === "opaque") {
     const on = value > 0;
+    const sa = material.uniforms.uSurfaceAlpha.value;
     material.opaque = on;
     material.blending = on ? THREE.NormalBlending : THREE.AdditiveBlending;
-    material.transparent = !on;
-    material.depthWrite = on;
+    material.transparent = !on || sa < 1;
+    material.depthWrite = on && sa >= 0.5;
     material.defines = on ? { HOLO_OPAQUE: 1 } : {};
     material.needsUpdate = true;
     return true;

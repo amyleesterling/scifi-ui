@@ -67,6 +67,7 @@ const GROUPS = [
     ["Solid surface (0/1)", "solid", 0, 1, 1, "Draw only the nearest surface, through a depth prepass. A folded mesh reads as one body instead of a stack of translucent layers."],
     ["Opaque (0/1)", "opaque", 0, 1, 1, "Normal blending with depth write: a surface you cannot see through on any background, with the full surface model below."],
     ["Shading", "shade", 0, 1, 0.05, "0 is the hologram's own flat body; 1 is a lit surface with a key light and a highlight."],
+    ["Surface alpha", "surfaceAlpha", 0, 1, 0.01, "Opaque only: the lit surface's own transparency, normal blending. Below 0.5 it stops writing depth, so the far wall shows through, as on the human-brain page."],
     ["Roughness", "rough", 0.03, 1, 0.01, "Microfacet roughness. Low is a mirror, high is matte. Opaque only."],
     ["Metal", "metal", 0, 1, 0.01, "Metalness: what the highlight and the reflections are tinted by. 0 dielectric, 1 metal. Opaque only."],
     ["Studio reflection", "env", 0, 2, 0.05, "Strength of the procedural studio (dark ground, four soft boxes, one sun) reflected in the surface. Opaque only."],
@@ -127,6 +128,9 @@ const STYLE_HELP = {
   solidGold: "Opaque gold with a lit surface, a highlight and a gold rim. For a page that is not black.",
   orchid: "Pink at the crown running to purple at the base, opaque, with a violet bloom.",
   whiteHeat: "Incandescent: an opaque warm white surface with a hot rim and a wide white gold bloom.",
+  matte: "A plain matte material in the colour you pick: roughness, metal and the studio are the whole story. No hologram in it.",
+  gloss: "A plain glossy material in the colour you pick, with a tight highlight and the studio reflected.",
+  atlas: "The human-brain page's somatotopy hologram, carried across: a Lambert cortex at 0.4 with a cool fresnel shell and a dark glass interior.",
   glass: "The BANC and FlyWire shell: a cool translucent skin with a bright cyan edge and a deep blue haze inside. Made to hold coloured things.",
   neonGlass: "The BANC palette: magenta at the crown into violet at the base, saturated, inside the cyan edged glass.",
 };
@@ -138,7 +142,7 @@ const ERA_HELP = {
 const STYLE_LABEL = { supernova: "Supernova", lantern: "Lantern",
   aurora: "Aurora", goldOnBlue: "Gold on blue", solidGold: "Solid gold", whiteHeat: "White heat",
   holoFoil: "Holo foil", opal: "Opal", chromeSun: "Chrome sun", novaCore: "Nova core", orchid: "Orchid",
-  glass: "Glass", neonGlass: "Neon glass" };
+  glass: "Glass", neonGlass: "Neon glass", atlas: "Atlas", matte: "Matte", gloss: "Gloss" };
 
 export function mountHologramDemo(root) {
   const mount = root.querySelector("[data-mount]");
@@ -284,17 +288,27 @@ export function mountHologramDemo(root) {
   /* ---- the knobs ------------------------------------------------------- */
   const swatches = root.querySelector("[data-swatches]");
   swatches.innerHTML = SWATCHES.map(function (s) {
-    const on = s[0].toUpperCase() === HOLO_DEFAULTS.color.toUpperCase();
     return '<label style="--c:' + s[0] + '" title="' + s[1] + '"><input type="radio" name="colour" value="' +
-      s[0] + '"' + (on ? " checked" : "") + ' aria-label="' + s[1] + '"><i></i></label>';
+      s[0] + '" aria-label="' + s[1] + '"><i></i></label>';
   }).join("");
+  /* the colour picker beside the swatches: any colour at all */
+  const picker = document.createElement("input");
+  picker.type = "color"; picker.value = "#FFFFFF"; picker.className = "holopick";
+  picker.title = "Any colour. Picking one keeps the style and recolours it.";
+  picker.setAttribute("aria-label", "Any colour");
+  swatches.appendChild(picker);
+  let pickerUsed = false;
+  function pickedColour() {
+    if (pickerUsed) return picker.value;
+    const on = swatches.querySelector("input[type=radio]:checked");
+    return on ? on.value : null;
+  }
   swatches.addEventListener("change", function (e) {
-    style = "";
-    if (styles) styles.querySelectorAll("[data-style]").forEach(function (x) {
-      x.setAttribute("aria-pressed", String(x.getAttribute("data-style") === ""));
-    });
-    setHologramParam(holo, "coreColor", HOLO_DEFAULTS.coreColor);
+    pickerUsed = e.target === picker;
     setHologramParam(holo, "color", e.target.value); loop.once();
+  });
+  picker.addEventListener("input", function () {
+    pickerUsed = true; setHologramParam(holo, "color", picker.value); loop.once();
   });
 
   /* the era: three presets on the one material */
@@ -318,6 +332,10 @@ export function mountHologramDemo(root) {
 
   /* the style: whole looks, laid over the era. "None" is the era alone. */
   const params = new URLSearchParams(location.search);
+  /* a shared colour: the picker takes it */
+  if (/^[0-9a-fA-F]{6}$/.test(params.get("color") || "")) {
+    picker.value = "#" + params.get("color"); pickerUsed = true;
+  }
   /* gold on blue is the one the page opens on, Amy's call; ?style=none gives the bare era */
   let style = params.get("style") === "none" ? "" :
     HOLO_STYLES[params.get("style")] ? params.get("style") : "goldOnBlue";
@@ -336,6 +354,11 @@ export function mountHologramDemo(root) {
       styles.querySelectorAll("[data-style]").forEach(function (x) {
         x.setAttribute("aria-pressed", String(x === b));
       });
+      /* a style with a colour of its own shows it: the swatch stands down */
+      if (HOLO_STYLES[style] && HOLO_STYLES[style].color) {
+        pickerUsed = false;
+        swatches.querySelectorAll("input[type=radio]").forEach(function (i) { i.checked = false; });
+      }
       applyPreset();
     });
   }
@@ -409,8 +432,62 @@ export function mountHologramDemo(root) {
       fitRenderer(renderer, camera, mount); loop.once();
     });
   }
+  /* Share: the address carries the whole view. Style, era, mesh, the
+     colour if one was picked, every slider that differs from what the
+     preset would give, dynamics and its rate, and the camera. Opening the
+     link rebuilds all of it, so what you send is what they see. */
+  const shareBtn = root.querySelector("[data-share]");
+  function shareURL() {
+    const q = new URLSearchParams();
+    if (style) q.set("style", style); else q.set("style", "none");
+    q.set("era", era);
+    q.set("mesh", String(MESHES.indexOf(current)));
+    const picked = pickedColour();
+    if (picked) q.set("color", picked.replace("#", ""));
+    /* sliders: only the ones that differ from the preset */
+    const base = Object.assign({}, HOLO_DEFAULTS, HOLO_ERAS[era] || {}, HOLO_STYLES[style] || {});
+    const mp = Object.assign({}, current.preset);
+    if (base.solid) { delete mp.opacity; delete mp.inner; }
+    Object.assign(base, mp);
+    KNOBS.forEach(function (k) {
+      if (k[1] === "weather") return;
+      const key = k[1] === "dotsAcross" ? "dotScale" : k[1];
+      const r = ranges.querySelector('[name="' + k[1] + '"]');
+      /* compare on the slider's own grid: a preset of 0.03 sits at 0.05 on
+         a 0.05 step, and that is not a change the user made */
+      const step = k[4];
+      const shownBase = Math.round(fromParam(k[1], base[key]) / step) * step;
+      const shown = parseFloat(r.value);
+      if (Math.abs(shown - shownBase) > step * 0.5) {
+        q.set("p." + key, String(+toParam(k[1], shown).v.toFixed(4)));
+      }
+    });
+    if (holo.uniforms.uWeather.value > 0.5) {
+      q.set("dynamics", "1");
+      if (weather.rate !== 1) q.set("rate", String(weather.rate));
+    }
+    const c = camera.position, t = controls.target;
+    q.set("cam", [c.x, c.y, c.z].map(function (v) { return v.toFixed(3); }).join(","));
+    if (t.lengthSq() > 1e-6) q.set("at", [t.x, t.y, t.z].map(function (v) { return v.toFixed(3); }).join(","));
+    return location.origin + location.pathname + "?" + q.toString();
+  }
+  if (shareBtn) shareBtn.addEventListener("click", function () {
+    const url = shareURL();
+    history.replaceState(null, "", url);
+    const done = function (ok) {
+      const was = shareBtn.textContent;
+      shareBtn.textContent = ok ? "Link copied" : "Link is in the address bar";
+      setTimeout(function () { shareBtn.textContent = was; }, 1800);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(function () { done(true); }, function () { done(false); });
+    } else done(false);
+  });
   const rateSel = root.querySelector("[data-weather-rate]");
-  if (rateSel) rateSel.addEventListener("change", function () { weather.rate = parseFloat(rateSel.value) || 1; });
+  if (rateSel) {
+    rateSel.addEventListener("change", function () { weather.rate = parseFloat(rateSel.value) || 1; });
+    if (params.get("rate")) rateSel.value = params.get("rate");
+  }
 
   /* the current mesh's preset over the defaults, into the material and onto
      the sliders, so the panel never shows a number the shader is not using */
@@ -422,18 +499,18 @@ export function mountHologramDemo(root) {
     if (base.solid) { delete mp.opacity; delete mp.inner; }
     const p = Object.assign(base, mp);
     if (REDUCED) { p.glitchAmount = 0; p.glitchFreq = 0; }
-    /* a style carries its colours; without one the swatch stands */
-    if (HOLO_STYLES[style]) {
+    /* a style that names a colour brings it; one that does not (matte,
+       gloss, the bare era) takes the swatch or the picker. A swatch chosen
+       after a style overrides the style's colour and keeps the style. */
+    const st = HOLO_STYLES[style];
+    const picked = pickedColour();
+    if (st && st.color && !picked) {
       setHologramParam(holo, "color", p.color);
-      setHologramParam(holo, "coreColor", p.coreColor);
-      setHologramParam(holo, "color2", p.color2);
-      swatches.querySelectorAll("input").forEach(function (i) { i.checked = false; });
     } else {
-      setHologramParam(holo, "coreColor", HOLO_DEFAULTS.coreColor);
-      setHologramParam(holo, "color2", HOLO_DEFAULTS.color2);
-      const on = swatches.querySelector("input:checked");
-      setHologramParam(holo, "color", on ? on.value : HOLO_DEFAULTS.color);
+      setHologramParam(holo, "color", picked || HOLO_DEFAULTS.color);
     }
+    setHologramParam(holo, "coreColor", st ? p.coreColor : HOLO_DEFAULTS.coreColor);
+    setHologramParam(holo, "color2", st ? p.color2 : HOLO_DEFAULTS.color2);
     setHologramParam(holo, "haloColor", p.haloColor);
     p.weather = holo.uniforms.uWeather.value;   /* the toggle survives a style change */
     /* ?p.key=value overrides any slider from the URL, for a render or a link */
@@ -448,9 +525,8 @@ export function mountHologramDemo(root) {
     loop.once();
   }
   root.querySelector("[data-reset]").addEventListener("click", function () {
-    swatches.querySelectorAll("input").forEach(function (i) {
-      i.checked = i.value.toUpperCase() === HOLO_DEFAULTS.color.toUpperCase();
-    });
+    pickerUsed = false;
+    swatches.querySelectorAll("input[type=radio]").forEach(function (i) { i.checked = false; });
     applyPreset();
   });
 
@@ -568,6 +644,14 @@ export function mountHologramDemo(root) {
   const yaw = parseFloat(params.get("yaw")), pitch = parseFloat(params.get("pitch"));
   if (params.get("frame")) { weather.frame = parseFloat(params.get("frame")) || 0; weather.hold = true; }
   if (params.get("rate")) weather.rate = parseFloat(params.get("rate")) || 1;
+  const camQ = (params.get("cam") || "").split(",").map(parseFloat);
+  const atQ = (params.get("at") || "").split(",").map(parseFloat);
+  if (camQ.length === 3 && camQ.every(isFinite)) {
+    camera.position.set(camQ[0], camQ[1], camQ[2]);
+    controls.autoRotate = false;
+  }
+  if (atQ.length === 3 && atQ.every(isFinite)) controls.target.set(atQ[0], atQ[1], atQ[2]);
+  controls.update();
   if (shot) controls.autoRotate = false;
   const start = whenNear(stageEl, function () {
     fitRenderer(renderer, camera, mount);

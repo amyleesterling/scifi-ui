@@ -890,3 +890,22 @@ scale was not a count, and nothing explained itself. Lessons:
   shows one and sets the other through the object's height.
 - **A tooltip per control is cheap and it is the difference between a panel
   and a wall of numbers.** Each knob carries its help as a sixth field.
+
+**Version 19**, 7 September 2026. Glass and neon glass from the BANC and
+FlyWire shells; Atlas, the human-brain somatotopy hologram carried across
+with its real numbers; matte and gloss as plain coloured materials; a colour
+picker; a Share button that encodes the whole view. Lessons:
+
+- **A local checkout is not the source. The live site is.** The somatotopy
+  page was not in the local human-brain clone; `curl` of the served module
+  was. Read what ships.
+- **In a normal blended fragment an additive overlay has to be divided by
+  the alpha.** The page draws its fresnel shell as a second additive pass;
+  composed into one fragment at alpha 0.4 it came out at 0.4 strength and
+  read as mist. Dividing by the alpha lands it where the second pass would.
+- **Compare a shared slider on its own grid.** A preset of 0.03 sits at 0.05
+  on a 0.05 step; the share link listed that as a user change until the
+  comparison was quantised to the step.
+- **A `const` read at module init from later in the function is a TDZ error
+  and a black page with no console error in the pane.** Everything went
+  black and the only clue was the render script's lit percentage of zero.
