@@ -111,6 +111,9 @@ export const HOLO_DEFAULTS = {
   emission: 0,             /* light the surface gives off on its own, opaque styles */
   color2: "#7B3FE4",       /* the second colour of an ombre */
   ombre: 0,                /* 0 one colour; 1 color at the top running to color2 at the base */
+  spectral: 0,             /* dichroic shift: how far the hue walks around the wheel from
+                              face on to grazing, 1 is two thirds of a turn */
+  spectralDrift: 0,        /* hue drift over time, turns per minute */
 };
 
 /* three presets on the same material */
@@ -381,6 +384,17 @@ uniform float uWeatherGlow;
 uniform float uEmission;
 uniform vec3  uColor2;
 uniform float uOmbre;
+uniform float uSpectral;
+uniform float uSpectralDrift;
+
+/* rotate a colour's hue by an angle in turns, in YIQ, so the shift keeps
+   the colour's own brightness */
+vec3 hueShift(vec3 c, float turns) {
+  const vec3 k = vec3(0.57735);
+  float a = turns * 6.28318;
+  float ca = cos(a), sa = sin(a);
+  return c * ca + cross(k, c) * sa + k * dot(k, c) * (1.0 - ca);
+}
 uniform vec3  uPointer;
 uniform float uPointerT;
 uniform float uPointerOn;
@@ -417,6 +431,10 @@ void main() {
      uColor2 at its base, by world height */
   float ty = clamp((vW.y - uBounds.x) / max(uBounds.y - uBounds.x, 1e-3), 0.0, 1.0);
   vec3 C = mix(uColor, mix(uColor2, uColor, ty), uOmbre);
+  /* the spectral shift: a dichroic film's colour depends on the angle it is
+     seen at, so the hue walks with 1 - N.V, and may drift with time */
+  float grazing = 1.0 - abs(dot(N, V));   /* abs: the normal is not faced yet, and winding lies */
+  C = hueShift(C, uSpectral * 0.66 * grazing + uSpectralDrift * uTime / 60.0);
   /* face the normal toward the eye by geometry, not by winding: a mirrored
      export (the mouse brain is one) has every triangle wound backwards */
   if (dot(N, V) < 0.0) N = -N;
@@ -658,6 +676,8 @@ export function makeHologramMaterial(opts) {
       uEmission:      { value: o.emission },
       uColor2:        { value: new THREE.Color(o.color2) },
       uOmbre:         { value: o.ombre },
+      uSpectral:      { value: o.spectral },
+      uSpectralDrift: { value: o.spectralDrift },
       uFrame:         { value: 0 },
       uTraceSize:     { value: new THREE.Vector2(1, 1) },
       uTraces:        { value: null },

@@ -532,7 +532,11 @@ wide golden bloom, white heat is incandescent, orchid is pink into purple. `roug
 top: `emission`, what an opaque surface gives off on its own, shadow or not,
 which is what keeps supernova lit without blowing out; and `ombre`, a second
 colour (`color2`) that the first runs into from the crown of the object to
-its base, by world height. Orchid is pink into purple that way.
+its base, by world height. Orchid is pink into purple that way. And
+`spectral`, a dichroic shift: the hue of the whole hologram walks around the
+wheel with the angle you see it at, like a dichroic film, with
+`spectralDrift` turning it slowly over time. Any slider can be set from the
+URL as `?p.spectral=1`.
 
 **Dynamics.** Press the Dynamics button (or set `weather`, or open with
 `?dynamics=1`) and the hologram, whichever style it is in, carries a recording: 108

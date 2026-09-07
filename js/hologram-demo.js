@@ -73,6 +73,8 @@ const GROUPS = [
     ["Cavity", "cavity", 0, 1, 0.05],
   ] },
   { name: "Rainbow", knobs: [
+    ["Spectral shift with angle", "spectral", 0, 1, 0.01],
+    ["Spectral drift (turns/min)", "spectralDrift", 0, 6, 0.1],
     ["Film thickness (nm)", "film", 100, 900, 5],
     ["Rainbow", "iri", 0, 2, 0.05],
     ["Sparkle", "sparkle", 0, 3, 0.05],
@@ -401,6 +403,8 @@ export function mountHologramDemo(root) {
     }
     setHologramParam(holo, "haloColor", p.haloColor);
     p.weather = holo.uniforms.uWeather.value;   /* the toggle survives a style change */
+    /* ?p.key=value overrides any slider from the URL, for a render or a link */
+    params.forEach(function (v, k) { if (k.slice(0, 2) === "p." && k.slice(2) in p) p[k.slice(2)] = parseFloat(v); });
     KNOBS.forEach(function (k) {
       setHologramParam(holo, k[1], p[k[1]], group);
       const r = ranges.querySelector('[name="' + k[1] + '"]');
