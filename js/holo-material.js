@@ -726,6 +726,16 @@ void main() {
     gl_FragColor = vec4(surf, uSurfaceAlpha);
   }
   #endif
+  /* nothing leaves this shader that is not finite and non negative: a
+     decimated shell carries a few degenerate normals, and one NaN fragment
+     added into a float render target poisons the bloom's blur into a black
+     frame, which is how a whole brain disappears */
+  {
+    vec3 c = gl_FragColor.rgb;
+    c = mix(c, vec3(0.0), vec3(notEqual(c, c)));
+    gl_FragColor.rgb = clamp(c, 0.0, 64.0);
+    gl_FragColor.a = (gl_FragColor.a == gl_FragColor.a) ? clamp(gl_FragColor.a, 0.0, 1.0) : 0.0;
+  }
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
 }`;
