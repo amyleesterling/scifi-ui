@@ -731,8 +731,9 @@ void main() {
      added into a float render target poisons the bloom's blur into a black
      frame, which is how a whole brain disappears */
   {
+    /* a select, not arithmetic: NaN times zero is still NaN */
     vec3 c = gl_FragColor.rgb;
-    c = mix(c, vec3(0.0), vec3(notEqual(c, c)));
+    c = vec3(c.r == c.r ? c.r : 0.0, c.g == c.g ? c.g : 0.0, c.b == c.b ? c.b : 0.0);
     gl_FragColor.rgb = clamp(c, 0.0, 64.0);
     gl_FragColor.a = (gl_FragColor.a == gl_FragColor.a) ? clamp(gl_FragColor.a, 0.0, 1.0) : 0.0;
   }
