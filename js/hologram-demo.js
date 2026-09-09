@@ -326,10 +326,10 @@ export function mountHologramDemo(root) {
   }
   swatches.addEventListener("change", function (e) {
     pickerUsed = e.target === picker;
-    setHologramParam(holo, "color", e.target.value); loop.once();
+    setHologramParam(holo, "color", e.target.value); loop.once(); syncUrl();
   });
   picker.addEventListener("input", function () {
-    pickerUsed = true; setHologramParam(holo, "color", picker.value); loop.once();
+    pickerUsed = true; setHologramParam(holo, "color", picker.value); loop.once(); syncUrl();
   });
 
   /* the era: three presets on the one material */
@@ -426,6 +426,7 @@ export function mountHologramDemo(root) {
     setHologramParam(holo, m.key, m.v, group);
     e.target.previousElementSibling.value = v;
     loop.once();
+    syncUrl();
   });
   /* the Dynamics toggle: the same param as the slider, as a button, and it
      loads the recording the first time it is pressed */
@@ -441,6 +442,7 @@ export function mountHologramDemo(root) {
     }
     if (clock && !on) clock.textContent = "";
     loop.once();
+    syncUrl();
   }
   if (dynBtn) dynBtn.addEventListener("click", function () {
     setDynamics(holo.uniforms.uWeather.value < 0.5);
@@ -500,6 +502,19 @@ export function mountHologramDemo(root) {
     if (t.lengthSq() > 1e-6) q.set("at", [t.x, t.y, t.z].map(function (v) { return v.toFixed(3); }).join(","));
     return location.origin + location.pathname + "?" + q.toString();
   }
+  /* The address is the state, all the time. Every change writes the share
+     URL into the bar a beat later, so copying the address is the same as
+     pressing Share, and a reload lands where you were. The camera joins in
+     when a drag ends, not on every frame of the auto turn. */
+  let urlTimer = 0;
+  function syncUrl() {
+    if (shot || !group) return;
+    clearTimeout(urlTimer);
+    urlTimer = setTimeout(function () {
+      try { history.replaceState(null, "", shareURL()); } catch (e) {}
+    }, 300);
+  }
+  controls.addEventListener("end", syncUrl);
   if (shareBtn) shareBtn.addEventListener("click", function () {
     const url = shareURL();
     history.replaceState(null, "", url);
@@ -514,7 +529,7 @@ export function mountHologramDemo(root) {
   });
   const rateSel = root.querySelector("[data-weather-rate]");
   if (rateSel) {
-    rateSel.addEventListener("change", function () { weather.rate = parseFloat(rateSel.value) || 1; });
+    rateSel.addEventListener("change", function () { weather.rate = parseFloat(rateSel.value) || 1; syncUrl(); });
     if (params.get("rate")) rateSel.value = params.get("rate");
   }
 
@@ -552,6 +567,7 @@ export function mountHologramDemo(root) {
       r.value = shown; r.previousElementSibling.value = shown;
     });
     loop.once();
+    syncUrl();
   }
   root.querySelector("[data-reset]").addEventListener("click", function () {
     pickerUsed = false;
