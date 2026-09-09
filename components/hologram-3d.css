@@ -134,6 +134,14 @@
 .holo3d-wide .mviz { grid-area: stage; display: flex; flex-direction: column; min-height: 0; height: 100%; box-sizing: border-box; }
 .holo3d-wide .mviz-stage { aspect-ratio: auto; flex: 1 1 auto; min-height: 0; }
 .holo3d-wide .holoknobs { grid-area: knobs; overflow-y: auto; max-height: 100%; }
+/* the knob column scrolls, so its scrollbar is part of the panel: thin, the
+   panel's own hairline colour, no white track. color-scheme dark keeps the
+   native controls (the select, the picker) dark too. */
+.holoknobs { color-scheme: dark; scrollbar-width: thin; scrollbar-color: rgb(var(--holo-glow, 74 150 224) / .45) transparent; }
+.holoknobs::-webkit-scrollbar { width: 8px; }
+.holoknobs::-webkit-scrollbar-track { background: transparent; }
+.holoknobs::-webkit-scrollbar-thumb { background: rgb(var(--holo-glow, 74 150 224) / .45); border-radius: 4px; border: 2px solid transparent; background-clip: padding-box; }
+.holoknobs::-webkit-scrollbar-thumb:hover { background-color: rgb(var(--holo-line, 196 228 255) / .7); }
 .holotools { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; padding: 0 0 4px; }
 .holotools .holostyles, .holotools .holoeras, .holotools .holoswatches { margin: 0; }
 .holotools .holoeras { display: flex; gap: 4px; }
