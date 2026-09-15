@@ -143,6 +143,7 @@ const STYLE_HELP = {
   atlas: "The human-brain page's somatotopy hologram, carried across: a Lambert cortex at 0.4 with a cool fresnel shell and a dark glass interior.",
   glass: "The BANC and FlyWire shell: a cool translucent skin with a bright cyan edge and a deep blue haze inside. Made to hold coloured things.",
   neonGlass: "The BANC palette: magenta at the crown into violet at the base, saturated, inside the cyan edged glass.",
+  goldDots: "The golden dot brain from the Blender turntables: a dark body drawn only by fine amber dots, the folds glowing at the edge, a few dots running hot, a soft gold bloom.",
 };
 const ERA_HELP = {
   "2026": "Light projected onto the outside of a shape: a translucent centre, a fresnel rim, a dot lattice.",
@@ -152,7 +153,8 @@ const ERA_HELP = {
 const STYLE_LABEL = { supernova: "Supernova", lantern: "Lantern",
   aurora: "Aurora", goldOnBlue: "Gold on blue", solidGold: "Solid gold", whiteHeat: "White heat",
   holoFoil: "Holo foil", opal: "Opal", chromeSun: "Chrome sun", novaCore: "Nova core", orchid: "Orchid",
-  glass: "Glass", neonGlass: "Neon glass", atlas: "Atlas", matte: "Matte", gloss: "Gloss" };
+  glass: "Glass", neonGlass: "Neon glass", atlas: "Atlas", matte: "Matte", gloss: "Gloss",
+  goldDots: "Gold dots" };
 
 export function mountHologramDemo(root) {
   const mount = root.querySelector("[data-mount]");

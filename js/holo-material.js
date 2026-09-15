@@ -322,6 +322,36 @@ export const HOLO_STYLES = {
     rough: 0.3, metal: 0.15, env: 1.2, film: 320, iri: 0.3, sparkle: 0.9,
     sparkleScale: 120, cavity: 0.5, bloom: 2.0, bloomSize: 0.34,
   },
+  /* gold dots: the golden dot hologram from the Blender brain renders
+     (D:\Meshes\hairy_brain_360.py, style=holo_dots holocol=gold, the
+     turntable of 9 Sept 2026). There, two million tiny emissive strands sit
+     on an opaque near black cortex: the dots define the surface, the body
+     is dark, the folds and the silhouette glow amber at grazing angles, a
+     few dots run hot toward pale gold, and a soft bloom sits over it all.
+     Carried across: the body amber (1.0, 0.68, 0.28) and the hot core
+     (1.0, 0.90, 0.62), a rim of facing ratio cubed, bloom. Three deviations,
+     written down: the dark cortex is not drawn, it is the page, so this is a
+     solid depth prepass with a near zero body, which reads the same on a
+     dark ground and differently on a light one; there is no per dot twinkle
+     here, so the sparkle glints stand in for the hot dots; and the Blender
+     shader had scanlines, which this material's brief rules out, so it has
+     none. Its dots also live in world space and the brain turns through
+     them, where the strands turned with the brain. */
+  goldDots: {
+    /* the grain is the wave lattice, not the dot grid: at 220 nodes per unit
+       with a wide node the four plane waves make a dense irregular grain
+       (320 was finer still and aliased to static on a 1200 px stage),
+       and their parallax shimmers as the brain turns, which is the nearest
+       this material has to the strands' twinkle. The triplanar grid at the
+       same density read as graph paper. Tuned on the human brain by
+       headless render, 15 Sept 2026, against the Blender frame. */
+    color: "#FFD27A", coreColor: "#FFF0C8", glowIntensity: 3.0, fresnelPower: 3.0,
+    bodyAlpha: 0.08, shade: 0, lattice: 1, parallax: 2, dotScale: 220, dotRadius: 0.22,
+    dotIntensity: 14, density: 0, inner: 0, iridescence: 0, chroma: 0.2,
+    glitchAmount: 0.002, voxel: 0, solid: 1, opaque: 0, opacity: 1,
+    halo: 1.5, haloSize: 0.05, haloColor: "#FFC24A", bloom: 1.8, bloomSize: 0.28,
+    iri: 0, film: 420, sparkle: 1.0, sparkleScale: 600,
+  },
 };
 
 const NOISE = /* glsl */ `

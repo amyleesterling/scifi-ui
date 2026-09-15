@@ -910,6 +910,22 @@ picker; a Share button that encodes the whole view. Lessons:
   and a black page with no console error in the pane.** Everything went
   black and the only clue was the render script's lit percentage of zero.
 
+**Version 21**, 15 September 2026. Gold dots: the golden dot brain from the
+Blender turntables (`D:\Meshes\hairy_brain_360.py`, `style=holo_dots
+holocol=gold`) carried across as a style. Two lessons:
+
+- **A look that ships as a render is a source too, and the port is the
+  numbers plus the deviations.** The body amber, the hot core and the rim
+  power came across; the dark cortex became the page (a solid prepass with a
+  near zero body), the strands' twinkle became the sparkle glints, and the
+  scanlines were dropped because this material's brief forbids them. All
+  four are written at the preset.
+- **A surface grain has a floor of about two pixels per node.** At 320 nodes
+  per unit on a 1200 px stage the wave lattice aliased to static and would
+  shimmer as the brain turned; 220 gives discrete dots. The triplanar dot
+  grid at the same density read as graph paper, which is why the grain is
+  the lattice. Render at the stage size you ship before trusting a density.
+
 **Version 20**, 7 September 2026. Six fun meshes in the menu, in their own
 group. One lesson: **a GLB's bytes are mostly things a custom shader never
 reads.** A 20 MB cat was 0.5 MB of geometry and 19.5 MB of textures; the
