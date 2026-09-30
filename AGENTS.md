@@ -36,7 +36,8 @@ When a port must deviate, write down the deviation and its cause. There are only
 three in the repo, all documented in the README.
 
 Upstream sources: **ng-extend / EyeWire II** (login modal, tutorial callout,
-achievement toast, confetti, icon rail, the Nurro balloon rise), **Inner Cosmos**
+achievement toast, confetti, icon rail, the Nurro balloon rise, the spark
+zip), **Inner Cosmos**
 (step rail), **FlyWire neuron gallery** (loader, panel boot, underline, scan
 sweep, section rail, image card).
 
@@ -934,3 +935,25 @@ materials, texcoords, skins and animations and rebuilds the binary chunk
 from the accessors that remain. Decimate the heavy one with
 `npx @gltf-transform/cli simplify`. Never commit the source file; the 34 MB
 turd was deleted before `git add`.
+
+**Version 22**, 29 September 2026. The spark zip, `components/spark-zip.*`,
+from the dataset switch card in ng-extend's `DatasetTransition.vue`: the
+card folds away under `runPanelDraw`'s two heads while ballistic sparks pour
+off its top edge. Lessons worth keeping:
+
+- **When a port needs a function this repo already ported, call it.** The
+  source imports `runPanelDraw` from `holo_trace.ts`, and `scout-trace.js`
+  is that file carried across, so the spark zip loads it and calls
+  `holoScout.runPanelDraw` rather than growing a third copy of the light.
+- **Playwright's clock gives frame exact screenshots of a canvas effect,
+  but only once it is paused.** `page.clock.install()` alone lets time keep
+  flowing, and a swiftshader screenshot costs 300 to 500ms of it, so a 620ms
+  zip is over by the second shot. `install()`, then `pauseAt()`, then
+  `runFor(ms)` before each screenshot steps rAF, `performance.now` and the
+  timers together, and the frames land exactly where you asked.
+- **Read what a progress callback measures before you name its numbers.**
+  `runPanelDraw` reports the heads' vertical travel, and the source compares
+  it with a share of the path, so the sparks cross the top edge a beat
+  before the light does. That is the look that shipped and it is kept, but
+  the header says so, because a reader tuning it will otherwise assume the
+  sparks follow the heads.

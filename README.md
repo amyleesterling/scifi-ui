@@ -44,8 +44,10 @@ icon rail (`.holoiconrail`, kept clear of the section rail's `.holorail`), a pag
 finale that fires the confetti once when the reader reaches the bottom and floats
 a mascot up on balloons, a shared panel surface (`.holopanel`), a profile card
 built on it, the full EyeWire II researcher profile it opens into, a measured
-data readout, and a converging swarm (`.holoconverge`) that flocks particles
-into whatever element you point it at. They are split one per file so you can take one without taking
+data readout, a converging swarm (`.holoconverge`) that flocks particles
+into whatever element you point it at, and a spark zip (`holoSparkZip`) that
+folds a box away under two racing lights while ballistic sparks pour off its
+top edge. They are split one per file so you can take one without taking
 the set, and the whole set also runs inline on the main
 [demo page](https://amyleesterling.github.io/scifi-ui/).
 
@@ -669,6 +671,23 @@ own numbers:
   action layer igniting over dim context; and the fly's heading dial whose
   sectors relight as the heading sweeps them. A round trip, this one, since
   that game vendored this library and its HUD already reads these tokens.
+
+### 14. Spark zip (`components/spark-zip.*`)
+
+How EyeWire II's "Now entering" card leaves the screen when you switch
+datasets, ported from `startEdgeEmitter` and `zip()` in
+`src/components/DatasetTransition.vue` on the eyewire-ii-community branch of
+ng-extend. `holoSparkZip(box, { onDone })` runs `scout-trace.js`'s
+`runPanelDraw` upward, so two light heads climb the sides and run the top
+edge from both corners to the middle while the box clips away beneath them,
+and a canvas throws ballistic sparks off that edge: 0.55 per pixel per side,
+78 percent launched upward with inward momentum, gravity adding 0.018 to vy
+every 16.7ms, drag multiplying vx by 0.985 a frame, a core and a 3.2x halo
+drawn additively so overlaps burn toward white, a (1 - t) squared fade, cyan
+to violet, and 26 more at the meeting point. The card itself comes across
+whole in `spark-zip.css` as `.holoentering`. Deviations: a teardown backstop,
+a running guard, and the box is left clipped for the caller to `restore()`
+rather than unmounted, all written in the file header.
 
 ## Tokens
 

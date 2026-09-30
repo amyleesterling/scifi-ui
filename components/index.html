@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>scifi-ui components: callout, toast, tinted card, icon rail, converging swarm</title>
+<title>scifi-ui components: callout, toast, tinted card, icon rail, converging swarm, spark zip</title>
 
 <link rel="stylesheet" href="tutorial-callout.css">
 <link rel="stylesheet" href="achievement-toast.css">
@@ -14,6 +14,7 @@
 <link rel="stylesheet" href="data-readout.css">
 <link rel="stylesheet" href="scan-pass.css">
 <link rel="stylesheet" href="converge-swarm.css">
+<link rel="stylesheet" href="spark-zip.css">
 
 <style>
   /* Page chrome only. Nothing here is part of any component: the five
@@ -508,6 +509,65 @@
     </p>
   </section>
 
+  <!-- ============================================================ 8 -->
+  <section id="demo-sparkzip">
+    <p class="eyebrow">Eight</p>
+    <h2>Spark zip</h2>
+    <p class="note">
+      How the "Now entering" card leaves the screen in EyeWire II when you
+      switch datasets. Two lights run up the sides of the box and along its top
+      edge from both corners to the middle, the box folds away beneath them,
+      and sparks pour off the edge the whole way, with one last burst where
+      the two lights meet.
+    </p>
+    <p class="row">
+      <button class="demo-btn demo-btn--hero" id="sparkzip-go" type="button">Zip it</button>
+      <button class="demo-btn" id="sparkzip-switch" type="button">Play the whole switch</button>
+    </p>
+    <div class="holoentering-stage" id="sparkzip-stage">
+      <div class="holoentering" id="sparkzip-card" aria-live="polite">
+        <div class="holoentering-eyebrow"><span class="holoentering-dot"></span>Now entering</div>
+        <div class="holoentering-title">MICrONS Minnie65</div>
+        <div class="holoentering-stats">
+          <span class="holoentering-stats-label">Your work here</span>
+          <span class="holoentering-stat"><b>1,284</b> edits</span>
+          <span class="holoentering-stat"><b>37</b> cells proofread</span>
+        </div>
+        <div class="holoentering-thumb">
+          <img src="../media/cell.jpg" alt="">
+          <span class="holoentering-scan" aria-hidden="true"></span>
+          <span class="holoentering-grid" aria-hidden="true"></span>
+        </div>
+        <div class="holoentering-status">
+          <span class="holoentering-step" id="sparkzip-step">Almost there</span>
+          <span class="holoentering-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+        </div>
+        <div class="holoentering-bar" aria-hidden="true"><span></span></div>
+      </div>
+    </div>
+    <p class="note">
+      <b>The physics is ballistic sparks,</b> the kind a grinder, a welder or a
+      sparkler throws. Each light is a fuse, and it drops about one spark for
+      every two pixels of edge it burns along. Every spark is launched on its
+      own: most go up, about one in five goes down, and all of them carry the
+      fuse's inward push. From there it is plain projectile motion. Gravity
+      pulls each one down a little more every frame, so it arcs over and
+      falls, and air drag bleeds off its sideways speed, so the arcs tighten
+      instead of flying off the page.
+    </p>
+    <p class="note">
+      <b>Why they glow like real sparks.</b> Each spark is a bright core inside
+      a faint halo three times its size, and they are drawn with additive
+      blending, so wherever sparks overlap their light adds up toward white,
+      which is what hot metal does. Each one fades on the square of its
+      remaining life, so it burns bright and then drops out fast, tinted
+      somewhere between the cyan and the violet of the progress bar above it.
+      Ported from <code>DatasetTransition.vue</code> with every number as
+      shipped, and the lights are <code>scout-trace.js</code>, called rather
+      than copied. With reduced motion on, the card simply goes.
+    </p>
+  </section>
+
   <footer>
     <p class="credit">Created by Amy Sterling
       <a href="https://x.com/amyneurons" rel="me noopener">@amyneurons</a></p>
@@ -681,6 +741,64 @@
   })();
 </script>
 
+<script src="scout-trace.js"></script>
+<script src="spark-zip.js"></script>
+<script>
+  /* Demo wiring for the spark zip. "Zip it" plays the zip on the card at
+     rest. "Play the whole switch" runs the card the way the app does: the
+     materialize, the four loading steps at 650ms each, the 2.2s bar, and the
+     zip when MIN_MS (2200) is up. Afterwards the card is handed back and
+     re-materializes, where upstream it would unmount. */
+  (function () {
+    var stage = document.getElementById("sparkzip-stage");
+    var card = document.getElementById("sparkzip-card");
+    var step = document.getElementById("sparkzip-step");
+    var go = document.getElementById("sparkzip-go");
+    var sw = document.getElementById("sparkzip-switch");
+    if (!stage || !card || !window.holoSparkZip) return;
+    var STEPS = ["Loading the volume", "Fetching cells", "Aligning the view", "Almost there"];
+    var busy = false, timers = [];
+
+    function materialize() {
+      card.classList.remove("is-in");
+      void card.offsetWidth;
+      card.classList.add("is-in");
+    }
+    function setBusy(on) { busy = on; go.disabled = on; sw.disabled = on; }
+    function zip() {
+      stage.classList.add("is-zip");
+      holoSparkZip(card, {
+        onDone: function () {
+          timers.push(setTimeout(function () {
+            stage.classList.remove("is-zip", "is-loading");
+            step.textContent = STEPS[STEPS.length - 1];
+            card.style.clipPath = "";
+            materialize();
+            setBusy(false);
+          }, 700));
+        }
+      });
+    }
+    go.addEventListener("click", function () {
+      if (busy) return;
+      setBusy(true);
+      zip();
+    });
+    sw.addEventListener("click", function () {
+      if (busy) return;
+      setBusy(true);
+      step.textContent = STEPS[0];
+      stage.classList.remove("is-loading");
+      void stage.offsetWidth;
+      stage.classList.add("is-loading");
+      materialize();
+      STEPS.forEach(function (s, i) {
+        if (i) timers.push(setTimeout(function () { step.textContent = s; }, i * 650));
+      });
+      timers.push(setTimeout(zip, 2200));
+    });
+  })();
+</script>
 <script src="converge-swarm.js"></script>
 <script>
   /* Press and hold to raise the chip and start the swarm. Pointer events, not
