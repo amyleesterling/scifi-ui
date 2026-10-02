@@ -1,4 +1,4 @@
-# AGENTS.md, version 10
+# AGENTS.md, version 23
 
 Durable working knowledge for any agent contributing to **scifi-ui**. Read this
 before writing a line. It exists because the same lessons were being relearned
@@ -957,3 +957,31 @@ off its top edge. Lessons worth keeping:
   before the light does. That is the look that shipped and it is kept, but
   the header says so, because a reader tuning it will otherwise assume the
   sparks follow the heads.
+
+**Version 23**, 2 October 2026. The path search, `components/path-search.*`,
+from `startLoader` in ng-extend's `find_path_status.ts` and the foot of
+`HighlightModePanel.vue`: seven explorers on a biased random walk from a
+source dot to a target dot, and a finish that surges and turns green.
+Lessons worth keeping:
+
+- **A wait needs an ending, not only a loop.** The loader used to close
+  when the request came back, so a finished trace and a failed one looked
+  the same and the result "sort of sadly disappears" (Ames). Give a loading
+  state a `finish` that plays once and hands back a callback, and close the
+  surrounding UI from that callback, never from the request itself.
+- **Say the success in words at the same moment.** The band's label changes
+  from "Tracing path" to "Highlight complete" when the surge starts, and the
+  same words land in the panel's footer when the band closes. With reduced
+  motion the canvas does nothing, and the words are the whole state.
+- **An effect redrawn every frame needs a faster erase than a trail.** The
+  search erases 9 percent a frame, which is right for trails drawn once.
+  The surge redraws its jittered ghosts every frame, and at 9 percent they
+  piled into a solid blob. The finish erases 26 percent. Look at a paused
+  frame from the middle of an effect before calling it done.
+- **A class added by hand does not survive a framework's re-render.** The
+  spray can that opens this panel was meant to spray on click.
+  `classList.add` put the class on a Vue rendered button, and the same click
+  changed that button's bound classes, so Vue rewrote the list and the
+  animation never started. A standalone render of the icon could not show
+  it; only a click in the running app did. State that drives an animation
+  on a rendered element belongs in the element's own class binding.

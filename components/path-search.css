@@ -1,0 +1,68 @@
+/* ---- path search band (.holosearch) ---------------------------------------
+   The strip that holds the path search canvas and says what is happening,
+   ported from the foot of EyeWire II's Highlight box (ng-extend,
+   src/components/HighlightModePanel.vue: .nge-hl-loader-wrap, .nge-hl-loader,
+   .nge-hl-loader-label). The canvas is drawn by path-search.js.
+
+     <div class="holosearch is-on">
+       <canvas></canvas>
+       <span class="holosearch-label">Tracing path <b>12s</b></span>
+     </div>
+
+   .is-on    open, 38px tall. Without it the band is closed (height 0), so
+             it can sit in a panel and take no room until there is a wait.
+   .is-done  the finish: the rule, the canvas rim and the label go success
+             green, and the band pulses once (1.5s, peaking at 22 percent)
+             in step with the surge on the canvas. Change the label's words
+             when you add it; the words are the success state for anyone
+             with motion turned off.
+
+   In the source the band bleeds through its panel's padding (margin
+   10px -14px -12px) and takes the panel's bottom corners. That margin is
+   the panel's padding, negated, so it is left to the caller here: the band
+   is a plain block. */
+.holosearch {
+  display: flex; align-items: center; gap: 10px;
+  height: 0; overflow: hidden; padding: 0 14px;
+  background: rgba(20, 12, 36, 0.75);
+  border-top: 1px solid transparent;
+  transition: height 0.2s ease;
+}
+.holosearch.is-on { height: 38px; border-top-color: rgba(200, 164, 255, 0.28); }
+.holosearch canvas {
+  display: block; flex-shrink: 0; border-radius: 13px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(200, 164, 255, 0.25);
+  transition: border-color 0.4s ease;
+}
+.holosearch-label {
+  font: 700 10.5px 'Orbitron', 'Inter', system-ui, sans-serif;
+  letter-spacing: 0.12em; text-transform: uppercase; white-space: nowrap;
+  color: #eadcff;
+}
+/* The count is a number with a unit (12s, 43 points): no forced capitals,
+   or "s" becomes "S" and reads as a different unit. */
+.holosearch-label b {
+  margin-left: 6px; color: #c8a4ff;
+  font: 600 11px ui-monospace, 'Consolas', monospace;
+  letter-spacing: 0; text-transform: none;
+}
+
+.holosearch.is-done {
+  border-top-color: rgba(124, 255, 178, 0.6);
+  animation: holosearch-done 1.5s ease-out both;
+}
+.holosearch.is-done canvas { border-color: rgba(124, 255, 178, 0.55); }
+/* Tighter tracking: "Highlight complete" is longer than "Tracing path" and
+   must fit beside the canvas in a 320px panel. Keep counts out of this label. */
+.holosearch.is-done .holosearch-label { color: #9dffc9; letter-spacing: 0.08em; text-shadow: 0 0 10px rgba(124, 255, 178, 0.55); }
+.holosearch.is-done .holosearch-label b { color: rgba(200, 235, 215, 0.75); }
+@keyframes holosearch-done {
+  0%   { background: rgba(20, 12, 36, 0.75); box-shadow: inset 0 0 0 rgba(124, 255, 178, 0); }
+  22%  { background: rgba(18, 60, 40, 0.9);  box-shadow: inset 0 0 26px rgba(124, 255, 178, 0.45); }
+  100% { background: rgba(10, 30, 22, 0.75); box-shadow: inset 0 0 10px rgba(124, 255, 178, 0.12); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .holosearch, .holosearch canvas { transition: none; }
+  .holosearch.is-done { animation: none; background: rgba(10, 30, 22, 0.75); }
+}

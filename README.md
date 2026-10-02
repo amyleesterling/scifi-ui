@@ -689,6 +689,35 @@ whole in `spark-zip.css` as `.holoentering`. Deviations: a teardown backstop,
 a running guard, and the box is left clipped for the caller to `restore()`
 rather than unmounted, all written in the file header.
 
+### 15. Path search (`components/path-search.*`)
+
+The loading state EyeWire II shows while the server traces a path through a
+neuron between two points, ported from `startLoader` in
+`src/find_path_status.ts` and the band at the foot of
+`src/components/HighlightModePanel.vue`, on the eyewire-ii-community branch
+of ng-extend. `holoPathSearch(canvas, { width, height })` returns
+`{ finish(done), stop() }`.
+
+Seven explorers leave a source dot on a biased random walk toward a target
+dot: 1.25 px a frame, heading pulled 8 percent toward the target, then turned
+by up to 0.45 radians at random, bouncing off the edges. The canvas erases 9
+percent of itself a frame, so trails linger. The first explorer within 5 px
+of the target has its wandered route redrawn as one bright line over 350ms,
+and at 950ms the search restarts. It is the stepped leader of a lightning
+strike, and no two runs match.
+
+`finish(done)` ends the wait on a clear success: the nearest explorer is
+carried to the target and its route strikes (260ms), surges with two
+jittered ghosts and two white sparks a frame, runs from violet white to
+green over 450ms while a ring opens out of the target, and fades by 1500ms.
+`.holosearch` is the band around the canvas, with `.is-on` (open) and
+`.is-done` (the green pulse, in step with the surge).
+
+It is a picture of searching, not a progress display: nothing on the canvas
+comes from the request. Deviations: the function returns its own controls
+instead of writing onto a caller's record, `stop()` is new, and the band
+leaves its bleed margin to the caller, all written in the file headers.
+
 ## Tokens
 
 Set these on `:root` in `hologram.css`. Space separated RGB so they compose with

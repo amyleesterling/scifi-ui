@@ -15,6 +15,7 @@
 <link rel="stylesheet" href="scan-pass.css">
 <link rel="stylesheet" href="converge-swarm.css">
 <link rel="stylesheet" href="spark-zip.css">
+<link rel="stylesheet" href="path-search.css">
 
 <style>
   /* Page chrome only. Nothing here is part of any component: the five
@@ -166,6 +167,15 @@
   @media (prefers-reduced-motion: reduce) {
     .holoconverge-chip, .holoconverge-hint { transition: none; }
   }
+
+  /* path search demo: a stand-in for the panel whose foot the band lives in */
+  .pathsearch-box { width: 320px; max-width: 100%; border-radius: 12px; overflow: hidden;
+    background: rgba(6, 10, 20, 0.95); border: 1px solid rgba(61, 255, 154, 0.35);
+    box-shadow: 0 6px 28px rgba(0, 0, 0, 0.55), 0 0 18px rgba(61, 255, 154, 0.1); }
+  .pathsearch-box-body { display: flex; align-items: baseline; gap: 10px; padding: 12px 14px; }
+  .pathsearch-box-title { font: 600 12px 'Orbitron', system-ui, sans-serif; letter-spacing: 0.1em;
+    text-transform: uppercase; color: #9dffc9; }
+  .pathsearch-box-foot { margin-left: auto; font: 11px system-ui, sans-serif; color: rgba(200, 212, 228, 0.62); }
 </style>
 </head>
 <body>
@@ -568,6 +578,60 @@
     </p>
   </section>
 
+  <section id="demo-pathsearch">
+    <p class="eyebrow">Nine</p>
+    <h2>Path search</h2>
+    <p class="note">
+      The wait while EyeWire II traces a path through a neuron between two
+      points. Seven explorers leave the green dot and wander toward the pink
+      one, each on its own random walk, leaving trails that fade. When the
+      wait ends, the one nearest the target is carried home and its route
+      surges: it runs hot, throws sparks, turns green, and the target answers
+      with a ring.
+    </p>
+    <p class="row">
+      <button class="demo-btn demo-btn--hero" id="pathsearch-go" type="button">Trace a path</button>
+      <button class="demo-btn" id="pathsearch-finish" type="button" disabled>Finish now</button>
+    </p>
+    <div class="pathsearch-box" id="pathsearch-box">
+      <div class="pathsearch-box-body">
+        <span class="pathsearch-box-title">Highlight</span>
+        <span class="pathsearch-box-foot" id="pathsearch-foot">No point placed yet.</span>
+      </div>
+      <div class="holosearch" id="pathsearch-band">
+        <canvas id="pathsearch-canvas"></canvas>
+        <span class="holosearch-label" id="pathsearch-label" aria-live="polite"></span>
+      </div>
+    </div>
+    <p class="note">
+      <b>It is the stepped leader of a lightning strike.</b> Each explorer
+      takes a 1.25 pixel step every frame. Its heading is pulled 8 percent of
+      the way toward the target and then knocked by a random turn, so it
+      mostly makes progress and never goes straight. The canvas is never
+      wiped: each frame erases 9 percent of what is there, which is why the
+      trails linger. While it waits it loops: the first explorer to arrive has
+      its own wandered route redrawn as one bright line, and the search begins
+      again. No two runs draw the same thing.
+    </p>
+    <p class="note">
+      <b>A wait that ends should say so.</b> Before the finish existed the
+      loader simply closed, and a finished trace looked the same as a failed
+      one. The finish is one 1.5 second sequence: the strike (260ms), the
+      surge with its flicker and sparks, the turn from violet to green, the
+      ring, and the fade. The band pulses once in step with it and its words
+      change, so the success reads without the motion too.
+    </p>
+    <p class="note">
+      <b>It does not show progress.</b> Nothing on the canvas comes from the
+      request it stands in for. It is a picture of searching, with a counter
+      beside it for the real elapsed time. Ported from
+      <code>startLoader</code> in <code>find_path_status.ts</code> and the
+      foot of <code>HighlightModePanel.vue</code>, every number as shipped.
+      With reduced motion on, the dots sit still and the words carry the
+      state.
+    </p>
+  </section>
+
   <footer>
     <p class="credit">Created by Amy Sterling
       <a href="https://x.com/amyneurons" rel="me noopener">@amyneurons</a></p>
@@ -852,5 +916,52 @@
   })();
 </script>
 
+<script src="path-search.js"></script>
+<script>
+  /* Demo wiring for the path search. "Trace a path" opens the band and runs
+     the search for a few seconds (a stand-in for the server), then finishes
+     it the way the app does: the surge on the canvas, the band's .is-done,
+     and the words. "Finish now" ends the wait early. */
+  (function () {
+    var go = document.getElementById('pathsearch-go');
+    var fin = document.getElementById('pathsearch-finish');
+    var band = document.getElementById('pathsearch-band');
+    var cv = document.getElementById('pathsearch-canvas');
+    var label = document.getElementById('pathsearch-label');
+    var foot = document.getElementById('pathsearch-foot');
+    if (!go || !window.holoPathSearch) return;
+    var search = null, tick = 0, auto = 0;
+    function finish() {
+      if (!search) return;
+      clearInterval(tick); clearTimeout(auto);
+      fin.disabled = true;
+      var points = 30 + Math.floor(Math.random() * 60);
+      band.classList.add('is-done');
+      label.textContent = 'Highlight complete';   /* the count lands in the footer: the band has no room for both */
+      var s = search; search = null;
+      s.finish(function () {
+        band.classList.remove('is-on', 'is-done');
+        label.textContent = '';
+        foot.textContent = 'Highlight complete, ' + points + ' points';
+        go.disabled = false;
+      });
+    }
+    go.addEventListener('click', function () {
+      if (search) return;
+      go.disabled = true; fin.disabled = false;
+      foot.textContent = '';
+      band.classList.remove('is-done');
+      band.classList.add('is-on');
+      var t0 = Date.now();
+      label.innerHTML = 'Tracing path <b>0s</b>';
+      tick = setInterval(function () {
+        label.innerHTML = 'Tracing path <b>' + Math.round((Date.now() - t0) / 1000) + 's</b>';
+      }, 1000);
+      search = holoPathSearch(cv, { width: 136, height: 26 });
+      auto = setTimeout(finish, 3200 + Math.random() * 2200);
+    });
+    fin.addEventListener('click', finish);
+  })();
+</script>
 </body>
 </html>
