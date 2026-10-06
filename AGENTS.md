@@ -1,4 +1,4 @@
-# AGENTS.md, version 23
+# AGENTS.md, version 24
 
 Durable working knowledge for any agent contributing to **scifi-ui**. Read this
 before writing a line. It exists because the same lessons were being relearned
@@ -985,3 +985,27 @@ Lessons worth keeping:
   animation never started. A standalone render of the icon could not show
   it; only a click in the running app did. State that drives an animation
   on a rendered element belongs in the element's own class binding.
+
+**Version 24**, 6 October 2026. The growing neuron, `components/growing-neuron.*`,
+from ng-extend's `GrowingNeuron.vue`: the wait in the "Sending your report"
+box, a cell that grows one part for each finished step and lights up when the
+report arrives. Lessons worth keeping:
+
+- **If the work has real steps, let the picture be the progress.** The path
+  search is honest about being a picture of searching. This one can do
+  better because the submit has three steps the app already knows about, so
+  the dendrites, the axon and the terminals each stand for one. Ask what the
+  code already knows before drawing a wait that knows nothing.
+- **Creep inside a step, and never arrive.** Growth tied only to finished
+  steps sits still during a slow one and looks hung. Easing toward 80
+  percent of the running step on an exponential keeps it moving and leaves
+  room for the real step to land. A wait that reaches its mark before the
+  work does has lied.
+- **One seed, handed to both halves.** In the app the waiting view and the
+  success view are two separate component instances, so without a shared
+  seed the cell that lights up would not be the cell that grew. The parent
+  picks a seed when the submit starts and gives it to both. Anything generated that must survive a
+  change of view needs its seed held above the views.
+- **Give an ending a backstop.** `arrive(done)` calls back from the frame
+  loop, and a hidden tab delivers no frames, so the caller's ending would
+  wait forever. A 4s timeout draws the finished cell and calls back anyway.

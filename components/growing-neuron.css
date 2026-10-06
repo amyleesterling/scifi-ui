@@ -1,0 +1,17 @@
+/* ---- growing neuron (.hologrow) -------------------------------------------
+   The canvas a growing neuron is drawn on, from EyeWire II's "Sending your
+   report" box (ng-extend, src/components/GrowingNeuron.vue:
+   .nge-growing-neuron). The drawing is done by growing-neuron.js.
+
+     <canvas class="hologrow" aria-hidden="true"></canvas>
+
+   The field is 360 by 100 and scales with the canvas's width, so the only
+   layout the canvas needs is a width and that ratio. It is decoration: the
+   words beside it carry the state, which is why it is hidden from assistive
+   technology and why reduced motion loses nothing but movement. */
+.hologrow {
+  display: block;
+  width: 100%;
+  max-width: 360px;
+  aspect-ratio: 360 / 100;
+}

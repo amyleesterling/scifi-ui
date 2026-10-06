@@ -16,6 +16,7 @@
 <link rel="stylesheet" href="converge-swarm.css">
 <link rel="stylesheet" href="spark-zip.css">
 <link rel="stylesheet" href="path-search.css">
+<link rel="stylesheet" href="growing-neuron.css">
 
 <style>
   /* Page chrome only. Nothing here is part of any component: the five
@@ -167,6 +168,25 @@
   @media (prefers-reduced-motion: reduce) {
     .holoconverge-chip, .holoconverge-hint { transition: none; }
   }
+
+  /* growing neuron demo: a stand-in for the report box the cell lives in */
+  .growdemo-box { width: 400px; max-width: 100%; box-sizing: border-box; padding: 22px 20px 18px; border-radius: 12px;
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    background: rgba(6, 10, 20, 0.95); border: 1px solid rgba(74, 150, 224, 0.36);
+    box-shadow: 0 6px 28px rgba(0, 0, 0, 0.55), 0 0 18px rgba(74, 150, 224, 0.1); }
+  .growdemo-title { font: 700 15px system-ui, sans-serif; color: #eef; }
+  .growdemo-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 7px;
+    font: 13.5px system-ui, sans-serif; color: rgba(200, 212, 228, 0.5); }
+  .growdemo-steps li { display: flex; align-items: center; gap: 10px; }
+  .growdemo-steps i { width: 16px; height: 16px; box-sizing: border-box; border-radius: 50%; flex: none;
+    border: 1.5px solid rgba(200, 212, 228, 0.3); font: 700 10px/13px system-ui, sans-serif; text-align: center;
+    font-style: normal; color: #04121f; }
+  .growdemo-steps li.is-now { color: #fff; }
+  .growdemo-steps li.is-now i { border-color: #7ee0ff; box-shadow: 0 0 8px rgba(126, 224, 255, 0.7); }
+  .growdemo-steps li.is-done { color: #9fb3cc; }
+  .growdemo-steps li.is-done i { background: #34e6a8; border-color: #34e6a8; }
+  .growdemo-idle { width: 400px; max-width: 100%; box-sizing: border-box; padding: 14px 20px; border-radius: 12px;
+    background: rgba(6, 10, 20, 0.95); border: 1px solid rgba(74, 150, 224, 0.22); }
 
   /* path search demo: a stand-in for the panel whose foot the band lives in */
   .pathsearch-box { width: 320px; max-width: 100%; border-radius: 12px; overflow: hidden;
@@ -632,6 +652,62 @@
     </p>
   </section>
 
+  <section id="demo-growingneuron">
+    <p class="eyebrow">Ten</p>
+    <h2>Growing neuron</h2>
+    <p class="note">
+      The wait while EyeWire II sends a bug report. A neuron grows from its
+      cell body as the report goes: dendrites while the view is saved, the
+      axon while the report is sent, the terminals while it is filed. When
+      it arrives the same cell lights green from the body to the tips, and
+      the boutons let go. Every report grows a different cell.
+    </p>
+    <p class="row">
+      <button class="demo-btn demo-btn--hero" id="grow-go" type="button">Send a report</button>
+      <button class="demo-btn" id="grow-slow" type="button">Send a slow one</button>
+    </p>
+    <div class="growdemo-box">
+      <canvas class="hologrow" id="grow-canvas" aria-hidden="true"></canvas>
+      <div class="growdemo-title" id="grow-title" aria-live="polite">Nothing sent yet</div>
+      <ul class="growdemo-steps" id="grow-steps">
+        <li><i></i><span>Saving your view</span></li>
+        <li><i></i><span>Sending it to the team</span></li>
+        <li><i></i><span>Filing it for triage</span></li>
+      </ul>
+    </div>
+    <p class="note">
+      <b>The growth is the progress.</b> The cell is grown one third for each
+      finished step, so what you see is what has happened. Inside the step
+      still running it creeps toward 80 percent of that step and never
+      reaches it, a bright tip marks where it is growing, and one signal runs
+      down however much axon exists. A slow step does not look stuck, and a
+      fast one is never overtaken. Try the slow one.
+    </p>
+    <p class="note">
+      <b>No two alike.</b> Each cell is built from a seeded random walk: five
+      or six dendrites that fork twice, an axon that wanders on two summed
+      sine waves, three or four terminals. The body is an uneven blob that
+      swells toward each process leaving it. The same seed always gives the
+      same cell, which is how the cell that grew during the wait is the one
+      that lights up at the end.
+    </p>
+    <p class="note">
+      <b>With no progress to report</b>, the loop mode grows a cell, holds it,
+      lets it fade, and grows another:
+    </p>
+    <div class="growdemo-idle">
+      <canvas class="hologrow" id="grow-idle" aria-hidden="true"></canvas>
+    </div>
+    <p class="note">
+      Ported from <code>GrowingNeuron.vue</code> on the eyewire-ii-community
+      branch of ng-extend, every number as shipped. The branching rules and
+      the cell body come from <i>Cells I Met Today</i>, work 009 at
+      artforagents.com. With reduced motion on, the cell is drawn at the
+      growth its steps have earned and nothing moves; the ticks and the words
+      carry the state.
+    </p>
+  </section>
+
   <footer>
     <p class="credit">Created by Amy Sterling
       <a href="https://x.com/amyneurons" rel="me noopener">@amyneurons</a></p>
@@ -961,6 +1037,48 @@
       auto = setTimeout(finish, 3200 + Math.random() * 2200);
     });
     fin.addEventListener('click', finish);
+  })();
+</script>
+
+<script src="growing-neuron.js"></script>
+<script>
+  /* Demo wiring for the growing neuron. "Send a report" walks the three
+     steps on timers (a stand-in for the server) and then arrives, the way
+     the app does. The slow one holds each step long enough to see the creep. */
+  (function () {
+    var go = document.getElementById('grow-go');
+    var slow = document.getElementById('grow-slow');
+    var cv = document.getElementById('grow-canvas');
+    var title = document.getElementById('grow-title');
+    var steps = document.querySelectorAll('#grow-steps li');
+    var idle = document.getElementById('grow-idle');
+    if (!go || !window.holoGrowingNeuron) return;
+    holoGrowingNeuron(idle, { loop: true });
+    var cell = null, timers = [];
+    function mark(n) {
+      for (var i = 0; i < steps.length; i++) {
+        steps[i].className = i < n ? 'is-done' : i === n ? 'is-now' : '';
+        steps[i].querySelector('i').textContent = i < n ? '\u2713' : '';
+      }
+    }
+    function run(ms) {
+      timers.forEach(clearTimeout); timers = [];
+      if (cell) cell.stop();
+      go.disabled = slow.disabled = true;
+      title.textContent = 'Sending your report';
+      mark(0);
+      cell = holoGrowingNeuron(cv, { stages: 3 });
+      [1, 2].forEach(function (n) {
+        timers.push(setTimeout(function () { cell.setStage(n); mark(n); }, ms * n));
+      });
+      timers.push(setTimeout(function () {
+        mark(3);
+        title.textContent = 'Your report reached the team';
+        cell.arrive(function () { go.disabled = slow.disabled = false; });
+      }, ms * 3));
+    }
+    go.addEventListener('click', function () { run(900 + Math.random() * 500); });
+    slow.addEventListener('click', function () { run(5200); });
   })();
 </script>
 </body>

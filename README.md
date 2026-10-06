@@ -718,6 +718,36 @@ comes from the request. Deviations: the function returns its own controls
 instead of writing onto a caller's record, `stop()` is new, and the band
 leaves its bleed margin to the caller, all written in the file headers.
 
+### 16. Growing neuron (`components/growing-neuron.*`)
+
+The wait in EyeWire II's "Sending your report" box, ported from
+`src/components/GrowingNeuron.vue` on the eyewire-ii-community branch of
+ng-extend. `holoGrowingNeuron(canvas, { stages, seed, loop })` returns
+`{ setStage(n), arrive(done), stop() }`.
+
+A neuron lies on its side on a 360 by 100 field and grows from its cell body:
+five or six dendrites that fork twice (the first 30 percent of the growth), an
+axon that wanders to the right on two summed sine waves (30 to 74 percent),
+and three or four terminals that each end in a bouton (74 to 100). The cell
+is built from a seeded random walk, so no two are alike and the same seed
+always gives the same cell.
+
+It shows real progress. The cell is grown one part in `stages` for each
+finished stage, and inside the stage still running it creeps toward 80
+percent of that stage on `0.8 * (1 - e^(-t / 2.5s))`. A bright tip marks
+where it is growing and one signal runs down however much axon exists, once
+every 1.1s.
+
+`arrive(done)` lights the cell once: green runs from the body to the
+terminals over 600ms, then each bouton fills, pops and lets go two rings,
+90ms apart. After 2.6s nothing moves and `done` is called. `loop: true` is
+for waits with no progress to report: 2.6s to grow, 0.9s held, 0.5s to fade,
+then a new cell.
+
+Deviations: the source is a Vue component driven by props; here the same
+state arrives through `setStage()` and `arrive()`, `arrive()` takes a
+callback, and `stop()` is new. The drawing is unchanged.
+
 ## Tokens
 
 Set these on `:root` in `hologram.css`. Space separated RGB so they compose with
