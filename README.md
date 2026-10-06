@@ -748,6 +748,29 @@ Deviations: the source is a Vue component driven by props; here the same
 state arrives through `setStage()` and `arrive()`, `arrive()` takes a
 callback, and `stop()` is new. The drawing is unchanged.
 
+### 17. Growing cell (`components/growing-cell.*`)
+
+The wait in EyeWire II's screenshot dialog, ported from
+`src/components/GrowingCell.vue` on the eyewire-ii-community branch of
+ng-extend. `holoGrowingCell(canvas, { label, kinds, once })` returns
+`{ regrow(), stop() }`.
+
+One cell at a time on a square canvas: 2400ms to grow from the body outward,
+1300ms held, 500ms to fade, then the next kind. The seven kinds are the cells
+of EyeWire II's dataset tours (stellate, pyramidal, astrocyte, microglia,
+starburst amacrine, bipolar, Muller glia), each a small set of branching
+rules. The order is shuffled on each start and every cell is built from a
+fresh seed. `label` is an element that receives the name of the cell being
+grown.
+
+It is a picture of waiting, not a progress display. For a wait whose steps
+are known, use the growing neuron.
+
+Deviations: the source renders its own caption; here the caller passes the
+element. `stop()`, `regrow()`, `kinds` (cycle through only these) and `once`
+(grow one, hold, stop) are new, the last two so the demo can show all seven
+without seven loops running. The drawing is unchanged.
+
 ## Tokens
 
 Set these on `:root` in `hologram.css`. Space separated RGB so they compose with

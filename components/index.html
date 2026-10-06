@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="spark-zip.css">
 <link rel="stylesheet" href="path-search.css">
 <link rel="stylesheet" href="growing-neuron.css">
+<link rel="stylesheet" href="growing-cell.css">
 
 <style>
   /* Page chrome only. Nothing here is part of any component: the five
@@ -168,6 +169,17 @@
   @media (prefers-reduced-motion: reduce) {
     .holoconverge-chip, .holoconverge-hint { transition: none; }
   }
+
+  /* growing cell demo: a stand-in for the screenshot preview it waits over,
+     and a wall of the seven kinds */
+  .celldemo-wait { width: 400px; max-width: 100%; box-sizing: border-box; padding: 26px 20px 22px; border-radius: 12px;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    background: rgba(2, 8, 18, 0.95); border: 1px solid rgba(74, 150, 224, 0.36);
+    box-shadow: 0 6px 28px rgba(0, 0, 0, 0.55), 0 0 18px rgba(74, 150, 224, 0.1); }
+  .celldemo-wait b { font: 600 12px system-ui, sans-serif; letter-spacing: 0.18em; text-transform: uppercase; color: #7fd6ff; }
+  .celldemo-wall { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 12px; max-width: 760px; }
+  .celldemo-wall .holocell { padding: 12px 8px 10px; border-radius: 10px; box-sizing: border-box; width: 100%;
+    background: rgba(2, 8, 18, 0.95); border: 1px solid rgba(74, 150, 224, 0.22); }
 
   /* growing neuron demo: a stand-in for the report box the cell lives in */
   .growdemo-box { width: 400px; max-width: 100%; box-sizing: border-box; padding: 22px 20px 18px; border-radius: 12px;
@@ -708,6 +720,57 @@
     </p>
   </section>
 
+  <section id="demo-growingcell">
+    <p class="eyebrow">Eleven</p>
+    <h2>Growing cell</h2>
+    <p class="note">
+      The wait while EyeWire II uploads a screenshot, the longest wait in the
+      app. One cell grows from its body, is named, holds, and fades, and then
+      another kind grows. A short wait shows one cell. A long one becomes a
+      small tour.
+    </p>
+    <div class="celldemo-wait">
+      <span class="holocell" style="--holocell-size: 150px" aria-hidden="true">
+        <canvas id="cell-wait"></canvas>
+        <span class="holocell-name" id="cell-wait-name"></span>
+      </span>
+      <b>Uploading</b>
+    </div>
+    <p class="note">
+      <b>The seven kinds.</b> These are the cells from EyeWire II's dataset
+      tours, four from the medial entorhinal cortex and three from the
+      retina. Each is one small set of branching rules, and each growth is
+      different.
+    </p>
+    <p class="row">
+      <button class="demo-btn demo-btn--hero" id="cell-regrow" type="button">Grow them again</button>
+    </p>
+    <div class="celldemo-wall" id="cell-wall"></div>
+    <p class="note">
+      <b>What the rules are.</b> How many processes leave the body and at what
+      angles, how far they run, how much they wander, how often and how
+      widely they fork, how quickly they shorten, and whether they throw side
+      twigs. A stellate cell is six thick branches that fork three times. A
+      starburst is five thin ones that fork four times with almost no wander,
+      which is what makes it a disc. An astrocyte is eight short ones that
+      wander hard and twig constantly. A bipolar cell and a M&uuml;ller cell
+      are a single line with a pull toward vertical. The body swells toward
+      each process that leaves it, so the pyramidal one comes out pointed
+      without being told to.
+    </p>
+    <p class="note">
+      <b>It does not show progress.</b> Nothing here comes from the upload it
+      stands in for; the growing neuron above is the one that does. The name
+      under the cell is a caption, and the wait's own word stays beside it.
+      Ported from <code>GrowingCell.vue</code> on the eyewire-ii-community
+      branch of ng-extend, every number as shipped; the rules and colours
+      come from <i>Cells I Met Today</i>, work 009 at artforagents.com. The
+      wall uses two options the source does not have, <code>kinds</code> and
+      <code>once</code>, so seven loops are not left running. With reduced
+      motion on, each frame holds one finished cell.
+    </p>
+  </section>
+
   <footer>
     <p class="credit">Created by Amy Sterling
       <a href="https://x.com/amyneurons" rel="me noopener">@amyneurons</a></p>
@@ -1079,6 +1142,31 @@
     }
     go.addEventListener('click', function () { run(900 + Math.random() * 500); });
     slow.addEventListener('click', function () { run(5200); });
+  })();
+</script>
+
+<script src="growing-cell.js"></script>
+<script>
+  /* Demo wiring for the growing cell: the cycling wait, and a wall with one
+     canvas for each kind, grown once and held until asked again. */
+  (function () {
+    var wait = document.getElementById('cell-wait');
+    var wall = document.getElementById('cell-wall');
+    var again = document.getElementById('cell-regrow');
+    if (!wait || !window.holoGrowingCell) return;
+    holoGrowingCell(wait, { label: document.getElementById('cell-wait-name') });
+    var cells = holoGrowingCell.kinds.map(function (kind) {
+      var frame = document.createElement('span');
+      frame.className = 'holocell';
+      frame.setAttribute('role', 'img');
+      frame.setAttribute('aria-label', 'A ' + kind + ' cell, sketched');
+      var cv = document.createElement('canvas'), name = document.createElement('span');
+      name.className = 'holocell-name';
+      frame.appendChild(cv); frame.appendChild(name);
+      wall.appendChild(frame);
+      return holoGrowingCell(cv, { kinds: [kind], once: true, label: name });
+    });
+    again.addEventListener('click', function () { cells.forEach(function (c) { c.regrow(); }); });
   })();
 </script>
 </body>

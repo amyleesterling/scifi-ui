@@ -1,4 +1,4 @@
-# AGENTS.md, version 24
+# AGENTS.md, version 25
 
 Durable working knowledge for any agent contributing to **scifi-ui**. Read this
 before writing a line. It exists because the same lessons were being relearned
@@ -1009,3 +1009,22 @@ report arrives. Lessons worth keeping:
 - **Give an ending a backstop.** `arrive(done)` calls back from the frame
   loop, and a hidden tab delivers no frames, so the caller's ending would
   wait forever. A 4s timeout draws the finished cell and calls back anyway.
+
+**Version 25**, 6 October 2026. The growing cell, `components/growing-cell.*`,
+from ng-extend's `GrowingCell.vue`: the screenshot upload wait, one cell at a
+time through seven kinds. Lessons worth keeping:
+
+- **Two waits, two components.** The growing neuron shows steps the app
+  knows about. The screenshot upload has none, so it gets a different
+  component that is honest about being a picture. Do not bend one loader to
+  both jobs: a progress display with nothing to measure has to invent its
+  progress.
+- **A long wait can teach.** A spinner tells the user only that time is
+  passing. This wait names what it draws, so thirty seconds of upload is
+  also a look at seven kinds of cell. If a wait is going to be long, ask
+  what the user could be shown that belongs to the place they are in.
+- **A wall of examples must not be a wall of loops.** Seven canvases each
+  on an endless cycle is seven status lights. The demo's wall grows each
+  cell once and holds it, with a button to grow them again, which is why
+  `once` and `regrow()` exist. Options added for a demo are still
+  deviations: write them in the header.

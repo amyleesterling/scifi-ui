@@ -1,0 +1,31 @@
+/* ---- growing cell (.holocell) ---------------------------------------------
+   The frame a growing cell sits in, with its name caption, from EyeWire II's
+   screenshot dialog (ng-extend, src/components/GrowingCell.vue:
+   .nge-growing-cell, .nge-growing-cell-name). The drawing is done by
+   growing-cell.js.
+
+     <span class="holocell" aria-hidden="true">
+       <canvas></canvas>
+       <span class="holocell-name"></span>
+     </span>
+
+   --holocell-size sets the square's side: 110px in the source's default,
+   150px where it shipped. The caption keeps a line of height while it is
+   empty so the frame does not jump when the first name arrives. */
+.holocell {
+  display: inline-flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.holocell canvas {
+  display: block;
+  width: var(--holocell-size, 110px);
+  height: var(--holocell-size, 110px);
+}
+.holocell-name {
+  min-height: 1.2em;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(196, 228, 255, 0.6);
+  white-space: nowrap;
+}
