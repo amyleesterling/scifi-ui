@@ -19,6 +19,7 @@
 <link rel="stylesheet" href="growing-neuron.css">
 <link rel="stylesheet" href="growing-cell.css">
 <link rel="stylesheet" href="seal.css">
+<link rel="stylesheet" href="transmission.css">
 
 <style>
   /* Page chrome only. Nothing here is part of any component: the five
@@ -191,6 +192,10 @@
     color: #34e6a8; animation: holoseal-rise 0.4s ease-out 1.2s both; }
   .sealdemo-text { font: 700 15px system-ui, sans-serif; color: #f0f6ff; animation: holoseal-rise 0.4s ease-out 1.3s both; }
   .sealdemo-sizes { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
+
+  /* transmission demo: the box at the width the Starship intro uses */
+  .transdemo { width: min(620px, 100%); }
+  .transdemo-plates { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; }
 
   /* growing neuron demo: a stand-in for the report box the cell lives in */
   .growdemo-box { width: 400px; max-width: 100%; box-sizing: border-box; padding: 22px 20px 18px; border-radius: 12px;
@@ -825,6 +830,44 @@
     </p>
   </section>
 
+  <section id="demo-transmission">
+    <p class="eyebrow">Thirteen</p>
+    <h2>The transmission box and the plate button</h2>
+    <p class="note">
+      The box EyeWire II's Starship intro talks to a new player in, and the
+      button that moves them on. The box resolves out of a blur, a light
+      runs its border once, HUD brackets snap in from outside and a scan
+      line passes down the glass. The button is a cut corner plate, blue
+      into violet, with a light band that sweeps across it now and then.
+    </p>
+    <p class="row">
+      <button class="demo-btn demo-btn--hero" id="trans-again" type="button">Receive it again</button>
+    </p>
+    <div class="holotransmit transdemo" id="trans-box">
+      <div class="holotransmit-bg"></div><div class="holotransmit-ring"></div><div class="holotransmit-scan"></div>
+      <i class="holotransmit-corner tr"></i><i class="holotransmit-corner bl"></i>
+      <i class="holotransmit-corner tl"></i><i class="holotransmit-corner br"></i>
+      <div class="holotransmit-head"><span class="holotransmit-dot"></span>Transmission received</div>
+      <div class="holotransmit-title">This is a neuron</div>
+      <p class="holotransmit-body">A single brain cell, rebuilt in 3D from an electron microscope. Its branches reach out to talk to other cells.</p>
+      <div class="holotransmit-row">
+        <span></span>
+        <button class="holoplate" type="button"><span class="holoplate-face"><i class="holoplate-tick a"></i><i class="holoplate-tick b"></i>Next<span class="holoplate-chev"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M4.5 2.5 8 6l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span></button>
+      </div>
+    </div>
+    <p class="note"><b>The button alone.</b> The plate works on any dark page; Pyr's Play card uses it for Start Playing.</p>
+    <div class="transdemo-plates">
+      <button class="holoplate" type="button"><span class="holoplate-face"><i class="holoplate-tick a"></i><i class="holoplate-tick b"></i>Start playing<span class="holoplate-chev"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M4.5 2.5 8 6l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span></button>
+      <button class="holoplate" type="button"><span class="holoplate-face"><i class="holoplate-tick a"></i><i class="holoplate-tick b"></i>Launch</span></button>
+    </div>
+    <p class="note">
+      Ported from <code>intro_tour.ts</code> on the eyewire-ii-community
+      branch of ng-extend, every number as shipped. Only the light band and
+      the chevron's nudge loop; the rest runs once. With reduced motion on,
+      the box appears finished and the band stays still.
+    </p>
+  </section>
+
   <footer>
     <p class="credit">Created by Amy Sterling
       <a href="https://x.com/amyneurons" rel="me noopener">@amyneurons</a></p>
@@ -1224,6 +1267,17 @@
   })();
 </script>
 <script src="seal.js"></script>
+<script>
+  /* Demo wiring for the transmission box: a fresh copy plays the arrival again. */
+  (function () {
+    var again = document.getElementById('trans-again');
+    if (!again) return;
+    again.addEventListener('click', function () {
+      var box = document.getElementById('trans-box');
+      box.replaceWith(box.cloneNode(true));
+    });
+  })();
+</script>
 <script>
   /* Demo wiring for the seal: replay swaps in a fresh copy of the box, so
      the seal and the words that wait for it start over together. */

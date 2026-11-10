@@ -793,6 +793,28 @@ Deviations: the source's `margin: 2px 0 4px` is left to the caller, the
 ripple inset is written as a fraction of the size so it scales, and the
 builder and replay are new. The drawing and every timing are unchanged.
 
+### 19. The transmission box and the plate button (`components/transmission.css`)
+
+The box EyeWire II's Starship intro speaks to a new player in ("transmission
+received"), and its plate button, which Pyr's Play card also uses for Start
+Playing. Ported from `src/util/intro_tour.ts` (`.nge-intro`, `.nge-intro-plate-bg`,
+`.nge-intro-ring`, `.nge-intro-corner`, `.nge-intro-scan`, `.nge-intro-next`,
+`.nge-intro-plate`) on the eyewire-ii-community branch of ng-extend. Pure CSS.
+
+`.holotransmit` arrives over 900ms out of an 8px blur, squashed to 4 percent
+height and twice as bright; a conic light runs its 18px cut corner border once
+over 1.5s from 250ms; the two outer brackets snap in from 14px away and the two
+inner ticks from 10px at 450ms; a scan line passes down it over 800ms from
+350ms. `.holoplate` is a 12px cut corner plate, blue (74 150 224) into violet
+(138 96 230) on the diagonal, with a hairline frame, two corner ticks and a
+light band that crosses it every 3.4s.
+
+Deviations: the source places the box fixed at the bottom of the screen and
+swaps it in and out with `--in` and `--out` classes; here the box sits where you
+put it and arrives on its own, and the leave animation, the circuit board
+traces and the branching frame (built by script from the box's size) are left
+out. Hover also answers to `.holo-on`. Every number is unchanged.
+
 ## Tokens
 
 Set these on `:root` in `hologram.css`. Space separated RGB so they compose with

@@ -1,0 +1,121 @@
+/* The transmission box and the plate button, from EyeWire II's Starship
+   intro (the "transmission received" panel that walks a new player through
+   their first cell) and its Play card. Ported from src/util/intro_tour.ts
+   (.nge-intro, .nge-intro-plate-bg, .nge-intro-ring, .nge-intro-corner,
+   .nge-intro-scan, .nge-intro-next, .nge-intro-plate) on the
+   eyewire-ii-community branch of ng-extend, every number as shipped.
+
+   .holotransmit   the box: a glass plate with cut corners, fine scan lines,
+                   a light that runs the border once, HUD brackets that snap
+                   in from outside, and a scan line that passes down it.
+   .holoplate      the button: blue into violet on the diagonal, cut
+                   corners, two corner ticks, a hairline frame and a light
+                   band that sweeps across it.
+
+   Markup (pure CSS, no script):
+     <div class="holotransmit">
+       <div class="holotransmit-bg"></div><div class="holotransmit-ring"></div>
+       <div class="holotransmit-scan"></div>
+       <i class="holotransmit-corner tr"></i><i class="holotransmit-corner bl"></i>
+       <i class="holotransmit-corner tl"></i><i class="holotransmit-corner br"></i>
+       ...your content...
+     </div>
+     <button class="holoplate"><span class="holoplate-face">
+       <i class="holoplate-tick a"></i><i class="holoplate-tick b"></i>Start playing
+       <span class="holoplate-chev">›</span></span></button>                        */
+
+@property --holotransmit-ring { syntax: '<angle>'; inherits: false; initial-value: 45deg; }
+
+.holotransmit {
+  position: relative; isolation: isolate; box-sizing: border-box;
+  padding: 16px 20px 16px;
+  color: #e6f3ff; font: 16.5px/1.5 'Inter', 'Roboto', system-ui, sans-serif;
+  animation: holotransmit-in 900ms cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes holotransmit-in {
+  0% { opacity: 0; transform: translate(0, 18px) scaleY(0.04); filter: blur(8px) brightness(2.2) drop-shadow(0 0 0 rgba(80, 180, 255, 0)); }
+  35% { opacity: 1; transform: translate(0, 6px) scaleY(1.02); filter: blur(3px) brightness(1.6) drop-shadow(0 0 30px rgba(80, 180, 255, 0.6)); }
+  100% { opacity: 1; transform: translate(0, 0) scaleY(1); filter: blur(0) brightness(1) drop-shadow(0 0 18px rgba(80, 180, 255, 0.28)); }
+}
+
+/* the plate */
+.holotransmit-bg { position: absolute; inset: 0; z-index: -2; pointer-events: none;
+  clip-path: polygon(18px 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%, 0 18px);
+  background: linear-gradient(160deg, rgba(14, 34, 66, 0.93), rgba(6, 12, 28, 0.95) 60%, rgba(22, 14, 48, 0.94));
+  box-shadow: inset 0 0 40px rgba(80, 180, 255, 0.10); }
+/* fine scan lines across the glass */
+.holotransmit-bg::after { content: ''; position: absolute; inset: 0; opacity: 0.35;
+  background: repeating-linear-gradient(0deg, rgba(126, 224, 255, 0.05) 0 1px, transparent 1px 3px); }
+
+/* the light that runs the border once as it arrives */
+.holotransmit-ring { position: absolute; inset: 0; z-index: -1; pointer-events: none; padding: 1.5px; opacity: 0;
+  clip-path: polygon(18px 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%, 0 18px);
+  background: conic-gradient(from var(--holotransmit-ring), #c9f6ff 0deg, rgba(126, 224, 255, 0.5) 16deg, transparent 34deg, transparent 180deg,
+    #c9f6ff 180deg, rgba(126, 224, 255, 0.5) 196deg, transparent 214deg, transparent 360deg);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude;
+  animation: holotransmit-ring 1500ms linear 250ms forwards; }
+@keyframes holotransmit-ring { 0% { --holotransmit-ring: 45deg; opacity: 1; } 60% { opacity: 1; } 100% { --holotransmit-ring: 405deg; opacity: 0; } }
+
+/* HUD brackets that snap in from outside */
+.holotransmit-corner { position: absolute; width: 14px; height: 14px; border: 2px solid #7ee0ff; pointer-events: none;
+  filter: drop-shadow(0 0 4px #7ee0ff);
+  animation: holotransmit-corner 600ms cubic-bezier(.2,1.4,.4,1) 450ms both; }
+.holotransmit-corner.tr { top: -5px; right: -5px; border-left: 0; border-bottom: 0; --dx: 14px; --dy: -14px; }
+.holotransmit-corner.bl { bottom: -5px; left: -5px; border-right: 0; border-top: 0; --dx: -14px; --dy: 14px; }
+.holotransmit-corner.tl { top: 6px; left: 6px; width: 8px; height: 8px; border-width: 1px; border-right: 0; border-bottom: 0; --dx: -10px; --dy: -10px; }
+.holotransmit-corner.br { bottom: 6px; right: 6px; width: 8px; height: 8px; border-width: 1px; border-left: 0; border-top: 0; --dx: 10px; --dy: 10px; }
+@keyframes holotransmit-corner { from { opacity: 0; transform: translate(var(--dx, 0), var(--dy, 0)); } to { opacity: 1; transform: none; } }
+
+/* a scan line passes down the box as it arrives */
+.holotransmit-scan { position: absolute; left: 0; right: 0; top: 0; height: 2px; pointer-events: none; opacity: 0;
+  background: linear-gradient(90deg, transparent, #c9f6ff 20%, #c9f6ff 80%, transparent); box-shadow: 0 0 12px #7ee0ff;
+  animation: holotransmit-scan 800ms ease-in-out 350ms both; }
+@keyframes holotransmit-scan { 0% { top: 0; opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+
+/* the words */
+.holotransmit-head { display: flex; align-items: center; gap: 8px; font: 600 11px 'Orbitron', 'Inter', sans-serif;
+  letter-spacing: 0.22em; color: #7ecaff; text-transform: uppercase; }
+.holotransmit-dot { width: 8px; height: 8px; border-radius: 50%; background: #7ecaff; box-shadow: 0 0 8px #7ecaff; }
+.holotransmit-title { margin: 8px 0 4px; font: 700 24px 'Orbitron', 'Inter', sans-serif; letter-spacing: 0.04em;
+  color: #fff; text-shadow: 0 0 14px rgba(126, 210, 255, 0.55); }
+.holotransmit-body { margin: 0; color: #d6e8fb; }
+.holotransmit-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 10px; flex-wrap: wrap; }
+
+/* The plate button */
+.holoplate { position: relative; border: 0; padding: 0; background: none; cursor: pointer; color: inherit;
+  filter: drop-shadow(0 0 10px rgba(74, 150, 224, 0.45)); transition: filter 0.25s, transform 0.2s; }
+.holoplate:hover, .holoplate.holo-on { filter: drop-shadow(0 0 18px rgba(126, 224, 255, 0.75)); transform: translateY(-1px); }
+.holoplate:active { transform: translateY(0) scale(0.98); }
+.holoplate:focus-visible { outline: 2px solid #7ecaff; outline-offset: 3px; }
+.holoplate-face { position: relative; overflow: hidden; display: inline-flex; align-items: center; gap: 12px; padding: 12px 22px 12px 24px;
+  clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+  background: linear-gradient(135deg, rgba(74, 150, 224, 0.55) 0%, rgba(74, 150, 224, 0.62) 45%, rgba(138, 96, 230, 0.55) 100%);
+  color: #eaf7ff; font: 700 13px 'Orbitron', 'Inter', sans-serif; letter-spacing: 0.16em; text-transform: uppercase; white-space: nowrap;
+  text-shadow: 0 0 8px rgba(126, 224, 255, 0.8); transition: background 0.3s; }
+.holoplate:hover .holoplate-face, .holoplate.holo-on .holoplate-face {
+  background: linear-gradient(135deg, rgba(90, 170, 240, 0.72) 0%, rgba(90, 170, 240, 0.78) 45%, rgba(150, 110, 240, 0.7) 100%); }
+/* the hairline frame */
+.holoplate-face::before { content: ''; position: absolute; inset: 0; padding: 1px; clip-path: inherit;
+  background: linear-gradient(135deg, #bff3ff, rgba(126, 224, 255, 0.35) 40%, rgba(180, 150, 255, 0.8));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; }
+/* the light band: ambient, so it loops (AGENTS.md section 3) */
+.holoplate-face::after { content: ''; position: absolute; top: 0; bottom: 0; left: -70%; width: 50%; pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(201, 246, 255, 0.55), transparent); transform: skewX(-20deg);
+  animation: holoplate-shine 3.4s ease-in-out infinite; }
+@keyframes holoplate-shine { 0%, 50% { left: -70%; } 100% { left: 140%; } }
+.holoplate-tick { position: absolute; width: 6px; height: 6px; border: 1px solid #c9f6ff; pointer-events: none; }
+.holoplate-tick.a { top: 3px; right: 3px; border-left: 0; border-bottom: 0; }
+.holoplate-tick.b { bottom: 3px; left: 3px; border-right: 0; border-top: 0; }
+.holoplate-chev { display: inline-flex; color: #c9f6ff; filter: drop-shadow(0 0 4px #7ee0ff); }
+.holoplate-chev svg { animation: holoplate-nudge 1.4s ease-in-out infinite; }
+@keyframes holoplate-nudge { 50% { transform: translateX(3px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .holotransmit, .holotransmit-corner { animation: none; }
+  .holotransmit-ring, .holotransmit-scan { display: none; }
+  .holoplate-face::after { display: none; }
+  .holoplate-chev svg { animation: none; }
+  .holoplate:hover, .holoplate.holo-on { transform: none; }
+}
